@@ -1,5 +1,7 @@
 # Compiled output
 /dist
+/backend/dist
+/frontend/dist
 /tmp
 /out-tsc
 /build

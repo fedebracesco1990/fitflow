@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mysql:
     image: mysql:8.0
@@ -10,15 +12,16 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword123}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-fit_flow_db}
       MYSQL_USER: ${MYSQL_USER:-devuser}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-devpassword}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-devpassword123}
     ports:
       - '3306:3306'
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # :ro = read-only para seguridad
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - ./docker/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
     networks:
       - app-network
@@ -32,16 +35,19 @@ services:
           'localhost',
           '-u',
           'root',
-          '-p${MYSQL_ROOT_PASSWORD:-rootpassword}',
+          '-p${MYSQL_ROOT_PASSWORD:-rootpassword123}',
         ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
 
 volumes:
   mysql_data:
     driver: local
+    name: fitflow_mysql_data
 
 networks:
   app-network:
     driver: bridge
+    name: fitflow_network

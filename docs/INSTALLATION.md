@@ -204,8 +204,17 @@ DB_LOGGING=true
 
 # Application
 NODE_ENV=development
-BACKEND_PORT=3000
+PORT=3000
 FRONTEND_URL=http://localhost:4200
+
+# JWT Configuration
+JWT_SECRET=c6768ae65bd3a9b0b1d83de3ece14815466fb5f9e9c4e40bdf81545932fee4e95a1d199246d3a392f15e82f3da1de27e8ced83ef07d5f278eeefea556c1c85eb
+JWT_ACCESS_TOKEN_EXPIRATION=900
+JWT_REFRESH_SECRET=otra-clave-secreta-diferente-para-refresh-tokens-tambien-muy-larga
+JWT_REFRESH_TOKEN_EXPIRATION=604800
+
+# CORS Configuration
+ALLOWED_ORIGINS=http://localhost:4200
 ```
 
 **⚠️ IMPORTANTE:**
@@ -432,43 +441,9 @@ EXIT;
 
 ---
 
-## 🐛 Solución de Problemas
+## 🛠 Solución de Problemas
 
-### Problema 1: "ng no se reconoce como comando"
-
-**Causa**: Angular CLI no está instalado globalmente o no está en el PATH.
-
-**Solución:**
-
-```cmd
-# Reinstalar Angular CLI
-npm uninstall -g @angular/cli
-npm cache clean --force
-npm install -g @angular/cli@20.3.7
-
-# Reiniciar terminal
-```
-
-### Problema 2: "nest no se reconoce como comando"
-
-**Solución:**
-
-```cmd
-npm install -g @nestjs/cli@11.0.10
-```
-
-### Problema 3: Error de permisos en PowerShell
-
-**Causa**: Política de ejecución de scripts restrictiva.
-
-**Solución:**
-
-```powershell
-# Ejecutar PowerShell como Administrador
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
-
-### Problema 4: Puerto 3306 ya en uso
+### Problema 1: Puerto 3306 ya en uso
 
 **Causa**: MySQL local o otro servicio usando el puerto.
 
@@ -495,42 +470,7 @@ netstat -ano | findstr :3306
 net stop MySQL80  # (o el nombre de tu servicio)
 ```
 
-### Problema 5: Husky hooks no funcionan en Windows
-
-**Causa**: Git no encuentra bash o problemas con line endings.
-
-**Solución:**
-
-```cmd
-# Verificar que Git está en el PATH
-where git
-
-# Configurar Git correctamente
-git config core.autocrlf true
-
-# Reinstalar Husky
-npm uninstall husky
-npm install --save-exact husky@9.1.7
-npm run prepare
-```
-
-### Problema 6: Error "ETARGET No matching version found"
-
-**Causa**: Versión de paquete no existe en npm.
-
-**Solución:**
-
-```cmd
-# Verificar versiones disponibles
-npm view @angular/build versions --json
-npm view @nestjs/config versions --json
-
-# Actualizar package.json con versiones correctas
-# Luego reinstalar
-npm run reinstall:all
-```
-
-### Problema 7: Error de conexión a MySQL con Docker
+### Problema 2: Error de conexión a MySQL con Docker
 
 **Solución:**
 
@@ -557,60 +497,46 @@ npm run docker:up
 
 5. Esperar más tiempo (MySQL tarda ~30 segundos en estar listo)
 
-### Problema 8: Warnings de dependencias deprecadas
+### Problema 3: "ng no se reconoce como comando"
 
-**Ejemplos:**
-
-```
-npm warn deprecated inflight@1.0.6
-npm warn deprecated rimraf@3.0.2
-npm warn deprecated glob@7.2.3
-```
-
-**Causa**: Dependencias transitivas de Angular CLI.
-
-**Solución (Opcional)**:
-
-Agregar `overrides` en `frontend/package.json`:
-
-```json
-{
-  "overrides": {
-    "glob": "10.3.10",
-    "rimraf": "5.0.5",
-    "inflight": "npm:@aashutoshrathi/inflight@1.0.1"
-  }
-}
-```
-
-⚠️ **Nota**: Estos warnings no afectan la funcionalidad. Puedes ignorarlos.
-
-### Problema 9: "Module not found" en Angular
+**Causa**: Angular CLI no está instalado globalmente o no está en el PATH.
 
 **Solución:**
 
 ```cmd
-cd frontend
-rmdir /s /q node_modules .angular
-npm install
+# Reinstalar Angular CLI
+npm uninstall -g @angular/cli
+npm cache clean --force
+npm install -g @angular/cli@20.3.7
+
+# Reiniciar terminal
 ```
 
-### Problema 10: Build falla con errores de TypeScript
+### Problema 4: "nest no se reconoce como comando"
 
 **Solución:**
 
 ```cmd
-# Limpiar cachés
-cd frontend
-rmdir /s /q .angular
-cd ..
+npm install -g @nestjs/cli@11.0.10
+```
 
-cd backend
-rmdir /s /q dist
-cd ..
+### Problema 5: Husky hooks no funcionan en Windows
 
-# Reinstalar todo
-npm run reinstall:all
+**Causa**: Git no encuentra bash o problemas con line endings.
+
+**Solución:**
+
+```cmd
+# Verificar que Git está en el PATH
+where git
+
+# Configurar Git correctamente
+git config core.autocrlf true
+
+# Reinstalar Husky
+npm uninstall husky
+npm install --save-exact husky@9.1.7
+npm run prepare
 ```
 
 ---
@@ -650,5 +576,3 @@ Si encuentras problemas no listados aquí:
 ---
 
 **¡Felicitaciones!** 🎉 Si llegaste hasta aquí sin errores, tu entorno está configurado correctamente.
-
-Siguiente paso: [Ejecutar el Proyecto](./RUNNING.md)

@@ -1,22 +1,35 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  // Configurar CORS
+  const allowedOrigins = configService.getOrThrow<string[]>('app.allowedOrigins');
+  const port = configService.getOrThrow<number>('app.port');
+  const apiPrefix = configService.getOrThrow<string>('app.apiPrefix');
+
   app.enableCors({
-    origin: configService.get('FRONTEND_URL', 'http://localhost:4200'),
+    origin: allowedOrigins,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  // Prefijo global para API
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(apiPrefix);
 
-  const port = configService.get('BACKEND_PORT', 3000);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    })
+  );
+
   await app.listen(port);
-  console.log(`Backend running on http://localhost:${port}/api`);
+  console.log(`Backend running on http://localhost:${port}/${apiPrefix}`);
+  console.log(`Environment: ${configService.get<string>('app.nodeEnv')}`);
 }
 bootstrap();

@@ -1,6 +1,14 @@
 import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
 export declare class AppController {
     private readonly appService;
-    constructor(appService: AppService);
+    private configService;
+    constructor(appService: AppService, configService: ConfigService);
     getHello(): string;
+    testConfig(): {
+        jwtSecret: string;
+        jwtExpiration: any;
+        dbHost: any;
+        nodeEnv: any;
+    };
 }

@@ -12,13 +12,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
+const config_1 = require("@nestjs/config");
 let AppController = class AppController {
     appService;
-    constructor(appService) {
+    configService;
+    constructor(appService, configService) {
         this.appService = appService;
+        this.configService = configService;
     }
     getHello() {
         return this.appService.getHello();
+    }
+    testConfig() {
+        return {
+            jwtSecret: this.configService.get('jwt.secret') ? 'Cargado' : 'No encontrado',
+            jwtExpiration: this.configService.get('jwt.accessTokenExpiration'),
+            dbHost: this.configService.get('database.host'),
+            nodeEnv: this.configService.get('app.nodeEnv'),
+        };
     }
 };
 exports.AppController = AppController;
@@ -28,8 +39,15 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
 ], AppController.prototype, "getHello", null);
+__decorate([
+    (0, common_1.Get)('config-test'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "testConfig", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
-    __metadata("design:paramtypes", [app_service_1.AppService])
+    __metadata("design:paramtypes", [app_service_1.AppService,
+        config_1.ConfigService])
 ], AppController);
 //# sourceMappingURL=app.controller.js.map

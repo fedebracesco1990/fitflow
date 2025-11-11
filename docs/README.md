@@ -44,6 +44,8 @@ fitflow/
 │   ├── eslint.config.js          # ESLint config
 │   ├── package.json
 │   └── tsconfig.json
+├── scripts/                       # Scripts de utilidad
+│   └── seed-users.js             # Crear usuarios de prueba
 ├── .env                          # Variables de entorno
 ├── .gitignore
 ├── .lintstagedrc.json            # Configuración lint-staged
@@ -52,8 +54,10 @@ fitflow/
 ├── docker-compose.yml            # Docker MySQL
 ├── package.json                  # Scripts raíz
 ├── README.md                     # Este archivo
+├── QUICK_START.md                # Inicio rápido
 ├── INSTALLATION.md               # Guía de instalación
-└── RUNNING.md                    # Guía de ejecución
+├── RUNNING.md                    # Guía de ejecución
+└── USUARIOS.md                   # Credenciales de prueba
 ```
 
 ## 🛠️ Requisitos Previos
@@ -74,11 +78,15 @@ cd fitflow
 # 2. Instalar todas las dependencias
 npm run install:all
 
-# 3. Iniciar base de datos
+# 3. Iniciar base de datos y esperar
 npm run docker:up
+npm run db:wait
 
-# 4. Iniciar aplicación completa
-npm run start:all
+# 4. Iniciar backend (en otra terminal)
+npm run start:backend
+
+# 5. Crear usuarios de prueba (en otra terminal)
+node scripts/seed-users.js
 ```
 
 Acceder a:
@@ -86,6 +94,8 @@ Acceder a:
 - **Frontend**: http://localhost:4200
 - **Backend API**: http://localhost:3000/api
 - **MySQL**: localhost:3306
+
+**Ver guía completa:** [QUICK_START.md](./QUICK_START.md)
 
 ## 📦 Stack Tecnológico
 
@@ -125,14 +135,13 @@ Acceder a:
 | MySQL          | 8.0     | Base de datos relacional |
 | Docker Compose | -       | Orquestación             |
 
-## 🎯 Scripts Disponibles
+## 🎯 Scripts Principales
 
-### Instalación y Limpieza
+### Instalación
 
 ```bash
 npm run install:all      # Instalar todas las dependencias
-npm run reinstall:all    # Limpiar y reinstalar todo
-npm run clean:all        # Limpiar node_modules
+npm run clean:all        # Limpiar node_modules y Docker
 ```
 
 ### Desarrollo
@@ -141,6 +150,7 @@ npm run clean:all        # Limpiar node_modules
 npm run start:all        # Iniciar frontend + backend
 npm run start:frontend   # Solo frontend (puerto 4200)
 npm run start:backend    # Solo backend (puerto 3000)
+npm run dev:backend      # Docker + Backend
 ```
 
 ### Build
@@ -168,13 +178,25 @@ npm run test:frontend    # Tests de frontend
 npm run test:backend     # Tests de backend
 ```
 
-### Docker
+### Docker y Base de Datos
 
 ```bash
-npm run docker:up        # Iniciar MySQL
-npm run docker:down      # Detener MySQL
-npm run docker:logs      # Ver logs de MySQL
-npm run docker:restart   # Reiniciar MySQL
+npm run docker:up          # Iniciar MySQL
+npm run docker:down        # Detener MySQL
+npm run docker:down:volumes # Detener y eliminar datos
+npm run docker:logs        # Ver logs de MySQL
+npm run docker:restart     # Reiniciar MySQL
+npm run db:wait            # Esperar MySQL (35s)
+npm run db:status          # Ver bases de datos
+npm run db:verify          # Ver usuarios creados
+npm run db:reset           # Reset completo
+```
+
+### Scripts de Desarrollo
+
+```bash
+# Crear usuarios de prueba
+node scripts/seed-users.js
 ```
 
 ## 🔐 Variables de Entorno
@@ -199,8 +221,17 @@ DB_LOGGING=true
 
 # Application
 NODE_ENV=development
-BACKEND_PORT=3000
+PORT=3000
 FRONTEND_URL=http://localhost:4200
+
+# JWT Configuration
+JWT_SECRET=c6768ae65bd3a9b0b1d83de3ece14815466fb5f9e9c4e40bdf81545932fee4e95a1d199246d3a392f15e82f3da1de27e8ced83ef07d5f278eeefea556c1c85eb
+JWT_ACCESS_TOKEN_EXPIRATION=900
+JWT_REFRESH_SECRET=otra-clave-secreta-diferente-para-refresh-tokens-tambien-muy-larga
+JWT_REFRESH_TOKEN_EXPIRATION=604800
+
+# CORS Configuration
+ALLOWED_ORIGINS=http://localhost:4200
 ```
 
 ⚠️ **Importante**: No commitear `.env` con credenciales reales.
@@ -230,8 +261,10 @@ FRONTEND_URL=http://localhost:4200
 
 ## 📚 Documentación
 
-- **[INSTALLATION.md](./docs/INSTALLATION.md)**: Guía detallada de instalación paso a paso
-- **[RUNNING.md](./docs/RUNNING.md)**: Guía completa de ejecución y comandos útiles
+- **[QUICK_START.md](./QUICK_START.md)**: Guía de inicio rápido (5 minutos)
+- **[INSTALLATION.md](./INSTALLATION.md)**: Guía detallada de instalación paso a paso
+- **[RUNNING.md](./RUNNING.md)**: Guía completa de ejecución y comandos útiles
+- **[USUARIOS.md](./USUARIOS.md)**: Credenciales de prueba y permisos
 
 ## 🐛 Solución de Problemas Comunes
 
@@ -263,12 +296,9 @@ npm run docker:restart
 
 ```bash
 # Reinstalar todo desde cero
-npm run reinstall:all
+npm run clean:all
+npm run install:all
 ```
-
-### Warnings de dependencias deprecadas
-
-Son warnings conocidos de dependencias transitivas de Angular CLI. No afectan la funcionalidad. Pueden ignorarse o resolverse con overrides en `package.json`.
 
 ## 🚀 Flujo de Trabajo
 

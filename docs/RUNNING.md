@@ -5,27 +5,24 @@ Esta guía explica cómo ejecutar FitFlow en diferentes modos y entornos, ademá
 ## 📋 Tabla de Contenidos
 
 1. [Desarrollo Local](#desarrollo-local)
-2. [Modo Producción](#modo-producción)
-3. [Docker y Base de Datos](#docker-y-base-de-datos)
+2. [Gestión de Base de Datos](#gestión-de-base-de-datos)
+3. [Usuarios de Prueba](#usuarios-de-prueba)
 4. [Testing](#testing)
 5. [Linting y Formateo](#linting-y-formateo)
-6. [Comandos Útiles](#comandos-útiles)
-7. [Generación de Código](#generación-de-código)
-8. [Workflows Comunes](#workflows-comunes)
+6. [Generación de Código](#generación-de-código)
+7. [Workflows Esenciales](#workflows-esenciales)
 
 ---
 
 ## 🚀 Desarrollo Local
 
-### Inicio Rápido
+### Inicio Rápido - Día a Día
 
-```cmd
-# Iniciar base de datos (si usas Docker)
-npm run docker:up
+```powershell
+# Opción 1: Solo Backend (más común)
+npm run dev:backend
 
-# Esperar 10-15 segundos para que MySQL esté listo
-
-# Iniciar frontend y backend simultáneamente
+# Opción 2: Frontend + Backend
 npm run start:all
 ```
 
@@ -35,44 +32,61 @@ npm run start:all
 - **Backend API**: http://localhost:3000/api
 - **MySQL**: localhost:3306
 
-**Credenciales MySQL:**
+### Primera Vez / Después de Reset
 
-- Usuario: `devuser`
-- Contraseña: `devpassword123`
-- Base de datos: `fit_flow_db`
+```powershell
+# Terminal 1: Reset de base de datos
+npm run docker:down:volumes
+npm run docker:up
+npm run db:wait
+
+# Terminal 2: Iniciar backend
+npm run start:backend
+
+# Terminal 1: Crear usuarios de prueba
+node scripts/seed-users.js
+
+# Verificar usuarios creados
+npm run db:verify
+```
 
 ### Ejecutar Servicios por Separado
 
-#### Terminal 1 - Backend
+#### Backend (Terminal 1)
 
-```cmd
+```powershell
 npm run start:backend
 
-# O directamente desde la carpeta backend
+# O directamente
 cd backend
 npm run start:dev
 ```
 
 **Características:**
 
-- ✅ Hot reload activado (se reinicia automáticamente al guardar)
-- ✅ Logs de debug en consola
+- ✅ Hot reload activado
+- ✅ TypeORM sincroniza automáticamente con synchronize: true
+- ✅ Logs de queries SQL (si DB_LOGGING=true)
 - ✅ Servidor en http://localhost:3000/api
 
 **Mensajes esperados:**
 
 ```
-[Nest] INFO [InstanceLoader] AppModule dependencies initialized
+[Nest] INFO [InstanceLoader] ConfigModule dependencies initialized
 [Nest] INFO [TypeOrmModule] Database connection established
+[Nest] INFO [RoutesResolver] AuthController {/api/auth}:
+[Nest] INFO [RoutesResolver] Mapped {/api/auth/register, POST} route
+[Nest] INFO [RoutesResolver] Mapped {/api/auth/login, POST} route
 Backend running on http://localhost:3000/api
+Environment: development
 ```
 
-#### Terminal 2 - Frontend
+#### Frontend (Terminal 2)
 
-```cmd
+```powershell
 npm run start:frontend
 
-# O directamente desde la carpeta frontend
+# O directamente
 cd frontend
 npm start
 ```
@@ -83,220 +97,46 @@ npm start
 - ✅ Compilación incremental
 - ✅ Servidor en http://localhost:4200
 
-**Mensajes esperados:**
-
-```
-√ Browser application bundle generation complete.
-Initial Chunk Files | Names         |  Raw Size
-main.js             | main          | 123.45 kB |
-
-Angular Live Development Server is listening on localhost:4200
-√ Compiled successfully.
-```
-
-### Modo Debug
-
-#### Backend (NestJS)
-
-```cmd
-cd backend
-npm run start:debug
-```
-
-El debugger estará escuchando en el puerto **9229**.
-
-**Conectar con VS Code:**
-
-Crea/edita `.vscode/launch.json`:
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "Attach to NestJS",
-      "port": 9229,
-      "restart": true,
-      "stopOnEntry": false,
-      "skipFiles": ["<node_internals>/**"]
-    }
-  ]
-}
-```
-
-Luego:
-
-1. Inicia el backend en modo debug
-2. En VS Code: `F5` o Run → Start Debugging
-3. Coloca breakpoints en tu código
-
-#### Frontend (Angular)
-
-**Opción 1 - Chrome DevTools:**
-
-1. Abre http://localhost:4200
-2. Presiona `F12`
-3. Pestaña "Sources"
-4. Busca tus archivos TypeScript
-5. Coloca breakpoints
-
-**Opción 2 - Angular DevTools:**
-
-1. Instala extensión: [Angular DevTools](https://angular.io/guide/devtools)
-2. Abre http://localhost:4200
-3. `F12` → Pestaña "Angular"
-4. Inspecciona componentes y dependencias
-
 ---
 
-## 📦 Modo Producción
+## 🗄️ Gestión de Base de Datos
 
-### Build para Producción
+### Scripts Disponibles
 
-```cmd
-# Build completo (frontend + backend)
-npm run build
+| Comando                       | Descripción                                     |
+| ----------------------------- | ----------------------------------------------- |
+| `npm run docker:up`           | Levantar MySQL                                  |
+| `npm run docker:down`         | Detener MySQL (mantiene datos)                  |
+| `npm run docker:down:volumes` | Detener y eliminar volúmenes (⚠️ borra datos)   |
+| `npm run docker:logs`         | Ver logs de MySQL                               |
+| `npm run docker:ps`           | Ver contenedores de FitFlow                     |
+| `npm run db:wait`             | Esperar 35 segundos (para que MySQL esté listo) |
+| `npm run db:status`           | Ver qué bases de datos existen                  |
+| `npm run db:health`           | Ver estado de salud del contenedor              |
+| `npm run db:verify`           | Ver usuarios creados                            |
+| `npm run db:verify:count`     | Contar usuarios                                 |
+| `npm run db:reset`            | Reset completo de base de datos                 |
 
-# Outputs:
-# - frontend/dist/browser/
-# - backend/dist/
-```
+### Crear Usuarios de Prueba
 
-**Build individual:**
+```powershell
+# Asegurarte que el backend está corriendo
+npm run start:backend
 
-```cmd
-# Solo frontend
-npm run build:frontend
+# En otra terminal
+node scripts/seed-users.js
 
-# Solo backend
-npm run build:backend
-```
-
-### Verificar Build
-
-```cmd
-# Ver tamaño de los archivos
-cd frontend/dist/browser
-dir
-
-# Ver archivos del backend
-cd ../../backend/dist
-dir
-```
-
-### Ejecutar Build de Producción
-
-#### Backend
-
-```cmd
-cd backend
-npm run start:prod
-
-# O directamente
-node dist/main.js
-```
-
-**Variables de entorno para producción:**
-
-Crea `.env.production` en la raíz:
-
-```env
-NODE_ENV=production
-BACKEND_PORT=3000
-
-# Base de datos producción
-DB_HOST=tu-servidor-mysql.com
-DB_PORT=3306
-DB_USERNAME=prod_user
-DB_PASSWORD=tu_password_seguro_aqui
-DB_DATABASE=fitflow_prod
-DB_SYNCHRONIZE=false  # ⚠️ IMPORTANTE: false en producción
-DB_LOGGING=false
-
-FRONTEND_URL=https://tu-dominio.com
-```
-
-#### Frontend
-
-Necesitas un servidor web para servir los archivos estáticos:
-
-**Opción 1 - serve (desarrollo local):**
-
-```cmd
-cd frontend/dist/browser
-npx serve -s -p 8080
-```
-
-**Opción 2 - http-server:**
-
-```cmd
-npm install -g http-server
-cd frontend/dist/browser
-http-server -p 8080 -c-1
-```
-
-**Opción 3 - Nginx (producción real):**
-
-Configuración básica de Nginx:
-
-```nginx
-server {
-    listen 80;
-    server_name tu-dominio.com;
-    root /var/www/fitflow/frontend/dist/browser;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    location /api {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
----
-
-## 🐳 Docker y Base de Datos
-
-### Comandos Docker
-
-```cmd
-# Iniciar MySQL
-npm run docker:up
-
-# Iniciar en primer plano (ver logs en tiempo real)
-docker-compose up
-
-# Detener MySQL
-npm run docker:down
-
-# Ver logs
-npm run docker:logs
-
-# Reiniciar MySQL
-npm run docker:restart
-
-# Detener y eliminar volúmenes (⚠️ borra datos)
-docker-compose down -v
+# Verificar
+npm run db:verify
 ```
 
 ### Conectar a MySQL
 
 #### Desde línea de comandos (Docker)
 
-```cmd
+```powershell
 # Conectar al contenedor
-docker exec -it fitflow-mysql mysql -u devuser -p
-# Contraseña: devpassword123
+docker exec -it fitflow-mysql mysql -u devuser -pdevpassword123
 
 # Comandos SQL útiles:
 SHOW DATABASES;
@@ -317,79 +157,46 @@ EXIT;
 - Contraseña: `devpassword123`
 - Base de datos: `fit_flow_db`
 
-#### Desde código (verificar conexión)
-
-El backend ya está configurado para conectarse. Verifica en los logs:
-
-```
-[Nest] INFO [TypeOrmModule] Database connection established
-```
-
-### Migraciones TypeORM
-
-```cmd
-cd backend
-
-# Generar migración automática (basada en entidades)
-npm run migration:generate -- -n CreateUsersTable
-
-# Ejecutar migraciones pendientes
-npm run migration:run
-
-# Revertir última migración
-npm run migration:revert
-
-# Ver migraciones ejecutadas
-npm run typeorm migration:show
-```
-
 ### Resetear Base de Datos
 
 ⚠️ **Esto eliminará todos los datos**:
 
-```cmd
-# Detener y eliminar volúmenes
-docker-compose down -v
-
-# Reiniciar con datos limpios
+```powershell
+# Reset completo
+npm run docker:down:volumes
 npm run docker:up
+npm run db:wait
 
-# Esperar 15 segundos
-timeout /t 15
+# Iniciar backend (en otra terminal)
+npm run start:backend
 
-# Ejecutar migraciones (si las tienes)
-cd backend
-npm run migration:run
+# Recrear usuarios (en otra terminal)
+node scripts/seed-users.js
 ```
+
+---
+
+## 👥 Usuarios de Prueba
+
+### Credenciales por Defecto
+
+| Rol         | Email                | Password    | Estado      |
+| ----------- | -------------------- | ----------- | ----------- |
+| **ADMIN**   | admin@fitflow.com    | Admin123!   | Activo ✅   |
+| **TRAINER** | trainer@fitflow.com  | Trainer123! | Activo ✅   |
+| **USER**    | user1@fitflow.com    | User123!    | Activo ✅   |
+| **USER**    | user2@fitflow.com    | User123!    | Activo ✅   |
+| **USER**    | inactive@fitflow.com | User123!    | Inactivo ❌ |
+
+**Ver documentación completa:** [USUARIOS.md](./USUARIOS.md)
 
 ---
 
 ## 🧪 Testing
 
-### Tests del Frontend
-
-```cmd
-# Ejecutar todos los tests (watch mode)
-npm run test:frontend
-
-# Tests con coverage
-cd frontend
-npm run test -- --code-coverage
-
-# Tests sin watch (CI)
-npm run test -- --no-watch --browsers=ChromeHeadless
-```
-
-**Ver reporte de coverage:**
-
-```cmd
-cd frontend/coverage
-start index.html
-```
-
 ### Tests del Backend
 
-```cmd
+```powershell
 # Tests unitarios
 npm run test:backend
 
@@ -397,28 +204,24 @@ npm run test:backend
 cd backend
 npm run test:cov
 
-# Tests E2E
-npm run test:e2e
-
-# Tests en modo watch
-npm run test:watch
-
-# Test específico
-npm test -- --testNamePattern="AppController"
-```
-
-**Ver reporte de coverage:**
-
-```cmd
-cd backend/coverage
+# Ver reporte de coverage
+cd coverage
 start lcov-report/index.html
 ```
 
-### Tests de Todo el Proyecto
+### Tests del Frontend
 
-```cmd
-# Ejecutar todos los tests
-npm run test
+```powershell
+# Tests unitarios
+npm run test:frontend
+
+# Tests con coverage
+cd frontend
+npm run test -- --code-coverage
+
+# Ver reporte
+cd coverage
+start index.html
 ```
 
 ---
@@ -427,8 +230,8 @@ npm run test
 
 ### ESLint
 
-```cmd
-# Lint completo (ambos proyectos)
+```powershell
+# Lint completo
 npm run lint
 
 # Lint con fix automático
@@ -436,150 +239,31 @@ npm run lint:fix
 
 # Solo frontend
 npm run lint:frontend
-npm run lint:fix:frontend
 
 # Solo backend
 npm run lint:backend
-npm run lint:fix:backend
-```
-
-**Ejecutar directamente:**
-
-```cmd
-# Frontend
-cd frontend
-npx eslint "src/**/*.ts"
-npx eslint "src/**/*.ts" --fix
-
-# Backend
-cd backend
-npx eslint "{src,apps,libs,test}/**/*.ts"
-npx eslint "{src,apps,libs,test}/**/*.ts" --fix
 ```
 
 ### Prettier
 
-```cmd
-# Formatear todo el código
+```powershell
+# Formatear todo
 npm run format
 
-# Solo verificar formato (no modifica archivos)
+# Solo verificar (no modifica)
 npm run format:check
 ```
 
-**Formatear específicamente:**
+### Pre-commit Hooks
 
-```cmd
-# Solo frontend
-cd frontend
-npm run format
+Los hooks se ejecutan automáticamente:
 
-# Solo backend
-cd backend
-npm run format
-
-# Archivos específicos
-npx prettier --write "src/app/app.component.ts"
-```
-
-### Pre-commit Hooks (Husky + lint-staged)
-
-Los hooks se ejecutan **automáticamente** al hacer commit:
-
-```cmd
+```powershell
 # Hacer cambios
-# ...
-
-# Agregar al staging
 git add .
 
 # Commit (se ejecuta lint-staged automáticamente)
 git commit -m "feat: nueva funcionalidad"
-```
-
-**Qué hace lint-staged:**
-
-1. Detecta archivos en staging
-2. Ejecuta Prettier para formatear
-3. Si hay errores, el commit se cancela
-4. Si todo OK, el commit se completa
-
-**Saltar hooks (solo emergencias):**
-
-```cmd
-git commit -m "fix: urgente" --no-verify
-```
-
-⚠️ **No recomendado**: Úsalo solo en casos excepcionales.
-
----
-
-## 🛠️ Comandos Útiles
-
-### Gestión de Dependencias
-
-```cmd
-# Ver dependencias desactualizadas
-npm outdated
-
-# Actualizar dependencia específica
-cd frontend
-npm install --save-exact @angular/core@20.3.8
-
-# Instalar nueva dependencia
-npm install --save-exact nueva-dependencia@1.2.3
-
-# Instalar dependencia de desarrollo
-npm install --save-exact --save-dev nueva-dev-dependencia@1.0.0
-
-# Eliminar dependencia
-npm uninstall nombre-paquete
-```
-
-### Limpieza del Proyecto
-
-```cmd
-# Limpiar todo (desde la raíz)
-npm run clean:all
-
-# Limpiar y reinstalar
-npm run reinstall:all
-
-# Limpiar builds
-rmdir /s /q frontend\dist
-rmdir /s /q backend\dist
-rmdir /s /q frontend\.angular
-
-# Limpiar cachés de npm
-npm cache clean --force
-```
-
-### Análisis de Bundle (Frontend)
-
-```cmd
-cd frontend
-
-# Generar estadísticas
-npm run build -- --stats-json
-
-# Analizar con webpack-bundle-analyzer
-npx webpack-bundle-analyzer dist/browser/stats.json
-```
-
-### Información del Sistema
-
-```cmd
-# Versiones instaladas
-node --version
-npm --version
-ng version
-nest --version
-
-# Ver paquetes instalados
-npm list --depth=0
-
-# Ver dependencias de un paquete
-npm list @angular/core
 ```
 
 ---
@@ -588,277 +272,240 @@ npm list @angular/core
 
 ### Frontend (Angular)
 
-```cmd
+```powershell
 cd frontend
 
-# Generar componente
+# Componente
 ng generate component pages/home
-ng g c pages/login --skip-tests
+ng g c components/header --skip-tests
 
-# Generar servicio
+# Servicio
 ng generate service services/auth
-ng g s services/api --skip-tests
+ng g s services/api
 
-# Generar módulo
+# Módulo
 ng generate module modules/shared --routing
 ng g m modules/core
 
-# Generar guard
+# Guard
 ng generate guard guards/auth
 
-# Generar interceptor
+# Interceptor
 ng generate interceptor interceptors/auth
-
-# Generar pipe
-ng generate pipe pipes/format-date
-
-# Generar directiva
-ng generate directive directives/highlight
 ```
-
-**Atajos:**
-
-- `ng g c` = `ng generate component`
-- `ng g s` = `ng generate service`
-- `ng g m` = `ng generate module`
 
 ### Backend (NestJS)
 
-```cmd
+```powershell
 cd backend
 
-# Generar módulo completo (CRUD)
-nest generate resource users
-nest g resource auth --no-spec
+# Recurso completo (CRUD)
+nest generate resource workouts
+nest g res exercises --no-spec
 
-# Generar módulo
-nest generate module users
-nest g mo auth
+# Módulo
+nest generate module health
+nest g mo logger
 
-# Generar controlador
-nest generate controller users
-nest g co health
+# Controlador
+nest generate controller health
+nest g co api/v1
 
-# Generar servicio
-nest generate service users
-nest g s email
+# Servicio
+nest generate service email
+nest g s notifications
 
-# Generar guard
-nest generate guard guards/auth
-nest g gu guards/roles
+# Guard
+nest generate guard guards/roles
+nest g gu guards/api-key
 
-# Generar interceptor
-nest generate interceptor interceptors/logging
-
-# Generar middleware
+# Middleware
 nest generate middleware middlewares/logger
-
-# Generar filter
-nest generate filter filters/http-exception
-
-# Generar pipe
-nest generate pipe pipes/validation
 ```
-
-**Atajos:**
-
-- `nest g` = `nest generate`
-- `nest g res` = `nest generate resource`
 
 ---
 
-## 🔄 Workflows Comunes
+## 📄 Workflows Esenciales
 
-### Agregar Nueva Funcionalidad
+### 1. Inicio Diario
 
-```cmd
+```powershell
+# Si Docker ya está corriendo con datos
+npm run docker:up
+
+# Iniciar backend
+npm run start:backend
+
+# En otra terminal: iniciar frontend (opcional)
+npm run start:frontend
+```
+
+### 2. Reset Completo de Base de Datos
+
+```powershell
+# 1. Reset
+npm run docker:down:volumes
+npm run docker:up
+
+# 2. Esperar MySQL
+npm run db:wait
+
+# 3. Iniciar backend (en otra terminal)
+npm run start:backend
+
+# 4. Crear usuarios (en otra terminal)
+node scripts/seed-users.js
+
+# 5. Verificar
+npm run db:verify
+```
+
+### 3. Nueva Funcionalidad
+
+```powershell
 # 1. Crear rama
-git checkout -b feature/user-profile
+git checkout -b feature/nueva-funcionalidad
 
-# 2. Iniciar servidores en desarrollo
-npm run start:all
+# 2. Desarrollar con hot reload
+npm run start:backend
 
 # 3. Backend: Crear recurso
 cd backend
-nest generate resource profile
-
-# 4. Frontend: Crear componente y servicio
-cd ../frontend
-ng generate component pages/profile
-ng generate service services/profile
-
-# 5. Desarrollar y probar localmente
-# (Hacer cambios en el código)
-
-# 6. Verificar calidad de código
+nest generate resource workouts
 cd ..
+
+# 4. Frontend: Crear componente y servicio (opcional)
+cd frontend
+ng generate component pages/workouts
+ng generate service services/workouts
+cd ..
+
+# 5. Formatear y lint
 npm run lint:fix
 npm run format
 
-# 7. Ejecutar tests
+# 6. Tests
 npm run test
 
-# 8. Commit (lint-staged se ejecuta automáticamente)
+# 7. Commit (Husky ejecuta automáticamente)
 git add .
-git commit -m "feat: agregar perfil de usuario"
+git commit -m "feat: agregar tracking de workouts"
 
-# 9. Push
-git push origin feature/user-profile
-
-# 10. Crear Pull Request en GitHub
-```
-
-### Trabajar con Base de Datos
-
-```cmd
-# 1. Crear entidad
-cd backend/src/users/entities
-# Crear user.entity.ts
-
-# 2. Generar migración
-cd ../..
-npm run migration:generate -- -n CreateUsersTable
-
-# 3. Revisar migración generada
-# Editar src/migrations/*-CreateUsersTable.ts
-
-# 4. Ejecutar migración
-npm run migration:run
-
-# 5. Verificar en MySQL
-cd ../..
-docker exec -it fitflow-mysql mysql -u devuser -p
-```
-
-### Deploy a Producción
-
-```cmd
-# 1. Asegurar que estás en main/master
-git checkout main
-git pull origin main
-
-# 2. Ejecutar tests
-npm run test
-
-# 3. Build de producción
-npm run build
-
-# 4. Verificar builds
-dir frontend\dist\browser
-dir backend\dist
-
-# 5. Tag de versión
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
-
-# 6. Deploy según tu plataforma
-# (Heroku, AWS, Azure, DigitalOcean, etc.)
-```
-
-### Actualizar Dependencias
-
-```cmd
-# 1. Ver dependencias desactualizadas
-npm outdated
-cd frontend && npm outdated
-cd ../backend && npm outdated
-cd ..
-
-# 2. Actualizar package.json manualmente
-# (Cambiar versiones)
-
-# 3. Reinstalar todo
-npm run reinstall:all
-
-# 4. Probar que todo funciona
-npm run start:all
-npm run lint
-npm run test
-npm run build
-
-# 5. Commit
-git add .
-git commit -m "chore: actualizar dependencias"
+# 8. Push
+git push origin feature/nueva-funcionalidad
 ```
 
 ---
 
-## 🐛 Solución de Problemas Comunes
+## 🛠 Solución de Problemas Comunes
 
-### Puerto en Uso
+### "Error: Connection lost"
 
-```cmd
-# Ver qué proceso usa el puerto
-netstat -ano | findstr :4200
+```powershell
+# Esperar más tiempo
+npm run docker:down
+npm run docker:up
+npm run db:wait
+timeout /t 10
+npm run start:backend
+```
+
+### "Usuario ya existe" al hacer seed
+
+```powershell
+# Es normal, los usuarios ya existen
+# Para recrearlos:
+npm run docker:down:volumes
+npm run docker:up
+npm run db:wait
+npm run start:backend
+node scripts/seed-users.js
+```
+
+### Puerto en uso
+
+```powershell
+# Ver qué usa el puerto
 netstat -ano | findstr :3000
-netstat -ano | findstr :3306
+netstat -ano | findstr :4200
 
 # Matar proceso
 taskkill /PID <PID> /F
 ```
 
-### Hot Reload No Funciona
+### Backend no conecta a MySQL
 
-**Frontend:**
+```powershell
+# Ver logs
+npm run docker:logs
 
-```cmd
+# Verificar salud
+npm run db:health
+
+# Reiniciar
+npm run docker:down
+npm run docker:up
+```
+
+### Hot reload no funciona
+
+```powershell
+# Frontend
 cd frontend
 rmdir /s /q .angular node_modules
 npm install
-```
 
-**Backend:**
-
-```cmd
+# Backend
 cd backend
 rmdir /s /q dist
 ```
 
-### Error de CORS
+---
 
-Verifica `backend/src/main.ts`:
+## 🛠️ Comandos Útiles
 
-```typescript
-app.enableCors({
-  origin: 'http://localhost:4200',
-  credentials: true,
-});
-```
+### Información del Sistema
 
-### MySQL No Conecta
+```powershell
+# Versiones
+node --version
+npm --version
+ng version
+nest --version
 
-```cmd
-# 1. Verificar que Docker está corriendo
+# Ver estado de Docker
 docker ps
+npm run docker:ps
 
-# 2. Ver logs
-npm run docker:logs
-
-# 3. Reiniciar
-npm run docker:restart
-
-# 4. Verificar .env
-type .env
+# Ver salud de MySQL
+npm run db:health
 ```
 
-### Build Falla
+### Limpieza
 
-```cmd
-# Limpiar todo y reinstalar
+```powershell
+# Limpiar todo
 npm run clean:all
-npm run reinstall:all
-npm run build
+
+# Limpiar solo builds
+rmdir /s /q frontend\dist
+rmdir /s /q backend\dist
 ```
 
 ---
 
 ## 📚 Recursos Adicionales
 
-- [Angular CLI Commands](https://angular.io/cli)
-- [NestJS CLI Commands](https://docs.nestjs.com/cli/overview)
-- [TypeORM CLI](https://typeorm.io/using-cli)
-- [Docker Commands](https://docs.docker.com/engine/reference/commandline/cli/)
-- [npm Commands](https://docs.npmjs.com/cli/v10/commands)
+- **[INSTALLATION.md](./INSTALLATION.md)**: Guía de instalación inicial
+- **[USUARIOS.md](./USUARIOS.md)**: Credenciales y matriz de permisos
+- **[README.md](./README.md)**: Visión general del proyecto
+
+### Documentación Oficial
+
+- [Angular CLI](https://angular.io/cli)
+- [NestJS CLI](https://docs.nestjs.com/cli/overview)
+- [TypeORM](https://typeorm.io)
+- [Docker](https://docs.docker.com)
 
 ---
 
@@ -868,7 +515,11 @@ npm run build
 
 1. Revisa esta guía y [INSTALLATION.md](./INSTALLATION.md)
 2. Busca en los [issues del repositorio](https://github.com/tu-usuario/fitflow/issues)
-3. Abre un [nuevo issue](https://github.com/tu-usuario/fitflow/issues/new)
+3. Abre un [nuevo issue](https://github.com/tu-usuario/fitflow/issues/new) con:
+   - Comando que ejecutaste
+   - Error completo
+   - Output de `npm run db:health`
+   - Output de `docker ps`
 
 ---
 

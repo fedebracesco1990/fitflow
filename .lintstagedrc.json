@@ -1,7 +1,19 @@
 {
-  "frontend/src/**/*.ts": ["prettier --write", "cd frontend && npx eslint --fix"],
-  "frontend/src/**/*.html": ["prettier --write"],
-  "frontend/src/**/*.{scss,css}": ["prettier --write"],
-  "backend/src/**/*.ts": ["prettier --write", "cd backend && npx eslint --fix"],
-  "*.{json,md,yml,yaml}": ["prettier --write"]
+  "frontend/src/**/*.ts": [
+    "prettier --write",
+    "npx eslint --fix -c frontend/eslint.config.js"
+  ],
+  "frontend/src/**/*.html": [
+    "prettier --write"
+  ],
+  "frontend/src/**/*.{scss,css}": [
+    "prettier --write"
+  ],
+  "backend/src/**/*.ts": [
+    "prettier --write",
+    "npx eslint --fix -c backend/eslint.config.mjs"
+  ],
+  "*.{json,md,yml,yaml}": [
+    "prettier --write"
+  ]
 }
