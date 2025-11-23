@@ -7,6 +7,8 @@ import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import type { AuthenticatedUser } from './types/authenticated-user.type';
 import type { TokensResponse } from './interfaces/tokens-response.interface';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -37,15 +39,32 @@ export class AuthController {
     return await this.authService.refreshTokens(userId, refreshToken);
   }
 
-  @Get('profile')
+  @Get('session')
   @HttpCode(HttpStatus.OK)
-  async getProfile(@CurrentUser() user: AuthenticatedUser) {
-    return user;
+  checkSession(@CurrentUser() user: AuthenticatedUser) {
+    return {
+      status: 'authenticated',
+      user,
+    };
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@CurrentUser('userId') userId: string): Promise<void> {
     return await this.authService.logout(userId);
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return await this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return await this.authService.resetPassword(resetPasswordDto);
   }
 }

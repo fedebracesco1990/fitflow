@@ -4,7 +4,6 @@ import {
   ConflictException,
   ForbiddenException,
   UnauthorizedException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -238,6 +237,37 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  // ==================== MÉTODOS DE SISTEMA (AUTH / RECUPERACIÓN) ====================
+  async setResetPasswordToken(userId: string, hashedToken: string, expires: Date): Promise<void> {
+    await this.usersRepository.update(userId, {
+      resetPasswordTokenHash: hashedToken,
+      resetPasswordExpires: expires,
+    });
+  }
+
+  async findOneWithResetToken(userId: string): Promise<User> {
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :userId', { userId })
+      .addSelect(['user.resetPasswordTokenHash', 'user.resetPasswordExpires'])
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    return user;
+  }
+
+  async updatePasswordFromReset(userId: string, newPlainPassword: string): Promise<void> {
+    const user = await this.findById(userId);
+
+    user.password = newPlainPassword;
+    user.resetPasswordTokenHash = null;
+    user.resetPasswordExpires = null;
+
+    await this.usersRepository.save(user);
   }
 
   // ==================== HELPER METHODS ====================

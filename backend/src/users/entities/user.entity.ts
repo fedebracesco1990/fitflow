@@ -32,8 +32,14 @@ export class User {
   })
   role: Role;
 
-  @Column({ nullable: true, select: false })
-  refreshToken: string;
+  @Column({ type: 'varchar', nullable: true, select: false })
+  refreshToken: string | null;
+
+  @Column({ type: 'varchar', nullable: true, select: false })
+  resetPasswordTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordExpires: Date | null;
 
   @Column({ default: true })
   isActive: boolean;
@@ -78,6 +84,8 @@ export class User {
       ...this,
       password: undefined,
       refreshToken: undefined,
+      resetPasswordTokenHash: undefined,
+      resetPasswordExpires: undefined,
       tempPassword: undefined,
     };
   }
