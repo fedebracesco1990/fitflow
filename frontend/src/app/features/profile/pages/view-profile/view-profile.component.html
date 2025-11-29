@@ -1,0 +1,43 @@
+<div class="profile-page">
+  <div class="profile-header">
+    <h1>Mi Perfil</h1>
+    <a routerLink="edit" class="btn-edit">Editar perfil</a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Cargando...</div>
+  } @else if (profile()) {
+    <div class="profile-card">
+      <div class="avatar">
+        <span>{{ getInitials() }}</span>
+      </div>
+
+      <div class="profile-info">
+        <div class="info-group">
+          <span class="info-label">Nombre</span>
+          <p>{{ profile()?.name }}</p>
+        </div>
+
+        <div class="info-group">
+          <span class="info-label">Correo electrónico</span>
+          <p>{{ profile()?.email }}</p>
+        </div>
+
+        <div class="info-group">
+          <span class="info-label">Rol</span>
+          <p class="role-badge">{{ getRoleLabel() }}</p>
+        </div>
+
+        <div class="info-group">
+          <span class="info-label">Miembro desde</span>
+          <p>{{ formatDate(profile()?.createdAt) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="security-section">
+      <h2>Seguridad</h2>
+      <a routerLink="change-password" class="btn-secondary">Cambiar contraseña</a>
+    </div>
+  }
+</div>

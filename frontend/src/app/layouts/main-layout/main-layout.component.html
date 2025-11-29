@@ -1,0 +1,43 @@
+<div class="main-layout">
+  <!-- Offline Banner -->
+  @if (network.isOffline()) {
+    <div class="offline-banner">
+      <span>⚠️ Sin conexión - Modo offline activo</span>
+    </div>
+  }
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a routerLink="/dashboard" class="logo">
+        <h1>FitFlow</h1>
+      </a>
+
+      <nav class="nav">
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Inicio
+        </a>
+        <a routerLink="/profile" routerLinkActive="active">Mi Perfil</a>
+      </nav>
+
+      <div class="user-menu">
+        <span class="user-email">{{ user()?.email }}</span>
+        <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <router-outlet />
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 FitFlow. Todos los derechos reservados.</p>
+  </footer>
+</div>

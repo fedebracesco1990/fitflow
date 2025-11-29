@@ -1,0 +1,75 @@
+<div class="home-page">
+  <div class="welcome-card">
+    <h1>¡Bienvenido, {{ profile()?.name || user()?.email }}!</h1>
+    <p>Este es tu panel de control de FitFlow</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">🏋️</div>
+      <div class="stat-content">
+        <h3>Entrenamientos</h3>
+        <p class="stat-value">0</p>
+        <span class="stat-label">Esta semana</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-content">
+        <h3>Calorías</h3>
+        <p class="stat-value">0</p>
+        <span class="stat-label">Quemadas hoy</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-content">
+        <h3>Tiempo</h3>
+        <p class="stat-value">0h</p>
+        <span class="stat-label">Entrenado</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-content">
+        <h3>Objetivos</h3>
+        <p class="stat-value">0%</p>
+        <span class="stat-label">Completados</span>
+      </div>
+    </div>
+  </div>
+
+  @if (network.isOffline()) {
+    <div class="offline-notice">
+      <h3>Modo Offline</h3>
+      <p>
+        Estás trabajando sin conexión. Los datos se sincronizarán cuando vuelvas a estar online.
+      </p>
+    </div>
+  }
+
+  <div class="quick-actions">
+    <h2>Acciones Rápidas</h2>
+    <div class="actions-grid">
+      <button class="action-btn">
+        <span class="action-icon">➕</span>
+        <span>Nuevo Entrenamiento</span>
+      </button>
+      <button class="action-btn">
+        <span class="action-icon">📊</span>
+        <span>Ver Progreso</span>
+      </button>
+      <button class="action-btn">
+        <span class="action-icon">📅</span>
+        <span>Planificar</span>
+      </button>
+      <button class="action-btn">
+        <span class="action-icon">⚙️</span>
+        <span>Configuración</span>
+      </button>
+    </div>
+  </div>
+</div>

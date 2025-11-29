@@ -1,0 +1,63 @@
+<div class="edit-profile-page">
+  <div class="page-header">
+    <a routerLink="/profile" class="back-link">← Volver</a>
+    <h1>Editar Perfil</h1>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-error">
+      {{ error() }}
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      {{ successMessage() }}
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="edit-form">
+    <div class="form-group">
+      <label for="name">Nombre completo</label>
+      <input
+        type="text"
+        id="name"
+        formControlName="name"
+        placeholder="Tu nombre"
+        [class.error]="isFieldInvalid('name')"
+      />
+      @if (isFieldInvalid('name')) {
+        <span class="error-text">El nombre debe tener al menos 2 caracteres</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="email">Correo electrónico</label>
+      <input
+        type="email"
+        id="email"
+        formControlName="email"
+        placeholder="tu@email.com"
+        [class.error]="isFieldInvalid('email')"
+      />
+      @if (isFieldInvalid('email')) {
+        <span class="error-text">Ingresa un correo válido</span>
+      }
+    </div>
+
+    <div class="form-actions">
+      <a routerLink="/profile" class="btn-cancel">Cancelar</a>
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="isLoading() || form.invalid || !form.dirty"
+      >
+        @if (isLoading()) {
+          <span>Guardando...</span>
+        } @else {
+          <span>Guardar cambios</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>
