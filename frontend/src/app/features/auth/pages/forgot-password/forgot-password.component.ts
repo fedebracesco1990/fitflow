@@ -2,11 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services';
+import { AlertComponent, ButtonComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-forgot-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AlertComponent, ButtonComponent],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
 })
@@ -42,8 +43,13 @@ export class ForgotPasswordComponent {
     }
   }
 
-  isFieldInvalid(field: string): boolean {
-    const control = this.form.get(field);
+  // Getters for template - reactive forms need getters
+  get emailInvalid(): boolean {
+    const control = this.form.get('email');
     return !!(control && control.invalid && control.touched);
+  }
+
+  get isSubmitDisabled(): boolean {
+    return this.isLoading() || this.form.invalid;
   }
 }

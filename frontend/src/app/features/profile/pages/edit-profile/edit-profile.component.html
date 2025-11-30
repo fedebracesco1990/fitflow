@@ -5,15 +5,11 @@
   </div>
 
   @if (error()) {
-    <div class="alert alert-error">
-      {{ error() }}
-    </div>
+    <fit-flow-alert type="error" [message]="error()!" />
   }
 
   @if (successMessage()) {
-    <div class="alert alert-success">
-      {{ successMessage() }}
-    </div>
+    <fit-flow-alert type="success" [message]="successMessage()!" />
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="edit-form">
@@ -24,9 +20,9 @@
         id="name"
         formControlName="name"
         placeholder="Tu nombre"
-        [class.error]="isFieldInvalid('name')"
+        [class.error]="nameInvalid"
       />
-      @if (isFieldInvalid('name')) {
+      @if (nameInvalid) {
         <span class="error-text">El nombre debe tener al menos 2 caracteres</span>
       }
     </div>
@@ -38,26 +34,20 @@
         id="email"
         formControlName="email"
         placeholder="tu@email.com"
-        [class.error]="isFieldInvalid('email')"
+        [class.error]="emailInvalid"
       />
-      @if (isFieldInvalid('email')) {
+      @if (emailInvalid) {
         <span class="error-text">Ingresa un correo válido</span>
       }
     </div>
 
     <div class="form-actions">
-      <a routerLink="/profile" class="btn-cancel">Cancelar</a>
-      <button
-        type="submit"
-        class="btn-primary"
-        [disabled]="isLoading() || form.invalid || !form.dirty"
-      >
-        @if (isLoading()) {
-          <span>Guardando...</span>
-        } @else {
-          <span>Guardar cambios</span>
-        }
-      </button>
+      <a routerLink="/profile">
+        <fit-flow-button variant="secondary">Cancelar</fit-flow-button>
+      </a>
+      <fit-flow-button type="submit" [loading]="isLoading()" [disabled]="isSubmitDisabled">
+        Guardar cambios
+      </fit-flow-button>
     </div>
   </form>
 </div>

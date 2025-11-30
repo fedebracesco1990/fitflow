@@ -26,5 +26,5 @@ async function bootstrap() {
     console.log(`Backend running on http://localhost:${port}/${apiPrefix}`);
     console.log(`Environment: ${configService.get('app.nodeEnv')}`);
 }
-bootstrap();
+void bootstrap();
 //# sourceMappingURL=main.js.map

@@ -17,10 +17,10 @@ export class AppController {
   @Get('config-test')
   testConfig() {
     return {
-      jwtSecret: this.configService.get('jwt.secret') ? 'Cargado' : 'No encontrado',
-      jwtExpiration: this.configService.get('jwt.accessTokenExpiration'),
-      dbHost: this.configService.get('database.host'),
-      nodeEnv: this.configService.get('app.nodeEnv'),
+      jwtSecret: this.configService.get<string>('jwt.secret') ? 'Cargado' : 'No encontrado',
+      jwtExpiration: this.configService.get<number>('jwt.accessTokenExpiration'),
+      dbHost: this.configService.get<string>('database.host'),
+      nodeEnv: this.configService.get<string>('app.nodeEnv'),
     };
   }
 }

@@ -3,11 +3,12 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { UserState, UpdateProfile, ClearUserError, ClearUserSuccess } from '../../../../core/store';
+import { AlertComponent, ButtonComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-edit-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AlertComponent, ButtonComponent],
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.scss',
 })
@@ -48,8 +49,18 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
-  isFieldInvalid(field: string): boolean {
-    const control = this.form.get(field);
+  // Getters for template - reactive forms need getters
+  get nameInvalid(): boolean {
+    const control = this.form.get('name');
     return !!(control && control.invalid && control.touched);
+  }
+
+  get emailInvalid(): boolean {
+    const control = this.form.get('email');
+    return !!(control && control.invalid && control.touched);
+  }
+
+  get isSubmitDisabled(): boolean {
+    return this.isLoading() || this.form.invalid || !this.form.dirty;
   }
 }

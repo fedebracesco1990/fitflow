@@ -3,11 +3,12 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { Login, ClearAuthError, AuthState } from '../../../../core/store';
+import { AlertComponent, ButtonComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AlertComponent, ButtonComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -42,8 +43,18 @@ export class LoginComponent {
     }
   }
 
-  isFieldInvalid(field: string): boolean {
-    const control = this.form.get(field);
+  // Getters for template - reactive forms need getters, not computed signals
+  get emailInvalid(): boolean {
+    const control = this.form.get('email');
     return !!(control && control.invalid && control.touched);
+  }
+
+  get passwordInvalid(): boolean {
+    const control = this.form.get('password');
+    return !!(control && control.invalid && control.touched);
+  }
+
+  get isSubmitDisabled(): boolean {
+    return this.isLoading() || this.form.invalid;
   }
 }

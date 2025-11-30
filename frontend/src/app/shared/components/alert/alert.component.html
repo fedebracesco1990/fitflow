@@ -1,0 +1,7 @@
+<div class="alert" [ngClass]="alertClass">
+  <span class="alert__icon">{{ iconSymbol }}</span>
+  <span class="alert__message">{{ alertMessage }}</span>
+  @if (isDismissible) {
+    <button class="alert__close" (click)="dismiss()" type="button">×</button>
+  }
+</div>

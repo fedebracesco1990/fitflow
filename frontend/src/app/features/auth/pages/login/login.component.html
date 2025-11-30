@@ -2,9 +2,7 @@
   <h2>Iniciar Sesión</h2>
 
   @if (error()) {
-    <div class="alert alert-error">
-      {{ error() }}
-    </div>
+    <fit-flow-alert type="error" [message]="error()!" />
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -15,9 +13,9 @@
         id="email"
         formControlName="email"
         placeholder="tu@email.com"
-        [class.error]="isFieldInvalid('email')"
+        [class.error]="emailInvalid"
       />
-      @if (isFieldInvalid('email')) {
+      @if (emailInvalid) {
         <span class="error-text">Ingresa un correo válido</span>
       }
     </div>
@@ -29,9 +27,9 @@
         id="password"
         formControlName="password"
         placeholder="••••••••"
-        [class.error]="isFieldInvalid('password')"
+        [class.error]="passwordInvalid"
       />
-      @if (isFieldInvalid('password')) {
+      @if (passwordInvalid) {
         <span class="error-text">La contraseña es requerida</span>
       }
     </div>
@@ -40,13 +38,14 @@
       <a routerLink="/forgot-password" class="forgot-link">¿Olvidaste tu contraseña?</a>
     </div>
 
-    <button type="submit" class="btn-primary" [disabled]="isLoading() || form.invalid">
-      @if (isLoading()) {
-        <span>Cargando...</span>
-      } @else {
-        <span>Iniciar Sesión</span>
-      }
-    </button>
+    <fit-flow-button
+      type="submit"
+      [fullWidth]="true"
+      [loading]="isLoading()"
+      [disabled]="isSubmitDisabled"
+    >
+      Iniciar Sesión
+    </fit-flow-button>
   </form>
 
   <div class="register-link">

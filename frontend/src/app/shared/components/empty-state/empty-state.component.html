@@ -1,0 +1,10 @@
+<div class="empty-state">
+  <span class="empty-state__icon">{{ emptyIcon }}</span>
+  <h3 class="empty-state__title">{{ emptyTitle }}</h3>
+  @if (hasDescription) {
+    <p class="empty-state__description">{{ emptyDescription }}</p>
+  }
+  <div class="empty-state__actions">
+    <ng-content />
+  </div>
+</div>

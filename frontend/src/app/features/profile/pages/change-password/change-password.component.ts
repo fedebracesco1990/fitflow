@@ -15,11 +15,12 @@ import {
   ClearUserError,
   ClearUserSuccess,
 } from '../../../../core/store';
+import { AlertComponent, ButtonComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-change-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AlertComponent, ButtonComponent],
   templateUrl: './change-password.component.html',
   styleUrl: './change-password.component.scss',
 })
@@ -68,9 +69,24 @@ export class ChangePasswordComponent {
     }
   }
 
-  isFieldInvalid(field: string): boolean {
-    const control = this.form.get(field);
+  // Getters for template - reactive forms need getters
+  get currentPasswordInvalid(): boolean {
+    const control = this.form.get('currentPassword');
     return !!(control && control.invalid && control.touched);
+  }
+
+  get newPasswordInvalid(): boolean {
+    const control = this.form.get('newPassword');
+    return !!(control && control.invalid && control.touched);
+  }
+
+  get confirmPasswordInvalid(): boolean {
+    const control = this.form.get('confirmPassword');
+    return !!(control && control.invalid && control.touched);
+  }
+
+  get isSubmitDisabled(): boolean {
+    return this.isLoading() || this.form.invalid;
   }
 
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {

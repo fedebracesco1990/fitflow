@@ -32,4 +32,4 @@ async function bootstrap() {
   console.log(`Backend running on http://localhost:${port}/${apiPrefix}`);
   console.log(`Environment: ${configService.get<string>('app.nodeEnv')}`);
 }
-bootstrap();
+void bootstrap();

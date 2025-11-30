@@ -10,11 +10,12 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { Register, ClearAuthError, AuthState } from '../../../../core/store';
+import { AlertComponent, ButtonComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AlertComponent, ButtonComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
@@ -64,9 +65,29 @@ export class RegisterComponent {
     }
   }
 
-  isFieldInvalid(field: string): boolean {
-    const control = this.form.get(field);
+  // Getters for template - reactive forms need getters, not computed signals
+  get nameInvalid(): boolean {
+    const control = this.form.get('name');
     return !!(control && control.invalid && control.touched);
+  }
+
+  get emailInvalid(): boolean {
+    const control = this.form.get('email');
+    return !!(control && control.invalid && control.touched);
+  }
+
+  get passwordInvalid(): boolean {
+    const control = this.form.get('password');
+    return !!(control && control.invalid && control.touched);
+  }
+
+  get confirmPasswordInvalid(): boolean {
+    const control = this.form.get('confirmPassword');
+    return !!(control && control.invalid && control.touched);
+  }
+
+  get isSubmitDisabled(): boolean {
+    return this.isLoading() || this.form.invalid;
   }
 
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {

@@ -1,75 +1,73 @@
 <div class="home-page">
-  <div class="welcome-card">
-    <h1>¡Bienvenido, {{ profile()?.name || user()?.email }}!</h1>
+  <fit-flow-card padding="lg" class="welcome-card">
+    <h1>¡Bienvenido, {{ welcomeName() }}!</h1>
     <p>Este es tu panel de control de FitFlow</p>
-  </div>
+  </fit-flow-card>
 
   <div class="stats-grid">
-    <div class="stat-card">
+    <fit-flow-card padding="md" class="stat-card">
       <div class="stat-icon">🏋️</div>
       <div class="stat-content">
         <h3>Entrenamientos</h3>
         <p class="stat-value">0</p>
         <span class="stat-label">Esta semana</span>
       </div>
-    </div>
+    </fit-flow-card>
 
-    <div class="stat-card">
+    <fit-flow-card padding="md" class="stat-card">
       <div class="stat-icon">🔥</div>
       <div class="stat-content">
         <h3>Calorías</h3>
         <p class="stat-value">0</p>
         <span class="stat-label">Quemadas hoy</span>
       </div>
-    </div>
+    </fit-flow-card>
 
-    <div class="stat-card">
+    <fit-flow-card padding="md" class="stat-card">
       <div class="stat-icon">⏱️</div>
       <div class="stat-content">
         <h3>Tiempo</h3>
         <p class="stat-value">0h</p>
         <span class="stat-label">Entrenado</span>
       </div>
-    </div>
+    </fit-flow-card>
 
-    <div class="stat-card">
+    <fit-flow-card padding="md" class="stat-card">
       <div class="stat-icon">🎯</div>
       <div class="stat-content">
         <h3>Objetivos</h3>
         <p class="stat-value">0%</p>
         <span class="stat-label">Completados</span>
       </div>
-    </div>
+    </fit-flow-card>
   </div>
 
   @if (network.isOffline()) {
-    <div class="offline-notice">
-      <h3>Modo Offline</h3>
-      <p>
-        Estás trabajando sin conexión. Los datos se sincronizarán cuando vuelvas a estar online.
-      </p>
-    </div>
+    <fit-flow-alert
+      type="warning"
+      message="Estás trabajando sin conexión. Los datos se sincronizarán cuando vuelvas a estar online."
+    />
   }
 
   <div class="quick-actions">
     <h2>Acciones Rápidas</h2>
     <div class="actions-grid">
-      <button class="action-btn">
+      <fit-flow-button variant="secondary">
         <span class="action-icon">➕</span>
         <span>Nuevo Entrenamiento</span>
-      </button>
-      <button class="action-btn">
+      </fit-flow-button>
+      <fit-flow-button variant="secondary">
         <span class="action-icon">📊</span>
         <span>Ver Progreso</span>
-      </button>
-      <button class="action-btn">
+      </fit-flow-button>
+      <fit-flow-button variant="secondary">
         <span class="action-icon">📅</span>
         <span>Planificar</span>
-      </button>
-      <button class="action-btn">
+      </fit-flow-button>
+      <fit-flow-button variant="secondary">
         <span class="action-icon">⚙️</span>
         <span>Configuración</span>
-      </button>
+      </fit-flow-button>
     </div>
   </div>
 </div>

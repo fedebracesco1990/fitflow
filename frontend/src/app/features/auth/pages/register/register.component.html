@@ -2,9 +2,7 @@
   <h2>Crear Cuenta</h2>
 
   @if (error()) {
-    <div class="alert alert-error">
-      {{ error() }}
-    </div>
+    <fit-flow-alert type="error" [message]="error()!" />
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -15,9 +13,9 @@
         id="name"
         formControlName="name"
         placeholder="Tu nombre"
-        [class.error]="isFieldInvalid('name')"
+        [class.error]="nameInvalid"
       />
-      @if (isFieldInvalid('name')) {
+      @if (nameInvalid) {
         <span class="error-text">El nombre debe tener al menos 2 caracteres</span>
       }
     </div>
@@ -29,9 +27,9 @@
         id="email"
         formControlName="email"
         placeholder="tu@email.com"
-        [class.error]="isFieldInvalid('email')"
+        [class.error]="emailInvalid"
       />
-      @if (isFieldInvalid('email')) {
+      @if (emailInvalid) {
         <span class="error-text">Ingresa un correo válido</span>
       }
     </div>
@@ -43,9 +41,9 @@
         id="password"
         formControlName="password"
         placeholder="••••••••"
-        [class.error]="isFieldInvalid('password')"
+        [class.error]="passwordInvalid"
       />
-      @if (isFieldInvalid('password')) {
+      @if (passwordInvalid) {
         <span class="error-text">
           Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial
         </span>
@@ -59,20 +57,21 @@
         id="confirmPassword"
         formControlName="confirmPassword"
         placeholder="••••••••"
-        [class.error]="isFieldInvalid('confirmPassword')"
+        [class.error]="confirmPasswordInvalid"
       />
-      @if (isFieldInvalid('confirmPassword')) {
+      @if (confirmPasswordInvalid) {
         <span class="error-text">Las contraseñas no coinciden</span>
       }
     </div>
 
-    <button type="submit" class="btn-primary" [disabled]="isLoading() || form.invalid">
-      @if (isLoading()) {
-        <span>Creando cuenta...</span>
-      } @else {
-        <span>Crear Cuenta</span>
-      }
-    </button>
+    <fit-flow-button
+      type="submit"
+      [fullWidth]="true"
+      [loading]="isLoading()"
+      [disabled]="isSubmitDisabled"
+    >
+      Crear Cuenta
+    </fit-flow-button>
   </form>
 
   <div class="login-link">

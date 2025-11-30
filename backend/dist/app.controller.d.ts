@@ -7,8 +7,8 @@ export declare class AppController {
     getHello(): string;
     testConfig(): {
         jwtSecret: string;
-        jwtExpiration: any;
-        dbHost: any;
-        nodeEnv: any;
+        jwtExpiration: number | undefined;
+        dbHost: string | undefined;
+        nodeEnv: string | undefined;
     };
 }

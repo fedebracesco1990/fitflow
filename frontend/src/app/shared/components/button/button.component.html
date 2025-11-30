@@ -1,0 +1,8 @@
+<button [type]="btnType" [disabled]="isDisabled" class="btn" [ngClass]="btnClass">
+  @if (isLoading) {
+    <span class="btn__spinner"></span>
+  }
+  <span class="btn__content" [class.btn__content--hidden]="contentHidden">
+    <ng-content />
+  </span>
+</button>

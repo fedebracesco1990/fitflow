@@ -9,11 +9,12 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services';
+import { AlertComponent, ButtonComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-reset-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AlertComponent, ButtonComponent],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss',
 })
@@ -84,9 +85,19 @@ export class ResetPasswordComponent implements OnInit {
     }
   }
 
-  isFieldInvalid(field: string): boolean {
-    const control = this.form.get(field);
+  // Getters for template - reactive forms need getters
+  get newPasswordInvalid(): boolean {
+    const control = this.form.get('newPassword');
     return !!(control && control.invalid && control.touched);
+  }
+
+  get confirmPasswordInvalid(): boolean {
+    const control = this.form.get('confirmPassword');
+    return !!(control && control.invalid && control.touched);
+  }
+
+  get isSubmitDisabled(): boolean {
+    return this.isLoading() || this.form.invalid;
   }
 
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {

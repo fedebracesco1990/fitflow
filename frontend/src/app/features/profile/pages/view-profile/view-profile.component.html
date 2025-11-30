@@ -1,43 +1,51 @@
 <div class="profile-page">
   <div class="profile-header">
     <h1>Mi Perfil</h1>
-    <a routerLink="edit" class="btn-edit">Editar perfil</a>
+    <a routerLink="edit">
+      <fit-flow-button variant="outline">Editar perfil</fit-flow-button>
+    </a>
   </div>
 
   @if (isLoading()) {
-    <div class="loading">Cargando...</div>
+    <div class="loading">
+      <fit-flow-loading-spinner size="lg" />
+    </div>
   } @else if (profile()) {
-    <div class="profile-card">
-      <div class="avatar">
-        <span>{{ getInitials() }}</span>
+    <fit-flow-card padding="lg">
+      <div class="profile-content">
+        <fit-flow-avatar [name]="profileName()" size="xl" />
+
+        <div class="profile-info">
+          <div class="info-group">
+            <span class="info-label">Nombre</span>
+            <p>{{ profile()?.name }}</p>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">Correo electrónico</span>
+            <p>{{ profile()?.email }}</p>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">Rol</span>
+            <p>
+              <fit-flow-badge [variant]="roleBadgeVariant()">{{ roleLabel() }}</fit-flow-badge>
+            </p>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">Miembro desde</span>
+            <p>{{ formattedDate() }}</p>
+          </div>
+        </div>
       </div>
+    </fit-flow-card>
 
-      <div class="profile-info">
-        <div class="info-group">
-          <span class="info-label">Nombre</span>
-          <p>{{ profile()?.name }}</p>
-        </div>
-
-        <div class="info-group">
-          <span class="info-label">Correo electrónico</span>
-          <p>{{ profile()?.email }}</p>
-        </div>
-
-        <div class="info-group">
-          <span class="info-label">Rol</span>
-          <p class="role-badge">{{ getRoleLabel() }}</p>
-        </div>
-
-        <div class="info-group">
-          <span class="info-label">Miembro desde</span>
-          <p>{{ formatDate(profile()?.createdAt) }}</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="security-section">
+    <fit-flow-card padding="md" class="security-section">
       <h2>Seguridad</h2>
-      <a routerLink="change-password" class="btn-secondary">Cambiar contraseña</a>
-    </div>
+      <a routerLink="change-password">
+        <fit-flow-button variant="secondary">Cambiar contraseña</fit-flow-button>
+      </a>
+    </fit-flow-card>
   }
 </div>
