@@ -67,6 +67,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'payments',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.ADMIN] },
+    loadChildren: () =>
+      import('./features/payments/payments.routes').then((m) => m.PAYMENTS_ROUTES),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

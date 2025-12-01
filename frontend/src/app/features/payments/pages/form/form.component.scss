@@ -1,0 +1,101 @@
+.payment-form-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 800px;
+}
+
+.page-header {
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: #1e293b;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    &.ng-invalid.ng-touched {
+      border-color: #ef4444;
+    }
+  }
+
+  select {
+    cursor: pointer;
+    background: white;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .error-message {
+    font-size: 0.75rem;
+    color: #ef4444;
+  }
+
+  .hint {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+
+  a {
+    text-decoration: none;
+  }
+}

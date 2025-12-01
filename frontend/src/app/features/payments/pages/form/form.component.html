@@ -1,0 +1,104 @@
+<div class="payment-form-page">
+  <div class="page-header">
+    <h1>{{ isEditMode() ? 'Editar Pago' : 'Nuevo Pago' }}</h1>
+  </div>
+
+  @if (error()) {
+    <fit-flow-alert type="error" [message]="error()!" />
+  }
+
+  <fit-flow-card padding="lg">
+    @if (loading()) {
+      <div class="loading">Cargando...</div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+          <!-- Membresía -->
+          <div class="form-group full-width">
+            <label for="membershipId">Membresía *</label>
+            <select id="membershipId" formControlName="membershipId">
+              <option value="">Seleccionar membresía</option>
+              @for (membership of memberships(); track membership.id) {
+                <option [value]="membership.id">
+                  {{ getMembershipLabel(membership) }}
+                </option>
+              }
+            </select>
+            @if (isFieldInvalid('membershipId')) {
+              <span class="error-message">Selecciona una membresía</span>
+            }
+            @if (loadingMemberships()) {
+              <span class="hint">Cargando membresías...</span>
+            }
+          </div>
+
+          <!-- Monto -->
+          <div class="form-group">
+            <label for="amount">Monto *</label>
+            <input
+              type="number"
+              id="amount"
+              formControlName="amount"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+            />
+            @if (isFieldInvalid('amount')) {
+              <span class="error-message">Ingresa un monto válido</span>
+            }
+          </div>
+
+          <!-- Método de pago -->
+          <div class="form-group">
+            <label for="paymentMethod">Método de pago *</label>
+            <select id="paymentMethod" formControlName="paymentMethod">
+              @for (method of paymentMethods; track method) {
+                <option [value]="method">{{ PaymentMethodLabels[method] }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Fecha de pago -->
+          <div class="form-group">
+            <label for="paymentDate">Fecha de pago *</label>
+            <input type="date" id="paymentDate" formControlName="paymentDate" />
+            @if (isFieldInvalid('paymentDate')) {
+              <span class="error-message">Selecciona una fecha</span>
+            }
+          </div>
+
+          <!-- Referencia -->
+          <div class="form-group">
+            <label for="reference">Referencia / Comprobante</label>
+            <input
+              type="text"
+              id="reference"
+              formControlName="reference"
+              placeholder="Número de comprobante"
+            />
+          </div>
+
+          <!-- Notas -->
+          <div class="form-group full-width">
+            <label for="notes">Notas</label>
+            <textarea
+              id="notes"
+              formControlName="notes"
+              rows="3"
+              placeholder="Notas adicionales..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/payments">
+            <fit-flow-button type="button" variant="secondary">Cancelar</fit-flow-button>
+          </a>
+          <fit-flow-button type="submit" variant="primary" [disabled]="loading()">
+            {{ isEditMode() ? 'Guardar Cambios' : 'Registrar Pago' }}
+          </fit-flow-button>
+        </div>
+      </form>
+    }
+  </fit-flow-card>
+</div>

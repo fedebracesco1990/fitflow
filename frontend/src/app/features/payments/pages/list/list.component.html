@@ -1,0 +1,76 @@
+<div class="payments-list-page">
+  <div class="page-header">
+    <h1>Pagos</h1>
+    <a routerLink="/payments/new">
+      <fit-flow-button variant="primary">
+        <span>+ Nuevo Pago</span>
+      </fit-flow-button>
+    </a>
+  </div>
+
+  @if (error()) {
+    <fit-flow-alert type="error" [message]="error()!" />
+  }
+
+  @if (loading()) {
+    <fit-flow-card padding="lg">
+      <div class="loading">Cargando pagos...</div>
+    </fit-flow-card>
+  } @else if (payments().length === 0) {
+    <fit-flow-card padding="lg">
+      <div class="empty-state">
+        <p>No hay pagos registrados</p>
+        <a routerLink="/payments/new">
+          <fit-flow-button variant="secondary">Registrar primer pago</fit-flow-button>
+        </a>
+      </div>
+    </fit-flow-card>
+  } @else {
+    <fit-flow-card padding="none">
+      <div class="table-container">
+        <table class="payments-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Membresía</th>
+              <th>Monto</th>
+              <th>Método</th>
+              <th>Referencia</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (payment of payments(); track payment.id) {
+              <tr>
+                <td>{{ payment.paymentDate | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <div class="user-info">
+                    <span class="user-name">{{ getUserName(payment) }}</span>
+                    <span class="user-email">{{ payment.membership?.user?.email }}</span>
+                  </div>
+                </td>
+                <td>{{ getMembershipTypeName(payment) }}</td>
+                <td class="amount">${{ payment.amount | number: '1.2-2' }}</td>
+                <td>
+                  <span class="method-badge" [attr.data-method]="payment.paymentMethod">
+                    {{ getPaymentMethodLabel(payment.paymentMethod) }}
+                  </span>
+                </td>
+                <td>{{ payment.reference || '-' }}</td>
+                <td class="actions">
+                  <a [routerLink]="['/payments', payment.id, 'edit']">
+                    <fit-flow-button variant="secondary" size="sm">Editar</fit-flow-button>
+                  </a>
+                  <fit-flow-button variant="danger" size="sm" (click)="deletePayment(payment)">
+                    Eliminar
+                  </fit-flow-button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </fit-flow-card>
+  }
+</div>

@@ -4,4 +4,6 @@ export * from './api.service';
 export * from './auth.service';
 export * from './user.service';
 export * from './membership-types.service';
+export * from './payments.service';
+export * from './memberships.service';
 export * from './page-title.strategy';
