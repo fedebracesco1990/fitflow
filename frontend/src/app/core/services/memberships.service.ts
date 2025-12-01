@@ -44,7 +44,7 @@ export interface Membership {
 })
 export class MembershipsService {
   private readonly api = inject(ApiService);
-  private readonly endpoint = '/memberships';
+  private readonly endpoint = 'memberships';
 
   getAll(): Observable<Membership[]> {
     return this.api.get<Membership[]>(this.endpoint);

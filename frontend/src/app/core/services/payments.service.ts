@@ -8,7 +8,7 @@ import { Payment, CreatePaymentDto, UpdatePaymentDto } from '../models';
 })
 export class PaymentsService {
   private readonly api = inject(ApiService);
-  private readonly endpoint = '/payments';
+  private readonly endpoint = 'payments';
 
   getAll(): Observable<Payment[]> {
     return this.api.get<Payment[]>(this.endpoint);
