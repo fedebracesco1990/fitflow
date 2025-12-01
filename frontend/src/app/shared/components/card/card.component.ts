@@ -11,11 +11,15 @@ import { NgClass } from '@angular/common';
 export class CardComponent {
   padding = input<'none' | 'sm' | 'md' | 'lg'>('md');
   shadow = input<boolean>(true);
+  variant = input<'default' | 'gradient' | 'flat'>('default');
+  noBorder = input<boolean>(false);
 
   protected get cardClass(): Record<string, boolean> {
     return {
       [`card--padding-${this.padding()}`]: true,
-      'card--shadow': this.shadow(),
+      'card--shadow': this.shadow() && this.variant() !== 'gradient',
+      [`card--${this.variant()}`]: this.variant() !== 'default',
+      'card--no-border': this.noBorder(),
     };
   }
 }
