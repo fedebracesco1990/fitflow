@@ -321,28 +321,28 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ## Estado de Implementación
 
-| ID         | Funcionalidad                 | Estado       | Notas                                                                                    |
-| ---------- | ----------------------------- | ------------ | ---------------------------------------------------------------------------------------- |
-| FITFLOW-10 | Configuración de Repositorio  | ✅ COMPLETO  | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json                    |
-| FITFLOW-11 | Diseño de Arquitectura        | ⚠️ PARCIAL   | JWT documentado, falta diagrama y docs PWA                                               |
-| FITFLOW-12 | Modelo de Base de Datos       | ⚠️ PARCIAL   | Solo tabla User existe. Faltan: Membresía, TipoMembresía, Pago, Ejercicio, Rutina, etc.  |
-| FITFLOW-13 | Taller de Deploy              | ❌ PENDIENTE | No hay documentación de deploy                                                           |
-| FITFLOW-14 | API de Registro               | ✅ COMPLETO  | POST /auth/register, validación, bcrypt, rol por defecto                                 |
-| FITFLOW-15 | Formulario de Registro        | ✅ COMPLETO  | Formulario con validaciones, campos requeridos, manejo errores, responsive               |
-| FITFLOW-16 | API de Login/JWT              | ✅ COMPLETO  | POST /auth/login, JWT con payload, refresh token, guards                                 |
-| FITFLOW-17 | Formulario de Login           | ✅ COMPLETO  | Formulario, localStorage, interceptor, manejo errores                                    |
-| FITFLOW-18 | Sistema de Logout             | ✅ COMPLETO  | Botón en navbar, elimina tokens, redirige, limpia estado                                 |
-| FITFLOW-19 | Sistema de Roles (Backend)    | ⚠️ PARCIAL   | Roles en enum (no tabla), @Roles decorator, RolesGuard. Falta: tests                     |
-| FITFLOW-20 | Rutas Protegidas (Frontend)   | ⚠️ PARCIAL   | AuthGuard ✅, RoleGuard ✅, rutas protegidas ✅. Falta: dashboards diferenciados por rol |
-| FITFLOW-21 | API Recuperación Contraseña   | ⚠️ PARCIAL   | Endpoints creados, token temporal. Falta: envío real de email                            |
-| FITFLOW-22 | Flujo Recuperación Contraseña | ✅ COMPLETO  | Link en login, formulario solicitud, página reset, feedback                              |
-| FITFLOW-23 | API Tipos de Membresía        | ✅ COMPLETO  | CRUD completo con validaciones y roles                                                   |
-| FITFLOW-24 | Panel Tipos de Membresía      | ✅ COMPLETO  | Lista, formulario crear/editar, eliminar, solo admin                                     |
-| FITFLOW-25 | API de Pagos                  | ❌ PENDIENTE | No existe módulo payments                                                                |
-| FITFLOW-26 | Formulario de Pagos           | ❌ PENDIENTE | No existe en frontend                                                                    |
-| FITFLOW-27 | Lista de Pagos                | ❌ PENDIENTE | No existe en frontend                                                                    |
-| FITFLOW-28 | API Dashboard Financiero      | ❌ EXCLUIDO  | No revisar por ahora                                                                     |
-| FITFLOW-29 | Dashboard Financiero          | ❌ EXCLUIDO  | No revisar por ahora                                                                     |
+| ID         | Funcionalidad                 | Estado       | Notas                                                                                   |
+| ---------- | ----------------------------- | ------------ | --------------------------------------------------------------------------------------- |
+| FITFLOW-10 | Configuración de Repositorio  | ✅ COMPLETO  | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json                   |
+| FITFLOW-11 | Diseño de Arquitectura        | ⚠️ PARCIAL   | JWT documentado, falta diagrama y docs PWA                                              |
+| FITFLOW-12 | Modelo de Base de Datos       | ⚠️ PARCIAL   | Solo tabla User existe. Faltan: Membresía, TipoMembresía, Pago, Ejercicio, Rutina, etc. |
+| FITFLOW-13 | Taller de Deploy              | ❌ PENDIENTE | No hay documentación de deploy                                                          |
+| FITFLOW-14 | API de Registro               | ✅ COMPLETO  | POST /auth/register, validación, bcrypt, rol por defecto                                |
+| FITFLOW-15 | Formulario de Registro        | ✅ COMPLETO  | Formulario con validaciones, campos requeridos, manejo errores, responsive              |
+| FITFLOW-16 | API de Login/JWT              | ✅ COMPLETO  | POST /auth/login, JWT con payload, refresh token, guards                                |
+| FITFLOW-17 | Formulario de Login           | ✅ COMPLETO  | Formulario, localStorage, interceptor, manejo errores                                   |
+| FITFLOW-18 | Sistema de Logout             | ✅ COMPLETO  | Botón en navbar, elimina tokens, redirige, limpia estado                                |
+| FITFLOW-19 | Sistema de Roles (Backend)    | ⚠️ PARCIAL   | Roles en enum (no tabla), @Roles decorator, RolesGuard. Falta: tests                    |
+| FITFLOW-20 | Rutas Protegidas (Frontend)   | ✅ COMPLETO  | AuthGuard, RoleGuard, rutas protegidas, dashboard diferenciado por rol                  |
+| FITFLOW-21 | API Recuperación Contraseña   | ⚠️ PARCIAL   | Endpoints creados, token temporal. Falta: envío real de email                           |
+| FITFLOW-22 | Flujo Recuperación Contraseña | ✅ COMPLETO  | Link en login, formulario solicitud, página reset, feedback                             |
+| FITFLOW-23 | API Tipos de Membresía        | ✅ COMPLETO  | CRUD completo con validaciones y roles                                                  |
+| FITFLOW-24 | Panel Tipos de Membresía      | ✅ COMPLETO  | Lista, formulario crear/editar, eliminar, solo admin                                    |
+| FITFLOW-25 | API de Pagos                  | ❌ PENDIENTE | No existe módulo payments                                                               |
+| FITFLOW-26 | Formulario de Pagos           | ❌ PENDIENTE | No existe en frontend                                                                   |
+| FITFLOW-27 | Lista de Pagos                | ❌ PENDIENTE | No existe en frontend                                                                   |
+| FITFLOW-28 | API Dashboard Financiero      | ❌ EXCLUIDO  | No revisar por ahora                                                                    |
+| FITFLOW-29 | Dashboard Financiero          | ❌ EXCLUIDO  | No revisar por ahora                                                                    |
 
 ---
 

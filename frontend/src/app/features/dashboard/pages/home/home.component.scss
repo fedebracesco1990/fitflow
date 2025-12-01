@@ -11,8 +11,27 @@
   }
 
   p {
-    margin: 0;
+    margin: 0 0 0.75rem;
     opacity: 0.9;
+  }
+
+  .role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+.dashboard-section {
+  h2 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    color: #1e293b;
   }
 }
 
@@ -121,4 +140,65 @@
   font-size: 0.875rem;
   color: #374151;
   font-weight: 500;
+}
+
+// Membership card for user dashboard
+.membership-card {
+  .membership-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .membership-status {
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.625rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+
+      &.active {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+
+      &.expired {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+
+      &.pending {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+    }
+
+    .membership-type {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+  }
+
+  .membership-details {
+    text-align: right;
+
+    p {
+      margin: 0.25rem 0;
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+  }
+}
+
+// Actions grid with links
+.actions-grid {
+  a {
+    text-decoration: none;
+  }
 }
