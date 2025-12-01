@@ -326,7 +326,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-10 | Configuración de Repositorio  | ✅ COMPLETO  | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json                   |
 | FITFLOW-11 | Diseño de Arquitectura        | ⚠️ PARCIAL   | JWT documentado, falta diagrama y docs PWA                                              |
 | FITFLOW-12 | Modelo de Base de Datos       | ⚠️ PARCIAL   | Solo tabla User existe. Faltan: Membresía, TipoMembresía, Pago, Ejercicio, Rutina, etc. |
-| FITFLOW-13 | Taller de Deploy              | ❌ PENDIENTE | No hay documentación de deploy                                                          |
+| FITFLOW-13 | Taller de Deploy              | ✅ COMPLETO  | Documentación externa al repositorio                                                    |
 | FITFLOW-14 | API de Registro               | ✅ COMPLETO  | POST /auth/register, validación, bcrypt, rol por defecto                                |
 | FITFLOW-15 | Formulario de Registro        | ✅ COMPLETO  | Formulario con validaciones, campos requeridos, manejo errores, responsive              |
 | FITFLOW-16 | API de Login/JWT              | ✅ COMPLETO  | POST /auth/login, JWT con payload, refresh token, guards                                |
@@ -348,26 +348,26 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ## Resumen
 
-### ✅ Completadas (8)
+### ✅ Completadas (14)
 
-- FITFLOW-10, 14, 15, 16, 17, 18, 22
+- FITFLOW-10, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24
 
-### ⚠️ Parciales (5)
+### ⚠️ Parciales (3)
 
 - **FITFLOW-11**: Falta diagrama de arquitectura y documentación PWA
-- **FITFLOW-12**: Solo existe entidad User. Faltan todas las demás tablas del modelo
-- **FITFLOW-19**: Roles como enum, no como tabla. Sin tests
-- **FITFLOW-20**: Falta dashboard diferenciado por rol
+- **FITFLOW-12**: Solo existe entidad User y MembershipType. Faltan: Membresía, Pago, Ejercicio, Rutina
 - **FITFLOW-21**: Falta integración real de envío de email
 
-### ❌ Pendientes (7)
+### ❌ Pendientes (3)
 
-- **FITFLOW-13**: Documentación de deploy (Azure)
-- **FITFLOW-23**: API CRUD de Tipos de Membresía
-- **FITFLOW-24**: Panel frontend de Tipos de Membresía
 - **FITFLOW-25**: API CRUD de Pagos
 - **FITFLOW-26**: Formulario de registro de pagos
 - **FITFLOW-27**: Lista y consulta de pagos
+
+### ❌ Excluidas (2)
+
+- **FITFLOW-28**: API Dashboard Financiero
+- **FITFLOW-29**: Dashboard Financiero
 
 ---
 
@@ -375,19 +375,12 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ### Prioridad Alta (Core del negocio)
 
-1. **FITFLOW-12**: Crear entidades faltantes (Membresía, TipoMembresía, Pago)
-2. **FITFLOW-23**: Implementar API de Tipos de Membresía
-3. **FITFLOW-24**: Implementar Panel de Tipos de Membresía
-4. **FITFLOW-25**: Implementar API de Pagos
+1. **FITFLOW-12**: Crear entidad Membresía (asignación usuario-tipo)
+2. **FITFLOW-25**: Implementar API de Pagos
+3. **FITFLOW-26**: Formulario de Pagos
+4. **FITFLOW-27**: Lista de Pagos
 
 ### Prioridad Media
 
-5. **FITFLOW-26**: Formulario de Pagos
-6. **FITFLOW-27**: Lista de Pagos
-7. **FITFLOW-20**: Dashboards diferenciados por rol
-
-### Prioridad Baja
-
-8. **FITFLOW-11**: Completar documentación de arquitectura
-9. **FITFLOW-13**: Documentar estrategia de deploy
-10. **FITFLOW-21**: Integrar servicio de email real
+5. **FITFLOW-11**: Completar documentación de arquitectura
+6. **FITFLOW-21**: Integrar servicio de email real
