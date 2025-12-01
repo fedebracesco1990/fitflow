@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { MembershipTypesModule } from './modules/membership-types/membership-types.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 import appConfig from './config/app.config';
@@ -40,16 +41,19 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
         logging: configService.get<boolean>('database.logging'),
         autoLoadEntities: true,
         charset: 'utf8mb4',
+        collation: 'utf8mb4_unicode_ci',
         timezone: 'Z',
         extra: {
           connectionLimit: 10,
           connectTimeout: 20000,
+          charset: 'utf8mb4_unicode_ci',
         },
       }),
       inject: [ConfigService],
     }),
     AuthModule,
     UsersModule,
+    MembershipTypesModule,
   ],
   controllers: [AppController],
   providers: [
