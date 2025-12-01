@@ -324,7 +324,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | ID         | Funcionalidad                 | Estado      | Notas                                                                      |
 | ---------- | ----------------------------- | ----------- | -------------------------------------------------------------------------- |
 | FITFLOW-10 | Configuración de Repositorio  | ✅ COMPLETO | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json      |
-| FITFLOW-11 | Diseño de Arquitectura        | ⚠️ PARCIAL  | JWT documentado, falta diagrama y docs PWA                                 |
+| FITFLOW-11 | Diseño de Arquitectura        | ✅ COMPLETO | ARCHITECTURE.md con diagramas Mermaid, modelo de datos, PWA                |
 | FITFLOW-12 | Modelo de Base de Datos       | ⚠️ PARCIAL  | User, MembershipType, Membership, Payment. Faltan: Ejercicio, Rutina       |
 | FITFLOW-13 | Taller de Deploy              | ✅ COMPLETO | Documentación externa al repositorio                                       |
 | FITFLOW-14 | API de Registro               | ✅ COMPLETO | POST /auth/register, validación, bcrypt, rol por defecto                   |
@@ -348,13 +348,12 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ## Resumen
 
-### ✅ Completadas (17)
+### ✅ Completadas (18)
 
-- FITFLOW-10, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27
+- FITFLOW-10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27
 
-### ⚠️ Parciales (3)
+### ⚠️ Parciales (2)
 
-- **FITFLOW-11**: Falta diagrama de arquitectura y documentación PWA
 - **FITFLOW-12**: User, MembershipType, Membership, Payment. Faltan: Ejercicio, Rutina
 - **FITFLOW-21**: Falta integración real de envío de email
 
@@ -373,9 +372,5 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ### Prioridad Alta
 
-1. **FITFLOW-11**: Completar documentación de arquitectura
-2. **FITFLOW-21**: Integrar servicio de email real
-
-### Prioridad Media
-
-3. **FITFLOW-12**: Completar entidades Ejercicio y Rutina
+1. **FITFLOW-21**: Integrar servicio de email real
+2. **FITFLOW-12**: Completar entidades Ejercicio y Rutina

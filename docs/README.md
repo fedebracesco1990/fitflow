@@ -58,6 +58,7 @@ fitflow/
 
 | Documento                                            | Descripción                            |
 | ---------------------------------------------------- | -------------------------------------- |
+| [ARCHITECTURE.md](./ARCHITECTURE.md)                 | Diagramas de arquitectura del sistema  |
 | [COMMANDS.md](./COMMANDS.md)                         | Todos los comandos y referencia rápida |
 | [BACKEND_GUIDE.md](./BACKEND_GUIDE.md)               | Guía de desarrollo backend             |
 | [FRONTEND_GUIDE.md](./FRONTEND_GUIDE.md)             | Guía de desarrollo frontend            |
