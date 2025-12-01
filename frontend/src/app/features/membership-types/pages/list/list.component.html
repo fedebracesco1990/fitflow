@@ -1,0 +1,93 @@
+<div class="membership-types-page">
+  <div class="page-header">
+    <h1>Tipos de Membresía</h1>
+    @if (isAdmin()) {
+      <a routerLink="new">
+        <fit-flow-button variant="primary"> + Nuevo Tipo </fit-flow-button>
+      </a>
+    }
+  </div>
+
+  @if (error()) {
+    <fit-flow-alert type="error" [message]="error()!" />
+  }
+
+  @if (isLoading()) {
+    <div class="loading">
+      <p>Cargando tipos de membresía...</p>
+    </div>
+  } @else if (membershipTypes().length === 0) {
+    <fit-flow-card>
+      <div class="empty-state">
+        <p>No hay tipos de membresía registrados.</p>
+        @if (isAdmin()) {
+          <a routerLink="new">
+            <fit-flow-button variant="primary">Crear el primero</fit-flow-button>
+          </a>
+        }
+      </div>
+    </fit-flow-card>
+  } @else {
+    <fit-flow-card padding="none">
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Precio</th>
+              <th>Duración</th>
+              <th>Días de Gracia</th>
+              <th>Estado</th>
+              @if (isAdmin()) {
+                <th>Acciones</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (type of membershipTypes(); track type.id) {
+              <tr [class.inactive]="!type.isActive">
+                <td class="name">{{ type.name }}</td>
+                <td class="description">{{ type.description || '-' }}</td>
+                <td class="price">{{ formatPrice(type.price) }}</td>
+                <td class="duration">{{ formatDuration(type.durationDays) }}</td>
+                <td class="grace">{{ type.gracePeriodDays }} días</td>
+                <td class="status">
+                  <span
+                    class="badge"
+                    [class.active]="type.isActive"
+                    [class.inactive]="!type.isActive"
+                  >
+                    {{ type.isActive ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                @if (isAdmin()) {
+                  <td class="actions">
+                    @if (deleteConfirmId() === type.id) {
+                      <div class="confirm-delete">
+                        <span>¿Eliminar?</span>
+                        <fit-flow-button variant="danger" size="sm" (click)="deleteType(type.id)">
+                          Sí
+                        </fit-flow-button>
+                        <fit-flow-button variant="outline" size="sm" (click)="cancelDelete()">
+                          No
+                        </fit-flow-button>
+                      </div>
+                    } @else {
+                      <a [routerLink]="[type.id, 'edit']">
+                        <fit-flow-button variant="outline" size="sm"> Editar </fit-flow-button>
+                      </a>
+                      <fit-flow-button variant="danger" size="sm" (click)="confirmDelete(type.id)">
+                        Eliminar
+                      </fit-flow-button>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </fit-flow-card>
+  }
+</div>

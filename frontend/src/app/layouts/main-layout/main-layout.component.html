@@ -21,6 +21,9 @@
         >
           Inicio
         </a>
+        @if (isAdmin()) {
+          <a routerLink="/membership-types" routerLinkActive="active">Membresías</a>
+        }
         <a routerLink="/profile" routerLinkActive="active">Mi Perfil</a>
       </nav>
 

@@ -337,7 +337,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-21 | API Recuperación Contraseña   | ⚠️ PARCIAL   | Endpoints creados, token temporal. Falta: envío real de email                            |
 | FITFLOW-22 | Flujo Recuperación Contraseña | ✅ COMPLETO  | Link en login, formulario solicitud, página reset, feedback                              |
 | FITFLOW-23 | API Tipos de Membresía        | ✅ COMPLETO  | CRUD completo con validaciones y roles                                                   |
-| FITFLOW-24 | Panel Tipos de Membresía      | ❌ PENDIENTE | No existe en frontend                                                                    |
+| FITFLOW-24 | Panel Tipos de Membresía      | ✅ COMPLETO  | Lista, formulario crear/editar, eliminar, solo admin                                     |
 | FITFLOW-25 | API de Pagos                  | ❌ PENDIENTE | No existe módulo payments                                                                |
 | FITFLOW-26 | Formulario de Pagos           | ❌ PENDIENTE | No existe en frontend                                                                    |
 | FITFLOW-27 | Lista de Pagos                | ❌ PENDIENTE | No existe en frontend                                                                    |

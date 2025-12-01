@@ -19,6 +19,7 @@ export class MainLayoutComponent {
   readonly network = inject(NetworkService);
 
   readonly user = this.store.selectSignal(AuthState.user);
+  readonly isAdmin = this.store.selectSignal(AuthState.isAdmin);
 
   logout(): void {
     this.actions$.pipe(ofActionSuccessful(LogoutSuccess), take(1)).subscribe(() => {

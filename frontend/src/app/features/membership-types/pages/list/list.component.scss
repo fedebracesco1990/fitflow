@@ -1,0 +1,146 @@
+.membership-types-page {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: var(--text-primary);
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  th {
+    background-color: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--bg-hover);
+    }
+
+    &.inactive {
+      opacity: 0.6;
+    }
+  }
+}
+
+.name {
+  font-weight: 500;
+}
+
+.description {
+  color: var(--text-secondary);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.price {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  &.active {
+    background-color: var(--success-bg);
+    color: var(--success-color);
+  }
+
+  &.inactive {
+    background-color: var(--danger-bg);
+    color: var(--danger-color);
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.confirm-delete {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  span {
+    font-size: 0.875rem;
+    color: var(--danger-color);
+  }
+}
+
+// Variables fallback
+:host {
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --bg-secondary: #f9fafb;
+  --bg-hover: #f3f4f6;
+  --border-color: #e5e7eb;
+  --primary-color: #3b82f6;
+  --success-bg: #d1fae5;
+  --success-color: #065f46;
+  --danger-bg: #fee2e2;
+  --danger-color: #991b1b;
+}
