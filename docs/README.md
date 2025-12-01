@@ -56,11 +56,12 @@ fitflow/
 
 ## Documentación
 
-| Documento                                | Descripción                            |
-| ---------------------------------------- | -------------------------------------- |
-| [COMMANDS.md](./COMMANDS.md)             | Todos los comandos y referencia rápida |
-| [BACKEND_GUIDE.md](./BACKEND_GUIDE.md)   | Guía de desarrollo backend             |
-| [FRONTEND_GUIDE.md](./FRONTEND_GUIDE.md) | Guía de desarrollo frontend            |
+| Documento                                            | Descripción                            |
+| ---------------------------------------------------- | -------------------------------------- |
+| [COMMANDS.md](./COMMANDS.md)                         | Todos los comandos y referencia rápida |
+| [BACKEND_GUIDE.md](./BACKEND_GUIDE.md)               | Guía de desarrollo backend             |
+| [FRONTEND_GUIDE.md](./FRONTEND_GUIDE.md)             | Guía de desarrollo frontend            |
+| [AI_DEVELOPMENT_GUIDE.md](./AI_DEVELOPMENT_GUIDE.md) | Guía para desarrollo asistido por IA   |
 
 ## Comandos Principales
 
@@ -69,7 +70,6 @@ npm run dev:backend      # Docker + Backend (día a día)
 npm run start:all        # Frontend + Backend
 npm run build            # Build completo
 npm run lint:fix         # Lint con auto-fix
-npm run test             # Tests
 ```
 
 Ver todos los comandos en [COMMANDS.md](./COMMANDS.md).
