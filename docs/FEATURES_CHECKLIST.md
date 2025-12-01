@@ -332,7 +332,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-16 | API de Login/JWT              | ✅ COMPLETO  | POST /auth/login, JWT con payload, refresh token, guards                                |
 | FITFLOW-17 | Formulario de Login           | ✅ COMPLETO  | Formulario, localStorage, interceptor, manejo errores                                   |
 | FITFLOW-18 | Sistema de Logout             | ✅ COMPLETO  | Botón en navbar, elimina tokens, redirige, limpia estado                                |
-| FITFLOW-19 | Sistema de Roles (Backend)    | ⚠️ PARCIAL   | Roles en enum (no tabla), @Roles decorator, RolesGuard. Falta: tests                    |
+| FITFLOW-19 | Sistema de Roles (Backend)    | ✅ COMPLETO  | Roles enum, @Roles decorator, RolesGuard, tests unitarios                               |
 | FITFLOW-20 | Rutas Protegidas (Frontend)   | ✅ COMPLETO  | AuthGuard, RoleGuard, rutas protegidas, dashboard diferenciado por rol                  |
 | FITFLOW-21 | API Recuperación Contraseña   | ⚠️ PARCIAL   | Endpoints creados, token temporal. Falta: envío real de email                           |
 | FITFLOW-22 | Flujo Recuperación Contraseña | ✅ COMPLETO  | Link en login, formulario solicitud, página reset, feedback                             |
