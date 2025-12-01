@@ -9,6 +9,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { MembershipTypesModule } from './modules/membership-types/membership-types.module';
 import { MembershipsModule } from './modules/memberships/memberships.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { ExercisesModule } from './modules/exercises/exercises.module';
+import { RoutinesModule } from './modules/routines/routines.module';
+import { UserRoutinesModule } from './modules/user-routines/user-routines.module';
+import { WorkoutsModule } from './modules/workouts/workouts.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 import appConfig from './config/app.config';
@@ -58,6 +62,10 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     MembershipTypesModule,
     MembershipsModule,
     PaymentsModule,
+    ExercisesModule,
+    RoutinesModule,
+    UserRoutinesModule,
+    WorkoutsModule,
   ],
   controllers: [AppController],
   providers: [
