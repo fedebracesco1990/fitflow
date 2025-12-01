@@ -325,7 +325,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | ---------- | ----------------------------- | ------------ | -------------------------------------------------------------------------- |
 | FITFLOW-10 | Configuración de Repositorio  | ✅ COMPLETO  | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json      |
 | FITFLOW-11 | Diseño de Arquitectura        | ⚠️ PARCIAL   | JWT documentado, falta diagrama y docs PWA                                 |
-| FITFLOW-12 | Modelo de Base de Datos       | ⚠️ PARCIAL   | User, MembershipType, Membership. Faltan: Payment, Ejercicio, Rutina       |
+| FITFLOW-12 | Modelo de Base de Datos       | ⚠️ PARCIAL   | User, MembershipType, Membership, Payment. Faltan: Ejercicio, Rutina       |
 | FITFLOW-13 | Taller de Deploy              | ✅ COMPLETO  | Documentación externa al repositorio                                       |
 | FITFLOW-14 | API de Registro               | ✅ COMPLETO  | POST /auth/register, validación, bcrypt, rol por defecto                   |
 | FITFLOW-15 | Formulario de Registro        | ✅ COMPLETO  | Formulario con validaciones, campos requeridos, manejo errores, responsive |
@@ -338,7 +338,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-22 | Flujo Recuperación Contraseña | ✅ COMPLETO  | Link en login, formulario solicitud, página reset, feedback                |
 | FITFLOW-23 | API Tipos de Membresía        | ✅ COMPLETO  | CRUD completo con validaciones y roles                                     |
 | FITFLOW-24 | Panel Tipos de Membresía      | ✅ COMPLETO  | Lista, formulario crear/editar, eliminar, solo admin                       |
-| FITFLOW-25 | API de Pagos                  | ❌ PENDIENTE | No existe módulo payments                                                  |
+| FITFLOW-25 | API de Pagos                  | ✅ COMPLETO  | CRUD completo con validaciones y roles                                     |
 | FITFLOW-26 | Formulario de Pagos           | ❌ PENDIENTE | No existe en frontend                                                      |
 | FITFLOW-27 | Lista de Pagos                | ❌ PENDIENTE | No existe en frontend                                                      |
 | FITFLOW-28 | API Dashboard Financiero      | ❌ EXCLUIDO  | No revisar por ahora                                                       |
@@ -348,19 +348,18 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ## Resumen
 
-### ✅ Completadas (14)
+### ✅ Completadas (15)
 
-- FITFLOW-10, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24
+- FITFLOW-10, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25
 
 ### ⚠️ Parciales (3)
 
 - **FITFLOW-11**: Falta diagrama de arquitectura y documentación PWA
-- **FITFLOW-12**: User, MembershipType, Membership. Faltan: Payment, Ejercicio, Rutina
+- **FITFLOW-12**: User, MembershipType, Membership, Payment. Faltan: Ejercicio, Rutina
 - **FITFLOW-21**: Falta integración real de envío de email
 
-### ❌ Pendientes (3)
+### ❌ Pendientes (2)
 
-- **FITFLOW-25**: API CRUD de Pagos
 - **FITFLOW-26**: Formulario de registro de pagos
 - **FITFLOW-27**: Lista y consulta de pagos
 
@@ -375,12 +374,10 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ### Prioridad Alta (Core del negocio)
 
-1. **FITFLOW-12**: Crear entidad Membresía (asignación usuario-tipo)
-2. **FITFLOW-25**: Implementar API de Pagos
-3. **FITFLOW-26**: Formulario de Pagos
-4. **FITFLOW-27**: Lista de Pagos
+1. **FITFLOW-26**: Formulario de Pagos
+2. **FITFLOW-27**: Lista de Pagos
 
 ### Prioridad Media
 
-5. **FITFLOW-11**: Completar documentación de arquitectura
-6. **FITFLOW-21**: Integrar servicio de email real
+3. **FITFLOW-11**: Completar documentación de arquitectura
+4. **FITFLOW-21**: Integrar servicio de email real

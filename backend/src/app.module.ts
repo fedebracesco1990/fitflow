@@ -8,6 +8,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MembershipTypesModule } from './modules/membership-types/membership-types.module';
 import { MembershipsModule } from './modules/memberships/memberships.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 import appConfig from './config/app.config';
@@ -56,6 +57,7 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     UsersModule,
     MembershipTypesModule,
     MembershipsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [
