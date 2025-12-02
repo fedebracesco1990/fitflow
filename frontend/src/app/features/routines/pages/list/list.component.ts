@@ -1,0 +1,57 @@
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { RoutinesService } from '../../../../core/services';
+import { Routine, DifficultyLabels } from '../../../../core/models';
+
+@Component({
+  selector: 'fit-flow-routine-list',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  templateUrl: './list.component.html',
+  styleUrl: './list.component.scss',
+})
+export class RoutinesListComponent implements OnInit {
+  private readonly routinesService = inject(RoutinesService);
+
+  routines = signal<Routine[]>([]);
+  loading = signal(true);
+  error = signal<string | null>(null);
+
+  difficultyLabels = DifficultyLabels;
+
+  ngOnInit(): void {
+    this.loadRoutines();
+  }
+
+  loadRoutines(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.routinesService.getAll(true).subscribe({
+      next: (routines) => {
+        this.routines.set(routines);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Error al cargar rutinas');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  deleteRoutine(routine: Routine): void {
+    if (!confirm(`¿Estás seguro de eliminar la rutina "${routine.name}"?`)) {
+      return;
+    }
+
+    this.routinesService.delete(routine.id).subscribe({
+      next: () => {
+        this.routines.update((list) => list.filter((r) => r.id !== routine.id));
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Error al eliminar rutina');
+      },
+    });
+  }
+}

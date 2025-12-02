@@ -1,0 +1,56 @@
+<div class="my-week">
+  <header class="page-header">
+    <h1>Mi Semana de Entrenamiento</h1>
+  </header>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Cargando tu plan semanal...</div>
+  } @else if (weekRoutines()) {
+    <div class="week-grid">
+      @for (day of days; track day) {
+        <div class="day-card" [class.today]="day === today">
+          <div class="day-header">
+            <h3>{{ dayLabels[day] }}</h3>
+            @if (day === today) {
+              <span class="today-badge">Hoy</span>
+            }
+          </div>
+          <div class="day-routines">
+            @if (weekRoutines()![day].length === 0) {
+              <p class="rest-day">Día de descanso</p>
+            } @else {
+              @for (ur of weekRoutines()![day]; track ur.id) {
+                <div class="routine-item">
+                  <div class="routine-info">
+                    <strong>{{ ur.routine?.name }}</strong>
+                    <span class="routine-meta">
+                      {{ ur.routine?.estimatedDuration }} min •
+                      {{ difficultyLabels[ur.routine?.difficulty!] }}
+                    </span>
+                  </div>
+                  @if (day === today) {
+                    <a
+                      [routerLink]="['/my-routines', ur.id, 'start']"
+                      class="btn btn-primary btn-sm"
+                    >
+                      Iniciar
+                    </a>
+                  }
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <p>No tienes rutinas asignadas</p>
+      <p class="hint">Contacta con tu entrenador para que te asigne un plan</p>
+    </div>
+  }
+</div>

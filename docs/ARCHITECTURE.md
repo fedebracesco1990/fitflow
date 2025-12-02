@@ -160,8 +160,10 @@ graph TB
 ```
 backend/src/
 ├── common/
-│   └── enums/           # Role enum
+│   └── enums/           # Role, Difficulty, DayOfWeek, WorkoutStatus
 ├── config/              # Configuración (app, db, jwt)
+├── database/
+│   └── seeders/         # SeederService (datos iniciales)
 ├── modules/
 │   ├── auth/            # Login, Register, JWT
 │   │   ├── decorators/  # @Roles, @Public
@@ -171,7 +173,12 @@ backend/src/
 │   ├── users/           # CRUD Usuarios
 │   ├── membership-types/# CRUD Tipos Membresía
 │   ├── memberships/     # CRUD Membresías
-│   └── payments/        # CRUD Pagos
+│   ├── payments/        # CRUD Pagos
+│   ├── muscle-groups/   # CRUD Grupos Musculares
+│   ├── exercises/       # CRUD Ejercicios
+│   ├── routines/        # CRUD Rutinas
+│   ├── user-routines/   # Asignación de rutinas a usuarios
+│   └── workouts/        # Registro de entrenamientos
 └── main.ts
 ```
 
@@ -189,6 +196,7 @@ erDiagram
         string name
         string phone
         enum role
+        boolean isActive
         datetime createdAt
         datetime updatedAt
     }
@@ -231,6 +239,95 @@ erDiagram
         text notes
         datetime createdAt
         datetime updatedAt
+    }
+
+    MUSCLE_GROUP ||--o{ EXERCISE : contains
+    MUSCLE_GROUP {
+        uuid id PK
+        string code UK
+        string name
+        string description
+        string icon
+        int order
+        boolean isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    EXERCISE ||--o{ ROUTINE_EXERCISE : used_in
+    EXERCISE {
+        uuid id PK
+        string name UK
+        string description
+        uuid muscleGroupId FK
+        enum difficulty
+        string videoUrl
+        string imageUrl
+        string instructions
+        boolean isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    ROUTINE ||--o{ ROUTINE_EXERCISE : has
+    USER ||--o{ ROUTINE : creates
+    ROUTINE {
+        uuid id PK
+        string name
+        string description
+        uuid createdById FK
+        boolean isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    ROUTINE_EXERCISE {
+        uuid id PK
+        uuid routineId FK
+        uuid exerciseId FK
+        int sets
+        int reps
+        int restSeconds
+        int order
+        text notes
+    }
+
+    USER ||--o{ USER_ROUTINE : assigned
+    ROUTINE ||--o{ USER_ROUTINE : assigned_to
+    USER_ROUTINE {
+        uuid id PK
+        uuid userId FK
+        uuid routineId FK
+        enum dayOfWeek
+        boolean isActive
+        datetime createdAt
+    }
+
+    USER ||--o{ WORKOUT_LOG : performs
+    ROUTINE ||--o{ WORKOUT_LOG : based_on
+    WORKOUT_LOG {
+        uuid id PK
+        uuid userId FK
+        uuid routineId FK
+        date date
+        enum status
+        int durationMinutes
+        text notes
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    WORKOUT_LOG ||--o{ EXERCISE_LOG : contains
+    EXERCISE ||--o{ EXERCISE_LOG : logged
+    EXERCISE_LOG {
+        uuid id PK
+        uuid workoutLogId FK
+        uuid exerciseId FK
+        int setNumber
+        int reps
+        decimal weight
+        boolean completed
+        text notes
     }
 ```
 
@@ -309,13 +406,19 @@ graph TD
 
 ### Matriz de Permisos
 
-| Recurso         | ADMIN | TRAINER | USER |
-| --------------- | ----- | ------- | ---- |
-| Usuarios        | CRUD  | Read    | Self |
-| Tipos Membresía | CRUD  | Read    | Read |
-| Membresías      | CRUD  | Read    | Self |
-| Pagos           | CRUD  | -       | Self |
-| Perfil          | All   | Self    | Self |
+| Recurso           | ADMIN | TRAINER | USER |
+| ----------------- | ----- | ------- | ---- |
+| Usuarios          | CRUD  | Read    | Self |
+| Tipos Membresía   | CRUD  | Read    | Read |
+| Membresías        | CRUD  | Read    | Self |
+| Pagos             | CRUD  | -       | Self |
+| Grupos Musculares | CRUD  | Read    | Read |
+| Ejercicios        | CRUD  | Read    | Read |
+| Rutinas           | CRUD  | CRUD    | Read |
+| Asignar Rutinas   | CRUD  | CRUD    | -    |
+| Mis Rutinas       | -     | -       | Read |
+| Entrenamientos    | All   | Read    | Self |
+| Perfil            | All   | Self    | Self |
 
 ---
 
@@ -364,6 +467,63 @@ graph LR
   "icons": [...]
 }
 ```
+
+---
+
+## Sistema de Seeding
+
+El backend incluye un sistema de seeding automático que se ejecuta al iniciar la aplicación.
+
+### Funcionamiento
+
+```mermaid
+sequenceDiagram
+    participant App as NestJS App
+    participant Seeder as SeederService
+    participant DB as MySQL
+
+    App->>Seeder: onModuleInit()
+    Seeder->>DB: Verificar usuarios existentes
+    alt No existen
+        Seeder->>DB: Crear usuarios base
+    end
+    Seeder->>DB: Verificar grupos musculares
+    alt No existen
+        Seeder->>DB: Crear grupos musculares
+    end
+    Seeder-->>App: Seed completado
+```
+
+### Datos Iniciales
+
+**Usuarios (5)**
+| Email | Role | Estado |
+|-------|------|--------|
+| admin@fitflow.com | ADMIN | Activo |
+| trainer@fitflow.com | TRAINER | Activo |
+| user1@fitflow.com | USER | Activo |
+| user2@fitflow.com | USER | Activo |
+| inactive@fitflow.com | USER | Inactivo |
+
+**Grupos Musculares (10)**
+| Código | Nombre |
+|--------|--------|
+| chest | Pecho |
+| back | Espalda |
+| shoulders | Hombros |
+| biceps | Bíceps |
+| triceps | Tríceps |
+| legs | Piernas |
+| glutes | Glúteos |
+| core | Core |
+| cardio | Cardio |
+| full_body | Cuerpo Completo |
+
+### Características
+
+- **Idempotente**: No duplica datos si ya existen
+- **Automático**: Se ejecuta al iniciar el backend
+- **Extensible**: Agregar nuevos seeders en `SeederService`
 
 ---
 

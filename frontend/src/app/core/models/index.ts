@@ -3,3 +3,6 @@ export * from './auth.model';
 export * from './api-response.model';
 export * from './membership-type.model';
 export * from './payment.model';
+export * from './exercise.model';
+export * from './routine.model';
+export * from './workout.model';

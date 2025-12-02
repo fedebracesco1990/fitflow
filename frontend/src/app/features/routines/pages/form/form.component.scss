@@ -1,0 +1,282 @@
+.routine-form {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: #1f2937;
+  }
+}
+
+.form-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+}
+
+textarea.form-control {
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+// Exercises Section
+.exercises-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    color: #1f2937;
+  }
+
+  h3 {
+    margin: 1.5rem 0 1rem;
+    font-size: 1rem;
+    color: #6b7280;
+  }
+}
+
+.routine-exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.routine-exercise-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.exercise-order {
+  width: 28px;
+  height: 28px;
+  background: #667eea;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.exercise-info {
+  flex: 1;
+
+  strong {
+    display: block;
+    color: #1f2937;
+  }
+
+  .exercise-muscle {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+}
+
+.exercise-config {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.config-item {
+  text-align: center;
+
+  label {
+    display: block;
+    font-size: 0.625rem;
+    color: #6b7280;
+    text-transform: uppercase;
+  }
+
+  input {
+    width: 50px;
+    padding: 0.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    text-align: center;
+    font-size: 0.875rem;
+  }
+}
+
+.btn-remove {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.75rem;
+
+  &:hover {
+    background: #fecaca;
+  }
+}
+
+.available-exercises {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.exercise-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    border-color: #667eea;
+    background: #f0f4ff;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .exercise-name {
+    font-weight: 500;
+    color: #1f2937;
+  }
+
+  .exercise-badge {
+    font-size: 0.625rem;
+    padding: 0.125rem 0.375rem;
+    background: #e0e7ff;
+    color: #3730a3;
+    border-radius: 0.25rem;
+  }
+
+  .added-check {
+    color: #10b981;
+    font-weight: bold;
+  }
+}
+
+.empty-text {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &-primary {
+    background: #667eea;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #5a67d8;
+    }
+  }
+
+  &-outline {
+    background: transparent;
+    border: 1px solid #d1d5db;
+    color: #374151;
+
+    &:hover {
+      border-color: #667eea;
+      color: #667eea;
+    }
+  }
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+
+  &-error {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+}
+
+.error-text {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #dc2626;
+}

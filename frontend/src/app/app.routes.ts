@@ -74,6 +74,20 @@ export const routes: Routes = [
       import('./features/payments/payments.routes').then((m) => m.PAYMENTS_ROUTES),
   },
   {
+    path: 'exercises',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.ADMIN] },
+    loadChildren: () =>
+      import('./features/exercises/exercises.routes').then((m) => m.EXERCISES_ROUTES),
+  },
+  {
+    path: 'routines',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.ADMIN, Role.TRAINER] },
+    loadChildren: () =>
+      import('./features/routines/routines.routes').then((m) => m.ROUTINES_ROUTES),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

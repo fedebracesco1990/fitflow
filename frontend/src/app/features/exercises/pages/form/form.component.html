@@ -1,0 +1,87 @@
+<div class="exercise-form">
+  <header class="page-header">
+    <h1>{{ isEditMode() ? 'Editar' : 'Nuevo' }} Ejercicio</h1>
+  </header>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-card">
+    <div class="form-group">
+      <label for="name">Nombre *</label>
+      <input
+        type="text"
+        id="name"
+        formControlName="name"
+        class="form-control"
+        placeholder="Ej: Press de Banca"
+      />
+      @if (form.get('name')?.touched && form.get('name')?.errors) {
+        <span class="error-text">El nombre es requerido</span>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="muscleGroup">Grupo Muscular *</label>
+        <select id="muscleGroup" formControlName="muscleGroup" class="form-control">
+          @for (mg of muscleGroups; track mg) {
+            <option [value]="mg">{{ muscleGroupLabels[mg] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="difficulty">Dificultad</label>
+        <select id="difficulty" formControlName="difficulty" class="form-control">
+          @for (d of difficulties; track d) {
+            <option [value]="d">{{ difficultyLabels[d] }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Descripción / Instrucciones</label>
+      <textarea
+        id="description"
+        formControlName="description"
+        class="form-control"
+        rows="4"
+        placeholder="Describe cómo realizar el ejercicio correctamente..."
+      ></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="videoUrl">URL de Video</label>
+        <input
+          type="url"
+          id="videoUrl"
+          formControlName="videoUrl"
+          class="form-control"
+          placeholder="https://..."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="imageUrl">URL de Imagen</label>
+        <input
+          type="url"
+          id="imageUrl"
+          formControlName="imageUrl"
+          class="form-control"
+          placeholder="https://..."
+        />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-outline" (click)="cancel()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading()">
+        {{ loading() ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</div>

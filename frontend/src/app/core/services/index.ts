@@ -6,4 +6,8 @@ export * from './user.service';
 export * from './membership-types.service';
 export * from './payments.service';
 export * from './memberships.service';
+export * from './exercises.service';
+export * from './routines.service';
+export * from './user-routines.service';
+export * from './workouts.service';
 export * from './page-title.strategy';

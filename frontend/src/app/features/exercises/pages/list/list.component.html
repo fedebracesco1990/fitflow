@@ -1,0 +1,71 @@
+<div class="exercises-list">
+  <header class="page-header">
+    <h1>Ejercicios</h1>
+    <a routerLink="new" class="btn btn-primary">+ Nuevo Ejercicio</a>
+  </header>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <button
+      class="filter-btn"
+      [class.active]="selectedMuscleGroup() === null"
+      (click)="filterByMuscleGroup(null)"
+    >
+      Todos
+    </button>
+    @for (mg of muscleGroups; track mg) {
+      <button
+        class="filter-btn"
+        [class.active]="selectedMuscleGroup() === mg"
+        (click)="filterByMuscleGroup(mg)"
+      >
+        {{ muscleGroupLabels[mg] }}
+      </button>
+    }
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Cargando ejercicios...</div>
+  } @else if (exercises().length === 0) {
+    <div class="empty-state">
+      <p>No hay ejercicios registrados</p>
+      <a routerLink="new" class="btn btn-outline">Crear primer ejercicio</a>
+    </div>
+  } @else {
+    <div class="exercises-grid">
+      @for (exercise of exercises(); track exercise.id) {
+        <div class="exercise-card" [class.inactive]="!exercise.isActive">
+          @if (exercise.imageUrl) {
+            <img [src]="exercise.imageUrl" [alt]="exercise.name" class="exercise-image" />
+          } @else {
+            <div class="exercise-image-placeholder">
+              <span>{{ muscleGroupLabels[exercise.muscleGroup] }}</span>
+            </div>
+          }
+          <div class="exercise-content">
+            <h3>{{ exercise.name }}</h3>
+            <div class="exercise-meta">
+              <span class="badge badge-muscle">{{ muscleGroupLabels[exercise.muscleGroup] }}</span>
+              <span class="badge badge-difficulty">{{
+                difficultyLabels[exercise.difficulty]
+              }}</span>
+            </div>
+            @if (exercise.description) {
+              <p class="exercise-description">{{ exercise.description }}</p>
+            }
+            <div class="exercise-actions">
+              <a [routerLink]="[exercise.id, 'edit']" class="btn btn-sm btn-outline">Editar</a>
+              <button class="btn btn-sm btn-danger" (click)="deleteExercise(exercise)">
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,150 @@
+<div class="routine-form">
+  <header class="page-header">
+    <h1>{{ isEditMode() ? 'Editar' : 'Nueva' }} Rutina</h1>
+  </header>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  <div class="form-layout">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-card">
+      <div class="form-group">
+        <label for="name">Nombre *</label>
+        <input
+          type="text"
+          id="name"
+          formControlName="name"
+          class="form-control"
+          placeholder="Ej: Full Body Principiante"
+        />
+        @if (form.get('name')?.touched && form.get('name')?.errors) {
+          <span class="error-text">El nombre es requerido</span>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="difficulty">Dificultad</label>
+          <select id="difficulty" formControlName="difficulty" class="form-control">
+            @for (d of difficulties; track d) {
+              <option [value]="d">{{ difficultyLabels[d] }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="estimatedDuration">Duración (minutos)</label>
+          <input
+            type="number"
+            id="estimatedDuration"
+            formControlName="estimatedDuration"
+            class="form-control"
+            min="10"
+            max="180"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Descripción</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          class="form-control"
+          rows="3"
+          placeholder="Describe el objetivo de esta rutina..."
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading()">
+          {{
+            loading()
+              ? 'Guardando...'
+              : isEditMode()
+                ? 'Guardar Cambios'
+                : 'Crear y Agregar Ejercicios'
+          }}
+        </button>
+      </div>
+    </form>
+
+    @if (isEditMode()) {
+      <div class="exercises-section">
+        <h2>Ejercicios de la Rutina</h2>
+
+        <div class="routine-exercises">
+          @if (routineExercises().length === 0) {
+            <p class="empty-text">No hay ejercicios agregados</p>
+          } @else {
+            @for (re of routineExercises(); track re.id; let i = $index) {
+              <div class="routine-exercise-item">
+                <div class="exercise-order">{{ i + 1 }}</div>
+                <div class="exercise-info">
+                  <strong>{{ re.exercise?.name }}</strong>
+                  @if (re.exercise?.muscleGroup) {
+                    <span class="exercise-muscle">{{
+                      muscleGroupLabels[re.exercise.muscleGroup]
+                    }}</span>
+                  }
+                </div>
+                <div class="exercise-config">
+                  <div class="config-item">
+                    <label>Series</label>
+                    <input
+                      type="number"
+                      [value]="re.sets"
+                      min="1"
+                      max="10"
+                      (change)="updateExerciseConfig(re, 'sets', +$any($event.target).value)"
+                    />
+                  </div>
+                  <div class="config-item">
+                    <label>Reps</label>
+                    <input
+                      type="number"
+                      [value]="re.reps"
+                      min="1"
+                      max="100"
+                      (change)="updateExerciseConfig(re, 'reps', +$any($event.target).value)"
+                    />
+                  </div>
+                  <div class="config-item">
+                    <label>Descanso</label>
+                    <input
+                      type="number"
+                      [value]="re.restSeconds"
+                      min="0"
+                      max="300"
+                      (change)="updateExerciseConfig(re, 'restSeconds', +$any($event.target).value)"
+                    />
+                  </div>
+                </div>
+                <button class="btn-remove" (click)="removeExercise(re)">✕</button>
+              </div>
+            }
+          }
+        </div>
+
+        <h3>Agregar Ejercicios</h3>
+        <div class="available-exercises">
+          @for (exercise of availableExercises(); track exercise.id) {
+            <button
+              class="exercise-add-btn"
+              [disabled]="isExerciseInRoutine(exercise)"
+              (click)="addExercise(exercise)"
+            >
+              <span class="exercise-name">{{ exercise.name }}</span>
+              <span class="exercise-badge">{{ muscleGroupLabels[exercise.muscleGroup] }}</span>
+              @if (isExerciseInRoutine(exercise)) {
+                <span class="added-check">✓</span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

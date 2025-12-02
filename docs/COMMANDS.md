@@ -7,8 +7,7 @@
 npm run install:all
 npm run docker:up
 npm run db:wait
-npm run start:backend    # Terminal 1
-node scripts/seed-users.js  # Terminal 2
+npm run start:backend    # Datos se cargan automáticamente
 
 # Día a día
 npm run dev:backend      # Docker + Backend
@@ -71,7 +70,6 @@ npm run start:frontend   # Frontend (opcional)
 | `npm run db:health`           | Estado del contenedor          |
 | `npm run db:verify`           | Ver usuarios creados           |
 | `npm run db:reset`            | Reset completo                 |
-| `npm run db:seed:users`       | Crear usuarios de prueba       |
 
 ---
 
@@ -150,8 +148,7 @@ nest g co modules/[name]/[name]           # Controller
 npm run docker:down:volumes
 npm run docker:up
 npm run db:wait
-npm run start:backend    # Terminal 1
-npm run db:seed:users    # Terminal 2
+npm run start:backend    # Datos se cargan automáticamente
 ```
 
 ### Nueva Feature

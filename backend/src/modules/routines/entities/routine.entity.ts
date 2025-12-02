@@ -17,8 +17,8 @@ export class Routine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
-  createdById: string;
+  @Column({ type: 'uuid', nullable: true })
+  createdById: string | null;
 
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'createdById' })

@@ -28,13 +28,15 @@ export class ExercisesService {
     const where = includeInactive ? {} : { isActive: true };
     return await this.exerciseRepository.find({
       where,
+      relations: ['muscleGroup'],
       order: { name: 'ASC' },
     });
   }
 
-  async findByMuscleGroup(muscleGroup: string): Promise<Exercise[]> {
+  async findByMuscleGroup(muscleGroupId: string): Promise<Exercise[]> {
     return await this.exerciseRepository.find({
-      where: { muscleGroup: muscleGroup as Exercise['muscleGroup'], isActive: true },
+      where: { muscleGroupId, isActive: true },
+      relations: ['muscleGroup'],
       order: { name: 'ASC' },
     });
   }
@@ -42,6 +44,7 @@ export class ExercisesService {
   async findOne(id: string): Promise<Exercise> {
     const exercise = await this.exerciseRepository.findOne({
       where: { id },
+      relations: ['muscleGroup'],
     });
     if (!exercise) {
       throw new NotFoundException(`Ejercicio con ID "${id}" no encontrado`);

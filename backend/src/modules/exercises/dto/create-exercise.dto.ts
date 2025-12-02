@@ -1,5 +1,4 @@
-import { IsString, IsOptional, IsEnum, IsUrl, MaxLength } from 'class-validator';
-import { MuscleGroup } from '../../../common/enums/muscle-group.enum';
+import { IsString, IsOptional, IsEnum, IsUrl, MaxLength, IsUUID } from 'class-validator';
 import { Difficulty } from '../../../common/enums/difficulty.enum';
 
 export class CreateExerciseDto {
@@ -11,8 +10,8 @@ export class CreateExerciseDto {
   @IsString()
   description?: string;
 
-  @IsEnum(MuscleGroup)
-  muscleGroup: MuscleGroup;
+  @IsUUID()
+  muscleGroupId: string;
 
   @IsOptional()
   @IsEnum(Difficulty)

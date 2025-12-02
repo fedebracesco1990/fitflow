@@ -27,10 +27,10 @@ fitflow/
 │   ├── features/       # Módulos por feature (auth, profile, dashboard)
 │   └── layouts/        # Layouts (auth-layout, main-layout)
 ├── backend/src/
-│   ├── modules/        # Módulos de dominio (auth, users)
+│   ├── modules/        # Módulos de dominio (auth, users, exercises, routines, etc.)
+│   ├── database/       # Seeders (datos iniciales automáticos)
 │   ├── common/         # Enums, utils compartidos
 │   └── config/         # Configuración (app, database, jwt)
-├── scripts/            # Scripts de utilidad (seed-users.js)
 └── docs/               # Documentación
 ```
 
@@ -307,9 +307,8 @@ npm run lint                 # Lint completo
 npm run build                # Build completo
 
 # Base de datos
-npm run db:seed:users        # Crear usuarios de prueba
 npm run db:verify            # Ver usuarios en BD
-npm run db:reset             # Reset completo
+npm run db:reset             # Reset completo (seed automático al iniciar)
 ```
 
 ---

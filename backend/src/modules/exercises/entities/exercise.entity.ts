@@ -4,9 +4,11 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
-import { MuscleGroup } from '../../../common/enums/muscle-group.enum';
 import { Difficulty } from '../../../common/enums/difficulty.enum';
+import { MuscleGroup } from '../../muscle-groups/entities/muscle-group.entity';
 
 @Entity('exercises')
 export class Exercise {
@@ -19,12 +21,12 @@ export class Exercise {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
-  @Column({
-    type: 'enum',
-    enum: MuscleGroup,
-    default: MuscleGroup.FULL_BODY,
-  })
-  muscleGroup: MuscleGroup;
+  @Column({ type: 'uuid', nullable: true })
+  muscleGroupId: string | null;
+
+  @ManyToOne(() => MuscleGroup, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'muscleGroupId' })
+  muscleGroup: MuscleGroup | null;
 
   @Column({
     type: 'enum',

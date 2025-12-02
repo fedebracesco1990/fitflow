@@ -20,6 +20,7 @@ export class MainLayoutComponent {
 
   readonly user = this.store.selectSignal(AuthState.user);
   readonly isAdmin = this.store.selectSignal(AuthState.isAdmin);
+  readonly isTrainer = this.store.selectSignal(AuthState.isTrainer);
 
   logout(): void {
     this.actions$.pipe(ofActionSuccessful(LogoutSuccess), take(1)).subscribe(() => {

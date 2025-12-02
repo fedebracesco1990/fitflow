@@ -34,10 +34,8 @@
     "db:verify": "docker exec -it fitflow-mysql mysql -u devuser -pdevpassword123 -e \"SELECT name, email, role FROM fit_flow_db.users;\" 2>nul || echo No hay usuarios o base no disponible",
     "db:verify:count": "docker exec -it fitflow-mysql mysql -u devuser -pdevpassword123 -e \"SELECT COUNT(*) as total_usuarios FROM fit_flow_db.users;\" 2>nul",
     "db:reset": "npm run docker:down:volumes && npm run docker:up && npm run db:wait && npm run db:status",
-    "db:seed:users": "node scripts/seed-users.js",
-    "dev:setup": "echo === Setup Inicial de FitFlow === && npm run db:reset && echo === Esperando backend... Inicia en otra terminal: npm run start:backend === && echo === Luego ejecuta: npm run db:seed:users ===",
+    "dev:setup": "npm run db:reset && echo === Inicia backend con: npm run start:backend (el seed se ejecuta automaticamente) ===",
     "dev:start": "npm run docker:up && npm run db:wait && npm run start:backend",
-    "dev:full": "npm run db:reset && echo Inicia backend: npm run start:backend && echo Luego seed: npm run db:seed:users",
     "dev:backend": "npm run docker:up && npm run db:wait && npm run start:backend",
     "clean": "npm run clean:frontend && npm run clean:backend",
     "clean:frontend": "cd frontend && rmdir /s /q node_modules dist .angular 2>nul || echo Frontend limpio",
@@ -53,8 +51,5 @@
   "engines": {
     "node": ">=20.19.0",
     "npm": ">=10.0.0"
-  },
-  "dependencies": {
-    "axios": "1.13.2"
   }
 }

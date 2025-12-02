@@ -26,13 +26,10 @@ npm run install:all
 npm run docker:up
 npm run db:wait
 
-# 3. Iniciar backend (Terminal 1)
+# 3. Iniciar backend (los datos se cargan automáticamente)
 npm run start:backend
 
-# 4. Crear usuarios de prueba (Terminal 2)
-node scripts/seed-users.js
-
-# 5. Iniciar frontend (opcional)
+# 4. Iniciar frontend (Terminal 2)
 npm run start:frontend
 ```
 
@@ -47,9 +44,9 @@ npm run start:frontend
 fitflow/
 ├── frontend/          # Angular 20
 ├── backend/           # NestJS 11
+│   └── src/database/seeders/  # Seed automático
 ├── docker/            # Configuración MySQL
 ├── docs/              # Documentación
-├── scripts/           # Scripts de utilidad
 ├── package.json       # Scripts raíz (monorepo)
 └── docker-compose.yml
 ```
@@ -77,11 +74,15 @@ Ver todos los comandos en [COMMANDS.md](./COMMANDS.md).
 
 ## Usuarios de Prueba
 
-| Rol     | Email               | Password    |
-| ------- | ------------------- | ----------- |
-| ADMIN   | admin@fitflow.com   | Admin123!   |
-| TRAINER | trainer@fitflow.com | Trainer123! |
-| USER    | user1@fitflow.com   | User123!    |
+Se crean automáticamente al iniciar el backend:
+
+| Rol     | Email                | Password    | Estado   |
+| ------- | -------------------- | ----------- | -------- |
+| ADMIN   | admin@fitflow.com    | Admin123!   | Activo   |
+| TRAINER | trainer@fitflow.com  | Trainer123! | Activo   |
+| USER    | user1@fitflow.com    | User123!    | Activo   |
+| USER    | user2@fitflow.com    | User123!    | Activo   |
+| USER    | inactive@fitflow.com | User123!    | Inactivo |
 
 ## Autores
 

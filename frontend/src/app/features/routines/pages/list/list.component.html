@@ -1,0 +1,44 @@
+<div class="routines-list">
+  <header class="page-header">
+    <h1>Rutinas</h1>
+    <a routerLink="new" class="btn btn-primary">+ Nueva Rutina</a>
+  </header>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Cargando rutinas...</div>
+  } @else if (routines().length === 0) {
+    <div class="empty-state">
+      <p>No hay rutinas creadas</p>
+      <a routerLink="new" class="btn btn-outline">Crear primera rutina</a>
+    </div>
+  } @else {
+    <div class="routines-grid">
+      @for (routine of routines(); track routine.id) {
+        <div class="routine-card" [class.inactive]="!routine.isActive">
+          <div class="routine-header">
+            <h3>{{ routine.name }}</h3>
+            <span class="badge badge-difficulty">{{ difficultyLabels[routine.difficulty] }}</span>
+          </div>
+          @if (routine.description) {
+            <p class="routine-description">{{ routine.description }}</p>
+          }
+          <div class="routine-meta">
+            <span>⏱️ {{ routine.estimatedDuration }} min</span>
+            <span>💪 {{ routine.exercises?.length || 0 }} ejercicios</span>
+          </div>
+          @if (routine.createdBy) {
+            <div class="routine-creator">Creado por: {{ routine.createdBy.name }}</div>
+          }
+          <div class="routine-actions">
+            <a [routerLink]="[routine.id, 'edit']" class="btn btn-sm btn-outline">Editar</a>
+            <button class="btn btn-sm btn-danger" (click)="deleteRoutine(routine)">Eliminar</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
