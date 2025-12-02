@@ -88,6 +88,12 @@ export const routes: Routes = [
       import('./features/routines/routines.routes').then((m) => m.ROUTINES_ROUTES),
   },
   {
+    path: 'my-routines',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/my-routines/my-routines.routes').then((m) => m.MY_ROUTINES_ROUTES),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

@@ -1,0 +1,102 @@
+<div class="workout-page">
+  @if (loading()) {
+    <div class="loading">Cargando...</div>
+  } @else if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  } @else if (!workout()) {
+    <!-- Pre-workout screen -->
+    <div class="pre-workout">
+      <h1>{{ userRoutine()?.routine?.name }}</h1>
+      <div class="routine-info">
+        <p>⏱️ {{ userRoutine()?.routine?.estimatedDuration }} min</p>
+        <p>💪 {{ routineExercises.length }} ejercicios</p>
+        <p>📊 {{ difficultyLabels[userRoutine()?.routine?.difficulty!] }}</p>
+      </div>
+
+      <div class="exercises-preview">
+        <h2>Ejercicios</h2>
+        @for (re of routineExercises; track re.id; let i = $index) {
+          <div class="exercise-preview-item">
+            <span class="exercise-num">{{ i + 1 }}</span>
+            <span class="exercise-name">{{ re.exercise.name }}</span>
+            <span class="exercise-sets">{{ re.sets }} x {{ re.reps }}</span>
+          </div>
+        }
+      </div>
+
+      <button class="btn btn-primary btn-lg" (click)="startWorkout()">
+        🏋️ Iniciar Entrenamiento
+      </button>
+    </div>
+  } @else {
+    <!-- Active workout -->
+    <div class="active-workout">
+      <header class="workout-header">
+        <h1>{{ userRoutine()?.routine?.name }}</h1>
+        <div class="progress-indicator">
+          Ejercicio {{ currentExerciseIndex() + 1 }} de {{ routineExercises.length }}
+        </div>
+      </header>
+
+      @if (currentExercise; as exercise) {
+        <div class="current-exercise">
+          <h2>{{ exercise.routineExercise.exercise.name }}</h2>
+          @if (exercise.routineExercise.exercise.muscleGroup; as mg) {
+            <span class="muscle-badge">{{ mg.icon }} {{ mg.name }}</span>
+          }
+
+          <div class="sets-tracker">
+            <h3>Series: {{ exercise.routineExercise.sets }}</h3>
+            <div class="set-inputs">
+              <div class="input-group">
+                <label>Reps</label>
+                <input
+                  type="number"
+                  #repsInput
+                  [value]="exercise.routineExercise.reps"
+                  min="1"
+                  max="100"
+                />
+              </div>
+              <div class="input-group">
+                <label>Peso (kg)</label>
+                <input type="number" #weightInput value="0" min="0" step="0.5" />
+              </div>
+              <button
+                class="btn btn-primary"
+                (click)="logSet(exercise, +repsInput.value, +weightInput.value)"
+                [disabled]="exercise.completed"
+              >
+                {{ exercise.completed ? '✓ Completado' : 'Registrar Serie' }}
+              </button>
+            </div>
+          </div>
+
+          @if (exercise.routineExercise.notes) {
+            <div class="exercise-notes">
+              <strong>Notas:</strong> {{ exercise.routineExercise.notes }}
+            </div>
+          }
+        </div>
+      }
+
+      <div class="workout-navigation">
+        <button
+          class="btn btn-outline"
+          (click)="prevExercise()"
+          [disabled]="currentExerciseIndex() === 0"
+        >
+          ← Anterior
+        </button>
+
+        @if (currentExerciseIndex() < routineExercises.length - 1) {
+          <button class="btn btn-outline" (click)="nextExercise()">Siguiente →</button>
+        } @else {
+          <button class="btn btn-success" (click)="completeWorkout()">
+            ✅ Finalizar Entrenamiento
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>
