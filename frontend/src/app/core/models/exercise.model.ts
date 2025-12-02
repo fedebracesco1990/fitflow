@@ -1,28 +1,12 @@
-export enum MuscleGroup {
-  CHEST = 'chest',
-  BACK = 'back',
-  SHOULDERS = 'shoulders',
-  BICEPS = 'biceps',
-  TRICEPS = 'triceps',
-  LEGS = 'legs',
-  GLUTES = 'glutes',
-  CORE = 'core',
-  CARDIO = 'cardio',
-  FULL_BODY = 'full_body',
+export interface MuscleGroup {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  order: number;
+  isActive: boolean;
 }
-
-export const MuscleGroupLabels: Record<MuscleGroup, string> = {
-  [MuscleGroup.CHEST]: 'Pecho',
-  [MuscleGroup.BACK]: 'Espalda',
-  [MuscleGroup.SHOULDERS]: 'Hombros',
-  [MuscleGroup.BICEPS]: 'Bíceps',
-  [MuscleGroup.TRICEPS]: 'Tríceps',
-  [MuscleGroup.LEGS]: 'Piernas',
-  [MuscleGroup.GLUTES]: 'Glúteos',
-  [MuscleGroup.CORE]: 'Core',
-  [MuscleGroup.CARDIO]: 'Cardio',
-  [MuscleGroup.FULL_BODY]: 'Cuerpo Completo',
-};
 
 export enum Difficulty {
   BEGINNER = 'beginner',
@@ -40,7 +24,8 @@ export interface Exercise {
   id: string;
   name: string;
   description: string | null;
-  muscleGroup: MuscleGroup;
+  muscleGroupId: string | null;
+  muscleGroup: MuscleGroup | null;
   difficulty: Difficulty;
   videoUrl: string | null;
   imageUrl: string | null;
@@ -52,7 +37,7 @@ export interface Exercise {
 export interface CreateExerciseDto {
   name: string;
   description?: string;
-  muscleGroup: MuscleGroup;
+  muscleGroupId: string;
   difficulty?: Difficulty;
   videoUrl?: string;
   imageUrl?: string;

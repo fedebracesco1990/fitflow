@@ -26,10 +26,10 @@
               @for (ur of weekRoutines()![day]; track ur.id) {
                 <div class="routine-item">
                   <div class="routine-info">
-                    <strong>{{ ur.routine?.name }}</strong>
+                    <strong>{{ ur.routine.name }}</strong>
                     <span class="routine-meta">
-                      {{ ur.routine?.estimatedDuration }} min •
-                      {{ difficultyLabels[ur.routine?.difficulty!] }}
+                      {{ ur.routine.estimatedDuration }} min •
+                      {{ difficultyLabels[ur.routine.difficulty] }}
                     </span>
                   </div>
                   @if (day === today) {

@@ -28,7 +28,7 @@
           }
           <div class="routine-meta">
             <span>⏱️ {{ routine.estimatedDuration }} min</span>
-            <span>💪 {{ routine.exercises?.length || 0 }} ejercicios</span>
+            <span>💪 {{ routine.exercises.length }} ejercicios</span>
           </div>
           @if (routine.createdBy) {
             <div class="routine-creator">Creado por: {{ routine.createdBy.name }}</div>

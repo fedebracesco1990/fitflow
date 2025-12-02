@@ -1,13 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ExercisesService } from '../../../../core/services';
-import {
-  Exercise,
-  MuscleGroup,
-  MuscleGroupLabels,
-  DifficultyLabels,
-} from '../../../../core/models';
+import { ExercisesService, MuscleGroupsService } from '../../../../core/services';
+import { Exercise, MuscleGroup, DifficultyLabels } from '../../../../core/models';
 
 @Component({
   selector: 'fit-flow-exercise-list',
@@ -18,27 +13,35 @@ import {
 })
 export class ExercisesListComponent implements OnInit {
   private readonly exercisesService = inject(ExercisesService);
+  private readonly muscleGroupsService = inject(MuscleGroupsService);
 
   exercises = signal<Exercise[]>([]);
+  muscleGroups = signal<MuscleGroup[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
-  selectedMuscleGroup = signal<MuscleGroup | null>(null);
+  selectedMuscleGroupId = signal<string | null>(null);
 
-  muscleGroups = Object.values(MuscleGroup);
-  muscleGroupLabels = MuscleGroupLabels;
   difficultyLabels = DifficultyLabels;
 
   ngOnInit(): void {
+    this.loadMuscleGroups();
     this.loadExercises();
+  }
+
+  loadMuscleGroups(): void {
+    this.muscleGroupsService.getAll().subscribe({
+      next: (groups) => this.muscleGroups.set(groups),
+      error: (err) => console.error('Error loading muscle groups', err),
+    });
   }
 
   loadExercises(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    const muscleGroup = this.selectedMuscleGroup();
-    const request = muscleGroup
-      ? this.exercisesService.getByMuscleGroup(muscleGroup)
+    const muscleGroupId = this.selectedMuscleGroupId();
+    const request = muscleGroupId
+      ? this.exercisesService.getByMuscleGroup(muscleGroupId)
       : this.exercisesService.getAll(true);
 
     request.subscribe({
@@ -53,8 +56,8 @@ export class ExercisesListComponent implements OnInit {
     });
   }
 
-  filterByMuscleGroup(muscleGroup: MuscleGroup | null): void {
-    this.selectedMuscleGroup.set(muscleGroup);
+  filterByMuscleGroup(muscleGroupId: string | null): void {
+    this.selectedMuscleGroupId.set(muscleGroupId);
     this.loadExercises();
   }
 

@@ -24,10 +24,11 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label for="muscleGroup">Grupo Muscular *</label>
-        <select id="muscleGroup" formControlName="muscleGroup" class="form-control">
-          @for (mg of muscleGroups; track mg) {
-            <option [value]="mg">{{ muscleGroupLabels[mg] }}</option>
+        <label for="muscleGroupId">Grupo Muscular *</label>
+        <select id="muscleGroupId" formControlName="muscleGroupId" class="form-control">
+          <option value="">Seleccionar...</option>
+          @for (mg of muscleGroups(); track mg.id) {
+            <option [value]="mg.id">{{ mg.icon }} {{ mg.name }}</option>
           }
         </select>
       </div>

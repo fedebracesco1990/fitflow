@@ -3,13 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RoutinesService, ExercisesService } from '../../../../core/services';
-import {
-  Exercise,
-  RoutineExercise,
-  Difficulty,
-  DifficultyLabels,
-  MuscleGroupLabels,
-} from '../../../../core/models';
+import { Exercise, RoutineExercise, Difficulty, DifficultyLabels } from '../../../../core/models';
 
 @Component({
   selector: 'fit-flow-routine-form',
@@ -36,7 +30,6 @@ export class RoutineFormComponent implements OnInit {
 
   difficulties = Object.values(Difficulty);
   difficultyLabels = DifficultyLabels;
-  muscleGroupLabels = MuscleGroupLabels;
 
   constructor() {
     this.form = this.fb.group({

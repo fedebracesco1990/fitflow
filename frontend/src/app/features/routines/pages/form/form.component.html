@@ -83,11 +83,9 @@
               <div class="routine-exercise-item">
                 <div class="exercise-order">{{ i + 1 }}</div>
                 <div class="exercise-info">
-                  <strong>{{ re.exercise?.name }}</strong>
-                  @if (re.exercise?.muscleGroup) {
-                    <span class="exercise-muscle">{{
-                      muscleGroupLabels[re.exercise.muscleGroup]
-                    }}</span>
+                  <strong>{{ re.exercise.name }}</strong>
+                  @if (re.exercise.muscleGroup; as mg) {
+                    <span class="exercise-muscle"> {{ mg.icon }} {{ mg.name }} </span>
                   }
                 </div>
                 <div class="exercise-config">
@@ -137,7 +135,7 @@
               (click)="addExercise(exercise)"
             >
               <span class="exercise-name">{{ exercise.name }}</span>
-              <span class="exercise-badge">{{ muscleGroupLabels[exercise.muscleGroup] }}</span>
+              <span class="exercise-badge">{{ exercise.muscleGroup?.name || 'Sin grupo' }}</span>
               @if (isExerciseInRoutine(exercise)) {
                 <span class="added-check">✓</span>
               }

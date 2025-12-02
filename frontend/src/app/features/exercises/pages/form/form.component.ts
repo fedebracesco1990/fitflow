@@ -2,13 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ExercisesService } from '../../../../core/services';
-import {
-  MuscleGroup,
-  MuscleGroupLabels,
-  Difficulty,
-  DifficultyLabels,
-} from '../../../../core/models';
+import { ExercisesService, MuscleGroupsService } from '../../../../core/services';
+import { MuscleGroup, Difficulty, DifficultyLabels } from '../../../../core/models';
 
 @Component({
   selector: 'fit-flow-exercise-form',
@@ -22,6 +17,7 @@ export class ExerciseFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly exercisesService = inject(ExercisesService);
+  private readonly muscleGroupsService = inject(MuscleGroupsService);
 
   form: FormGroup;
   isEditMode = signal(false);
@@ -29,8 +25,7 @@ export class ExerciseFormComponent implements OnInit {
   error = signal<string | null>(null);
   exerciseId: string | null = null;
 
-  muscleGroups = Object.values(MuscleGroup);
-  muscleGroupLabels = MuscleGroupLabels;
+  muscleGroups = signal<MuscleGroup[]>([]);
   difficulties = Object.values(Difficulty);
   difficultyLabels = DifficultyLabels;
 
@@ -38,7 +33,7 @@ export class ExerciseFormComponent implements OnInit {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
       description: [''],
-      muscleGroup: [MuscleGroup.FULL_BODY, Validators.required],
+      muscleGroupId: ['', Validators.required],
       difficulty: [Difficulty.BEGINNER],
       videoUrl: [''],
       imageUrl: [''],
@@ -46,11 +41,19 @@ export class ExerciseFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadMuscleGroups();
     this.exerciseId = this.route.snapshot.paramMap.get('id');
     if (this.exerciseId) {
       this.isEditMode.set(true);
       this.loadExercise(this.exerciseId);
     }
+  }
+
+  loadMuscleGroups(): void {
+    this.muscleGroupsService.getAll().subscribe({
+      next: (groups) => this.muscleGroups.set(groups),
+      error: (err) => console.error('Error loading muscle groups', err),
+    });
   }
 
   loadExercise(id: string): void {
@@ -60,7 +63,7 @@ export class ExerciseFormComponent implements OnInit {
         this.form.patchValue({
           name: exercise.name,
           description: exercise.description || '',
-          muscleGroup: exercise.muscleGroup,
+          muscleGroupId: exercise.muscleGroupId || '',
           difficulty: exercise.difficulty,
           videoUrl: exercise.videoUrl || '',
           imageUrl: exercise.imageUrl || '',

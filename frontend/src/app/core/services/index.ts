@@ -7,6 +7,7 @@ export * from './membership-types.service';
 export * from './payments.service';
 export * from './memberships.service';
 export * from './exercises.service';
+export * from './muscle-groups.service';
 export * from './routines.service';
 export * from './user-routines.service';
 export * from './workouts.service';

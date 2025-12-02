@@ -8,18 +8,18 @@
   <div class="filters">
     <button
       class="filter-btn"
-      [class.active]="selectedMuscleGroup() === null"
+      [class.active]="selectedMuscleGroupId() === null"
       (click)="filterByMuscleGroup(null)"
     >
       Todos
     </button>
-    @for (mg of muscleGroups; track mg) {
+    @for (mg of muscleGroups(); track mg.id) {
       <button
         class="filter-btn"
-        [class.active]="selectedMuscleGroup() === mg"
-        (click)="filterByMuscleGroup(mg)"
+        [class.active]="selectedMuscleGroupId() === mg.id"
+        (click)="filterByMuscleGroup(mg.id)"
       >
-        {{ muscleGroupLabels[mg] }}
+        {{ mg.icon }} {{ mg.name }}
       </button>
     }
   </div>
@@ -43,13 +43,15 @@
             <img [src]="exercise.imageUrl" [alt]="exercise.name" class="exercise-image" />
           } @else {
             <div class="exercise-image-placeholder">
-              <span>{{ muscleGroupLabels[exercise.muscleGroup] }}</span>
+              <span>{{ exercise.muscleGroup?.icon }} {{ exercise.muscleGroup?.name }}</span>
             </div>
           }
           <div class="exercise-content">
             <h3>{{ exercise.name }}</h3>
             <div class="exercise-meta">
-              <span class="badge badge-muscle">{{ muscleGroupLabels[exercise.muscleGroup] }}</span>
+              <span class="badge badge-muscle">{{
+                exercise.muscleGroup?.name || 'Sin grupo'
+              }}</span>
               <span class="badge badge-difficulty">{{
                 difficultyLabels[exercise.difficulty]
               }}</span>
