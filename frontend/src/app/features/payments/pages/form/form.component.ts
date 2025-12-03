@@ -56,9 +56,9 @@ export class PaymentFormComponent implements OnInit {
 
   loadMemberships(): void {
     this.loadingMemberships.set(true);
-    this.membershipsService.getAll().subscribe({
-      next: (data) => {
-        this.memberships.set(data);
+    this.membershipsService.getAll({ limit: 100 }).subscribe({
+      next: (response) => {
+        this.memberships.set(response.data);
         this.loadingMemberships.set(false);
       },
       error: () => {

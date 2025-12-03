@@ -50,8 +50,8 @@ export class RoutineFormComponent implements OnInit {
   }
 
   loadExercises(): void {
-    this.exercisesService.getAll().subscribe({
-      next: (exercises) => this.availableExercises.set(exercises),
+    this.exercisesService.getAll({ limit: 100 }).subscribe({
+      next: (response) => this.availableExercises.set(response.data),
       error: (err) => console.error('Error loading exercises', err),
     });
   }

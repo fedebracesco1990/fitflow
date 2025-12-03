@@ -44,26 +44,41 @@ Crea un nuevo usuario (solo admin).
 
 ## GET /users
 
-Lista todos los usuarios.
+Lista usuarios con paginación.
 
 **Roles:** `ADMIN`, `TRAINER`
 
 > TRAINER solo ve usuarios con rol USER
 
+**Query Parameters:**
+
+| Parámetro | Tipo   | Default | Descripción                    |
+| --------- | ------ | ------- | ------------------------------ |
+| page      | number | 1       | Número de página               |
+| limit     | number | 20      | Elementos por página (max 100) |
+
 **Response (200):**
 
 ```json
-[
-  {
-    "id": "uuid",
-    "email": "user@example.com",
-    "name": "Juan Pérez",
-    "role": "user",
-    "phone": "123456789",
-    "isActive": true,
-    "createdAt": "2024-01-01T00:00:00.000Z"
+{
+  "data": [
+    {
+      "id": "uuid",
+      "email": "user@example.com",
+      "name": "Juan Pérez",
+      "role": "user",
+      "phone": "123456789",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "total": 50,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 3
   }
-]
+}
 ```
 
 ---

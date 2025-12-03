@@ -19,6 +19,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
+import { PaginationDto } from '../../common/dto';
 
 @Controller('memberships')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -33,8 +34,8 @@ export class MembershipsController {
 
   @Get()
   @Roles(Role.ADMIN)
-  findAll() {
-    return this.membershipsService.findAll();
+  findAll(@Query() pagination: PaginationDto) {
+    return this.membershipsService.findAll(pagination.page, pagination.limit);
   }
 
   @Get('expiring')

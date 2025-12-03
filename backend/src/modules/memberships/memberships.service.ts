@@ -5,6 +5,7 @@ import { Membership, MembershipStatus } from './entities/membership.entity';
 import { MembershipType } from '../membership-types/entities/membership-type.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateMembershipDto, UpdateMembershipDto } from './dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class MembershipsService {
@@ -63,11 +64,23 @@ export class MembershipsService {
     return await this.membershipRepository.save(membership);
   }
 
-  async findAll(): Promise<Membership[]> {
-    return await this.membershipRepository.find({
+  async findAll(page = 1, limit = 20): Promise<PaginatedResponse<Membership>> {
+    const [data, total] = await this.membershipRepository.findAndCount({
       relations: ['user', 'membershipType'],
       order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: string): Promise<Membership> {

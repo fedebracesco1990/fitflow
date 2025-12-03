@@ -40,20 +40,30 @@ export class ExercisesListComponent implements OnInit {
     this.error.set(null);
 
     const muscleGroupId = this.selectedMuscleGroupId();
-    const request = muscleGroupId
-      ? this.exercisesService.getByMuscleGroup(muscleGroupId)
-      : this.exercisesService.getAll(true);
 
-    request.subscribe({
-      next: (exercises) => {
-        this.exercises.set(exercises);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set(err.error?.message || 'Error al cargar ejercicios');
-        this.loading.set(false);
-      },
-    });
+    if (muscleGroupId) {
+      this.exercisesService.getByMuscleGroup(muscleGroupId).subscribe({
+        next: (exercises: Exercise[]) => {
+          this.exercises.set(exercises);
+          this.loading.set(false);
+        },
+        error: (err: { error?: { message?: string } }) => {
+          this.error.set(err.error?.message || 'Error al cargar ejercicios');
+          this.loading.set(false);
+        },
+      });
+    } else {
+      this.exercisesService.getAll({ includeInactive: true, limit: 100 }).subscribe({
+        next: (response) => {
+          this.exercises.set(response.data);
+          this.loading.set(false);
+        },
+        error: (err: { error?: { message?: string } }) => {
+          this.error.set(err.error?.message || 'Error al cargar ejercicios');
+          this.loading.set(false);
+        },
+      });
+    }
   }
 
   filterByMuscleGroup(muscleGroupId: string | null): void {

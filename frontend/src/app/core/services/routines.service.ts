@@ -9,6 +9,13 @@ import {
   UpdateRoutineExerciseDto,
   RoutineExercise,
 } from '../models';
+import { PaginatedResponse } from '../models/api-response.model';
+
+export interface RoutinesPaginationParams {
+  page?: number;
+  limit?: number;
+  includeInactive?: boolean;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -17,11 +24,16 @@ export class RoutinesService {
   private readonly api = inject(ApiService);
   private readonly endpoint = 'routines';
 
-  getAll(includeInactive = false): Observable<Routine[]> {
-    return this.api.get<Routine[]>(
-      this.endpoint,
-      includeInactive ? { includeInactive: 'true' } : undefined
-    );
+  getAll(params?: RoutinesPaginationParams): Observable<PaginatedResponse<Routine>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.set('page', params.page.toString());
+    if (params?.limit) queryParams.set('limit', params.limit.toString());
+    if (params?.includeInactive) queryParams.set('includeInactive', 'true');
+
+    const query = queryParams.toString();
+    const url = query ? `${this.endpoint}?${query}` : this.endpoint;
+
+    return this.api.get<PaginatedResponse<Routine>>(url);
   }
 
   getById(id: string): Observable<Routine> {

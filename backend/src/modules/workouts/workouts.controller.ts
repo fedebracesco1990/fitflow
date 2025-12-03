@@ -8,11 +8,13 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Request,
+  Query,
 } from '@nestjs/common';
 import { WorkoutsService } from './workouts.service';
 import { CreateWorkoutDto, UpdateWorkoutDto, LogExerciseDto, UpdateExerciseLogDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
+import { PaginationDto } from '../../common/dto';
 
 @Controller('workouts')
 @UseGuards(JwtAuthGuard)
@@ -25,8 +27,8 @@ export class WorkoutsController {
   }
 
   @Get('my-history')
-  findMyHistory(@Request() req: { user: AuthenticatedUser }) {
-    return this.workoutsService.findMyHistory(req.user.userId);
+  findMyHistory(@Request() req: { user: AuthenticatedUser }, @Query() pagination: PaginationDto) {
+    return this.workoutsService.findMyHistory(req.user.userId, pagination.page, pagination.limit);
   }
 
   @Get(':id')

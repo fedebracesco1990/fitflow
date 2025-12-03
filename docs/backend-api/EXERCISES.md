@@ -61,33 +61,43 @@ Crea un nuevo ejercicio.
 
 ## GET /exercises
 
-Lista todos los ejercicios.
+Lista ejercicios con paginación.
 
 **Roles:** Todos los autenticados
 
 **Query Parameters:**
 
-| Param           | Tipo   | Default | Descripción       |
-| --------------- | ------ | ------- | ----------------- |
-| includeInactive | string | false   | Incluir inactivos |
+| Parámetro       | Tipo   | Default | Descripción                    |
+| --------------- | ------ | ------- | ------------------------------ |
+| page            | number | 1       | Número de página               |
+| limit           | number | 20      | Elementos por página (max 100) |
+| includeInactive | string | false   | Incluir inactivos              |
 
 **Response (200):**
 
 ```json
-[
-  {
-    "id": "uuid",
-    "name": "Press de Banca",
-    "description": "Ejercicio básico para pecho",
-    "difficulty": "intermediate",
-    "muscleGroup": {
+{
+  "data": [
+    {
       "id": "uuid",
-      "code": "chest",
-      "name": "Pecho"
-    },
-    "isActive": true
+      "name": "Press de Banca",
+      "description": "Ejercicio básico para pecho",
+      "difficulty": "intermediate",
+      "muscleGroup": {
+        "id": "uuid",
+        "code": "chest",
+        "name": "Pecho"
+      },
+      "isActive": true
+    }
+  ],
+  "meta": {
+    "total": 50,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 3
   }
-]
+}
 ```
 
 ---

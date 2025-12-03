@@ -7,6 +7,7 @@ import { UserRoutine } from '../user-routines/entities/user-routine.entity';
 import { RoutineExercise } from '../routines/entities/routine-exercise.entity';
 import { CreateWorkoutDto, UpdateWorkoutDto, LogExerciseDto, UpdateExerciseLogDto } from './dto';
 import { WorkoutStatus } from '../../common/enums/workout-status.enum';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class WorkoutsService {
@@ -43,16 +44,36 @@ export class WorkoutsService {
     return await this.workoutLogRepository.save(workoutLog);
   }
 
-  async findMyHistory(userId: string): Promise<WorkoutLog[]> {
-    return await this.workoutLogRepository
+  async findMyHistory(
+    userId: string,
+    page = 1,
+    limit = 20
+  ): Promise<PaginatedResponse<WorkoutLog>> {
+    const query = this.workoutLogRepository
       .createQueryBuilder('wl')
       .innerJoin('wl.userRoutine', 'ur')
       .where('ur.userId = :userId', { userId })
       .leftJoinAndSelect('wl.userRoutine', 'userRoutine')
       .leftJoinAndSelect('userRoutine.routine', 'routine')
       .leftJoinAndSelect('wl.exerciseLogs', 'exerciseLogs')
-      .orderBy('wl.date', 'DESC')
+      .orderBy('wl.date', 'DESC');
+
+    const total = await query.getCount();
+
+    const data = await query
+      .skip((page - 1) * limit)
+      .take(limit)
       .getMany();
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: string, userId: string): Promise<WorkoutLog> {

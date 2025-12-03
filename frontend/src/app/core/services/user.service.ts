@@ -2,6 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { User, UpdateProfileRequest, ChangePasswordRequest } from '../models';
+import { PaginatedResponse } from '../models/api-response.model';
+
+export interface UsersPaginationParams {
+  page?: number;
+  limit?: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -24,8 +30,15 @@ export class UserService {
   }
 
   // Admin/Trainer endpoints
-  getAll(): Observable<User[]> {
-    return this.api.get<User[]>(this.endpoint);
+  getAll(params?: UsersPaginationParams): Observable<PaginatedResponse<User>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.set('page', params.page.toString());
+    if (params?.limit) queryParams.set('limit', params.limit.toString());
+
+    const query = queryParams.toString();
+    const url = query ? `${this.endpoint}?${query}` : this.endpoint;
+
+    return this.api.get<PaginatedResponse<User>>(url);
   }
 
   getById(id: string): Observable<User> {

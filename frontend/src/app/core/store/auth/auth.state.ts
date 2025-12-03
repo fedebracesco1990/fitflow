@@ -23,6 +23,7 @@ import {
   ClearAuthError,
   SetAuthLoading,
 } from './auth.actions';
+import { ResetUserState } from '../user/user.actions';
 
 export interface AuthStateModel {
   user: AuthenticatedUser | null;
@@ -94,6 +95,7 @@ export class AuthState {
   @Action(Login)
   login(ctx: StateContext<AuthStateModel>, action: Login) {
     ctx.patchState({ isLoading: true, error: null });
+    ctx.dispatch(new ResetUserState()); // Clear previous user profile
 
     return this.authService.login(action.payload).pipe(
       tap((tokens) => {
@@ -259,6 +261,7 @@ export class AuthState {
   @Action(LogoutSuccess)
   logoutSuccess(ctx: StateContext<AuthStateModel>) {
     this.storage.clearTokens();
+    ctx.dispatch(new ResetUserState());
     ctx.setState(defaults);
     ctx.patchState({ isInitialized: true });
   }

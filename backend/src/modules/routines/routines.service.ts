@@ -16,6 +16,7 @@ import {
   UpdateRoutineExerciseDto,
 } from './dto';
 import { Role } from '../../common/enums/role.enum';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class RoutinesService {
@@ -36,13 +37,29 @@ export class RoutinesService {
     return await this.routineRepository.save(routine);
   }
 
-  async findAll(includeInactive = false): Promise<Routine[]> {
+  async findAll(
+    includeInactive = false,
+    page = 1,
+    limit = 20
+  ): Promise<PaginatedResponse<Routine>> {
     const where = includeInactive ? {} : { isActive: true };
-    return await this.routineRepository.find({
+    const [data, total] = await this.routineRepository.findAndCount({
       where,
       relations: ['createdBy', 'exercises', 'exercises.exercise'],
       order: { name: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: string): Promise<Routine> {

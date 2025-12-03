@@ -55,29 +55,69 @@ Crea un nuevo registro de entrenamiento.
 
 ## GET /workouts/my-history
 
-Obtiene el historial de entrenamientos del usuario.
+Obtiene el historial de entrenamientos del usuario con paginación.
 
 **Roles:** Todos los autenticados
+
+**Query Parameters:**
+
+| Parámetro | Tipo   | Default | Descripción                    |
+| --------- | ------ | ------- | ------------------------------ |
+| page      | number | 1       | Número de página               |
+| limit     | number | 20      | Elementos por página (max 100) |
 
 **Response (200):**
 
 ```json
-[
-  {
-    "id": "uuid",
-    "date": "2024-01-01",
-    "status": "completed",
-    "durationMinutes": 45,
-    "routine": {
+{
+  "data": [
+    {
       "id": "uuid",
-      "name": "Rutina Full Body"
-    },
-    "exerciseLogs": [
-      {
-        "id": "uuid",
-        "setNumber": 1,
-        "reps": 12,
-        "weight": 50,
+      "date": "2024-01-01",
+      "status": "completed",
+      "durationMinutes": 45,
+      "userRoutine": {
+        "routine": {
+          "id": "uuid",
+          "name": "Rutina Full Body"
+        }
+      },
+      "exerciseLogs": [...]
+    }
+  ],
+  "meta": {
+    "total": 50,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 3
+  }
+}
+```
+
+> **Nota:** Los ejerciseLogs se incluyen en cada workout pero sin paginación interna.
+
+---
+
+## GET /workouts/:id (sin cambios)
+
+**Response anterior eliminado para brevedad**
+
+```json
+{
+  "id": "uuid",
+  "date": "2024-01-01",
+  "status": "completed",
+  "durationMinutes": 45,
+  "routine": {
+    "id": "uuid",
+    "name": "Rutina Full Body"
+  },
+  "exerciseLogs": [
+    {
+      "id": "uuid",
+      "setNumber": 1,
+      "reps": 12,
+      "weight": 50,
         "completed": true
       }
     ]

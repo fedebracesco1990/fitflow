@@ -9,6 +9,12 @@ import {
   LogExerciseDto,
   UpdateExerciseLogDto,
 } from '../models';
+import { PaginatedResponse } from '../models/api-response.model';
+
+export interface WorkoutsPaginationParams {
+  page?: number;
+  limit?: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -21,8 +27,15 @@ export class WorkoutsService {
     return this.api.post<WorkoutLog>(this.endpoint, data);
   }
 
-  getMyHistory(): Observable<WorkoutLog[]> {
-    return this.api.get<WorkoutLog[]>(`${this.endpoint}/my-history`);
+  getMyHistory(params?: WorkoutsPaginationParams): Observable<PaginatedResponse<WorkoutLog>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.set('page', params.page.toString());
+    if (params?.limit) queryParams.set('limit', params.limit.toString());
+
+    const query = queryParams.toString();
+    const url = query ? `${this.endpoint}/my-history?${query}` : `${this.endpoint}/my-history`;
+
+    return this.api.get<PaginatedResponse<WorkoutLog>>(url);
   }
 
   getById(id: string): Observable<WorkoutLog> {

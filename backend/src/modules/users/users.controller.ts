@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,6 +19,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
+import { PaginationDto } from '../../common/dto';
 
 @Controller('users')
 export class UsersController {
@@ -55,8 +57,12 @@ export class UsersController {
   @Get()
   @Roles(Role.ADMIN, Role.TRAINER)
   @HttpCode(HttpStatus.OK)
-  async findAll(@CurrentUser('userId') userId: string, @CurrentUser('role') role: Role) {
-    return await this.usersService.findAll(userId, role);
+  async findAll(
+    @CurrentUser('userId') userId: string,
+    @CurrentUser('role') role: Role,
+    @Query() pagination: PaginationDto
+  ) {
+    return await this.usersService.findAll(userId, role, pagination.page, pagination.limit);
   }
 
   @Get(':id')

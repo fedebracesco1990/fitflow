@@ -14,6 +14,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { Role } from '../../common/enums/role.enum';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -61,7 +62,12 @@ export class UsersService {
 
   // ==================== BUSCAR USUARIOS ====================
 
-  async findAll(currentUserId: string, currentUserRole: Role): Promise<User[]> {
+  async findAll(
+    currentUserId: string,
+    currentUserRole: Role,
+    page = 1,
+    limit = 20
+  ): Promise<PaginatedResponse<User>> {
     let query = this.usersRepository.createQueryBuilder('user');
 
     if (currentUserRole === Role.TRAINER) {
@@ -70,7 +76,24 @@ export class UsersService {
 
     query = query.andWhere('user.isActive = :isActive', { isActive: true });
 
-    return await query.getMany();
+    const total = await query.getCount();
+
+    query = query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .orderBy('user.name', 'ASC');
+
+    const data = await query.getMany();
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: string, currentUserId: string, currentUserRole: Role): Promise<User> {
@@ -130,12 +153,12 @@ export class UsersService {
       throw new ForbiddenException('No tienes permisos para actualizar usuarios');
     }
 
-    if (updateUserDto.email && updateUserDto.email !== user.email) {
+    if (updateUserDto.email && updateUserDto.email.toLowerCase() !== user.email) {
       const existingUser = await this.usersRepository.findOne({
         where: { email: updateUserDto.email.toLowerCase() },
       });
 
-      if (existingUser) {
+      if (existingUser && existingUser.id !== id) {
         throw new ConflictException('El email ya está en uso');
       }
 
@@ -157,12 +180,12 @@ export class UsersService {
 
     const user = await this.findById(id);
 
-    if (updateProfileDto.email && updateProfileDto.email !== user.email) {
+    if (updateProfileDto.email && updateProfileDto.email.toLowerCase() !== user.email) {
       const existingUser = await this.usersRepository.findOne({
         where: { email: updateProfileDto.email.toLowerCase() },
       });
 
-      if (existingUser) {
+      if (existingUser && existingUser.id !== id) {
         throw new ConflictException('El email ya está en uso');
       }
 

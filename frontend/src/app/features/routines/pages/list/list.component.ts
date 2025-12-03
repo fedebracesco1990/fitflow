@@ -28,9 +28,9 @@ export class RoutinesListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    this.routinesService.getAll(true).subscribe({
-      next: (routines) => {
-        this.routines.set(routines);
+    this.routinesService.getAll({ includeInactive: true, limit: 100 }).subscribe({
+      next: (response) => {
+        this.routines.set(response.data);
         this.loading.set(false);
       },
       error: (err) => {

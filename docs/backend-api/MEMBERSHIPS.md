@@ -57,11 +57,41 @@ Crea una nueva membresía para un usuario.
 
 ## GET /memberships
 
-Lista todas las membresías.
+Lista membresías con paginación.
 
 **Roles:** `ADMIN`
 
-**Response (200):** Array de membresías con usuario y tipo
+**Query Parameters:**
+
+| Parámetro | Tipo   | Default | Descripción                    |
+| --------- | ------ | ------- | ------------------------------ |
+| page      | number | 1       | Número de página               |
+| limit     | number | 20      | Elementos por página (max 100) |
+
+**Response (200):**
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "userId": "uuid",
+      "membershipTypeId": "uuid",
+      "startDate": "2024-01-01",
+      "endDate": "2024-01-31",
+      "status": "active",
+      "user": { "id": "uuid", "name": "Juan", "email": "..." },
+      "membershipType": { "id": "uuid", "name": "Mensual", "price": 5000 }
+    }
+  ],
+  "meta": {
+    "total": 100,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 5
+  }
+}
+```
 
 ---
 

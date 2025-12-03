@@ -1,6 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { PaginatedResponse } from '../models/api-response.model';
+
+export interface MembershipsPaginationParams {
+  page?: number;
+  limit?: number;
+}
 
 export enum MembershipStatus {
   ACTIVE = 'active',
@@ -46,8 +52,15 @@ export class MembershipsService {
   private readonly api = inject(ApiService);
   private readonly endpoint = 'memberships';
 
-  getAll(): Observable<Membership[]> {
-    return this.api.get<Membership[]>(this.endpoint);
+  getAll(params?: MembershipsPaginationParams): Observable<PaginatedResponse<Membership>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.set('page', params.page.toString());
+    if (params?.limit) queryParams.set('limit', params.limit.toString());
+
+    const query = queryParams.toString();
+    const url = query ? `${this.endpoint}?${query}` : this.endpoint;
+
+    return this.api.get<PaginatedResponse<Membership>>(url);
   }
 
   getById(id: string): Observable<Membership> {

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Exercise } from './entities/exercise.entity';
 import { CreateExerciseDto, UpdateExerciseDto } from './dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class ExercisesService {
@@ -24,13 +25,29 @@ export class ExercisesService {
     return await this.exerciseRepository.save(exercise);
   }
 
-  async findAll(includeInactive = false): Promise<Exercise[]> {
+  async findAll(
+    includeInactive = false,
+    page = 1,
+    limit = 20
+  ): Promise<PaginatedResponse<Exercise>> {
     const where = includeInactive ? {} : { isActive: true };
-    return await this.exerciseRepository.find({
+    const [data, total] = await this.exerciseRepository.findAndCount({
       where,
       relations: ['muscleGroup'],
       order: { name: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findByMuscleGroup(muscleGroupId: string): Promise<Exercise[]> {

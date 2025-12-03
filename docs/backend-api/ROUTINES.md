@@ -56,42 +56,52 @@ Crea una nueva rutina.
 
 ## GET /routines
 
-Lista todas las rutinas.
+Lista rutinas con paginación.
 
 **Roles:** Todos los autenticados
 
 **Query Parameters:**
 
-| Param           | Tipo   | Default | Descripción       |
-| --------------- | ------ | ------- | ----------------- |
-| includeInactive | string | false   | Incluir inactivas |
+| Parámetro       | Tipo   | Default | Descripción                    |
+| --------------- | ------ | ------- | ------------------------------ |
+| page            | number | 1       | Número de página               |
+| limit           | number | 20      | Elementos por página (max 100) |
+| includeInactive | string | false   | Incluir inactivas              |
 
 **Response (200):**
 
 ```json
-[
-  {
-    "id": "uuid",
-    "name": "Rutina Full Body",
-    "description": "Entrenamiento completo",
-    "difficulty": "beginner",
-    "estimatedDuration": 45,
-    "exercises": [
-      {
-        "id": "uuid",
-        "order": 1,
-        "sets": 3,
-        "reps": 12,
-        "restSeconds": 60,
-        "exercise": {
+{
+  "data": [
+    {
+      "id": "uuid",
+      "name": "Rutina Full Body",
+      "description": "Entrenamiento completo",
+      "difficulty": "beginner",
+      "estimatedDuration": 45,
+      "exercises": [
+        {
           "id": "uuid",
-          "name": "Sentadilla",
-          "muscleGroup": { "name": "Piernas" }
+          "order": 1,
+          "sets": 3,
+          "reps": 12,
+          "restSeconds": 60,
+          "exercise": {
+            "id": "uuid",
+            "name": "Sentadilla",
+            "muscleGroup": { "name": "Piernas" }
+          }
         }
-      }
-    ]
+      ]
+    }
+  ],
+  "meta": {
+    "total": 25,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 2
   }
-]
+}
 ```
 
 ---

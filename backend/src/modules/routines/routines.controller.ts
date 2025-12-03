@@ -23,6 +23,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
+import { PaginationWithFilterDto } from '../../common/dto';
 
 @Controller('routines')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -36,8 +37,8 @@ export class RoutinesController {
   }
 
   @Get()
-  findAll(@Query('includeInactive') includeInactive?: string) {
-    return this.routinesService.findAll(includeInactive === 'true');
+  findAll(@Query() query: PaginationWithFilterDto) {
+    return this.routinesService.findAll(query.includeInactive === 'true', query.page, query.limit);
   }
 
   @Get(':id')
