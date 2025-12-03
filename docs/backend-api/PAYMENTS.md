@@ -58,26 +58,41 @@ Registra un nuevo pago.
 
 ## GET /payments
 
-Lista todos los pagos.
+Lista todos los pagos con paginación.
 
 **Roles:** `ADMIN`
+
+**Query Parameters:**
+
+| Parámetro | Tipo   | Default | Descripción                    |
+| --------- | ------ | ------- | ------------------------------ |
+| page      | number | 1       | Número de página               |
+| limit     | number | 20      | Elementos por página (max 100) |
 
 **Response (200):**
 
 ```json
-[
-  {
-    "id": "uuid",
-    "amount": 5000,
-    "paymentMethod": "cash",
-    "paymentDate": "2024-01-01",
-    "membership": {
+{
+  "data": [
+    {
       "id": "uuid",
-      "user": { "name": "Juan", "email": "..." }
-    },
-    "registeredBy": { "name": "Admin" }
+      "amount": 5000,
+      "paymentMethod": "cash",
+      "paymentDate": "2024-01-01",
+      "membership": {
+        "id": "uuid",
+        "user": { "name": "Juan", "email": "..." }
+      },
+      "registeredBy": { "name": "Admin" }
+    }
+  ],
+  "meta": {
+    "total": 100,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 5
   }
-]
+}
 ```
 
 ---

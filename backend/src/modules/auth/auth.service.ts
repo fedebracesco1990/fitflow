@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
@@ -14,6 +14,8 @@ import type { TokensResponse } from './interfaces/tokens-response.interface';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -24,6 +26,7 @@ export class AuthService {
     const user = await this.usersService.create(registerDto);
     const tokens = await this.getTokens(user);
     await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
+    this.logger.log(`[REGISTER] New user registered: ${user.email}`);
     return tokens;
   }
 
@@ -31,6 +34,7 @@ export class AuthService {
     const user = await this.validateUser(loginDto.email, loginDto.password);
     const tokens = await this.getTokens(user);
     await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
+    this.logger.log(`[LOGIN] Successful login: ${user.email}`);
     return tokens;
   }
 
@@ -38,16 +42,19 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
+      this.logger.warn(`[LOGIN_FAILED] User not found: ${email}`);
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
     const isPasswordValid = await User.comparePasswords(password, user.password);
 
     if (!isPasswordValid) {
+      this.logger.warn(`[LOGIN_FAILED] Invalid password for: ${email}`);
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
     if (!user.isActive) {
+      this.logger.warn(`[LOGIN_FAILED] Inactive user attempted login: ${email}`);
       throw new UnauthorizedException('Usuario inactivo');
     }
 
@@ -95,29 +102,54 @@ export class AuthService {
 
   async logout(userId: string): Promise<void> {
     await this.usersService.updateRefreshToken(userId, null);
+    this.logger.log(`[LOGOUT] User logged out: ${userId}`);
   }
 
   // ==================== RECUPERACIÓN DE CONTRASEÑA ====================
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    const user = await this.usersService.findByEmail(forgotPasswordDto.email);
-
-    const token = uuidv4();
-
-    const expires = new Date();
-    expires.setHours(expires.getHours() + 1);
-
-    const salt = await bcrypt.genSalt();
-    const hashedToken = await bcrypt.hash(token, salt);
-
-    await this.usersService.setResetPasswordToken(user.id, hashedToken, expires);
-
-    const resetLink = `https://tu-frontend.com/reset-password?token=${token}&userId=${user.id}`;
-
-    return {
-      message: 'Si el correo existe, se ha enviado un enlace (Simulado)',
-      link: resetLink, // Retornamos esto solo para que puedas probar en Postman
+    // Siempre retornar el mismo mensaje para evitar enumeration attacks
+    const genericResponse = {
+      message: 'Si el correo existe, recibirás instrucciones para restablecer tu contraseña',
     };
+
+    try {
+      const user = await this.usersService.findByEmailSafe(forgotPasswordDto.email);
+
+      if (!user) {
+        return genericResponse;
+      }
+
+      const token = uuidv4();
+      const expires = new Date();
+      expires.setHours(expires.getHours() + 1);
+
+      const salt = await bcrypt.genSalt();
+      const hashedToken = await bcrypt.hash(token, salt);
+
+      await this.usersService.setResetPasswordToken(user.id, hashedToken, expires);
+      this.logger.log(`[PASSWORD_RESET_REQUEST] Reset token generated for: ${user.email}`);
+
+      const frontendUrl =
+        this.configService.get<string>('app.frontendUrl') || 'http://localhost:4200';
+      const resetLink = `${frontendUrl}/auth/reset-password?token=${token}&userId=${user.id}`;
+
+      // TODO: Enviar email real con el resetLink
+      // await this.emailService.sendPasswordResetEmail(user.email, resetLink);
+
+      // Solo mostrar link en desarrollo para testing
+      if (this.configService.get<string>('app.nodeEnv') === 'development') {
+        return {
+          ...genericResponse,
+          _devOnly: { resetLink },
+        };
+      }
+
+      return genericResponse;
+    } catch {
+      // Si hay cualquier error, retornar respuesta genérica
+      return genericResponse;
+    }
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
@@ -139,6 +171,7 @@ export class AuthService {
     }
 
     await this.usersService.updatePasswordFromReset(user.id, newPassword);
+    this.logger.log(`[PASSWORD_RESET] Password successfully reset for user: ${userId}`);
 
     return { message: 'Contraseña actualizada correctamente' };
   }

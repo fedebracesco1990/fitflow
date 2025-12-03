@@ -160,11 +160,13 @@ Solicita un token para restablecer la contraseña.
 
 ```json
 {
-  "message": "Si el email existe, recibirás instrucciones"
+  "message": "Si el correo existe, recibirás instrucciones para restablecer tu contraseña"
 }
 ```
 
-> **Nota:** El envío real de email no está implementado. El token se guarda en la base de datos.
+> **Nota de Seguridad:** Este endpoint siempre retorna el mismo mensaje para evitar enumeration attacks (revelar si un email existe en el sistema).
+
+> **Desarrollo:** En modo development, la respuesta incluye `_devOnly.resetLink` para testing.
 
 ---
 

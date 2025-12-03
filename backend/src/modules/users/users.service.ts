@@ -101,6 +101,16 @@ export class UsersService {
     return user;
   }
 
+  /**
+   * Safe version that returns null instead of throwing exception.
+   * Used for password reset to prevent user enumeration.
+   */
+  async findByEmailSafe(email: string): Promise<User | null> {
+    return await this.usersRepository.findOne({
+      where: { email: email.toLowerCase(), isActive: true },
+    });
+  }
+
   async findById(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
 

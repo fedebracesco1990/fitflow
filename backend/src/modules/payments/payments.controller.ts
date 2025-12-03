@@ -9,6 +9,8 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Request,
+  ForbiddenException,
+  Query,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto, UpdatePaymentDto } from './dto';
@@ -17,6 +19,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
+import { PaginationDto } from '../../common/dto';
 
 @Controller('payments')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -31,8 +34,8 @@ export class PaymentsController {
 
   @Get()
   @Roles(Role.ADMIN)
-  findAll() {
-    return this.paymentsService.findAll();
+  findAll(@Query() pagination: PaginationDto) {
+    return this.paymentsService.findAll(pagination.page, pagination.limit);
   }
 
   @Get('current-month')
@@ -49,7 +52,14 @@ export class PaymentsController {
 
   @Get('user/:userId')
   @Roles(Role.ADMIN, Role.USER)
-  findByUser(@Param('userId', ParseUUIDPipe) userId: string) {
+  findByUser(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    // USER can only see their own payments
+    if (req.user.role === Role.USER && req.user.userId !== userId) {
+      throw new ForbiddenException('Solo puedes ver tus propios pagos');
+    }
     return this.paymentsService.findByUser(userId);
   }
 

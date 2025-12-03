@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { PaymentsService } from '../../../../core/services';
 import { Payment, PaymentMethod, PaymentMethodLabels } from '../../../../core/models';
+import { PaginationMeta } from '../../../../core/models/api-response.model';
 import { AlertComponent, ButtonComponent, CardComponent } from '../../../../shared';
 
 @Component({
@@ -16,6 +17,7 @@ export class PaymentsListComponent implements OnInit {
   private readonly paymentsService = inject(PaymentsService);
 
   readonly payments = signal<Payment[]>([]);
+  readonly paginationMeta = signal<PaginationMeta | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
@@ -25,13 +27,14 @@ export class PaymentsListComponent implements OnInit {
     this.loadPayments();
   }
 
-  loadPayments(): void {
+  loadPayments(page = 1): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.paymentsService.getAll().subscribe({
-      next: (data) => {
-        this.payments.set(data);
+    this.paymentsService.getAll({ page, limit: 20 }).subscribe({
+      next: (response) => {
+        this.payments.set(response.data);
+        this.paginationMeta.set(response.meta);
         this.loading.set(false);
       },
       error: (err) => {

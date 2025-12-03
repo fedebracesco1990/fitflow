@@ -10,5 +10,19 @@ export interface MessageResponse {
 
 export interface ForgotPasswordResponse {
   message: string;
-  link?: string; // Solo en desarrollo
+  _devOnly?: {
+    resetLink: string;
+  };
+}
+
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginationMeta;
 }

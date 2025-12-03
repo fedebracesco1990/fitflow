@@ -1,14 +1,4 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  MinLength,
-  MaxLength,
-  Matches,
-  IsEnum,
-  IsOptional,
-} from 'class-validator';
-import { Role } from '../../../common/enums/role.enum';
+import { IsEmail, IsNotEmpty, IsString, MinLength, MaxLength, Matches } from 'class-validator';
 
 export class RegisterDto {
   @IsString()
@@ -30,8 +20,4 @@ export class RegisterDto {
       'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial',
   })
   password: string;
-
-  @IsOptional()
-  @IsEnum(Role)
-  role?: Role;
 }

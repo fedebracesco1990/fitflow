@@ -384,6 +384,75 @@ npm run test:e2e
 
 ---
 
+## Seguridad
+
+### Middlewares Globales
+
+El backend implementa las siguientes medidas de seguridad:
+
+1. **Helmet** - Headers de seguridad HTTP
+2. **Rate Limiting** - 60 requests por minuto por IP (ThrottlerModule)
+3. **CORS** - Configurado para orígenes permitidos
+4. **Validation Pipe** - Validación automática de DTOs
+
+### Autenticación y Autorización
+
+- **JWT Auth Guard** - Protege todas las rutas por defecto
+- **Roles Guard** - Control de acceso basado en roles (ADMIN, TRAINER, USER)
+- **@Public()** - Decorator para rutas públicas
+
+### Buenas Prácticas Implementadas
+
+1. **No exponer información sensible** - forgotPassword no revela si un email existe
+2. **Logging de seguridad** - Eventos de login, logout, y password reset se registran
+3. **Ownership validation** - Usuarios solo pueden acceder a sus propios recursos
+4. **Tokens hasheados** - Refresh tokens y reset tokens se almacenan hasheados
+
+### Paginación
+
+Los endpoints que retornan listas soportan paginación:
+
+```typescript
+// Query params
+GET /api/payments?page=1&limit=20
+
+// Respuesta
+{
+  "data": [...],
+  "meta": {
+    "total": 100,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 5
+  }
+}
+```
+
+### Transacciones
+
+Para operaciones críticas que modifican múltiples tablas:
+
+```typescript
+async create(dto: CreateDto): Promise<Entity> {
+  const queryRunner = this.dataSource.createQueryRunner();
+  await queryRunner.connect();
+  await queryRunner.startTransaction();
+
+  try {
+    // operaciones...
+    await queryRunner.commitTransaction();
+    return result;
+  } catch (error) {
+    await queryRunner.rollbackTransaction();
+    throw error;
+  } finally {
+    await queryRunner.release();
+  }
+}
+```
+
+---
+
 ## Notas Importantes
 
 1. **Siempre validar DTOs** - Usar class-validator en todos los DTOs de entrada

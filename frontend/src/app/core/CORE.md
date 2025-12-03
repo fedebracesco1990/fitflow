@@ -160,7 +160,22 @@ interface MessageResponse {
 // Respuesta de forgot-password
 interface ForgotPasswordResponse {
   message: string;
-  link?: string; // Solo en desarrollo
+  _devOnly?: {
+    resetLink: string;
+  };
+}
+
+// Respuesta paginada
+interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginationMeta;
 }
 ```
 

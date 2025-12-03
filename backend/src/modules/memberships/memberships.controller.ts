@@ -9,6 +9,8 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Query,
+  Request,
+  ForbiddenException,
 } from '@nestjs/common';
 import { MembershipsService } from './memberships.service';
 import { CreateMembershipDto, UpdateMembershipDto } from './dto';
@@ -16,6 +18,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
+import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 
 @Controller('memberships')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -49,7 +52,14 @@ export class MembershipsController {
 
   @Get('user/:userId/active')
   @Roles(Role.ADMIN, Role.USER)
-  findActiveByUser(@Param('userId', ParseUUIDPipe) userId: string) {
+  findActiveByUser(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    // USER can only see their own membership
+    if (req.user.role === Role.USER && req.user.userId !== userId) {
+      throw new ForbiddenException('Solo puedes ver tu propia membresía');
+    }
     return this.membershipsService.findActiveByUser(userId);
   }
 

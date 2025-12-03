@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Payment } from './entities/payment.entity';
 import { Membership } from '../memberships/entities/membership.entity';
 import { CreatePaymentDto, UpdatePaymentDto } from './dto';
+import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class PaymentsService {
@@ -11,32 +12,59 @@ export class PaymentsService {
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Membership)
-    private readonly membershipRepository: Repository<Membership>
+    private readonly membershipRepository: Repository<Membership>,
+    private readonly dataSource: DataSource
   ) {}
 
   async create(createDto: CreatePaymentDto, registeredById: string): Promise<Payment> {
-    // Verificar que la membresía existe
-    const membership = await this.membershipRepository.findOne({
-      where: { id: createDto.membershipId },
-    });
-    if (!membership) {
-      throw new NotFoundException(`Membresía con ID "${createDto.membershipId}" no encontrada`);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Verificar que la membresía existe
+      const membership = await queryRunner.manager.findOne(Membership, {
+        where: { id: createDto.membershipId },
+      });
+      if (!membership) {
+        throw new NotFoundException(`Membresía con ID "${createDto.membershipId}" no encontrada`);
+      }
+
+      const payment = queryRunner.manager.create(Payment, {
+        ...createDto,
+        paymentDate: new Date(createDto.paymentDate),
+        registeredById,
+      });
+
+      const savedPayment = await queryRunner.manager.save(payment);
+      await queryRunner.commitTransaction();
+
+      return savedPayment;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    const payment = this.paymentRepository.create({
-      ...createDto,
-      paymentDate: new Date(createDto.paymentDate),
-      registeredById,
-    });
-
-    return await this.paymentRepository.save(payment);
   }
 
-  async findAll(): Promise<Payment[]> {
-    return await this.paymentRepository.find({
+  async findAll(page = 1, limit = 20): Promise<PaginatedResponse<Payment>> {
+    const [data, total] = await this.paymentRepository.findAndCount({
       relations: ['membership', 'membership.user', 'membership.membershipType', 'registeredBy'],
       order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: string): Promise<Payment> {
