@@ -3,7 +3,7 @@
 ## Tecnologías
 
 - **Framework:** NestJS
-- **Base de datos:** PostgreSQL + TypeORM
+- **Base de datos:** MySQL + TypeORM
 - **Autenticación:** JWT (access + refresh tokens)
 - **Validación:** class-validator + class-transformer
 - **Documentación:** Swagger/OpenAPI
@@ -36,7 +36,7 @@ backend/src/
 │       ├── users.module.ts
 │       └── users.service.ts
 ├── common/                # Utilidades compartidas
-│   └── enums/             # Role enum
+│   └── enums/             # Role, Difficulty, DayOfWeek, WorkoutStatus
 └── config/                # Configuración
     ├── app.config.ts
     ├── database.config.ts

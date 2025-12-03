@@ -342,6 +342,7 @@ import { environment } from '@env';
 | ADMIN    | admin@fitflow.com    | Admin123!   |
 | TRAINER  | trainer@fitflow.com  | Trainer123! |
 | USER     | user1@fitflow.com    | User123!    |
+| USER     | user2@fitflow.com    | User123!    |
 | INACTIVE | inactive@fitflow.com | User123!    |
 
 ---

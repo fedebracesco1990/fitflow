@@ -2,7 +2,7 @@
 
 ## Tecnologías
 
-- **Framework:** Angular 19 (standalone components)
+- **Framework:** Angular 20 (standalone components)
 - **Estado:** NGXS
 - **Estilos:** SCSS
 - **UI Components:** Componentes propios en `shared/`
@@ -46,23 +46,14 @@ frontend/src/app/
 │       │   └── user.state.ts
 │       └── index.ts
 ├── features/              # Módulos de funcionalidad
-│   ├── auth/
-│   │   ├── pages/
-│   │   │   ├── login/
-│   │   │   ├── register/
-│   │   │   ├── forgot-password/
-│   │   │   └── reset-password/
-│   │   └── auth.routes.ts
-│   ├── dashboard/
-│   │   ├── pages/
-│   │   │   └── home/
-│   │   └── dashboard.routes.ts
-│   └── profile/
-│       ├── pages/
-│       │   ├── view-profile/
-│       │   ├── edit-profile/
-│       │   └── change-password/
-│       └── profile.routes.ts
+│   ├── auth/              # Login, Register, Password Reset
+│   ├── dashboard/         # Home
+│   ├── profile/           # Ver/Editar Perfil
+│   ├── membership-types/  # CRUD Tipos de Membresía
+│   ├── payments/          # CRUD Pagos
+│   ├── exercises/         # CRUD Ejercicios
+│   ├── routines/          # CRUD Rutinas (Admin/Trainer)
+│   └── my-routines/       # Vista semanal + Workout (Usuario)
 ├── layouts/               # Layouts de página
 │   ├── auth-layout/
 │   └── main-layout/
