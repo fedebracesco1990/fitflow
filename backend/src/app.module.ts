@@ -15,6 +15,7 @@ import { RoutinesModule } from './modules/routines/routines.module';
 import { UserRoutinesModule } from './modules/user-routines/user-routines.module';
 import { WorkoutsModule } from './modules/workouts/workouts.module';
 import { MuscleGroupsModule } from './modules/muscle-groups/muscle-groups.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { SeederModule } from './database/seeders/seeder.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
@@ -77,6 +78,7 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     UserRoutinesModule,
     WorkoutsModule,
     MuscleGroupsModule,
+    DashboardModule,
     SeederModule,
   ],
   controllers: [AppController],

@@ -321,57 +321,52 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ## Estado de Implementación
 
-| ID         | Funcionalidad                 | Estado      | Notas                                                                                              |
-| ---------- | ----------------------------- | ----------- | -------------------------------------------------------------------------------------------------- |
-| FITFLOW-10 | Configuración de Repositorio  | ✅ COMPLETO | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json                              |
-| FITFLOW-11 | Diseño de Arquitectura        | ✅ COMPLETO | ARCHITECTURE.md con diagramas Mermaid, modelo de datos, PWA                                        |
-| FITFLOW-12 | Modelo de Base de Datos       | ✅ COMPLETO | User, MembershipType, Membership, Payment, Exercise, Routine, MuscleGroup, UserRoutine, WorkoutLog |
-| FITFLOW-13 | Taller de Deploy              | ✅ COMPLETO | Documentación externa al repositorio                                                               |
-| FITFLOW-14 | API de Registro               | ✅ COMPLETO | POST /auth/register, validación, bcrypt, rol por defecto                                           |
-| FITFLOW-15 | Formulario de Registro        | ✅ COMPLETO | Formulario con validaciones, campos requeridos, manejo errores, responsive                         |
-| FITFLOW-16 | API de Login/JWT              | ✅ COMPLETO | POST /auth/login, JWT con payload, refresh token, guards                                           |
-| FITFLOW-17 | Formulario de Login           | ✅ COMPLETO | Formulario, localStorage, interceptor, manejo errores                                              |
-| FITFLOW-18 | Sistema de Logout             | ✅ COMPLETO | Botón en navbar, elimina tokens, redirige, limpia estado                                           |
-| FITFLOW-19 | Sistema de Roles (Backend)    | ✅ COMPLETO | Roles enum, @Roles decorator, RolesGuard, tests unitarios                                          |
-| FITFLOW-20 | Rutas Protegidas (Frontend)   | ✅ COMPLETO | AuthGuard, RoleGuard, rutas protegidas, dashboard diferenciado por rol                             |
-| FITFLOW-21 | API Recuperación Contraseña   | ⚠️ PARCIAL  | Endpoints creados, token temporal. Falta: envío real de email                                      |
-| FITFLOW-22 | Flujo Recuperación Contraseña | ✅ COMPLETO | Link en login, formulario solicitud, página reset, feedback                                        |
-| FITFLOW-23 | API Tipos de Membresía        | ✅ COMPLETO | CRUD completo con validaciones y roles                                                             |
-| FITFLOW-24 | Panel Tipos de Membresía      | ✅ COMPLETO | Lista, formulario crear/editar, eliminar, solo admin                                               |
-| FITFLOW-25 | API de Pagos                  | ✅ COMPLETO | CRUD completo con validaciones y roles                                                             |
-| FITFLOW-26 | Formulario de Pagos           | ✅ COMPLETO | Formulario crear/editar pago, selección membresía, métodos de pago                                 |
-| FITFLOW-27 | Lista de Pagos                | ✅ COMPLETO | Lista con tabla, filtros, acciones, solo admin                                                     |
-| FITFLOW-28 | API Dashboard Financiero      | ❌ EXCLUIDO | No revisar por ahora                                                                               |
-| FITFLOW-29 | Dashboard Financiero          | ❌ EXCLUIDO | No revisar por ahora                                                                               |
-| FITFLOW-30 | API de Ejercicios             | ✅ COMPLETO | CRUD completo, filtro por grupo muscular, solo admin                                               |
-| FITFLOW-31 | Panel de Ejercicios           | ✅ COMPLETO | Lista, formulario crear/editar, filtros por músculo                                                |
-| FITFLOW-32 | API de Grupos Musculares      | ✅ COMPLETO | GET /muscle-groups, seed automático con 10 grupos                                                  |
-| FITFLOW-33 | API de Rutinas                | ✅ COMPLETO | CRUD rutinas + ejercicios, asignación a usuarios                                                   |
-| FITFLOW-34 | Panel de Rutinas              | ✅ COMPLETO | Lista, formulario, gestión de ejercicios en rutina                                                 |
-| FITFLOW-35 | Mis Rutinas (Usuario)         | ✅ COMPLETO | Vista semanal de rutinas asignadas al usuario                                                      |
-| FITFLOW-36 | Workout Tracking              | ✅ COMPLETO | Componente para registrar entrenamientos                                                           |
-| FITFLOW-37 | Seeder Automático             | ✅ COMPLETO | Seed de usuarios, grupos musculares, ejercicios, rutinas al iniciar                                |
+| ID         | Funcionalidad                 | Estado       | Notas                                                                                              |
+| ---------- | ----------------------------- | ------------ | -------------------------------------------------------------------------------------------------- |
+| FITFLOW-10 | Configuración de Repositorio  | ✅ COMPLETO  | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json                              |
+| FITFLOW-11 | Diseño de Arquitectura        | ✅ COMPLETO  | ARCHITECTURE.md con diagramas Mermaid, modelo de datos, PWA                                        |
+| FITFLOW-12 | Modelo de Base de Datos       | ✅ COMPLETO  | User, MembershipType, Membership, Payment, Exercise, Routine, MuscleGroup, UserRoutine, WorkoutLog |
+| FITFLOW-13 | Taller de Deploy              | ✅ COMPLETO  | Documentación externa al repositorio                                                               |
+| FITFLOW-14 | API de Registro               | ✅ COMPLETO  | POST /auth/register, validación, bcrypt, rol por defecto                                           |
+| FITFLOW-15 | Formulario de Registro        | ✅ COMPLETO  | Formulario con validaciones, campos requeridos, manejo errores, responsive                         |
+| FITFLOW-16 | API de Login/JWT              | ✅ COMPLETO  | POST /auth/login, JWT con payload, refresh token, guards                                           |
+| FITFLOW-17 | Formulario de Login           | ✅ COMPLETO  | Formulario, localStorage, interceptor, manejo errores                                              |
+| FITFLOW-18 | Sistema de Logout             | ✅ COMPLETO  | Botón en navbar, elimina tokens, redirige, limpia estado                                           |
+| FITFLOW-19 | Sistema de Roles (Backend)    | ✅ COMPLETO  | Roles enum, @Roles decorator, RolesGuard, tests unitarios                                          |
+| FITFLOW-20 | Rutas Protegidas (Frontend)   | ✅ COMPLETO  | AuthGuard, RoleGuard, rutas protegidas, dashboard diferenciado por rol                             |
+| FITFLOW-21 | API Recuperación Contraseña   | ⚠️ PARCIAL   | Endpoints creados, token temporal. Falta: envío real de email                                      |
+| FITFLOW-22 | Flujo Recuperación Contraseña | ✅ COMPLETO  | Link en login, formulario solicitud, página reset, feedback                                        |
+| FITFLOW-23 | API Tipos de Membresía        | ✅ COMPLETO  | CRUD completo con validaciones y roles                                                             |
+| FITFLOW-24 | Panel Tipos de Membresía      | ✅ COMPLETO  | Lista, formulario crear/editar, eliminar, solo admin                                               |
+| FITFLOW-25 | API de Pagos                  | ✅ COMPLETO  | CRUD completo con validaciones y roles                                                             |
+| FITFLOW-26 | Formulario de Pagos           | ✅ COMPLETO  | Formulario crear/editar pago, selección membresía, métodos de pago                                 |
+| FITFLOW-27 | Lista de Pagos                | ✅ COMPLETO  | Lista con tabla, filtros, acciones, solo admin                                                     |
+| FITFLOW-28 | API Dashboard Financiero      | ✅ COMPLETO  | GET /dashboard/financial con KPIs, morosos, vencimientos, distribución pagos                       |
+| FITFLOW-29 | Dashboard Financiero          | ❌ PENDIENTE | Frontend pendiente                                                                                 |
+| FITFLOW-30 | API de Ejercicios             | ✅ COMPLETO  | CRUD completo, filtro por grupo muscular, solo admin                                               |
+| FITFLOW-31 | Panel de Ejercicios           | ✅ COMPLETO  | Lista, formulario crear/editar, filtros por músculo                                                |
+| FITFLOW-32 | API de Grupos Musculares      | ✅ COMPLETO  | GET /muscle-groups, seed automático con 10 grupos                                                  |
+| FITFLOW-33 | API de Rutinas                | ✅ COMPLETO  | CRUD rutinas + ejercicios, asignación a usuarios                                                   |
+| FITFLOW-34 | Panel de Rutinas              | ✅ COMPLETO  | Lista, formulario, gestión de ejercicios en rutina                                                 |
+| FITFLOW-35 | Mis Rutinas (Usuario)         | ✅ COMPLETO  | Vista semanal de rutinas asignadas al usuario                                                      |
+| FITFLOW-36 | Workout Tracking              | ✅ COMPLETO  | Componente para registrar entrenamientos                                                           |
+| FITFLOW-37 | Seeder Automático             | ✅ COMPLETO  | Seed de usuarios, grupos musculares, ejercicios, rutinas al iniciar                                |
 
 ---
 
 ## Resumen
 
-### ✅ Completadas (26)
+### ✅ Completadas (27)
 
-- FITFLOW-10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37
+- FITFLOW-10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28, 30, 31, 32, 33, 34, 35, 36, 37
 
 ### ⚠️ Parciales (1)
 
 - **FITFLOW-21**: Falta integración real de envío de email
 
-### ❌ Pendientes (0)
+### ❌ Pendientes (1)
 
-- Ninguna tarea pendiente
-
-### ❌ Excluidas (2)
-
-- **FITFLOW-28**: API Dashboard Financiero
-- **FITFLOW-29**: Dashboard Financiero
+- **FITFLOW-29**: Dashboard Financiero (Frontend)
 
 ---
 
@@ -379,4 +374,5 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ### Prioridad Alta
 
-1. **FITFLOW-21**: Integrar servicio de email real (SendGrid, Nodemailer, etc.)
+1. **FITFLOW-29**: Implementar Dashboard Financiero en Frontend (Chart.js + componentes)
+2. **FITFLOW-21**: Integrar servicio de email real (SendGrid, Nodemailer, etc.)

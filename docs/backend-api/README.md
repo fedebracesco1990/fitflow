@@ -22,6 +22,7 @@ Authorization: Bearer <access_token>
 | ----------------------------------------- | ------------------- | -------------------------- |
 | [Auth](./AUTH.md)                         | `/auth`             | Autenticación y sesiones   |
 | [Users](./USERS.md)                       | `/users`            | Gestión de usuarios        |
+| [Dashboard](./DASHBOARD.md)               | `/dashboard`        | Métricas y estadísticas    |
 | [Membership Types](./MEMBERSHIP_TYPES.md) | `/membership-types` | Tipos de membresía         |
 | [Memberships](./MEMBERSHIPS.md)           | `/memberships`      | Membresías de usuarios     |
 | [Payments](./PAYMENTS.md)                 | `/payments`         | Registro de pagos          |
