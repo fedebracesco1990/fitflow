@@ -13,7 +13,6 @@ async function bootstrap() {
 
   const allowedOrigins = configService.getOrThrow<string[]>('app.allowedOrigins');
   const port = configService.getOrThrow<number>('app.port');
-  const apiPrefix = configService.getOrThrow<string>('app.apiPrefix');
 
   app.enableCors({
     origin: allowedOrigins,
@@ -21,8 +20,6 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
-
-  app.setGlobalPrefix(apiPrefix);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -32,8 +29,8 @@ async function bootstrap() {
     })
   );
 
-  await app.listen(port);
-  console.log(`Backend running on http://localhost:${port}/${apiPrefix}`);
+  await app.listen(process.env.PORT || 3000);
+  console.log(`Backend running on http://localhost:${port}`);
   console.log(`Environment: ${configService.get<string>('app.nodeEnv')}`);
 }
 void bootstrap();
