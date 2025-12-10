@@ -92,6 +92,20 @@ input {
   font-size: 0.75rem;
 }
 
+.hint-text {
+  display: block;
+  margin-top: 0.25rem;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+input.disabled,
+input:disabled {
+  background-color: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
 .form-actions {
   display: flex;
   gap: 1rem;
