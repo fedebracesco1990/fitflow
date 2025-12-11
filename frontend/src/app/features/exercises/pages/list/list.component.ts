@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ExercisesService, MuscleGroupsService } from '../../../../core/services';
 import { Exercise, MuscleGroup, DifficultyLabels } from '../../../../core/models';
+import { ConfirmDialogComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-exercise-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ConfirmDialogComponent],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
 })
@@ -22,6 +23,10 @@ export class ExercisesListComponent implements OnInit {
   selectedMuscleGroupId = signal<string | null>(null);
 
   difficultyLabels = DifficultyLabels;
+
+  // Dialog state
+  showDeleteDialog = signal(false);
+  selectedExercise = signal<Exercise | null>(null);
 
   ngOnInit(): void {
     this.loadMuscleGroups();
@@ -71,17 +76,28 @@ export class ExercisesListComponent implements OnInit {
     this.loadExercises();
   }
 
-  deleteExercise(exercise: Exercise): void {
-    if (!confirm(`¿Estás seguro de eliminar el ejercicio "${exercise.name}"?`)) {
-      return;
-    }
+  openDeleteDialog(exercise: Exercise): void {
+    this.selectedExercise.set(exercise);
+    this.showDeleteDialog.set(true);
+  }
+
+  closeDeleteDialog(): void {
+    this.showDeleteDialog.set(false);
+    this.selectedExercise.set(null);
+  }
+
+  confirmDelete(): void {
+    const exercise = this.selectedExercise();
+    if (!exercise) return;
 
     this.exercisesService.delete(exercise.id).subscribe({
       next: () => {
         this.exercises.update((list) => list.filter((e) => e.id !== exercise.id));
+        this.closeDeleteDialog();
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Error al eliminar ejercicio');
+        this.closeDeleteDialog();
       },
     });
   }
