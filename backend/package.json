@@ -20,10 +20,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "npm run typeorm -- migration:generate -d src/config/migration.config.ts",
-    "migration:run": "npm run typeorm migration:run -d src/config/migration.config.ts",
-    "migration:revert": "npm run typeorm -- migration:revert",
-    "vercel-build": "npm run build && npm run migration:run"
+    "migration:generate": "npm run typeorm -- migration:generate -d src/config/migrations.config.ts",
+    "migration:run": "npm run typeorm -- migration:run -d src/config/migrations.config.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/config/migrations.config.ts",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "@nestjs/common": "11.1.8",
