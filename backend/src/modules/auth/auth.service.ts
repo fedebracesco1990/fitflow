@@ -130,8 +130,7 @@ export class AuthService {
       await this.usersService.setResetPasswordToken(user.id, hashedToken, expires);
       this.logger.log(`[PASSWORD_RESET_REQUEST] Reset token generated for: ${user.email}`);
 
-      const frontendUrl =
-        this.configService.get<string>('app.frontendUrl') || 'http://localhost:4200';
+      const frontendUrl = this.configService.getOrThrow<string>('app.frontendUrl');
       const resetLink = `${frontendUrl}/auth/reset-password?token=${token}&userId=${user.id}`;
 
       // TODO: Enviar email real con el resetLink
