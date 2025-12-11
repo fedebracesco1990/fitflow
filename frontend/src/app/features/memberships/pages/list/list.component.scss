@@ -1,0 +1,109 @@
+.memberships-list-page {
+  padding: 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: #1e293b;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+
+  p {
+    color: #64748b;
+    margin-bottom: 1rem;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th,
+  td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  th {
+    font-weight: 600;
+    color: #374151;
+    background: #f9fafb;
+  }
+
+  td {
+    color: #1f2937;
+  }
+
+  tbody tr:hover {
+    background: #f9fafb;
+  }
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  .user-name {
+    font-weight: 500;
+  }
+
+  .user-email {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+
+  span {
+    color: #64748b;
+    font-size: 0.875rem;
+  }
+}

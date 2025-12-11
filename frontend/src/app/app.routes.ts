@@ -67,6 +67,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'memberships',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.ADMIN] },
+    loadChildren: () =>
+      import('./features/memberships/memberships.routes').then((m) => m.MEMBERSHIPS_ROUTES),
+  },
+  {
     path: 'payments',
     canActivate: [authGuard, roleGuard],
     data: { roles: [Role.ADMIN] },

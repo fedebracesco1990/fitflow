@@ -42,6 +42,16 @@ export class PaymentFormComponent implements OnInit {
       reference: [''],
       notes: [''],
     });
+
+    // Auto-fill amount when membership is selected
+    this.form.get('membershipId')?.valueChanges.subscribe((membershipId) => {
+      if (membershipId && !this.isEditMode()) {
+        const membership = this.memberships().find((m) => m.id === membershipId);
+        if (membership?.membershipType?.price) {
+          this.form.patchValue({ amount: membership.membershipType.price });
+        }
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -99,8 +109,14 @@ export class PaymentFormComponent implements OnInit {
 
     const formValue = this.form.value;
 
+    // Convert amount to number (HTML inputs return strings)
+    const data = {
+      ...formValue,
+      amount: Number(formValue.amount),
+    };
+
     if (this.isEditMode() && this.paymentId) {
-      this.paymentsService.update(this.paymentId, formValue).subscribe({
+      this.paymentsService.update(this.paymentId, data).subscribe({
         next: () => {
           this.router.navigate(['/payments']);
         },
@@ -110,7 +126,7 @@ export class PaymentFormComponent implements OnInit {
         },
       });
     } else {
-      this.paymentsService.create(formValue).subscribe({
+      this.paymentsService.create(data).subscribe({
         next: () => {
           this.router.navigate(['/payments']);
         },

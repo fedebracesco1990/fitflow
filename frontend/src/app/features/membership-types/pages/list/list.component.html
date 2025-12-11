@@ -63,24 +63,12 @@
                 </td>
                 @if (isAdmin()) {
                   <td class="actions">
-                    @if (deleteConfirmId() === type.id) {
-                      <div class="confirm-delete">
-                        <span>¿Eliminar?</span>
-                        <fit-flow-button variant="danger" size="sm" (click)="deleteType(type.id)">
-                          Sí
-                        </fit-flow-button>
-                        <fit-flow-button variant="outline" size="sm" (click)="cancelDelete()">
-                          No
-                        </fit-flow-button>
-                      </div>
-                    } @else {
-                      <a [routerLink]="[type.id, 'edit']">
-                        <fit-flow-button variant="outline" size="sm"> Editar </fit-flow-button>
-                      </a>
-                      <fit-flow-button variant="danger" size="sm" (click)="confirmDelete(type.id)">
-                        Eliminar
-                      </fit-flow-button>
-                    }
+                    <a [routerLink]="[type.id, 'edit']">
+                      <fit-flow-button variant="outline" size="sm"> Editar </fit-flow-button>
+                    </a>
+                    <fit-flow-button variant="danger" size="sm" (click)="openDeleteDialog(type)">
+                      Eliminar
+                    </fit-flow-button>
                   </td>
                 }
               </tr>
@@ -91,3 +79,18 @@
     </fit-flow-card>
   }
 </div>
+
+<!-- Delete Confirmation Dialog -->
+<fit-flow-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  title="Eliminar Tipo de Membresía"
+  [message]="
+    '¿Estás seguro de eliminar el tipo ' +
+    (selectedType()?.name || '') +
+    '? Esta acción no se puede deshacer.'
+  "
+  confirmText="Eliminar"
+  variant="danger"
+  (confirmed)="confirmDelete()"
+  (cancelled)="closeDeleteDialog()"
+></fit-flow-confirm-dialog>

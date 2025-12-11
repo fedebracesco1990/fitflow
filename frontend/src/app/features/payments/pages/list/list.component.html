@@ -62,7 +62,7 @@
                   <a [routerLink]="['/payments', payment.id, 'edit']">
                     <fit-flow-button variant="secondary" size="sm">Editar</fit-flow-button>
                   </a>
-                  <fit-flow-button variant="danger" size="sm" (click)="deletePayment(payment)">
+                  <fit-flow-button variant="danger" size="sm" (click)="openDeleteDialog(payment)">
                     Eliminar
                   </fit-flow-button>
                 </td>
@@ -74,3 +74,18 @@
     </fit-flow-card>
   }
 </div>
+
+<!-- Delete Confirmation Dialog -->
+<fit-flow-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  title="Eliminar Pago"
+  [message]="
+    '¿Estás seguro de eliminar este pago de $' +
+    (selectedPayment()?.amount || 0) +
+    '? Esta acción no se puede deshacer.'
+  "
+  confirmText="Eliminar"
+  variant="danger"
+  (confirmed)="confirmDelete()"
+  (cancelled)="closeDeleteDialog()"
+/>

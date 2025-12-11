@@ -87,7 +87,18 @@ export class MembershipTypeFormComponent implements OnInit {
     this.isSaving.set(true);
     this.error.set(null);
 
-    const data = this.form.value;
+    const formData = this.form.value;
+
+    // Convertir valores numéricos (los inputs HTML devuelven strings)
+    const baseData = {
+      ...formData,
+      price: Number(formData.price),
+      durationDays: Number(formData.durationDays),
+      gracePeriodDays: Number(formData.gracePeriodDays) || 0,
+    };
+
+    // isActive solo se envía en modo edición (el backend no lo acepta en creación)
+    const data = this.isEditMode() ? baseData : { ...baseData, isActive: undefined };
 
     const request$ = this.isEditMode()
       ? this.membershipTypesService.update(this.membershipTypeId()!, data)

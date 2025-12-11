@@ -1,0 +1,137 @@
+<div class="memberships-list-page">
+  <div class="page-header">
+    <h1>Membresías</h1>
+    <a routerLink="/memberships/new">
+      <fit-flow-button>+ Nueva Membresía</fit-flow-button>
+    </a>
+  </div>
+
+  @if (error()) {
+    <fit-flow-alert type="error" [message]="error()!" />
+  }
+
+  @if (loading()) {
+    <div class="loading">
+      <p>Cargando membresías...</p>
+    </div>
+  } @else if (memberships().length === 0) {
+    <fit-flow-card>
+      <div class="empty-state">
+        <p>No hay membresías registradas</p>
+        <a routerLink="/memberships/new">
+          <fit-flow-button variant="secondary">Crear primera membresía</fit-flow-button>
+        </a>
+      </div>
+    </fit-flow-card>
+  } @else {
+    <fit-flow-card>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Tipo</th>
+              <th>Inicio</th>
+              <th>Vencimiento</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (membership of memberships(); track membership.id) {
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <span class="user-name">{{ getUserName(membership) }}</span>
+                    <span class="user-email">{{ membership.user?.email }}</span>
+                  </div>
+                </td>
+                <td>{{ getMembershipTypeName(membership) }}</td>
+                <td>{{ membership.startDate | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ membership.endDate | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <fit-flow-badge [variant]="getStatusBadgeVariant(membership.status)">
+                    {{ MembershipStatusLabels[membership.status] }}
+                  </fit-flow-badge>
+                </td>
+                <td>
+                  <div class="actions">
+                    <a [routerLink]="['/memberships', membership.id, 'edit']">
+                      <fit-flow-button variant="outline" size="sm">Editar</fit-flow-button>
+                    </a>
+                    @if (membership.status === 'active') {
+                      <fit-flow-button
+                        variant="outline"
+                        size="sm"
+                        (click)="openCancelDialog(membership)"
+                      >
+                        Cancelar
+                      </fit-flow-button>
+                    }
+                    <fit-flow-button
+                      variant="outline"
+                      size="sm"
+                      (click)="openDeleteDialog(membership)"
+                    >
+                      Eliminar
+                    </fit-flow-button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </fit-flow-card>
+
+    @if (paginationMeta()?.totalPages && paginationMeta()!.totalPages > 1) {
+      <div class="pagination">
+        <fit-flow-button
+          variant="outline"
+          [disabled]="paginationMeta()!.page <= 1"
+          (click)="loadMemberships(paginationMeta()!.page - 1)"
+        >
+          Anterior
+        </fit-flow-button>
+        <span>Página {{ paginationMeta()!.page }} de {{ paginationMeta()!.totalPages }}</span>
+        <fit-flow-button
+          variant="outline"
+          [disabled]="paginationMeta()!.page >= paginationMeta()!.totalPages"
+          (click)="loadMemberships(paginationMeta()!.page + 1)"
+        >
+          Siguiente
+        </fit-flow-button>
+      </div>
+    }
+  }
+</div>
+
+<!-- Delete Confirmation Dialog -->
+<fit-flow-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  title="Eliminar Membresía"
+  [message]="
+    '¿Estás seguro de eliminar la membresía de ' +
+    (selectedMembership()?.user?.name || 'este usuario') +
+    '? Esta acción no se puede deshacer.'
+  "
+  confirmText="Eliminar"
+  variant="danger"
+  (confirmed)="confirmDelete()"
+  (cancelled)="closeDeleteDialog()"
+/>
+
+<!-- Cancel Confirmation Dialog -->
+<fit-flow-confirm-dialog
+  [isOpen]="showCancelDialog()"
+  title="Cancelar Membresía"
+  [message]="
+    '¿Estás seguro de cancelar la membresía de ' +
+    (selectedMembership()?.user?.name || 'este usuario') +
+    '?'
+  "
+  confirmText="Cancelar Membresía"
+  variant="warning"
+  (confirmed)="confirmCancel()"
+  (cancelled)="closeCancelDialog()"
+/>

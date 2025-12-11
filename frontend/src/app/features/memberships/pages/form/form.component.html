@@ -1,0 +1,104 @@
+<div class="membership-form-page">
+  <div class="page-header">
+    <a routerLink="/memberships" class="back-link">← Volver</a>
+    <h1>{{ pageTitle() }}</h1>
+  </div>
+
+  @if (error()) {
+    <fit-flow-alert type="error" [message]="error()!" />
+  }
+
+  @if (loading() || loadingData()) {
+    <div class="loading">
+      <p>Cargando...</p>
+    </div>
+  } @else {
+    <fit-flow-card>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        @if (!isEditMode()) {
+          <div class="form-group">
+            <label for="userId">Usuario *</label>
+            <select id="userId" formControlName="userId" [class.error]="isFieldInvalid('userId')">
+              <option value="">Seleccionar usuario...</option>
+              @for (user of users(); track user.id) {
+                <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+              }
+            </select>
+            @if (isFieldInvalid('userId')) {
+              <span class="error-text">Selecciona un usuario</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="membershipTypeId">Tipo de Membresía *</label>
+            <select
+              id="membershipTypeId"
+              formControlName="membershipTypeId"
+              [class.error]="isFieldInvalid('membershipTypeId')"
+            >
+              <option value="">Seleccionar tipo...</option>
+              @for (type of membershipTypes(); track type.id) {
+                <option [value]="type.id">
+                  {{ type.name }} - ${{ type.price }} ({{ type.durationDays }} días)
+                </option>
+              }
+            </select>
+            @if (isFieldInvalid('membershipTypeId')) {
+              <span class="error-text">Selecciona un tipo de membresía</span>
+            }
+          </div>
+        }
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Fecha de Inicio *</label>
+            <input
+              type="date"
+              id="startDate"
+              formControlName="startDate"
+              [class.error]="isFieldInvalid('startDate')"
+            />
+            @if (isFieldInvalid('startDate')) {
+              <span class="error-text">La fecha de inicio es requerida</span>
+            }
+          </div>
+
+          @if (isEditMode()) {
+            <div class="form-group">
+              <label for="endDate">Fecha de Vencimiento</label>
+              <input type="date" id="endDate" formControlName="endDate" />
+            </div>
+
+            <div class="form-group">
+              <label for="status">Estado</label>
+              <select id="status" formControlName="status">
+                @for (status of statuses; track status) {
+                  <option [value]="status">{{ MembershipStatusLabels[status] }}</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notas</label>
+          <textarea
+            id="notes"
+            formControlName="notes"
+            placeholder="Notas opcionales..."
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/memberships">
+            <fit-flow-button variant="outline" type="button">Cancelar</fit-flow-button>
+          </a>
+          <fit-flow-button type="submit" [loading]="loading()">
+            {{ isEditMode() ? 'Guardar Cambios' : 'Crear Membresía' }}
+          </fit-flow-button>
+        </div>
+      </form>
+    </fit-flow-card>
+  }
+</div>
