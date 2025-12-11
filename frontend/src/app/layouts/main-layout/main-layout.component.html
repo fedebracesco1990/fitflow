@@ -22,7 +22,9 @@
           Inicio
         </a>
         @if (isAdmin()) {
-          <a routerLink="/membership-types" routerLinkActive="active">Membresías</a>
+          <a routerLink="/dashboard/financial" routerLinkActive="active">Finanzas</a>
+          <a routerLink="/memberships" routerLinkActive="active">Membresías</a>
+          <a routerLink="/membership-types" routerLinkActive="active">Tipos</a>
           <a routerLink="/payments" routerLinkActive="active">Pagos</a>
           <a routerLink="/exercises" routerLinkActive="active">Ejercicios</a>
         }

@@ -61,7 +61,7 @@
             }
             <div class="exercise-actions">
               <a [routerLink]="[exercise.id, 'edit']" class="btn btn-sm btn-outline">Editar</a>
-              <button class="btn btn-sm btn-danger" (click)="deleteExercise(exercise)">
+              <button class="btn btn-sm btn-danger" (click)="openDeleteDialog(exercise)">
                 Eliminar
               </button>
             </div>
@@ -71,3 +71,18 @@
     </div>
   }
 </div>
+
+<!-- Delete Confirmation Dialog -->
+<fit-flow-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  title="Eliminar Ejercicio"
+  [message]="
+    '¿Estás seguro de eliminar el ejercicio ' +
+    (selectedExercise()?.name || '') +
+    '? Esta acción no se puede deshacer.'
+  "
+  confirmText="Eliminar"
+  variant="danger"
+  (confirmed)="confirmDelete()"
+  (cancelled)="closeDeleteDialog()"
+></fit-flow-confirm-dialog>

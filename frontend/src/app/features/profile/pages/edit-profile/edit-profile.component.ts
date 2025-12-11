@@ -24,7 +24,6 @@ export class EditProfileComponent implements OnInit {
 
   form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-    email: ['', [Validators.required, Validators.email]],
   });
 
   ngOnInit(): void {
@@ -35,7 +34,6 @@ export class EditProfileComponent implements OnInit {
     if (profile) {
       this.form.patchValue({
         name: profile.name,
-        email: profile.email,
       });
     }
   }
@@ -52,11 +50,6 @@ export class EditProfileComponent implements OnInit {
   // Getters for template - reactive forms need getters
   get nameInvalid(): boolean {
     const control = this.form.get('name');
-    return !!(control && control.invalid && control.touched);
-  }
-
-  get emailInvalid(): boolean {
-    const control = this.form.get('email');
     return !!(control && control.invalid && control.touched);
   }
 

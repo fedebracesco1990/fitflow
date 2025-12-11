@@ -4,12 +4,25 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { PaymentsService } from '../../../../core/services';
 import { Payment, PaymentMethod, PaymentMethodLabels } from '../../../../core/models';
 import { PaginationMeta } from '../../../../core/models/api-response.model';
-import { AlertComponent, ButtonComponent, CardComponent } from '../../../../shared';
+import {
+  AlertComponent,
+  ButtonComponent,
+  CardComponent,
+  ConfirmDialogComponent,
+} from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-payments-list',
   standalone: true,
-  imports: [RouterLink, DatePipe, DecimalPipe, AlertComponent, ButtonComponent, CardComponent],
+  imports: [
+    RouterLink,
+    DatePipe,
+    DecimalPipe,
+    AlertComponent,
+    ButtonComponent,
+    CardComponent,
+    ConfirmDialogComponent,
+  ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
 })
@@ -22,6 +35,10 @@ export class PaymentsListComponent implements OnInit {
   readonly error = signal<string | null>(null);
 
   readonly PaymentMethodLabels = PaymentMethodLabels;
+
+  // Dialog state
+  readonly showDeleteDialog = signal(false);
+  readonly selectedPayment = signal<Payment | null>(null);
 
   ngOnInit(): void {
     this.loadPayments();
@@ -44,17 +61,28 @@ export class PaymentsListComponent implements OnInit {
     });
   }
 
-  deletePayment(payment: Payment): void {
-    if (!confirm(`¿Estás seguro de eliminar este pago de $${payment.amount}?`)) {
-      return;
-    }
+  openDeleteDialog(payment: Payment): void {
+    this.selectedPayment.set(payment);
+    this.showDeleteDialog.set(true);
+  }
+
+  closeDeleteDialog(): void {
+    this.showDeleteDialog.set(false);
+    this.selectedPayment.set(null);
+  }
+
+  confirmDelete(): void {
+    const payment = this.selectedPayment();
+    if (!payment) return;
 
     this.paymentsService.delete(payment.id).subscribe({
       next: () => {
         this.payments.update((list) => list.filter((p) => p.id !== payment.id));
+        this.closeDeleteDialog();
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Error al eliminar el pago');
+        this.closeDeleteDialog();
       },
     });
   }

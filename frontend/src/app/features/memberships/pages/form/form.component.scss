@@ -1,4 +1,4 @@
-.membership-type-form-page {
+.membership-form-page {
   padding: 1.5rem;
   max-width: 600px;
   margin: 0 auto;
@@ -9,28 +9,28 @@
 
   .back-link {
     display: inline-block;
-    color: var(--text-secondary);
+    color: #64748b;
     text-decoration: none;
     font-size: 0.875rem;
     margin-bottom: 0.5rem;
     transition: color 0.15s ease;
 
     &:hover {
-      color: var(--primary-color);
+      color: #667eea;
     }
   }
 
   h1 {
     margin: 0;
     font-size: 1.75rem;
-    color: var(--text-primary);
+    color: #1e293b;
   }
 }
 
 .loading {
   text-align: center;
   padding: 3rem;
-  color: var(--text-secondary);
+  color: #64748b;
 }
 
 form {
@@ -46,33 +46,41 @@ form {
 
   label {
     font-weight: 500;
-    color: var(--text-primary);
+    color: #1e293b;
     font-size: 0.875rem;
   }
 
   input,
+  select,
   textarea {
     padding: 0.625rem 0.875rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
 
     &:focus {
       outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
 
     &.error {
-      border-color: var(--danger-color);
+      border-color: #dc2626;
     }
 
     &::placeholder {
-      color: var(--text-muted);
+      color: #9ca3af;
     }
+  }
+
+  select {
+    cursor: pointer;
+    background-color: white;
   }
 
   textarea {
@@ -81,46 +89,18 @@ form {
   }
 
   .error-text {
-    color: var(--danger-color);
+    color: #dc2626;
     font-size: 0.75rem;
   }
 }
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
 
   .form-group {
     min-width: 0;
-
-    input {
-      width: 100%;
-      box-sizing: border-box;
-    }
-  }
-}
-
-.checkbox-group {
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-
-    input[type='checkbox'] {
-      width: 1.125rem;
-      height: 1.125rem;
-      cursor: pointer;
-    }
-
-    span {
-      font-weight: normal;
-    }
   }
 }
 
@@ -130,19 +110,9 @@ form {
   gap: 0.75rem;
   margin-top: 0.5rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid #e5e7eb;
 
   a {
     text-decoration: none;
   }
-}
-
-// Variables fallback
-:host {
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
-  --border-color: #e5e7eb;
-  --primary-color: #3b82f6;
-  --danger-color: #dc2626;
 }

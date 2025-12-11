@@ -1,0 +1,207 @@
+<div class="financial-dashboard">
+  @if (loading()) {
+    <div class="loading-container">
+      <fit-flow-loading-spinner />
+      <p>Cargando dashboard financiero...</p>
+    </div>
+  } @else if (error()) {
+    <fit-flow-alert type="error" [message]="error()!" />
+    <fit-flow-button variant="secondary" (click)="loadDashboard()"> Reintentar </fit-flow-button>
+  } @else if (hasData()) {
+    <!-- KPIs Section -->
+    <section class="kpis-section">
+      <h2>📊 Resumen Financiero</h2>
+      <div class="kpis-grid">
+        <!-- Ingresos del mes -->
+        <fit-flow-card padding="md" class="kpi-card revenue">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-content">
+            <h3>Ingresos del Mes</h3>
+            <p class="kpi-value">{{ formatCurrency(data()!.currentMonthRevenue) }}</p>
+            <div class="kpi-comparison" [class]="revenueGrowthClass()">
+              <span class="growth-icon">{{ revenueGrowthIcon() }}</span>
+              <span class="growth-value">
+                {{ data()!.revenueGrowthPercentage | number: '1.1-1' }}%
+              </span>
+              <span class="growth-label">vs mes anterior</span>
+            </div>
+          </div>
+        </fit-flow-card>
+
+        <!-- Miembros activos -->
+        <fit-flow-card padding="md" class="kpi-card members">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-content">
+            <h3>Miembros Activos</h3>
+            <p class="kpi-value">{{ data()!.totalActiveMembers }}</p>
+            <span class="kpi-label">membresías vigentes</span>
+          </div>
+        </fit-flow-card>
+
+        <!-- Morosos -->
+        <fit-flow-card padding="md" class="kpi-card debtors">
+          <div class="kpi-icon">⚠️</div>
+          <div class="kpi-content">
+            <h3>Morosos</h3>
+            <p class="kpi-value" [class.alert]="data()!.totalDebtors > 0">
+              {{ data()!.totalDebtors }}
+            </p>
+            <span class="kpi-label">pagos pendientes</span>
+          </div>
+        </fit-flow-card>
+
+        <!-- Vencimientos próximos -->
+        <fit-flow-card padding="md" class="kpi-card expiring">
+          <div class="kpi-icon">📅</div>
+          <div class="kpi-content">
+            <h3>Por Vencer</h3>
+            <p class="kpi-value" [class.warning]="data()!.expiringInSevenDays > 0">
+              {{ data()!.expiringInSevenDays }}
+            </p>
+            <span class="kpi-label">próximos 7 días</span>
+          </div>
+        </fit-flow-card>
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="charts-section">
+      <div class="charts-grid">
+        <!-- Monthly Revenue Chart -->
+        <fit-flow-card padding="md" class="chart-card">
+          <h3>📈 Ingresos Mensuales</h3>
+          @if (data()!.monthlyRevenue.length > 0) {
+            <div class="bar-chart">
+              <div class="chart-bars">
+                @for (item of data()!.monthlyRevenue; track item.month + item.year) {
+                  <div class="bar-container">
+                    <div class="bar-value">{{ formatCurrency(item.total) }}</div>
+                    <div class="bar" [style.height]="getBarHeight(item.total)"></div>
+                    <div class="bar-label">{{ item.month }}</div>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <fit-flow-empty-state
+              icon="📊"
+              title="Sin datos"
+              message="No hay datos de ingresos para mostrar"
+            />
+          }
+        </fit-flow-card>
+
+        <!-- Payment Method Distribution -->
+        <fit-flow-card padding="md" class="chart-card">
+          <h3>💳 Distribución por Método de Pago</h3>
+          @if (data()!.paymentMethodDistribution.length > 0) {
+            <div class="distribution-list">
+              @for (item of data()!.paymentMethodDistribution; track item.method) {
+                <div class="distribution-item">
+                  <div class="distribution-header">
+                    <span class="method-icon">{{ getPaymentMethodIcon(item.method) }}</span>
+                    <span class="method-name">{{ getPaymentMethodLabel(item.method) }}</span>
+                    <span class="method-count">{{ item.count }} pagos</span>
+                  </div>
+                  <div class="distribution-bar-container">
+                    <div
+                      class="distribution-bar"
+                      [style.width.%]="getDistributionPercentage(item)"
+                    ></div>
+                  </div>
+                  <div class="distribution-footer">
+                    <span class="method-total">{{ formatCurrency(item.total) }}</span>
+                    <span class="method-percentage">
+                      {{ getDistributionPercentage(item) | number: '1.0-0' }}%
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <fit-flow-empty-state
+              icon="💳"
+              title="Sin pagos"
+              message="No hay pagos registrados este mes"
+            />
+          }
+        </fit-flow-card>
+      </div>
+    </section>
+
+    <!-- Lists Section -->
+    <section class="lists-section">
+      <div class="lists-grid">
+        <!-- Debtors List -->
+        <fit-flow-card padding="md" class="list-card">
+          <div class="list-header">
+            <h3>⚠️ Morosos</h3>
+            <fit-flow-badge [variant]="data()!.debtors.length > 0 ? 'error' : 'success'">
+              {{ data()!.debtors.length }}
+            </fit-flow-badge>
+          </div>
+          @if (data()!.debtors.length > 0) {
+            <div class="list-content">
+              @for (debtor of data()!.debtors; track debtor.userId) {
+                <div class="list-item debtor-item">
+                  <div class="item-info">
+                    <span class="item-name">{{ debtor.userName }}</span>
+                    <span class="item-email">{{ debtor.userEmail }}</span>
+                  </div>
+                  <div class="item-details">
+                    <span class="days-overdue">{{ debtor.daysOverdue }} días de mora</span>
+                    <span class="end-date">
+                      Venció: {{ debtor.membershipEndDate | date: 'dd/MM/yyyy' }}
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <fit-flow-empty-state
+              icon="✅"
+              title="Sin morosos"
+              message="Todos los pagos están al día"
+            />
+          }
+        </fit-flow-card>
+
+        <!-- Expiring Memberships List -->
+        <fit-flow-card padding="md" class="list-card">
+          <div class="list-header">
+            <h3>📅 Vencimientos Próximos</h3>
+            <fit-flow-badge
+              [variant]="data()!.expiringMemberships.length > 0 ? 'warning' : 'success'"
+            >
+              {{ data()!.expiringMemberships.length }}
+            </fit-flow-badge>
+          </div>
+          @if (data()!.expiringMemberships.length > 0) {
+            <div class="list-content">
+              @for (membership of data()!.expiringMemberships; track membership.userId) {
+                <div class="list-item expiring-item">
+                  <div class="item-info">
+                    <span class="item-name">{{ membership.userName }}</span>
+                    <span class="item-email">{{ membership.userEmail }}</span>
+                  </div>
+                  <div class="item-details">
+                    <span class="membership-type">{{ membership.membershipTypeName }}</span>
+                    <span class="days-until" [class.urgent]="membership.daysUntilExpiration <= 3">
+                      {{ membership.daysUntilExpiration }} días restantes
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <fit-flow-empty-state
+              icon="📅"
+              title="Sin vencimientos"
+              message="No hay membresías por vencer en los próximos 7 días"
+            />
+          }
+        </fit-flow-card>
+      </div>
+    </section>
+  }
+</div>

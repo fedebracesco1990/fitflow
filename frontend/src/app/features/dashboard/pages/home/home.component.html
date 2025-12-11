@@ -81,10 +81,12 @@
           <span class="action-icon">💵</span>
           <span>Registrar Pago</span>
         </fit-flow-button>
-        <fit-flow-button variant="secondary" [fullWidth]="true">
-          <span class="action-icon">📈</span>
-          <span>Ver Reportes</span>
-        </fit-flow-button>
+        <a routerLink="/dashboard/financial">
+          <fit-flow-button variant="secondary" [fullWidth]="true">
+            <span class="action-icon">📈</span>
+            <span>Dashboard Financiero</span>
+          </fit-flow-button>
+        </a>
       </div>
     </section>
   }

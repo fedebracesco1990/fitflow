@@ -5,14 +5,24 @@ import { MembershipTypesService } from '../../../../core/services';
 import { MembershipType } from '../../../../core/models';
 import { Store } from '@ngxs/store';
 import { AuthState } from '../../../../core/store/auth/auth.state';
-import { CardComponent } from '../../../../shared/components/card/card.component';
-import { ButtonComponent } from '../../../../shared/components/button/button.component';
-import { AlertComponent } from '../../../../shared/components/alert/alert.component';
+import {
+  CardComponent,
+  ButtonComponent,
+  AlertComponent,
+  ConfirmDialogComponent,
+} from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-membership-types-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, CardComponent, ButtonComponent, AlertComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    CardComponent,
+    ButtonComponent,
+    AlertComponent,
+    ConfirmDialogComponent,
+  ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
 })
@@ -23,7 +33,8 @@ export class MembershipTypesListComponent implements OnInit {
   membershipTypes = signal<MembershipType[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
-  deleteConfirmId = signal<string | null>(null);
+  showDeleteDialog = signal(false);
+  selectedType = signal<MembershipType | null>(null);
 
   isAdmin = this.store.selectSignal(AuthState.isAdmin);
 
@@ -47,23 +58,28 @@ export class MembershipTypesListComponent implements OnInit {
     });
   }
 
-  confirmDelete(id: string): void {
-    this.deleteConfirmId.set(id);
+  openDeleteDialog(type: MembershipType): void {
+    this.selectedType.set(type);
+    this.showDeleteDialog.set(true);
   }
 
-  cancelDelete(): void {
-    this.deleteConfirmId.set(null);
+  closeDeleteDialog(): void {
+    this.showDeleteDialog.set(false);
+    this.selectedType.set(null);
   }
 
-  deleteType(id: string): void {
-    this.membershipTypesService.delete(id).subscribe({
+  confirmDelete(): void {
+    const type = this.selectedType();
+    if (!type) return;
+
+    this.membershipTypesService.delete(type.id).subscribe({
       next: () => {
-        this.membershipTypes.update((types) => types.filter((t) => t.id !== id));
-        this.deleteConfirmId.set(null);
+        this.membershipTypes.update((types) => types.filter((t) => t.id !== type.id));
+        this.closeDeleteDialog();
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Error al eliminar el tipo de membresía');
-        this.deleteConfirmId.set(null);
+        this.closeDeleteDialog();
       },
     });
   }
