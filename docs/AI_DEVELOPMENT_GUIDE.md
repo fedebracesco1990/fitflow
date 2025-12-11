@@ -23,8 +23,8 @@ Esta guía ayuda a la IA a desarrollar features de forma eficiente en FitFlow.
 fitflow/
 ├── frontend/src/app/
 │   ├── core/           # Servicios, guards, interceptors, models
-│   ├── shared/         # Componentes reutilizables (Button, Card, Alert, etc.)
-│   ├── features/       # Módulos por feature (auth, profile, dashboard)
+│   ├── shared/         # Componentes reutilizables (Button, Card, Alert, ConfirmDialog, etc.)
+│   ├── features/       # Módulos por feature (auth, profile, dashboard, memberships, etc.)
 │   └── layouts/        # Layouts (auth-layout, main-layout)
 ├── backend/src/
 │   ├── modules/        # Módulos de dominio (auth, users, exercises, routines, etc.)
@@ -354,3 +354,65 @@ import { environment } from '@env';
 - **Getters** - Usar TypeScript getters para validación de formularios
 - **Standalone** - Todos los componentes son standalone
 - **JWT** - Tokens en localStorage, refresh automático via interceptor
+- **ConfirmDialog** - Usar `ConfirmDialogComponent` para confirmaciones de eliminación (no `confirm()`)
+- **Conversión numérica** - Los inputs HTML `type="number"` devuelven strings, convertir con `Number()` antes de enviar al backend
+
+---
+
+## Componentes Shared Disponibles
+
+| Componente                | Selector                     | Uso                      |
+| ------------------------- | ---------------------------- | ------------------------ |
+| `AlertComponent`          | `<fit-flow-alert>`           | Mensajes de error/éxito  |
+| `ButtonComponent`         | `<fit-flow-button>`          | Botones con loading      |
+| `CardComponent`           | `<fit-flow-card>`            | Contenedores             |
+| `BadgeComponent`          | `<fit-flow-badge>`           | Etiquetas de estado      |
+| `ConfirmDialogComponent`  | `<fit-flow-confirm-dialog>`  | Confirmación de acciones |
+| `EmptyStateComponent`     | `<fit-flow-empty-state>`     | Estado vacío             |
+| `LoadingSpinnerComponent` | `<fit-flow-loading-spinner>` | Spinner de carga         |
+
+### Patrón para Diálogo de Confirmación
+
+```typescript
+// En el componente
+showDeleteDialog = signal(false);
+selectedItem = signal<Item | null>(null);
+
+openDeleteDialog(item: Item): void {
+  this.selectedItem.set(item);
+  this.showDeleteDialog.set(true);
+}
+
+closeDeleteDialog(): void {
+  this.showDeleteDialog.set(false);
+  this.selectedItem.set(null);
+}
+
+confirmDelete(): void {
+  const item = this.selectedItem();
+  if (!item) return;
+  this.service.delete(item.id).subscribe({
+    next: () => {
+      this.items.update((list) => list.filter((i) => i.id !== item.id));
+      this.closeDeleteDialog();
+    },
+    error: (err) => {
+      this.error.set(err.error?.message || 'Error');
+      this.closeDeleteDialog();
+    },
+  });
+}
+```
+
+```html
+<!-- En el template -->
+<fit-flow-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  title="Eliminar"
+  [message]="'¿Eliminar ' + (selectedItem()?.name || '') + '?'"
+  confirmText="Eliminar"
+  variant="danger"
+  (confirmed)="confirmDelete()"
+  (cancelled)="closeDeleteDialog()"
+></fit-flow-confirm-dialog>
+```

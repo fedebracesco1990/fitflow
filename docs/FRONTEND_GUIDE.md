@@ -50,6 +50,7 @@ frontend/src/app/
 │   ├── dashboard/         # Home
 │   ├── profile/           # Ver/Editar Perfil
 │   ├── membership-types/  # CRUD Tipos de Membresía
+│   ├── memberships/       # CRUD Membresías de usuarios
 │   ├── payments/          # CRUD Pagos
 │   ├── exercises/         # CRUD Ejercicios
 │   ├── routines/          # CRUD Rutinas (Admin/Trainer)
@@ -64,6 +65,7 @@ frontend/src/app/
     │   ├── badge/
     │   ├── button/
     │   ├── card/
+    │   ├── confirm-dialog/
     │   ├── empty-state/
     │   ├── loading-spinner/
     │   └── index.ts
@@ -495,6 +497,7 @@ export class FeatureListComponent implements OnInit {
 | `BadgeComponent`          | `<fit-flow-badge>`           | Etiquetas de estado                     |
 | `ButtonComponent`         | `<fit-flow-button>`          | Botón con variantes y loading           |
 | `CardComponent`           | `<fit-flow-card>`            | Contenedor con padding y shadow         |
+| `ConfirmDialogComponent`  | `<fit-flow-confirm-dialog>`  | Diálogo de confirmación modal           |
 | `EmptyStateComponent`     | `<fit-flow-empty-state>`     | Estado vacío con icono y mensaje        |
 | `LoadingSpinnerComponent` | `<fit-flow-loading-spinner>` | Spinner de carga                        |
 
@@ -520,6 +523,71 @@ import { AlertComponent, ButtonComponent, CardComponent } from '../../../../shar
   <h2>Título</h2>
   <p>Contenido</p>
 </fit-flow-card>
+
+<!-- Diálogo de confirmación -->
+<fit-flow-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  title="Eliminar Item"
+  [message]="'¿Estás seguro de eliminar ' + (selectedItem()?.name || '') + '?'"
+  confirmText="Eliminar"
+  variant="danger"
+  (confirmed)="confirmDelete()"
+  (cancelled)="closeDeleteDialog()"
+></fit-flow-confirm-dialog>
+```
+
+### ConfirmDialogComponent
+
+Componente reutilizable para confirmaciones de acciones destructivas.
+
+**Inputs:**
+| Input | Tipo | Default | Descripción |
+|-------|------|---------|-------------|
+| `isOpen` | `boolean` | `false` | Controla visibilidad del diálogo |
+| `title` | `string` | `'Confirmar acción'` | Título del diálogo |
+| `message` | `string` | `'¿Estás seguro...?'` | Mensaje de confirmación |
+| `confirmText` | `string` | `'Confirmar'` | Texto del botón confirmar |
+| `cancelText` | `string` | `'Cancelar'` | Texto del botón cancelar |
+| `variant` | `'danger' \| 'warning' \| 'primary'` | `'danger'` | Estilo del botón confirmar |
+
+**Outputs:**
+| Output | Descripción |
+|--------|-------------|
+| `confirmed` | Emite cuando el usuario confirma |
+| `cancelled` | Emite cuando el usuario cancela o presiona ESC |
+
+**Ejemplo de uso en componente:**
+
+```typescript
+// Estado del diálogo
+showDeleteDialog = signal(false);
+selectedItem = signal<Item | null>(null);
+
+openDeleteDialog(item: Item): void {
+  this.selectedItem.set(item);
+  this.showDeleteDialog.set(true);
+}
+
+closeDeleteDialog(): void {
+  this.showDeleteDialog.set(false);
+  this.selectedItem.set(null);
+}
+
+confirmDelete(): void {
+  const item = this.selectedItem();
+  if (!item) return;
+
+  this.service.delete(item.id).subscribe({
+    next: () => {
+      this.items.update((list) => list.filter((i) => i.id !== item.id));
+      this.closeDeleteDialog();
+    },
+    error: (err) => {
+      this.error.set(err.error?.message || 'Error al eliminar');
+      this.closeDeleteDialog();
+    },
+  });
+}
 ```
 
 ---
