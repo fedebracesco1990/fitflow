@@ -380,6 +380,7 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 | Tarea                    | Estado      | Descripción                                      |
 | ------------------------ | ----------- | ------------------------------------------------ |
 | Seeder Automático        | ✅ COMPLETO | Seed de usuarios, ejercicios, rutinas al iniciar |
+| Seeder Expandido         | ✅ COMPLETO | Datos completos: membresías, pagos, vencimientos |
 | ConfirmDialogComponent   | ✅ COMPLETO | Diálogo de confirmación reutilizable             |
 | Diálogos de confirmación | ✅ COMPLETO | Aplicado a: ejercicios, membresías, tipos, pagos |
 
@@ -395,7 +396,7 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Tareas Secundarias
 
-- ✅ **Completadas:** 13
+- ✅ **Completadas:** 14
 
 ---
 

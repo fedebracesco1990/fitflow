@@ -180,18 +180,6 @@ export class UsersService {
 
     const user = await this.findById(id);
 
-    if (updateProfileDto.email && updateProfileDto.email.toLowerCase() !== user.email) {
-      const existingUser = await this.usersRepository.findOne({
-        where: { email: updateProfileDto.email.toLowerCase() },
-      });
-
-      if (existingUser && existingUser.id !== id) {
-        throw new ConflictException('El email ya está en uso');
-      }
-
-      updateProfileDto.email = updateProfileDto.email.toLowerCase();
-    }
-
     Object.assign(user, updateProfileDto);
     return await this.usersRepository.save(user);
   }

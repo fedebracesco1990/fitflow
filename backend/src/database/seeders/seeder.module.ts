@@ -8,10 +8,23 @@ import { MuscleGroup } from '../../modules/muscle-groups/entities/muscle-group.e
 import { Routine } from '../../modules/routines/entities/routine.entity';
 import { RoutineExercise } from '../../modules/routines/entities/routine-exercise.entity';
 import { UserRoutine } from '../../modules/user-routines/entities/user-routine.entity';
+import { MembershipType } from '../../modules/membership-types/entities/membership-type.entity';
+import { Membership } from '../../modules/memberships/entities/membership.entity';
+import { Payment } from '../../modules/payments/entities/payment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Exercise, MuscleGroup, Routine, RoutineExercise, UserRoutine]),
+    TypeOrmModule.forFeature([
+      User,
+      Exercise,
+      MuscleGroup,
+      Routine,
+      RoutineExercise,
+      UserRoutine,
+      MembershipType,
+      Membership,
+      Payment,
+    ]),
     MuscleGroupsModule,
   ],
   providers: [SeederService],

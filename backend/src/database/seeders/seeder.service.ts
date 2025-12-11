@@ -8,6 +8,9 @@ import { MuscleGroup } from '../../modules/muscle-groups/entities/muscle-group.e
 import { Routine } from '../../modules/routines/entities/routine.entity';
 import { RoutineExercise } from '../../modules/routines/entities/routine-exercise.entity';
 import { UserRoutine } from '../../modules/user-routines/entities/user-routine.entity';
+import { MembershipType } from '../../modules/membership-types/entities/membership-type.entity';
+import { Membership, MembershipStatus } from '../../modules/memberships/entities/membership.entity';
+import { Payment, PaymentMethod } from '../../modules/payments/entities/payment.entity';
 import { Role } from '../../common/enums/role.enum';
 import { Difficulty } from '../../common/enums/difficulty.enum';
 import { DayOfWeek } from '../../common/enums/day-of-week.enum';
@@ -29,7 +32,13 @@ export class SeederService implements OnModuleInit {
     @InjectRepository(RoutineExercise)
     private readonly routineExerciseRepository: Repository<RoutineExercise>,
     @InjectRepository(UserRoutine)
-    private readonly userRoutineRepository: Repository<UserRoutine>
+    private readonly userRoutineRepository: Repository<UserRoutine>,
+    @InjectRepository(MembershipType)
+    private readonly membershipTypeRepository: Repository<MembershipType>,
+    @InjectRepository(Membership)
+    private readonly membershipRepository: Repository<Membership>,
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>
   ) {}
 
   async onModuleInit() {
@@ -44,6 +53,9 @@ export class SeederService implements OnModuleInit {
     await this.seedExercises();
     await this.seedRoutines();
     await this.seedUserRoutines();
+    await this.seedMembershipTypes();
+    await this.seedMemberships();
+    await this.seedPayments();
 
     this.logger.log('✅ Seed completado');
   }
@@ -503,5 +515,426 @@ export class SeederService implements OnModuleInit {
     } else {
       this.logger.log('  - Asignaciones ya existen');
     }
+  }
+
+  async seedMembershipTypes() {
+    const typesData = [
+      {
+        name: 'Mensual',
+        description: 'Membresía mensual con acceso completo al gimnasio',
+        price: 15000,
+        durationDays: 30,
+        gracePeriodDays: 5,
+        isActive: true,
+      },
+      {
+        name: 'Trimestral',
+        description: 'Membresía trimestral con 10% de descuento',
+        price: 40500,
+        durationDays: 90,
+        gracePeriodDays: 7,
+        isActive: true,
+      },
+      {
+        name: 'Semestral',
+        description: 'Membresía semestral con 15% de descuento',
+        price: 76500,
+        durationDays: 180,
+        gracePeriodDays: 10,
+        isActive: true,
+      },
+      {
+        name: 'Anual',
+        description: 'Membresía anual con 20% de descuento',
+        price: 144000,
+        durationDays: 365,
+        gracePeriodDays: 15,
+        isActive: true,
+      },
+      {
+        name: 'Pase Diario',
+        description: 'Acceso por un día',
+        price: 1500,
+        durationDays: 1,
+        gracePeriodDays: 0,
+        isActive: true,
+      },
+      {
+        name: 'Promoción Verano (Inactivo)',
+        description: 'Promoción de verano - Ya no disponible',
+        price: 12000,
+        durationDays: 30,
+        gracePeriodDays: 3,
+        isActive: false,
+      },
+    ];
+
+    let created = 0;
+    for (const data of typesData) {
+      try {
+        const existing = await this.membershipTypeRepository.findOne({
+          where: { name: data.name },
+        });
+
+        if (!existing) {
+          await this.membershipTypeRepository.save(this.membershipTypeRepository.create(data));
+          created++;
+        }
+      } catch (error) {
+        this.logger.error(`  ✗ Error creando tipo de membresía ${data.name}`, error);
+      }
+    }
+
+    if (created > 0) {
+      this.logger.log(`  ✓ ${created} tipos de membresía creados`);
+    } else {
+      this.logger.log('  - Tipos de membresía ya existen');
+    }
+  }
+
+  async seedMemberships() {
+    const today = new Date();
+
+    // Helper para calcular fechas
+    const addDays = (date: Date, days: number): Date => {
+      const result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
+    };
+
+    const subDays = (date: Date, days: number): Date => {
+      const result = new Date(date);
+      result.setDate(result.getDate() - days);
+      return result;
+    };
+
+    // Obtener usuarios y tipos de membresía
+    const users = await this.userRepository.find({ where: { role: Role.USER } });
+    const membershipTypes = await this.membershipTypeRepository.find({ where: { isActive: true } });
+
+    if (users.length === 0 || membershipTypes.length === 0) {
+      this.logger.log('  - No hay usuarios o tipos de membresía para crear membresías');
+      return;
+    }
+
+    const monthlyType = membershipTypes.find((t) => t.name === 'Mensual');
+    const quarterlyType = membershipTypes.find((t) => t.name === 'Trimestral');
+
+    if (!monthlyType || !quarterlyType) {
+      this.logger.log('  - Tipos de membresía requeridos no encontrados');
+      return;
+    }
+
+    // Crear más usuarios para tener más datos
+    const additionalUsers = [
+      {
+        email: 'user3@fitflow.com',
+        password: 'User123!',
+        name: 'Pedro Martínez',
+        role: Role.USER,
+        isActive: true,
+      },
+      {
+        email: 'user4@fitflow.com',
+        password: 'User123!',
+        name: 'Ana Rodríguez',
+        role: Role.USER,
+        isActive: true,
+      },
+      {
+        email: 'user5@fitflow.com',
+        password: 'User123!',
+        name: 'Luis Fernández',
+        role: Role.USER,
+        isActive: true,
+      },
+      {
+        email: 'user6@fitflow.com',
+        password: 'User123!',
+        name: 'Carmen Sánchez',
+        role: Role.USER,
+        isActive: true,
+      },
+      {
+        email: 'user7@fitflow.com',
+        password: 'User123!',
+        name: 'Diego Torres',
+        role: Role.USER,
+        isActive: true,
+      },
+      {
+        email: 'user8@fitflow.com',
+        password: 'User123!',
+        name: 'Laura Gómez',
+        role: Role.USER,
+        isActive: true,
+      },
+      {
+        email: 'moroso1@fitflow.com',
+        password: 'User123!',
+        name: 'Roberto Moroso',
+        role: Role.USER,
+        isActive: true,
+      },
+      {
+        email: 'moroso2@fitflow.com',
+        password: 'User123!',
+        name: 'Patricia Vencida',
+        role: Role.USER,
+        isActive: true,
+      },
+    ];
+
+    for (const userData of additionalUsers) {
+      const existing = await this.userRepository.findOne({ where: { email: userData.email } });
+      if (!existing) {
+        await this.userRepository.save(this.userRepository.create(userData));
+      }
+    }
+
+    const membershipsData = [
+      // Membresías activas (vigentes)
+      {
+        userEmail: 'user1@fitflow.com',
+        typeName: 'Mensual',
+        startDate: subDays(today, 15),
+        endDate: addDays(today, 15),
+        status: MembershipStatus.ACTIVE,
+        notes: 'Membresía activa - mitad del período',
+      },
+      {
+        userEmail: 'user2@fitflow.com',
+        typeName: 'Trimestral',
+        startDate: subDays(today, 30),
+        endDate: addDays(today, 60),
+        status: MembershipStatus.ACTIVE,
+        notes: 'Membresía trimestral activa',
+      },
+      {
+        userEmail: 'user3@fitflow.com',
+        typeName: 'Mensual',
+        startDate: subDays(today, 5),
+        endDate: addDays(today, 25),
+        status: MembershipStatus.ACTIVE,
+        notes: 'Membresía recién iniciada',
+      },
+      {
+        userEmail: 'user4@fitflow.com',
+        typeName: 'Semestral',
+        startDate: subDays(today, 60),
+        endDate: addDays(today, 120),
+        status: MembershipStatus.ACTIVE,
+        notes: 'Membresía semestral activa',
+      },
+      // Membresías próximas a vencer (dentro de 7 días)
+      {
+        userEmail: 'user5@fitflow.com',
+        typeName: 'Mensual',
+        startDate: subDays(today, 27),
+        endDate: addDays(today, 3),
+        status: MembershipStatus.ACTIVE,
+        notes: 'Vence en 3 días - Próximo a vencer',
+      },
+      {
+        userEmail: 'user6@fitflow.com',
+        typeName: 'Mensual',
+        startDate: subDays(today, 25),
+        endDate: addDays(today, 5),
+        status: MembershipStatus.ACTIVE,
+        notes: 'Vence en 5 días - Próximo a vencer',
+      },
+      // Membresías vencidas (morosos)
+      {
+        userEmail: 'moroso1@fitflow.com',
+        typeName: 'Mensual',
+        startDate: subDays(today, 45),
+        endDate: subDays(today, 15),
+        status: MembershipStatus.EXPIRED,
+        notes: 'Membresía vencida hace 15 días - MOROSO',
+      },
+      {
+        userEmail: 'moroso2@fitflow.com',
+        typeName: 'Mensual',
+        startDate: subDays(today, 60),
+        endDate: subDays(today, 30),
+        status: MembershipStatus.EXPIRED,
+        notes: 'Membresía vencida hace 30 días - MOROSO',
+      },
+      // Membresía en período de gracia
+      {
+        userEmail: 'user7@fitflow.com',
+        typeName: 'Mensual',
+        startDate: subDays(today, 32),
+        endDate: subDays(today, 2),
+        status: MembershipStatus.GRACE_PERIOD,
+        notes: 'En período de gracia - Vencida hace 2 días',
+      },
+      // Membresía cancelada
+      {
+        userEmail: 'user8@fitflow.com',
+        typeName: 'Trimestral',
+        startDate: subDays(today, 30),
+        endDate: addDays(today, 60),
+        status: MembershipStatus.CANCELLED,
+        notes: 'Membresía cancelada por el usuario',
+      },
+    ];
+
+    let created = 0;
+    for (const data of membershipsData) {
+      try {
+        const user = await this.userRepository.findOne({ where: { email: data.userEmail } });
+        const membershipType = await this.membershipTypeRepository.findOne({
+          where: { name: data.typeName },
+        });
+
+        if (user && membershipType) {
+          const existing = await this.membershipRepository.findOne({
+            where: { userId: user.id, membershipTypeId: membershipType.id },
+          });
+
+          if (!existing) {
+            await this.membershipRepository.save(
+              this.membershipRepository.create({
+                userId: user.id,
+                membershipTypeId: membershipType.id,
+                startDate: data.startDate,
+                endDate: data.endDate,
+                status: data.status,
+                notes: data.notes,
+              })
+            );
+            created++;
+          }
+        }
+      } catch (error) {
+        this.logger.error(`  ✗ Error creando membresía para ${data.userEmail}`, error);
+      }
+    }
+
+    if (created > 0) {
+      this.logger.log(`  ✓ ${created} membresías creadas`);
+    } else {
+      this.logger.log('  - Membresías ya existen');
+    }
+  }
+
+  async seedPayments() {
+    const today = new Date();
+    const admin = await this.userRepository.findOne({ where: { email: 'admin@fitflow.com' } });
+
+    const subMonths = (date: Date, months: number): Date => {
+      const result = new Date(date);
+      result.setMonth(result.getMonth() - months);
+      return result;
+    };
+
+    // Obtener membresías activas y vencidas para crear pagos
+    const memberships = await this.membershipRepository.find({
+      relations: ['user', 'membershipType'],
+    });
+
+    if (memberships.length === 0) {
+      this.logger.log('  - No hay membresías para crear pagos');
+      return;
+    }
+
+    const paymentsData: Array<{
+      membershipId: string;
+      amount: number;
+      paymentMethod: PaymentMethod;
+      paymentDate: Date;
+      reference: string | null;
+      notes: string | null;
+    }> = [];
+
+    // Crear pagos para cada membresía activa
+    for (const membership of memberships) {
+      if (
+        membership.status === MembershipStatus.ACTIVE ||
+        membership.status === MembershipStatus.GRACE_PERIOD
+      ) {
+        // Pago actual de la membresía
+        paymentsData.push({
+          membershipId: membership.id,
+          amount: Number(membership.membershipType.price),
+          paymentMethod: this.getRandomPaymentMethod(),
+          paymentDate: membership.startDate,
+          reference: `PAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          notes: `Pago de membresía ${membership.membershipType.name}`,
+        });
+      }
+    }
+
+    // Crear pagos históricos (últimos 6 meses) para simular historial
+    const historicalPayments = [
+      { monthsAgo: 1, amount: 15000, method: PaymentMethod.CASH },
+      { monthsAgo: 1, amount: 15000, method: PaymentMethod.CARD },
+      { monthsAgo: 1, amount: 40500, method: PaymentMethod.TRANSFER },
+      { monthsAgo: 2, amount: 15000, method: PaymentMethod.CASH },
+      { monthsAgo: 2, amount: 15000, method: PaymentMethod.CASH },
+      { monthsAgo: 2, amount: 15000, method: PaymentMethod.CARD },
+      { monthsAgo: 3, amount: 15000, method: PaymentMethod.TRANSFER },
+      { monthsAgo: 3, amount: 40500, method: PaymentMethod.CARD },
+      { monthsAgo: 3, amount: 15000, method: PaymentMethod.CASH },
+      { monthsAgo: 4, amount: 15000, method: PaymentMethod.CASH },
+      { monthsAgo: 4, amount: 15000, method: PaymentMethod.CARD },
+      { monthsAgo: 5, amount: 15000, method: PaymentMethod.TRANSFER },
+      { monthsAgo: 5, amount: 40500, method: PaymentMethod.CASH },
+      { monthsAgo: 6, amount: 15000, method: PaymentMethod.CARD },
+      { monthsAgo: 6, amount: 15000, method: PaymentMethod.CASH },
+    ];
+
+    // Usar la primera membresía activa para pagos históricos
+    const activeMembership = memberships.find((m) => m.status === MembershipStatus.ACTIVE);
+    if (activeMembership) {
+      for (const hp of historicalPayments) {
+        paymentsData.push({
+          membershipId: activeMembership.id,
+          amount: hp.amount,
+          paymentMethod: hp.method,
+          paymentDate: subMonths(today, hp.monthsAgo),
+          reference: `HIST-${hp.monthsAgo}M-${Math.random().toString(36).substr(2, 6)}`,
+          notes: `Pago histórico - ${hp.monthsAgo} mes(es) atrás`,
+        });
+      }
+    }
+
+    let created = 0;
+    for (const data of paymentsData) {
+      try {
+        // Verificar si ya existe un pago similar
+        const existing = await this.paymentRepository.findOne({
+          where: {
+            membershipId: data.membershipId,
+            paymentDate: data.paymentDate,
+            amount: data.amount,
+          },
+        });
+
+        if (!existing) {
+          await this.paymentRepository.save(
+            this.paymentRepository.create({
+              ...data,
+              registeredById: admin?.id || null,
+            })
+          );
+          created++;
+        }
+      } catch (error) {
+        this.logger.error(`  ✗ Error creando pago`, error);
+      }
+    }
+
+    if (created > 0) {
+      this.logger.log(`  ✓ ${created} pagos creados`);
+    } else {
+      this.logger.log('  - Pagos ya existen');
+    }
+  }
+
+  private getRandomPaymentMethod(): PaymentMethod {
+    const methods = [PaymentMethod.CASH, PaymentMethod.CARD, PaymentMethod.TRANSFER];
+    return methods[Math.floor(Math.random() * methods.length)];
   }
 }
