@@ -20,8 +20,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "npm run typeorm -- migration:generate",
-    "migration:run": "npm run typeorm -- migration:run",
+    "migration:generate": "npm run typeorm -- migration:generate -d src/config/migration.config.ts",
+    "migration:run": "npm run typeorm migration:run -d src/config/migration.config.ts",
     "migration:revert": "npm run typeorm -- migration:revert",
     "vercel-build": "npm run build && npm run migration:run"
   },
