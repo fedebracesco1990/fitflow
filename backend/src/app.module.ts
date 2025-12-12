@@ -47,8 +47,12 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
         password: configService.get<string>('database.password'),
         database: configService.get<string>('database.database'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get<boolean>('database.synchronize'),
-        logging: configService.get<boolean>('database.logging'),
+        synchronize:
+          configService.get('database.synchronize') === true ||
+          configService.get('database.synchronize') === 'true',
+        logging:
+          configService.get('database.logging') === true ||
+          configService.get('database.logging') === 'true',
         autoLoadEntities: true,
         charset: 'utf8mb4',
         collation: 'utf8mb4_unicode_ci',
