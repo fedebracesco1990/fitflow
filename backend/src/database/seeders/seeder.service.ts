@@ -42,6 +42,8 @@ export class SeederService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    // Esperar 3 segundos para que TypeORM termine de sincronizar las tablas
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     await this.seed();
   }
 
