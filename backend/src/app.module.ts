@@ -39,30 +39,36 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: configService.get<'mysql'>('database.type'),
-        host: configService.get<string>('database.host'),
-        port: configService.get<number>('database.port'),
-        username: configService.get<string>('database.username'),
-        password: configService.get<string>('database.password'),
-        database: configService.get<string>('database.database'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize:
-          configService.get('database.synchronize') === true ||
-          configService.get('database.synchronize') === 'true',
-        logging:
-          configService.get('database.logging') === true ||
-          configService.get('database.logging') === 'true',
-        autoLoadEntities: true,
-        charset: 'utf8mb4',
-        collation: 'utf8mb4_unicode_ci',
-        timezone: 'Z',
-        extra: {
-          connectionLimit: 10,
-          connectTimeout: 20000,
-          charset: 'utf8mb4_unicode_ci',
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const synchronize = process.env.DB_SYNCHRONIZE === 'true';
+        const logging = process.env.DB_LOGGING === 'true';
+        console.log(
+          'TypeORM Config - synchronize:',
+          synchronize,
+          'DB_SYNCHRONIZE env:',
+          process.env.DB_SYNCHRONIZE
+        );
+        return {
+          type: 'mysql' as const,
+          host: configService.get<string>('database.host'),
+          port: configService.get<number>('database.port'),
+          username: configService.get<string>('database.username'),
+          password: configService.get<string>('database.password'),
+          database: configService.get<string>('database.database'),
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          synchronize,
+          logging,
+          autoLoadEntities: true,
+          charset: 'utf8mb4',
+          collation: 'utf8mb4_unicode_ci',
+          timezone: 'Z',
+          extra: {
+            connectionLimit: 10,
+            connectTimeout: 20000,
+            charset: 'utf8mb4_unicode_ci',
+          },
+        };
+      },
       inject: [ConfigService],
     }),
     // Rate limiting: 60 requests per minute per IP
