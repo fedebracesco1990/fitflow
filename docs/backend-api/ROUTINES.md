@@ -156,14 +156,14 @@ Agrega un ejercicio a la rutina.
 
 **Request Body:**
 
-| Campo       | Tipo   | Requerido | Descripción            |
-| ----------- | ------ | --------- | ---------------------- |
-| exerciseId  | UUID   | ✅        | ID del ejercicio       |
-| sets        | number | ✅        | Número de series       |
-| reps        | number | ✅        | Repeticiones por serie |
-| restSeconds | number | ❌        | Segundos de descanso   |
-| order       | number | ❌        | Orden en la rutina     |
-| notes       | string | ❌        | Notas adicionales      |
+| Campo       | Tipo   | Requerido | Descripción                          |
+| ----------- | ------ | --------- | ------------------------------------ |
+| exerciseId  | UUID   | ✅        | ID del ejercicio                     |
+| sets        | number | ❌        | Número de series (default: 3)        |
+| reps        | number | ❌        | Repeticiones por serie (default: 12) |
+| restSeconds | number | ❌        | Segundos de descanso (default: 60)   |
+| order       | number | ❌        | Orden en la rutina (auto-calculado)  |
+| notes       | string | ❌        | Notas adicionales                    |
 
 **Response (200):** Rutina actualizada con el nuevo ejercicio
 

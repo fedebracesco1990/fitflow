@@ -38,15 +38,11 @@ Registra un nuevo usuario en el sistema.
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
-  "user": {
-    "id": "uuid",
-    "email": "user@example.com",
-    "name": "Juan Pérez",
-    "role": "user"
-  }
+  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
 }
 ```
+
+> **Nota:** Para obtener los datos del usuario después del registro, use `GET /auth/session`.
 
 ---
 
@@ -66,15 +62,11 @@ Inicia sesión con credenciales.
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
-  "user": {
-    "id": "uuid",
-    "email": "user@example.com",
-    "name": "Juan Pérez",
-    "role": "user"
-  }
+  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
 }
 ```
+
+> **Nota:** Para obtener los datos del usuario después del login, use `GET /auth/session`.
 
 **Errores:**
 
@@ -176,10 +168,11 @@ Restablece la contraseña usando el token recibido.
 
 **Request Body:**
 
-| Campo    | Tipo   | Requerido | Descripción           |
-| -------- | ------ | --------- | --------------------- |
-| token    | string | ✅        | Token de recuperación |
-| password | string | ✅        | Nueva contraseña      |
+| Campo       | Tipo   | Requerido | Descripción                                                            |
+| ----------- | ------ | --------- | ---------------------------------------------------------------------- |
+| token       | string | ✅        | Token de recuperación                                                  |
+| userId      | string | ✅        | UUID del usuario                                                       |
+| newPassword | string | ✅        | Nueva contraseña (min 8 chars, mayúscula, minúscula, número, especial) |
 
 **Response (200):**
 

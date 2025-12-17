@@ -30,22 +30,21 @@ Crea un nuevo registro de entrenamiento.
 
 **Request Body:**
 
-| Campo     | Tipo   | Requerido | Descripción          |
-| --------- | ------ | --------- | -------------------- |
-| routineId | UUID   | ✅        | ID de la rutina      |
-| date      | date   | ❌        | Fecha (default: hoy) |
-| notes     | string | ❌        | Notas previas        |
+| Campo         | Tipo   | Requerido | Descripción                       |
+| ------------- | ------ | --------- | --------------------------------- |
+| userRoutineId | UUID   | ✅        | ID de la rutina asignada          |
+| date          | string | ✅        | Fecha en formato ISO (YYYY-MM-DD) |
+| notes         | string | ❌        | Notas previas                     |
 
 **Response (201):**
 
 ```json
 {
   "id": "uuid",
-  "userId": "uuid",
-  "routineId": "uuid",
+  "userRoutineId": "uuid",
   "date": "2024-01-01",
   "status": "pending",
-  "durationMinutes": null,
+  "duration": null,
   "notes": null,
   "createdAt": "2024-01-01T00:00:00.000Z"
 }

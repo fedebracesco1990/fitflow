@@ -187,4 +187,4 @@ Cambia la contraseña del usuario autenticado.
 
 | Código | Descripción                  |
 | ------ | ---------------------------- |
-| 400    | Contraseña actual incorrecta |
+| 401    | Contraseña actual incorrecta |

@@ -303,26 +303,24 @@ erDiagram
         datetime createdAt
     }
 
-    USER ||--o{ WORKOUT_LOG : performs
-    ROUTINE ||--o{ WORKOUT_LOG : based_on
+    USER_ROUTINE ||--o{ WORKOUT_LOG : has
     WORKOUT_LOG {
         uuid id PK
-        uuid userId FK
-        uuid routineId FK
+        uuid userRoutineId FK
         date date
         enum status
-        int durationMinutes
+        int duration
         text notes
         datetime createdAt
         datetime updatedAt
     }
 
     WORKOUT_LOG ||--o{ EXERCISE_LOG : contains
-    EXERCISE ||--o{ EXERCISE_LOG : logged
+    ROUTINE_EXERCISE ||--o{ EXERCISE_LOG : logged
     EXERCISE_LOG {
         uuid id PK
         uuid workoutLogId FK
-        uuid exerciseId FK
+        uuid routineExerciseId FK
         int setNumber
         int reps
         decimal weight
