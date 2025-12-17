@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { ApiService } from './api.service';
 import { User, UpdateProfileRequest, ChangePasswordRequest } from '../models';
 import { PaginatedResponse } from '../models/api-response.model';
@@ -14,6 +16,7 @@ export interface UsersPaginationParams {
 })
 export class UserService {
   private readonly api = inject(ApiService);
+  private readonly http = inject(HttpClient);
   private readonly endpoint = 'users';
 
   // Profile endpoints (authenticated user)
@@ -27,6 +30,12 @@ export class UserService {
 
   changeMyPassword(data: ChangePasswordRequest): Observable<void> {
     return this.api.patch<void>(`${this.endpoint}/profile/me/password`, data);
+  }
+
+  getMyQr(): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/${this.endpoint}/profile/me/qr`, {
+      responseType: 'blob',
+    });
   }
 
   // Admin/Trainer endpoints

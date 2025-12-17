@@ -1,0 +1,70 @@
+<div class="access-logs-page">
+  <div class="page-header">
+    <h1>Historial de Accesos</h1>
+    <a routerLink="/access/scan">
+      <fit-flow-button variant="primary">Escanear QR</fit-flow-button>
+    </a>
+  </div>
+
+  @if (isLoading()) {
+    <fit-flow-card padding="lg" class="loading-card">
+      <fit-flow-loading-spinner size="lg" />
+      <p>Cargando historial...</p>
+    </fit-flow-card>
+  } @else {
+    <fit-flow-card padding="md">
+      <div class="logs-header">
+        <span class="total-count">{{ total() }} registros</span>
+      </div>
+
+      @if (logs().length === 0) {
+        <p class="no-logs">No hay registros de acceso</p>
+      } @else {
+        <div class="logs-table">
+          <div class="table-header">
+            <span class="col-date">Fecha</span>
+            <span class="col-user">Usuario</span>
+            <span class="col-status">Estado</span>
+            <span class="col-scanned">Escaneado por</span>
+          </div>
+
+          @for (log of logs(); track log.id) {
+            <div class="table-row">
+              <span class="col-date">{{ formatDate(log.createdAt) }}</span>
+              <span class="col-user">
+                <strong>{{ log.user?.name || 'Desconocido' }}</strong>
+                <small>{{ log.user?.email || '' }}</small>
+              </span>
+              <span class="col-status">
+                <fit-flow-badge [variant]="getBadgeVariant(log.granted)">
+                  {{ log.granted ? 'Permitido' : 'Denegado' }}
+                </fit-flow-badge>
+              </span>
+              <span class="col-scanned">{{ log.scannedBy?.name || 'Sistema' }}</span>
+            </div>
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <div class="pagination">
+            <fit-flow-button
+              variant="outline"
+              [disabled]="currentPage() === 1"
+              (click)="prevPage()"
+            >
+              Anterior
+            </fit-flow-button>
+            <span class="page-info"> Página {{ currentPage() }} de {{ totalPages() }} </span>
+            <fit-flow-button
+              variant="outline"
+              [disabled]="currentPage() === totalPages()"
+              (click)="nextPage()"
+            >
+              Siguiente
+            </fit-flow-button>
+          </div>
+        }
+      }
+    </fit-flow-card>
+  }
+</div>

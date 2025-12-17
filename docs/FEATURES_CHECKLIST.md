@@ -383,7 +383,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-34] API de Historial de Asistencia
+### [FITFLOW-34] API de Historial de Asistencia ✅
 
 **Tipo:** Backend
 
@@ -391,14 +391,20 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] GET /api/attendance (con filtros: usuario, fecha, tipo)
-- [ ] GET /api/attendance/user/:userId (historial personal)
-- [ ] GET /api/attendance/stats (estadísticas por horario, día)
-- [ ] Conteo de asistencias mensuales por usuario
+- [x] GET /api/attendance (con filtros: usuario, fecha, tipo)
+- [x] GET /api/attendance/user/:userId (historial personal)
+- [x] GET /api/attendance/stats (estadísticas por horario, día)
+- [x] Conteo de asistencias mensuales por usuario
+
+**Implementación:**
+
+- Módulo `attendance/` separado que reutiliza `AccessLog` entity
+- Estadísticas: asistencias por día de la semana, promedio mensual
+- Permisos: Admin/Trainer para stats globales, Socio para su propio historial
 
 ---
 
-### [FITFLOW-35] Visualización de Historial de Asistencia
+### [FITFLOW-35] Visualización de Historial de Asistencia ✅
 
 **Tipo:** Frontend
 
@@ -406,10 +412,18 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Calendario con marcas de asistencia
-- [ ] Contador de asistencias del mes
-- [ ] Gráfico de asistencias por mes (últimos 6 meses)
-- [ ] Filtro por rango de fechas
+- [x] Calendario con marcas de asistencia
+- [x] Contador de asistencias del mes
+- [x] Gráfico de asistencias por mes (últimos 6 meses)
+- [ ] Filtro por rango de fechas (pendiente para mejora futura)
+
+**Implementación:**
+
+- `AttendanceCalendarComponent` - Wrapper reutilizable de angular-calendar
+- `MyAttendanceComponent` - Página `/profile/attendance` para socios
+- `AttendanceStatsComponent` - Página `/access/stats` para Admin/Trainer
+- `AttendanceService` - Servicio HTTP para la API
+- Seeder con ~260 registros de prueba
 
 ---
 
@@ -486,11 +500,11 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-28 | API Dashboard Financiero              | ✅ COMPLETO  | GET /dashboard/financial con KPIs, morosos, vencimientos              |
 | FITFLOW-29 | Dashboard Financiero                  | ✅ COMPLETO  | KPIs, gráfico ingresos, distribución pagos, morosos                   |
 | FITFLOW-30 | Generación de Códigos QR              | ✅ COMPLETO  | QrService con JWT, endpoints GET /users/:id/qr y /profile/me/qr       |
-| FITFLOW-31 | Visualización de QR Personal          | ⬜ PENDIENTE | Página Mi QR, descarga, instrucciones                                 |
-| FITFLOW-32 | API Validación de Acceso por QR       | ⬜ PENDIENTE | Validación QR, estado pago, registro asistencia                       |
-| FITFLOW-33 | Lector de QR para Control de Acceso   | ⬜ PENDIENTE | Escáner QR, feedback visual, historial                                |
-| FITFLOW-34 | API de Historial de Asistencia        | ⬜ PENDIENTE | Endpoints con filtros, estadísticas                                   |
-| FITFLOW-35 | Visualización Historial de Asistencia | ⬜ PENDIENTE | Calendario, contador mensual, gráficos                                |
+| FITFLOW-31 | Visualización de QR Personal          | ✅ COMPLETO  | Página Mi QR con fullscreen, descarga PNG, instrucciones              |
+| FITFLOW-32 | API Validación de Acceso por QR       | ✅ COMPLETO  | POST /access/validate-qr, verificación membresía, registro accesos    |
+| FITFLOW-33 | Lector de QR para Control de Acceso   | ✅ COMPLETO  | Escáner QR con html5-qrcode, feedback visual, historial paginado      |
+| FITFLOW-34 | API de Historial de Asistencia        | ✅ COMPLETO  | Módulo attendance, stats por día/mes, permisos por rol                |
+| FITFLOW-35 | Visualización Historial de Asistencia | ✅ COMPLETO  | Calendario, contador, gráficos, vista admin                           |
 | FITFLOW-36 | Sistema de Notificaciones Firebase    | ⬜ PENDIENTE | FCM SDK, endpoints, templates                                         |
 | FITFLOW-37 | Gestión de Notificaciones Push        | ⬜ PENDIENTE | Permisos, registro tokens, service worker                             |
 | FITFLOW-38 | Cron Job Notificaciones Automáticas   | ⬜ PENDIENTE | Recordatorios vencimientos, baja asistencia                           |
@@ -541,9 +555,9 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Tareas Requeridas (FITFLOW-10 a FITFLOW-38)
 
-- ✅ **Completadas:** 20
+- ✅ **Completadas:** 25
 - ⚠️ **Parciales:** 1 (FITFLOW-21 - falta envío real de email)
-- ⬜ **Pendientes:** 8 (FITFLOW-31 a FITFLOW-38)
+- ⬜ **Pendientes:** 3 (FITFLOW-36 a FITFLOW-38)
 - **Total:** 29 tareas
 
 ### Tareas Secundarias
@@ -557,11 +571,11 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 ### Prioridad Alta
 
 1. **FITFLOW-21**: Integrar servicio de email real (SendGrid, Nodemailer, etc.)
-2. **FITFLOW-31 a FITFLOW-33**: Sistema de QR y Control de Acceso
+2. ~~**FITFLOW-31 a FITFLOW-33**: Sistema de QR y Control de Acceso~~ ✅ COMPLETADO
    - ~~Implementar generación de QR~~ ✅ FITFLOW-30 completado
-   - Crear página Mi QR en frontend (FITFLOW-31)
-   - Crear lector de QR para staff (FITFLOW-33)
-   - Validar acceso según estado de pago (FITFLOW-32)
+   - ~~Crear página Mi QR en frontend~~ ✅ FITFLOW-31 completado
+   - ~~Crear lector de QR para staff~~ ✅ FITFLOW-33 completado
+   - ~~Validar acceso según estado de pago~~ ✅ FITFLOW-32 completado
 
 ### Prioridad Media
 

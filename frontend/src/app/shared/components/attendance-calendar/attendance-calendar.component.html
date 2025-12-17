@@ -1,0 +1,19 @@
+<div class="attendance-calendar">
+  <div class="calendar-header">
+    <button class="nav-btn" (click)="previousMonth()">← Anterior</button>
+    <span class="current-month">
+      {{ viewDate | date: 'MMMM yyyy' }}
+    </span>
+    <button class="nav-btn" (click)="nextMonth()">Siguiente →</button>
+  </div>
+
+  <mwl-calendar-month-view [viewDate]="viewDate" [events]="events" [locale]="'es'">
+  </mwl-calendar-month-view>
+
+  <div class="calendar-legend">
+    <div class="legend-item">
+      <span class="legend-dot attended"></span>
+      <span>Día con asistencia</span>
+    </div>
+  </div>
+</div>

@@ -13,3 +13,4 @@ export * from './user-routines.service';
 export * from './workouts.service';
 export * from './page-title.strategy';
 export * from './dashboard.service';
+export * from './attendance.service';

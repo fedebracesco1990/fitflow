@@ -1,0 +1,171 @@
+.attendance-stats-page {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary, #111827);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .subtitle {
+    color: var(--text-secondary, #6b7280);
+    margin: 0;
+  }
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  text-align: center;
+
+  &.primary .stat-value {
+    color: var(--primary, #3b82f6);
+  }
+
+  .stat-value {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-primary, #111827);
+    line-height: 1;
+  }
+
+  .stat-label {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary, #6b7280);
+  }
+}
+
+.chart-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+  margin: 0 0 1rem 0;
+}
+
+.chart-container {
+  padding: 1rem 0;
+}
+
+.chart-bars {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 250px;
+  padding: 0 1rem;
+  border-bottom: 2px solid var(--border-color, #e5e7eb);
+
+  &.day-chart {
+    height: 200px;
+  }
+}
+
+.bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 80px;
+}
+
+.bar {
+  width: 50px;
+  background: linear-gradient(
+    180deg,
+    var(--primary, #3b82f6) 0%,
+    var(--primary-dark, #2563eb) 100%
+  );
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 0.5rem;
+  min-height: 20px;
+  transition: height 0.3s ease;
+
+  .bar-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+  }
+}
+
+.bar-label {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  text-align: center;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chart-legend {
+  margin-top: 1rem;
+  text-align: center;
+
+  .legend-note {
+    font-size: 0.75rem;
+    color: var(--text-tertiary, #9ca3af);
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .attendance-stats-page {
+    padding: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .stat-card .stat-value {
+    font-size: 2.5rem;
+  }
+
+  .chart-bars {
+    height: 180px;
+
+    &.day-chart {
+      height: 150px;
+    }
+  }
+
+  .bar {
+    width: 35px;
+  }
+
+  .bar-label {
+    font-size: 0.625rem;
+    max-width: 50px;
+  }
+}

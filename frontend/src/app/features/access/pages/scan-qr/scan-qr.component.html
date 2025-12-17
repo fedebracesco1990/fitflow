@@ -1,0 +1,86 @@
+<div class="scan-qr-page">
+  <div class="page-header">
+    <h1>Escanear QR de Acceso</h1>
+    <a routerLink="/access/logs">
+      <fit-flow-button variant="outline">Ver historial</fit-flow-button>
+    </a>
+  </div>
+
+  @if (cameraError()) {
+    <fit-flow-card padding="lg" class="error-card">
+      <fit-flow-alert type="error" [message]="cameraError()!" />
+      <fit-flow-button variant="primary" (click)="startScanner()"> Reintentar </fit-flow-button>
+    </fit-flow-card>
+  } @else if (isValidating()) {
+    <fit-flow-card padding="lg" class="loading-card">
+      <fit-flow-loading-spinner size="lg" />
+      <p>Validando código QR...</p>
+    </fit-flow-card>
+  } @else if (scanResult()) {
+    <fit-flow-card
+      padding="lg"
+      class="result-card"
+      [class.granted]="scanResult()!.granted"
+      [class.denied]="!scanResult()!.granted"
+    >
+      <div class="result-icon">
+        @if (scanResult()!.granted) {
+          <span class="icon-granted">✓</span>
+        } @else {
+          <span class="icon-denied">✕</span>
+        }
+      </div>
+
+      <h2 class="result-title">
+        {{ scanResult()!.granted ? 'Acceso Permitido' : 'Acceso Denegado' }}
+      </h2>
+
+      <p class="result-reason">{{ scanResult()!.reason }}</p>
+
+      @if (scanResult()!.user) {
+        <div class="user-info">
+          <div class="info-row">
+            <span class="label">Usuario:</span>
+            <span class="value">{{ scanResult()!.user!.name }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Email:</span>
+            <span class="value">{{ scanResult()!.user!.email }}</span>
+          </div>
+        </div>
+      }
+
+      @if (scanResult()!.membership) {
+        <div class="membership-info">
+          <div class="info-row">
+            <span class="label">Membresía:</span>
+            <span class="value">{{ scanResult()!.membership!.typeName }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Vence:</span>
+            <span class="value">{{ formatDate(scanResult()!.membership!.endDate) }}</span>
+          </div>
+        </div>
+      }
+
+      <fit-flow-button variant="primary" (click)="scanAgain()" class="scan-again-btn">
+        Escanear otro QR
+      </fit-flow-button>
+    </fit-flow-card>
+  } @else if (error()) {
+    <fit-flow-card padding="lg" class="error-card">
+      <fit-flow-alert type="error" [message]="error()!" />
+      <fit-flow-button variant="primary" (click)="scanAgain()"> Reintentar </fit-flow-button>
+    </fit-flow-card>
+  } @else {
+    <fit-flow-card padding="lg" class="scanner-card">
+      <p class="scanner-instructions">Apunta la cámara al código QR del usuario</p>
+      <div id="qr-reader" #qrReader class="qr-reader"></div>
+      @if (!isScanning()) {
+        <fit-flow-button variant="primary" (click)="startScanner()">
+          Iniciar escáner
+        </fit-flow-button>
+      }
+    </fit-flow-card>
+  }
+</div>

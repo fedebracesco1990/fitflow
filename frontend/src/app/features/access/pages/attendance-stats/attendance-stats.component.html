@@ -1,0 +1,84 @@
+<div class="attendance-stats-page">
+  <header class="page-header">
+    <h1>Estadísticas de Asistencia</h1>
+    <p class="subtitle">Vista general de asistencias al gimnasio</p>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <fit-flow-loading-spinner></fit-flow-loading-spinner>
+    </div>
+  } @else if (error()) {
+    <fit-flow-alert [message]="error()!" type="error"></fit-flow-alert>
+  } @else {
+    <div class="stats-grid">
+      <fit-flow-card>
+        <div class="stat-card primary">
+          <span class="stat-value">{{ totalAttendances() }}</span>
+          <span class="stat-label">Total de Asistencias</span>
+        </div>
+      </fit-flow-card>
+
+      <fit-flow-card>
+        <div class="stat-card">
+          <span class="stat-value">{{ byDayOfWeek().length }}</span>
+          <span class="stat-label">Días con Datos</span>
+        </div>
+      </fit-flow-card>
+
+      <fit-flow-card>
+        <div class="stat-card">
+          <span class="stat-value">{{ monthlyAverages().length }}</span>
+          <span class="stat-label">Meses Registrados</span>
+        </div>
+      </fit-flow-card>
+    </div>
+
+    @if (byDayOfWeek().length > 0) {
+      <section class="chart-section">
+        <fit-flow-card>
+          <h2 class="section-title">Asistencias por Día de la Semana</h2>
+          <div class="chart-container">
+            <div class="chart-bars day-chart">
+              @for (day of byDayOfWeek(); track day.dayOfWeek) {
+                <div class="bar-wrapper">
+                  <div
+                    class="bar"
+                    [style.height]="getDayBarHeight(day.count)"
+                    [style.background]="getDayColor(day.dayOfWeek)"
+                  >
+                    <span class="bar-value">{{ day.count }}</span>
+                  </div>
+                  <span class="bar-label">{{ day.dayName }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </fit-flow-card>
+      </section>
+    }
+
+    @if (monthlyAverages().length > 0) {
+      <section class="chart-section">
+        <fit-flow-card>
+          <h2 class="section-title">Asistencias por Mes</h2>
+          <div class="chart-container">
+            <div class="chart-bars month-chart">
+              @for (month of monthlyAverages(); track month.month + month.year) {
+                <div class="bar-wrapper">
+                  <div class="bar" [style.height]="getMonthBarHeight(month.totalAttendances)">
+                    <span class="bar-value">{{ month.totalAttendances }}</span>
+                  </div>
+                  <span class="bar-label">{{ month.month }} {{ month.year }}</span>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="chart-legend">
+            <p class="legend-note">Promedio por día mostrado en cada barra</p>
+          </div>
+        </fit-flow-card>
+      </section>
+    }
+  }
+</div>

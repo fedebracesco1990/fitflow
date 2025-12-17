@@ -1,0 +1,76 @@
+<div class="my-qr-page">
+  <div class="page-header">
+    <a routerLink="/profile">
+      <fit-flow-button variant="ghost">← Volver al perfil</fit-flow-button>
+    </a>
+    <h1>Mi Código QR</h1>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <fit-flow-loading-spinner size="lg" />
+      <p>Cargando tu código QR...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-container">
+      <fit-flow-alert type="error" [message]="error()!" />
+      <fit-flow-button variant="outline" (click)="loadQrCode()">Reintentar</fit-flow-button>
+    </div>
+  } @else {
+    <fit-flow-card padding="lg" class="qr-card">
+      <div class="qr-content">
+        <p class="qr-subtitle">Muestra este código al personal del gimnasio</p>
+
+        <div
+          class="qr-image-container"
+          (click)="toggleFullscreen()"
+          (keydown.enter)="toggleFullscreen()"
+          tabindex="0"
+          role="button"
+          aria-label="Ampliar código QR"
+        >
+          @if (qrImageUrl()) {
+            <img [src]="qrImageUrl()" alt="Mi código QR" class="qr-image" />
+          }
+          <span class="tap-hint">Toca para ampliar</span>
+        </div>
+
+        <div class="qr-actions">
+          <fit-flow-button variant="primary" (click)="toggleFullscreen()">
+            Mostrar en pantalla completa
+          </fit-flow-button>
+          <fit-flow-button variant="outline" (click)="downloadQr()"> Descargar QR </fit-flow-button>
+        </div>
+      </div>
+    </fit-flow-card>
+
+    <fit-flow-card padding="md" class="instructions-card">
+      <h2>Instrucciones de uso</h2>
+      <ol class="instructions-list">
+        <li>Toca <strong>"Mostrar en pantalla completa"</strong> cuando llegues al gimnasio</li>
+        <li>Sube el brillo de tu pantalla al máximo</li>
+        <li>Muestra el código QR al personal en la entrada</li>
+        <li>El personal escaneará tu código para verificar tu acceso</li>
+      </ol>
+      <p class="instructions-note">
+        Este código es personal e intransferible. No lo compartas con otras personas.
+      </p>
+    </fit-flow-card>
+  }
+</div>
+
+@if (isFullscreen() && qrImageUrl()) {
+  <div
+    class="fullscreen-overlay"
+    (click)="closeFullscreen()"
+    (keydown.escape)="closeFullscreen()"
+    tabindex="0"
+    role="dialog"
+    aria-label="Código QR en pantalla completa"
+  >
+    <div class="fullscreen-content">
+      <img [src]="qrImageUrl()" alt="Mi código QR" class="fullscreen-qr" />
+      <p class="fullscreen-hint">Toca en cualquier lugar para cerrar</p>
+    </div>
+  </div>
+}

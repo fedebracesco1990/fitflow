@@ -1,0 +1,130 @@
+.access-logs-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+
+  p {
+    margin: 0;
+    color: var(--text-muted, #64748b);
+  }
+}
+
+.logs-header {
+  margin-bottom: 1rem;
+}
+
+.total-count {
+  font-size: 0.875rem;
+  color: var(--text-muted, #64748b);
+}
+
+.no-logs {
+  text-align: center;
+  color: var(--text-muted, #64748b);
+  padding: 2rem;
+}
+
+.logs-table {
+  overflow-x: auto;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 150px 1fr 100px 150px;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-muted, #f8fafc);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted, #64748b);
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 150px 1fr 100px 150px;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  align-items: center;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.col-user {
+  display: flex;
+  flex-direction: column;
+
+  strong {
+    font-weight: 500;
+  }
+
+  small {
+    font-size: 0.75rem;
+    color: var(--text-muted, #64748b);
+  }
+}
+
+.col-date {
+  font-size: 0.875rem;
+}
+
+.col-scanned {
+  font-size: 0.875rem;
+  color: var(--text-muted, #64748b);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border, #e2e8f0);
+}
+
+.page-info {
+  font-size: 0.875rem;
+  color: var(--text-muted, #64748b);
+}
+
+@media (max-width: 768px) {
+  .table-header {
+    display: none;
+  }
+
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .col-date,
+  .col-scanned {
+    font-size: 0.75rem;
+  }
+}

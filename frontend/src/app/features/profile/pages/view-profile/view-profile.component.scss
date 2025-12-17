@@ -103,8 +103,24 @@
   text-transform: capitalize;
 }
 
-.security-section {
+.qr-section {
   margin-top: 2rem;
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+    color: #1e293b;
+  }
+
+  .section-description {
+    margin: 0 0 1rem;
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+}
+
+.security-section {
+  margin-top: 1.5rem;
 
   h2 {
     margin: 0 0 1rem;

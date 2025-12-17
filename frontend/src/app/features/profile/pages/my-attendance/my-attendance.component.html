@@ -1,0 +1,58 @@
+<div class="my-attendance-page">
+  <header class="page-header">
+    <h1>Mi Asistencia</h1>
+    <p class="subtitle">Historial de visitas al gimnasio</p>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <fit-flow-loading-spinner></fit-flow-loading-spinner>
+    </div>
+  } @else if (error()) {
+    <fit-flow-alert [message]="error()!" type="error"></fit-flow-alert>
+  } @else {
+    <div class="stats-grid">
+      <fit-flow-card>
+        <div class="stat-card">
+          <span class="stat-value">{{ monthlyCount() }}</span>
+          <span class="stat-label">Asistencias en {{ getMonthName() }}</span>
+        </div>
+      </fit-flow-card>
+
+      <fit-flow-card>
+        <div class="stat-card">
+          <span class="stat-value">{{ attendanceDates().length }}</span>
+          <span class="stat-label">Total de visitas registradas</span>
+        </div>
+      </fit-flow-card>
+    </div>
+
+    <section class="calendar-section">
+      <fit-flow-card>
+        <h2 class="section-title">Calendario de Asistencia</h2>
+        <fit-flow-attendance-calendar [attendanceDates]="attendanceDates()">
+        </fit-flow-attendance-calendar>
+      </fit-flow-card>
+    </section>
+
+    @if (monthlyAverages().length > 0) {
+      <section class="chart-section">
+        <fit-flow-card>
+          <h2 class="section-title">Asistencias por Mes</h2>
+          <div class="chart-container">
+            <div class="chart-bars">
+              @for (avg of monthlyAverages(); track avg.month + avg.year) {
+                <div class="bar-wrapper">
+                  <div class="bar" [style.height]="getBarHeight(avg.totalAttendances)">
+                    <span class="bar-value">{{ avg.totalAttendances }}</span>
+                  </div>
+                  <span class="bar-label">{{ avg.month }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </fit-flow-card>
+      </section>
+    }
+  }
+</div>

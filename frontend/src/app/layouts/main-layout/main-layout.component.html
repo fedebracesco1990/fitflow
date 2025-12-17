@@ -30,6 +30,8 @@
         }
         @if (isAdmin() || isTrainer()) {
           <a routerLink="/routines" routerLinkActive="active">Rutinas</a>
+          <a routerLink="/access/scan" routerLinkActive="active">Escanear QR</a>
+          <a routerLink="/access/stats" routerLinkActive="active">Asistencias</a>
         }
         <a routerLink="/my-routines" routerLinkActive="active">Mis Rutinas</a>
         <a routerLink="/profile" routerLinkActive="active">Mi Perfil</a>

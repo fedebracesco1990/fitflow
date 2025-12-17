@@ -11,6 +11,7 @@ import { UserRoutine } from '../../modules/user-routines/entities/user-routine.e
 import { MembershipType } from '../../modules/membership-types/entities/membership-type.entity';
 import { Membership } from '../../modules/memberships/entities/membership.entity';
 import { Payment } from '../../modules/payments/entities/payment.entity';
+import { AccessLog } from '../../modules/access/entities/access-log.entity';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { Payment } from '../../modules/payments/entities/payment.entity';
       MembershipType,
       Membership,
       Payment,
+      AccessLog,
     ]),
     MuscleGroupsModule,
   ],

@@ -11,6 +11,7 @@ import { UserRoutine } from '../../modules/user-routines/entities/user-routine.e
 import { MembershipType } from '../../modules/membership-types/entities/membership-type.entity';
 import { Membership, MembershipStatus } from '../../modules/memberships/entities/membership.entity';
 import { Payment, PaymentMethod } from '../../modules/payments/entities/payment.entity';
+import { AccessLog } from '../../modules/access/entities/access-log.entity';
 import { Role } from '../../common/enums/role.enum';
 import { Difficulty } from '../../common/enums/difficulty.enum';
 import { DayOfWeek } from '../../common/enums/day-of-week.enum';
@@ -38,7 +39,9 @@ export class SeederService implements OnModuleInit {
     @InjectRepository(Membership)
     private readonly membershipRepository: Repository<Membership>,
     @InjectRepository(Payment)
-    private readonly paymentRepository: Repository<Payment>
+    private readonly paymentRepository: Repository<Payment>,
+    @InjectRepository(AccessLog)
+    private readonly accessLogRepository: Repository<AccessLog>
   ) {}
 
   async onModuleInit() {
@@ -58,6 +61,7 @@ export class SeederService implements OnModuleInit {
     await this.seedMembershipTypes();
     await this.seedMemberships();
     await this.seedPayments();
+    await this.seedAccessLogs();
 
     this.logger.log('✅ Seed completado');
   }
@@ -938,5 +942,83 @@ export class SeederService implements OnModuleInit {
   private getRandomPaymentMethod(): PaymentMethod {
     const methods = [PaymentMethod.CASH, PaymentMethod.CARD, PaymentMethod.TRANSFER];
     return methods[Math.floor(Math.random() * methods.length)];
+  }
+
+  async seedAccessLogs() {
+    const today = new Date();
+    const trainer = await this.userRepository.findOne({ where: { email: 'trainer@fitflow.com' } });
+    const users = await this.userRepository.find({ where: { role: Role.USER, isActive: true } });
+
+    if (users.length === 0 || !trainer) {
+      this.logger.log('  - No hay usuarios o trainer para crear logs de acceso');
+      return;
+    }
+
+    const subDays = (date: Date, days: number): Date => {
+      const result = new Date(date);
+      result.setDate(result.getDate() - days);
+      return result;
+    };
+
+    const setTime = (date: Date, hours: number, minutes: number): Date => {
+      const result = new Date(date);
+      result.setHours(hours, minutes, 0, 0);
+      return result;
+    };
+
+    const accessLogsData: Array<{
+      userId: string;
+      scannedById: string;
+      granted: boolean;
+      reason: string;
+      createdAt: Date;
+    }> = [];
+
+    // Generar accesos para los últimos 60 días
+    for (let daysAgo = 0; daysAgo < 60; daysAgo++) {
+      const date = subDays(today, daysAgo);
+      const dayOfWeek = date.getDay();
+
+      // Menos accesos los fines de semana
+      const accessCount = dayOfWeek === 0 || dayOfWeek === 6 ? 2 : 5;
+
+      for (let i = 0; i < accessCount; i++) {
+        const user = users[Math.floor(Math.random() * users.length)];
+        const hour = 6 + Math.floor(Math.random() * 14); // Entre 6am y 8pm
+        const minute = Math.floor(Math.random() * 60);
+
+        // 90% de accesos exitosos
+        const granted = Math.random() > 0.1;
+
+        accessLogsData.push({
+          userId: user.id,
+          scannedById: trainer.id,
+          granted,
+          reason: granted ? 'Acceso permitido' : 'Membresía vencida',
+          createdAt: setTime(date, hour, minute),
+        });
+      }
+    }
+
+    // Verificar si ya hay logs
+    const existingCount = await this.accessLogRepository.count();
+    if (existingCount > 0) {
+      this.logger.log(`  - Ya existen ${existingCount} logs de acceso`);
+      return;
+    }
+
+    let created = 0;
+    for (const data of accessLogsData) {
+      try {
+        await this.accessLogRepository.save(this.accessLogRepository.create(data));
+        created++;
+      } catch (error) {
+        this.logger.error('  ✗ Error creando log de acceso', error);
+      }
+    }
+
+    if (created > 0) {
+      this.logger.log(`  ✓ ${created} logs de acceso creados`);
+    }
   }
 }

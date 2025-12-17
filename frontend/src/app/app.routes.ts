@@ -95,6 +95,12 @@ export const routes: Routes = [
       import('./features/routines/routines.routes').then((m) => m.ROUTINES_ROUTES),
   },
   {
+    path: 'access',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.ADMIN, Role.TRAINER] },
+    loadChildren: () => import('./features/access/access.routes').then((m) => m.ACCESS_ROUTES),
+  },
+  {
     path: 'my-routines',
     canActivate: [authGuard],
     loadChildren: () =>

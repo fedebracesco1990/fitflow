@@ -26,6 +26,19 @@ export const PROFILE_ROUTES: Routes = [
             (m) => m.ChangePasswordComponent
           ),
       },
+      {
+        path: 'qr',
+        title: 'Mi Código QR',
+        loadComponent: () => import('./pages/my-qr/my-qr.component').then((m) => m.MyQrComponent),
+      },
+      {
+        path: 'attendance',
+        title: 'Mi Asistencia',
+        loadComponent: () =>
+          import('./pages/my-attendance/my-attendance.component').then(
+            (m) => m.MyAttendanceComponent
+          ),
+      },
     ],
   },
 ];

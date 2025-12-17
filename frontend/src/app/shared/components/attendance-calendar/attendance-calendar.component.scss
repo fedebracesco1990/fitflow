@@ -1,0 +1,139 @@
+.attendance-calendar {
+  width: 100%;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid var(--border-color, #e5e7eb);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--bg-hover, #f3f4f6);
+    color: var(--text-primary, #111827);
+  }
+}
+
+.current-month {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+  text-transform: capitalize;
+}
+
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary, #f9fafb);
+  border-radius: 0.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+
+  &.attended {
+    background: #22c55e;
+  }
+}
+
+:host ::ng-deep {
+  .cal-month-view {
+    background: var(--bg-primary, #ffffff);
+    border-radius: 0.5rem;
+    overflow: hidden;
+
+    .cal-header {
+      background: var(--bg-secondary, #f9fafb);
+
+      .cal-cell {
+        padding: 0.75rem 0;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-secondary, #6b7280);
+      }
+    }
+
+    .cal-days {
+      border: 1px solid var(--border-color, #e5e7eb);
+      border-radius: 0.5rem;
+
+      .cal-cell-row {
+        border-bottom: 1px solid var(--border-color, #e5e7eb);
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      .cal-cell {
+        min-height: 60px;
+        border-right: 1px solid var(--border-color, #e5e7eb);
+
+        &:last-child {
+          border-right: none;
+        }
+      }
+
+      .cal-day-cell {
+        &.cal-today {
+          background: var(--primary-light, #eff6ff);
+        }
+
+        &.cal-weekend {
+          background: var(--bg-secondary, #f9fafb);
+        }
+
+        .cal-day-number {
+          font-size: 0.875rem;
+          color: var(--text-primary, #111827);
+          opacity: 1;
+          margin: 0.5rem;
+        }
+
+        &.cal-out-month {
+          .cal-day-number {
+            opacity: 0.3;
+          }
+        }
+      }
+    }
+
+    .cal-events {
+      margin: 0;
+      padding: 0.25rem;
+
+      .cal-event {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin: 2px;
+      }
+    }
+  }
+}
