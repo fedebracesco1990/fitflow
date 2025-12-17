@@ -22,6 +22,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
+import qrConfig from './config/qr.config';
 import { validationSchema } from './config/validation.schema';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 
@@ -30,7 +31,7 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', '../.env'],
-      load: [appConfig, databaseConfig, jwtConfig],
+      load: [appConfig, databaseConfig, jwtConfig, qrConfig],
       validationSchema: validationSchema,
       validationOptions: {
         allowUnknown: true,

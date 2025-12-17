@@ -485,7 +485,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-27 | Lista de Pagos                        | ✅ COMPLETO  | Lista con tabla, filtros, acciones, solo admin                        |
 | FITFLOW-28 | API Dashboard Financiero              | ✅ COMPLETO  | GET /dashboard/financial con KPIs, morosos, vencimientos              |
 | FITFLOW-29 | Dashboard Financiero                  | ✅ COMPLETO  | KPIs, gráfico ingresos, distribución pagos, morosos                   |
-| FITFLOW-30 | Generación de Códigos QR              | ⬜ PENDIENTE | UUID único, endpoint QR, encriptación                                 |
+| FITFLOW-30 | Generación de Códigos QR              | ✅ COMPLETO  | QrService con JWT, endpoints GET /users/:id/qr y /profile/me/qr       |
 | FITFLOW-31 | Visualización de QR Personal          | ⬜ PENDIENTE | Página Mi QR, descarga, instrucciones                                 |
 | FITFLOW-32 | API Validación de Acceso por QR       | ⬜ PENDIENTE | Validación QR, estado pago, registro asistencia                       |
 | FITFLOW-33 | Lector de QR para Control de Acceso   | ⬜ PENDIENTE | Escáner QR, feedback visual, historial                                |
@@ -541,9 +541,9 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Tareas Requeridas (FITFLOW-10 a FITFLOW-38)
 
-- ✅ **Completadas:** 19
+- ✅ **Completadas:** 20
 - ⚠️ **Parciales:** 1 (FITFLOW-21 - falta envío real de email)
-- ⬜ **Pendientes:** 9 (FITFLOW-30 a FITFLOW-38)
+- ⬜ **Pendientes:** 8 (FITFLOW-31 a FITFLOW-38)
 - **Total:** 29 tareas
 
 ### Tareas Secundarias
@@ -557,10 +557,11 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 ### Prioridad Alta
 
 1. **FITFLOW-21**: Integrar servicio de email real (SendGrid, Nodemailer, etc.)
-2. **FITFLOW-30 a FITFLOW-33**: Sistema de QR y Control de Acceso
-   - Implementar generación de QR
-   - Crear lector de QR para staff
-   - Validar acceso según estado de pago
+2. **FITFLOW-31 a FITFLOW-33**: Sistema de QR y Control de Acceso
+   - ~~Implementar generación de QR~~ ✅ FITFLOW-30 completado
+   - Crear página Mi QR en frontend (FITFLOW-31)
+   - Crear lector de QR para staff (FITFLOW-33)
+   - Validar acceso según estado de pago (FITFLOW-32)
 
 ### Prioridad Media
 

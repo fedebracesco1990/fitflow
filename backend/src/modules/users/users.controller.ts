@@ -10,7 +10,9 @@ import {
   HttpStatus,
   ParseUUIDPipe,
   Query,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -20,10 +22,14 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { PaginationDto } from '../../common/dto';
+import { QrService } from '../qr/qr.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly qrService: QrService
+  ) {}
 
   // ==================== SOLO ADMIN ====================
 
@@ -100,5 +106,36 @@ export class UsersController {
     @Body() changePasswordDto: ChangePasswordDto
   ) {
     await this.usersService.changePassword(userId, changePasswordDto, userId);
+  }
+
+  // ==================== QR CODE ====================
+
+  @Get('profile/me/qr')
+  @HttpCode(HttpStatus.OK)
+  async getMyQrCode(@CurrentUser('userId') userId: string, @Res() res: Response) {
+    const qrBuffer = await this.qrService.generateQrBuffer(userId);
+    this.sendQrResponse(res, qrBuffer);
+  }
+
+  @Get(':id/qr')
+  @Roles(Role.ADMIN, Role.TRAINER)
+  @HttpCode(HttpStatus.OK)
+  async getUserQrCode(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('userId') currentUserId: string,
+    @CurrentUser('role') currentUserRole: Role,
+    @Res() res: Response
+  ) {
+    await this.usersService.findOne(id, currentUserId, currentUserRole);
+    const qrBuffer = await this.qrService.generateQrBuffer(id);
+    this.sendQrResponse(res, qrBuffer);
+  }
+
+  private sendQrResponse(res: Response, qrBuffer: Buffer): void {
+    res.set({
+      'Content-Type': 'image/png',
+      'Content-Disposition': 'inline; filename="qr-code.png"',
+    });
+    res.send(qrBuffer);
   }
 }

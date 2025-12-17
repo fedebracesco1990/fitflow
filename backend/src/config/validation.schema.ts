@@ -21,6 +21,10 @@ export const validationSchema = Joi.object({
   JWT_REFRESH_SECRET: Joi.string().required().min(32),
   JWT_REFRESH_TOKEN_EXPIRATION: Joi.number().default(604800),
 
+  // QR
+  QR_JWT_SECRET: Joi.string().optional(),
+  QR_JWT_EXPIRES_IN: Joi.string().default('365d'),
+
   // CORS
   ALLOWED_ORIGINS: Joi.string().default('http://localhost:4200'),
 
