@@ -319,30 +319,181 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
+### [FITFLOW-30] Generación de Códigos QR por Usuario
+
+**Tipo:** Backend
+
+**Descripción:** Como desarrollador backend, necesito generar códigos QR únicos para cada usuario.
+
+**Criterios de Aceptación:**
+
+- [ ] Generación de UUID único por usuario al crear cuenta
+- [ ] GET /api/users/:id/qr (devuelve imagen QR)
+- [ ] QR contiene: userId encriptado, timestamp
+- [ ] Regeneración de QR si es necesario
+
+---
+
+### [FITFLOW-31] Visualización de QR Personal
+
+**Tipo:** Frontend
+
+**Descripción:** Como socio, quiero ver mi código QR para poder ingresar al gimnasio.
+
+**Criterios de Aceptación:**
+
+- [ ] Página "Mi QR" en perfil de usuario
+- [ ] Visualización del QR en tamaño grande
+- [ ] Opción de descargar QR
+- [ ] Instrucciones de uso
+
+---
+
+### [FITFLOW-32] API de Validación de Acceso por QR
+
+**Tipo:** Backend
+
+**Descripción:** Como desarrollador backend, necesito validar el acceso según el estado de pago al escanear QR.
+
+**Criterios de Aceptación:**
+
+- [ ] POST /api/access/validate-qr
+- [ ] Decodificación del QR
+- [ ] Validación de estado de pago
+- [ ] Validación de tipo de membresía (sala/clase)
+- [ ] Registro de ingreso en tabla Asistencia
+- [ ] Respuesta: permitido/denegado + razón
+
+---
+
+### [FITFLOW-33] Lector de QR para Control de Acceso
+
+**Tipo:** Frontend
+
+**Descripción:** Como staff del gimnasio, necesito escanear QR para validar el ingreso de los socios.
+
+**Criterios de Aceptación:**
+
+- [ ] Página de escaneo de QR con cámara
+- [ ] Integración con WebRTC/librería QR
+- [ ] Feedback visual inmediato (verde: permitido, rojo: denegado)
+- [ ] Mensaje explicativo del resultado
+- [ ] Sonido de confirmación/error
+- [ ] Historial de últimos escaneos
+
+---
+
+### [FITFLOW-34] API de Historial de Asistencia
+
+**Tipo:** Backend
+
+**Descripción:** Como desarrollador backend, necesito endpoints para consultar el historial de asistencia.
+
+**Criterios de Aceptación:**
+
+- [ ] GET /api/attendance (con filtros: usuario, fecha, tipo)
+- [ ] GET /api/attendance/user/:userId (historial personal)
+- [ ] GET /api/attendance/stats (estadísticas por horario, día)
+- [ ] Conteo de asistencias mensuales por usuario
+
+---
+
+### [FITFLOW-35] Visualización de Historial de Asistencia
+
+**Tipo:** Frontend
+
+**Descripción:** Como socio, quiero ver mi historial de asistencia al gimnasio.
+
+**Criterios de Aceptación:**
+
+- [ ] Calendario con marcas de asistencia
+- [ ] Contador de asistencias del mes
+- [ ] Gráfico de asistencias por mes (últimos 6 meses)
+- [ ] Filtro por rango de fechas
+
+---
+
+### [FITFLOW-36] Sistema de Notificaciones con Firebase
+
+**Tipo:** Backend
+
+**Descripción:** Como desarrollador backend, necesito integrar Firebase Cloud Messaging para enviar notificaciones.
+
+**Criterios de Aceptación:**
+
+- [ ] Configuración de Firebase Admin SDK
+- [ ] Servicio de notificaciones creado
+- [ ] POST /api/notifications/send
+- [ ] Almacenamiento de tokens de dispositivos
+- [ ] Templates de notificaciones predefinidos
+
+---
+
+### [FITFLOW-37] Gestión de Notificaciones Push
+
+**Tipo:** Frontend
+
+**Descripción:** Como usuario, quiero recibir notificaciones push en mi dispositivo.
+
+**Criterios de Aceptación:**
+
+- [ ] Solicitud de permisos de notificaciones
+- [ ] Registro de token FCM en backend
+- [ ] Service Worker configurado para notificaciones
+- [ ] Manejo de notificaciones en primer/segundo plano
+- [ ] Centro de notificaciones en la app
+
+---
+
+### [FITFLOW-38] Cron Job de Notificaciones Automáticas
+
+**Tipo:** Backend
+
+**Descripción:** Como sistema, necesito enviar notificaciones automáticas de vencimientos y baja asistencia.
+
+**Criterios de Aceptación:**
+
+- [ ] Cron job diario para revisar vencimientos
+- [ ] Notificación 3 días antes del vencimiento
+- [ ] Notificación al vencer la cuota
+- [ ] Notificación de baja asistencia (<8 visitas/mes)
+- [ ] Configuración de días de anticipación
+
+---
+
 ## Estado de Implementación - Tareas Requeridas
 
-| ID         | Funcionalidad                 | Estado      | Notas                                                                 |
-| ---------- | ----------------------------- | ----------- | --------------------------------------------------------------------- |
-| FITFLOW-10 | Configuración de Repositorio  | ✅ COMPLETO | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json |
-| FITFLOW-11 | Diseño de Arquitectura        | ✅ COMPLETO | ARCHITECTURE.md con diagramas Mermaid, modelo de datos, PWA           |
-| FITFLOW-12 | Modelo de Base de Datos       | ✅ COMPLETO | User, MembershipType, Membership, Payment, Exercise, Routine, etc.    |
-| FITFLOW-13 | Taller de Deploy              | ✅ COMPLETO | Documentación externa al repositorio                                  |
-| FITFLOW-14 | API de Registro               | ✅ COMPLETO | POST /auth/register, validación, bcrypt, rol por defecto              |
-| FITFLOW-15 | Formulario de Registro        | ✅ COMPLETO | Formulario con validaciones, campos requeridos, responsive            |
-| FITFLOW-16 | API de Login/JWT              | ✅ COMPLETO | POST /auth/login, JWT con payload, refresh token, guards              |
-| FITFLOW-17 | Formulario de Login           | ✅ COMPLETO | Formulario, localStorage, interceptor, manejo errores                 |
-| FITFLOW-18 | Sistema de Logout             | ✅ COMPLETO | Botón en navbar, elimina tokens, redirige, limpia estado              |
-| FITFLOW-19 | Sistema de Roles (Backend)    | ✅ COMPLETO | Roles enum, @Roles decorator, RolesGuard                              |
-| FITFLOW-20 | Rutas Protegidas (Frontend)   | ✅ COMPLETO | AuthGuard, RoleGuard, rutas protegidas, dashboard por rol             |
-| FITFLOW-21 | API Recuperación Contraseña   | ⚠️ PARCIAL  | Endpoints creados. Falta: envío real de email                         |
-| FITFLOW-22 | Flujo Recuperación Contraseña | ✅ COMPLETO | Link en login, formulario solicitud, página reset, feedback           |
-| FITFLOW-23 | API Tipos de Membresía        | ✅ COMPLETO | CRUD completo con validaciones y roles                                |
-| FITFLOW-24 | Panel Tipos de Membresía      | ✅ COMPLETO | Lista, formulario crear/editar, eliminar, solo admin                  |
-| FITFLOW-25 | API de Pagos                  | ✅ COMPLETO | CRUD completo con validaciones y roles                                |
-| FITFLOW-26 | Formulario de Pagos           | ✅ COMPLETO | Formulario crear/editar pago, selección membresía                     |
-| FITFLOW-27 | Lista de Pagos                | ✅ COMPLETO | Lista con tabla, filtros, acciones, solo admin                        |
-| FITFLOW-28 | API Dashboard Financiero      | ✅ COMPLETO | GET /dashboard/financial con KPIs, morosos, vencimientos              |
-| FITFLOW-29 | Dashboard Financiero          | ✅ COMPLETO | KPIs, gráfico ingresos, distribución pagos, morosos                   |
+| ID         | Funcionalidad                         | Estado       | Notas                                                                 |
+| ---------- | ------------------------------------- | ------------ | --------------------------------------------------------------------- |
+| FITFLOW-10 | Configuración de Repositorio          | ✅ COMPLETO  | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json |
+| FITFLOW-11 | Diseño de Arquitectura                | ✅ COMPLETO  | ARCHITECTURE.md con diagramas Mermaid, modelo de datos, PWA           |
+| FITFLOW-12 | Modelo de Base de Datos               | ✅ COMPLETO  | User, MembershipType, Membership, Payment, Exercise, Routine, etc.    |
+| FITFLOW-13 | Taller de Deploy                      | ✅ COMPLETO  | Documentación externa al repositorio                                  |
+| FITFLOW-14 | API de Registro                       | ✅ COMPLETO  | POST /auth/register, validación, bcrypt, rol por defecto              |
+| FITFLOW-15 | Formulario de Registro                | ✅ COMPLETO  | Formulario con validaciones, campos requeridos, responsive            |
+| FITFLOW-16 | API de Login/JWT                      | ✅ COMPLETO  | POST /auth/login, JWT con payload, refresh token, guards              |
+| FITFLOW-17 | Formulario de Login                   | ✅ COMPLETO  | Formulario, localStorage, interceptor, manejo errores                 |
+| FITFLOW-18 | Sistema de Logout                     | ✅ COMPLETO  | Botón en navbar, elimina tokens, redirige, limpia estado              |
+| FITFLOW-19 | Sistema de Roles (Backend)            | ✅ COMPLETO  | Roles enum, @Roles decorator, RolesGuard                              |
+| FITFLOW-20 | Rutas Protegidas (Frontend)           | ✅ COMPLETO  | AuthGuard, RoleGuard, rutas protegidas, dashboard por rol             |
+| FITFLOW-21 | API Recuperación Contraseña           | ⚠️ PARCIAL   | Endpoints creados. Falta: envío real de email                         |
+| FITFLOW-22 | Flujo Recuperación Contraseña         | ✅ COMPLETO  | Link en login, formulario solicitud, página reset, feedback           |
+| FITFLOW-23 | API Tipos de Membresía                | ✅ COMPLETO  | CRUD completo con validaciones y roles                                |
+| FITFLOW-24 | Panel Tipos de Membresía              | ✅ COMPLETO  | Lista, formulario crear/editar, eliminar, solo admin                  |
+| FITFLOW-25 | API de Pagos                          | ✅ COMPLETO  | CRUD completo con validaciones y roles                                |
+| FITFLOW-26 | Formulario de Pagos                   | ✅ COMPLETO  | Formulario crear/editar pago, selección membresía                     |
+| FITFLOW-27 | Lista de Pagos                        | ✅ COMPLETO  | Lista con tabla, filtros, acciones, solo admin                        |
+| FITFLOW-28 | API Dashboard Financiero              | ✅ COMPLETO  | GET /dashboard/financial con KPIs, morosos, vencimientos              |
+| FITFLOW-29 | Dashboard Financiero                  | ✅ COMPLETO  | KPIs, gráfico ingresos, distribución pagos, morosos                   |
+| FITFLOW-30 | Generación de Códigos QR              | ⬜ PENDIENTE | UUID único, endpoint QR, encriptación                                 |
+| FITFLOW-31 | Visualización de QR Personal          | ⬜ PENDIENTE | Página Mi QR, descarga, instrucciones                                 |
+| FITFLOW-32 | API Validación de Acceso por QR       | ⬜ PENDIENTE | Validación QR, estado pago, registro asistencia                       |
+| FITFLOW-33 | Lector de QR para Control de Acceso   | ⬜ PENDIENTE | Escáner QR, feedback visual, historial                                |
+| FITFLOW-34 | API de Historial de Asistencia        | ⬜ PENDIENTE | Endpoints con filtros, estadísticas                                   |
+| FITFLOW-35 | Visualización Historial de Asistencia | ⬜ PENDIENTE | Calendario, contador mensual, gráficos                                |
+| FITFLOW-36 | Sistema de Notificaciones Firebase    | ⬜ PENDIENTE | FCM SDK, endpoints, templates                                         |
+| FITFLOW-37 | Gestión de Notificaciones Push        | ⬜ PENDIENTE | Permisos, registro tokens, service worker                             |
+| FITFLOW-38 | Cron Job Notificaciones Automáticas   | ⬜ PENDIENTE | Recordatorios vencimientos, baja asistencia                           |
 
 ---
 
@@ -388,11 +539,12 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ## Resumen
 
-### Tareas Requeridas (FITFLOW-10 a FITFLOW-29)
+### Tareas Requeridas (FITFLOW-10 a FITFLOW-38)
 
 - ✅ **Completadas:** 19
 - ⚠️ **Parciales:** 1 (FITFLOW-21 - falta envío real de email)
-- ❌ **Pendientes:** 0
+- ⬜ **Pendientes:** 9 (FITFLOW-30 a FITFLOW-38)
+- **Total:** 29 tareas
 
 ### Tareas Secundarias
 
@@ -405,3 +557,43 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 ### Prioridad Alta
 
 1. **FITFLOW-21**: Integrar servicio de email real (SendGrid, Nodemailer, etc.)
+2. **FITFLOW-30 a FITFLOW-33**: Sistema de QR y Control de Acceso
+   - Implementar generación de QR
+   - Crear lector de QR para staff
+   - Validar acceso según estado de pago
+
+### Prioridad Media
+
+3. **FITFLOW-34 a FITFLOW-35**: Historial de Asistencia
+   - APIs de consulta de asistencia
+   - Dashboard personal de asistencias
+
+### Prioridad Media-Baja
+
+4. **FITFLOW-36 a FITFLOW-38**: Sistema de Notificaciones
+   - Integración con Firebase Cloud Messaging
+   - Notificaciones push en frontend
+   - Cron jobs para notificaciones automáticas
+
+---
+
+## Sprints Sugeridos
+
+### Sprint 6 - Sistema de QR y Control de Acceso (2 semanas)
+
+- FITFLOW-30: Generación de Códigos QR
+- FITFLOW-31: Visualización de QR Personal
+- FITFLOW-32: API Validación de Acceso
+- FITFLOW-33: Lector de QR
+
+### Sprint 7 - Historial de Asistencia (1 semana)
+
+- FITFLOW-34: API de Historial de Asistencia
+- FITFLOW-35: Visualización Historial
+
+### Sprint 8 - Sistema de Notificaciones (2 semanas)
+
+- FITFLOW-36: Integración Firebase
+- FITFLOW-37: Notificaciones Push Frontend
+- FITFLOW-38: Cron Jobs Automáticos
+- FITFLOW-21: Completar envío de emails
