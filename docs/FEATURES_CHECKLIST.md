@@ -542,12 +542,13 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Infraestructura y UX
 
-| Tarea                    | Estado      | Descripción                                      |
-| ------------------------ | ----------- | ------------------------------------------------ |
-| Seeder Automático        | ✅ COMPLETO | Seed de usuarios, ejercicios, rutinas al iniciar |
-| Seeder Expandido         | ✅ COMPLETO | Datos completos: membresías, pagos, vencimientos |
-| ConfirmDialogComponent   | ✅ COMPLETO | Diálogo de confirmación reutilizable             |
-| Diálogos de confirmación | ✅ COMPLETO | Aplicado a: ejercicios, membresías, tipos, pagos |
+| Tarea                    | Estado      | Descripción                                                  |
+| ------------------------ | ----------- | ------------------------------------------------------------ |
+| Seeder Automático        | ✅ COMPLETO | Seed de usuarios, ejercicios, rutinas al iniciar             |
+| Seeder Expandido         | ✅ COMPLETO | Datos completos: membresías, pagos, vencimientos             |
+| ConfirmDialogComponent   | ✅ COMPLETO | Diálogo de confirmación reutilizable                         |
+| Diálogos de confirmación | ✅ COMPLETO | Aplicado a: ejercicios, membresías, tipos, pagos             |
+| FITFLOW-00: Nuevo Layout | ✅ COMPLETO | Sidebar responsive con Lucide Icons, menú dinámico por roles |
 
 ---
 
@@ -562,7 +563,7 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Tareas Secundarias
 
-- ✅ **Completadas:** 14
+- ✅ **Completadas:** 15
 
 ---
 

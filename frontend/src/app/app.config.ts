@@ -5,6 +5,7 @@ import {
   isDevMode,
   APP_INITIALIZER,
   inject,
+  importProvidersFrom,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding, TitleStrategy } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -15,6 +16,27 @@ import { withNgxsReduxDevtoolsPlugin } from '@ngxs/devtools-plugin';
 import { Store } from '@ngxs/store';
 import { firstValueFrom } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
+import {
+  LucideAngularModule,
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  LayoutDashboard,
+  BarChart3,
+  IdCard,
+  Tags,
+  CreditCard,
+  Dumbbell,
+  ClipboardList,
+  QrCode,
+  CalendarCheck,
+  ListChecks,
+  User,
+  LogOut,
+  Wifi,
+  WifiOff,
+} from 'lucide-angular';
 
 import { routes } from './app.routes';
 import { AuthState, UserState, CheckSession } from './core/store';
@@ -62,5 +84,27 @@ export const appConfig: ApplicationConfig = {
       provide: TitleStrategy,
       useClass: PageTitleStrategy,
     },
+    importProvidersFrom(
+      LucideAngularModule.pick({
+        Menu,
+        X,
+        ChevronLeft,
+        ChevronRight,
+        LayoutDashboard,
+        BarChart3,
+        IdCard,
+        Tags,
+        CreditCard,
+        Dumbbell,
+        ClipboardList,
+        QrCode,
+        CalendarCheck,
+        ListChecks,
+        User,
+        LogOut,
+        Wifi,
+        WifiOff,
+      })
+    ),
   ],
 };

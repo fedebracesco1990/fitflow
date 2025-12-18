@@ -1,56 +1,33 @@
-<div class="main-layout">
-  <!-- Offline Banner -->
-  @if (network.isOffline()) {
-    <div class="offline-banner">
-      <span>⚠️ Sin conexión - Modo offline activo</span>
-    </div>
-  }
+<div class="main-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
+  <!-- Sidebar -->
+  <fit-flow-sidebar
+    [collapsed]="sidebarCollapsed()"
+    [mobileOpen]="mobileMenuOpen()"
+    [menuItems]="menuItems()"
+    [user]="sidebarUser()"
+    (toggleCollapse)="toggleSidebar()"
+    (closeMobile)="closeMobileMenu()"
+    (logoutClick)="logout()"
+  ></fit-flow-sidebar>
 
-  <!-- Header -->
-  <header class="header">
-    <div class="header-content">
-      <a routerLink="/dashboard" class="logo">
-        <h1>FitFlow</h1>
-      </a>
+  <!-- Main Content Area -->
+  <div class="main-content-wrapper">
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <button class="hamburger-btn" (click)="toggleMobileMenu()">
+        <lucide-icon name="menu" [size]="24"></lucide-icon>
+      </button>
+      <span class="mobile-logo">FitFlow</span>
+    </header>
 
-      <nav class="nav">
-        <a
-          routerLink="/dashboard"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: true }"
-        >
-          Inicio
-        </a>
-        @if (isAdmin()) {
-          <a routerLink="/dashboard/financial" routerLinkActive="active">Finanzas</a>
-          <a routerLink="/memberships" routerLinkActive="active">Membresías</a>
-          <a routerLink="/membership-types" routerLinkActive="active">Tipos</a>
-          <a routerLink="/payments" routerLinkActive="active">Pagos</a>
-          <a routerLink="/exercises" routerLinkActive="active">Ejercicios</a>
-        }
-        @if (isAdmin() || isTrainer()) {
-          <a routerLink="/routines" routerLinkActive="active">Rutinas</a>
-          <a routerLink="/access/scan" routerLinkActive="active">Escanear QR</a>
-          <a routerLink="/access/stats" routerLinkActive="active">Asistencias</a>
-        }
-        <a routerLink="/my-routines" routerLinkActive="active">Mis Rutinas</a>
-        <a routerLink="/profile" routerLinkActive="active">Mi Perfil</a>
-      </nav>
+    <!-- Main Content -->
+    <main class="main-content">
+      <router-outlet />
+    </main>
 
-      <div class="user-menu">
-        <span class="user-email">{{ user()?.email }}</span>
-        <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <router-outlet />
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <p>&copy; 2025 FitFlow. Todos los derechos reservados.</p>
-  </footer>
+    <!-- Footer -->
+    <footer class="footer">
+      <p>&copy; 2025 FitFlow. Todos los derechos reservados.</p>
+    </footer>
+  </div>
 </div>

@@ -1,0 +1,87 @@
+<aside class="sidebar" [class.collapsed]="collapsed" [class.mobile-open]="mobileOpen">
+  <!-- Mobile Overlay -->
+  @if (mobileOpen) {
+    <div
+      class="sidebar-overlay"
+      (click)="onCloseMobile()"
+      (keydown.escape)="onCloseMobile()"
+      tabindex="0"
+      role="button"
+      aria-label="Cerrar menú"
+    ></div>
+  }
+
+  <div class="sidebar-content">
+    <!-- Logo -->
+    <div class="sidebar-header">
+      <a routerLink="/dashboard" class="logo">
+        <span class="logo-icon">
+          <lucide-icon name="dumbbell" [size]="24"></lucide-icon>
+        </span>
+        @if (!collapsed) {
+          <span class="logo-text">FitFlow</span>
+        }
+      </a>
+      <button class="collapse-btn desktop-only" (click)="onToggleCollapse()">
+        <lucide-icon
+          [name]="collapsed ? 'chevron-right' : 'chevron-left'"
+          [size]="20"
+        ></lucide-icon>
+      </button>
+      <button class="close-btn mobile-only" (click)="onCloseMobile()">
+        <lucide-icon name="x" [size]="24"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      @for (item of menuItems; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+          class="nav-item"
+          [title]="collapsed ? item.label : ''"
+          (click)="onCloseMobile()"
+        >
+          <lucide-icon [name]="item.icon" [size]="20"></lucide-icon>
+          @if (!collapsed) {
+            <span class="nav-label">{{ item.label }}</span>
+          }
+        </a>
+      }
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <!-- Connection Status -->
+      <div class="connection-status" [class.offline]="network.isOffline()">
+        <lucide-icon [name]="network.isOffline() ? 'wifi-off' : 'wifi'" [size]="16"></lucide-icon>
+        @if (!collapsed) {
+          <span>{{ network.isOffline() ? 'Sin conexión' : 'Conectado' }}</span>
+        }
+      </div>
+
+      <!-- User Info -->
+      @if (user) {
+        <div class="user-info">
+          <div class="user-avatar">
+            {{ user.name.charAt(0).toUpperCase() }}
+          </div>
+          @if (!collapsed) {
+            <div class="user-details">
+              <span class="user-name">{{ user.name }}</span>
+              <span class="user-role">{{ getRoleLabel(user.role) }}</span>
+            </div>
+          }
+        </div>
+        <button class="logout-btn" (click)="onLogout()" [title]="collapsed ? 'Salir' : ''">
+          <lucide-icon name="log-out" [size]="20"></lucide-icon>
+          @if (!collapsed) {
+            <span>Salir</span>
+          }
+        </button>
+      }
+    </div>
+  </div>
+</aside>
