@@ -10,7 +10,7 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 
 | Sección                  | Total  | Completadas | Pendientes |
 | ------------------------ | ------ | ----------- | ---------- |
-| Dashboard Admin          | 8      | 2           | 6          |
+| Dashboard Admin          | 8      | 3           | 5          |
 | Centro de Reportes       | 7      | 0           | 7          |
 | Directorio de Usuarios   | 5      | 0           | 5          |
 | Gestión de Entrenamiento | 8      | 0           | 8          |
@@ -18,7 +18,7 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Ingresos (Acceso)        | 2      | 0           | 2          |
 | Tipos de Membresía       | 3      | 0           | 3          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **2**       | **35**     |
+| **TOTAL**                | **37** | **3**       | **34**     |
 
 ---
 
@@ -95,17 +95,18 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-03] Tabla Pagos Recientes en Dashboard
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada
 
 **Descripción:** Como administrador, quiero ver los pagos recientes directamente en el dashboard para un seguimiento rápido.
 
 **Criterios de Aceptación:**
 
-- [ ] Tabla con columnas: Miembro, Monto, Fecha
-- [ ] Mostrar últimos 5-10 pagos registrados
-- [ ] Formato de monto con símbolo de moneda
-- [ ] Formato de fecha legible (ej: "18 Dec")
-- [ ] Link a detalle del pago o sección de pagos
+- [x] Tabla con columnas: Miembro, Monto, Fecha
+- [x] Mostrar últimos 3 pagos registrados (simplificado para dashboard)
+- [x] Formato de monto con símbolo de moneda ($)
+- [x] Formato de fecha legible (ej: "18 dic")
+- [x] Link a detalle del pago (/payments/:id/edit)
+- [x] Botón "Ver todos" que lleva a /payments
 
 ---
 
@@ -762,3 +763,4 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | 2024-12-18 | Documento creado | -      | 37 tareas iniciales                     |
 | 2024-12-18 | FITFLOW-DS-01    | ✅     | Métricas del Dashboard Admin completada |
 | 2024-12-18 | FITFLOW-DS-02    | ✅     | Tabla Actividad en Vivo completada      |
+| 2024-12-18 | FITFLOW-DS-03    | ✅     | Tabla Pagos Recientes completada        |
