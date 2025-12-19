@@ -26,7 +26,30 @@ import {
   MonthlyRevenueDto,
   DebtorDto,
   ExpiringMembershipDto,
+  ReportsDataDto,
+  RevenueItemDto,
+  AttendanceItemDto,
+  MembershipItemDto,
 } from './dto';
+import * as ExcelJS from 'exceljs';
+import { AccessLog } from '../access/entities/access-log.entity';
+
+interface RawRevenueResult {
+  year: string;
+  month: string;
+  total: string;
+}
+
+interface RawAttendanceResult {
+  date: string;
+  count: string;
+}
+
+interface RawMembershipResult {
+  status: string;
+  count: string;
+  total: string;
+}
 
 @Injectable()
 export class DashboardService {
@@ -36,7 +59,9 @@ export class DashboardService {
     @InjectRepository(Membership)
     private readonly membershipRepository: Repository<Membership>,
     @InjectRepository(UserRoutine)
-    private readonly userRoutineRepository: Repository<UserRoutine>
+    private readonly userRoutineRepository: Repository<UserRoutine>,
+    @InjectRepository(AccessLog)
+    private readonly accessLogRepository: Repository<AccessLog>
   ) {}
 
   async getFinancialDashboard(): Promise<FinancialDashboardDto> {
@@ -247,5 +272,143 @@ export class DashboardService {
       year: parseInt(r.year, 10),
       total: parseFloat(r.total) || 0,
     }));
+  }
+
+  async getReportsData(startDate?: Date, endDate?: Date): Promise<ReportsDataDto> {
+    const [revenue, attendance, memberships] = await Promise.all([
+      this.getRevenueData(startDate, endDate),
+      this.getAttendanceData(startDate, endDate),
+      this.getMembershipsData(),
+    ]);
+
+    return {
+      revenue,
+      attendance,
+      memberships,
+    };
+  }
+
+  private async getRevenueData(startDate?: Date, endDate?: Date): Promise<RevenueItemDto[]> {
+    let query = this.paymentRepository
+      .createQueryBuilder('payment')
+      .select('EXTRACT(YEAR FROM payment.paymentDate)', 'year')
+      .addSelect('EXTRACT(MONTH FROM payment.paymentDate)', 'month')
+      .addSelect('SUM(payment.amount)', 'total');
+
+    if (startDate) {
+      query = query.andWhere('payment.paymentDate >= :startDate', { startDate });
+    }
+    if (endDate) {
+      query = query.andWhere('payment.paymentDate <= :endDate', { endDate });
+    }
+
+    const result = await query
+      .groupBy('EXTRACT(YEAR FROM payment.paymentDate)')
+      .addGroupBy('EXTRACT(MONTH FROM payment.paymentDate)')
+      .orderBy('year', 'ASC')
+      .addOrderBy('month', 'ASC')
+      .getRawMany<RawRevenueResult>();
+
+    const monthNames = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ];
+
+    return result.map((r) => ({
+      month: monthNames[parseInt(r.month, 10) - 1],
+      year: parseInt(r.year, 10),
+      total: parseFloat(r.total) || 0,
+    }));
+  }
+
+  private async getAttendanceData(startDate?: Date, endDate?: Date): Promise<AttendanceItemDto[]> {
+    let query = this.accessLogRepository
+      .createQueryBuilder('log')
+      .select('DATE(log.createdAt)', 'date')
+      .addSelect('COUNT(*)', 'count')
+      .where('log.granted = :granted', { granted: true });
+
+    if (startDate) {
+      query = query.andWhere('log.createdAt >= :startDate', { startDate });
+    }
+    if (endDate) {
+      query = query.andWhere('log.createdAt <= :endDate', { endDate });
+    }
+
+    const result = await query
+      .groupBy('DATE(log.createdAt)')
+      .orderBy('date', 'ASC')
+      .getRawMany<RawAttendanceResult>();
+
+    return result.map((r) => ({
+      date: r.date,
+      count: parseInt(r.count, 10),
+    }));
+  }
+
+  private async getMembershipsData(): Promise<MembershipItemDto[]> {
+    const result = await this.membershipRepository
+      .createQueryBuilder('membership')
+      .leftJoin('membership.membershipType', 'type')
+      .select('membership.status', 'status')
+      .addSelect('COUNT(*)', 'count')
+      .addSelect('SUM(type.price)', 'total')
+      .groupBy('membership.status')
+      .getRawMany<RawMembershipResult>();
+
+    const statusTranslations: Record<string, string> = {
+      active: 'Activa',
+      expired: 'Vencida',
+      cancelled: 'Cancelada',
+      grace_period: 'Período de Gracia',
+    };
+
+    return result.map((r) => ({
+      status: statusTranslations[r.status] || r.status,
+      count: parseInt(r.count, 10),
+      total: parseFloat(r.total) || 0,
+    }));
+  }
+
+  async exportReports(startDate?: Date, endDate?: Date): Promise<Buffer> {
+    const data = await this.getReportsData(startDate, endDate);
+
+    const workbook = new ExcelJS.Workbook();
+
+    const revenueSheet = workbook.addWorksheet('Ingresos');
+    revenueSheet.columns = [
+      { header: 'Mes', key: 'month', width: 15 },
+      { header: 'Año', key: 'year', width: 10 },
+      { header: 'Total', key: 'total', width: 15 },
+    ];
+    revenueSheet.addRows(data.revenue);
+
+    const attendanceSheet = workbook.addWorksheet('Asistencia');
+    attendanceSheet.columns = [
+      { header: 'Fecha', key: 'date', width: 15 },
+      { header: 'Cantidad', key: 'count', width: 15 },
+    ];
+    attendanceSheet.addRows(data.attendance);
+
+    const membershipsSheet = workbook.addWorksheet('Membresías');
+    membershipsSheet.columns = [
+      { header: 'Estado', key: 'status', width: 20 },
+      { header: 'Cantidad', key: 'count', width: 15 },
+      { header: 'Total', key: 'total', width: 15 },
+    ];
+    membershipsSheet.addRows(data.memberships);
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 }

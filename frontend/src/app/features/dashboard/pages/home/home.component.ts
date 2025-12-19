@@ -2,7 +2,7 @@ import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { Store } from '@ngxs/store';
 import { RouterLink } from '@angular/router';
 import { AuthState, UserState, LoadProfile } from '../../../../core/store';
-import { DashboardService, NetworkService } from '../../../../core/services';
+import { DashboardService, NetworkService, UsersService } from '../../../../core/services';
 import { AlertComponent, ButtonComponent, CardComponent } from '../../../../shared';
 import { Role, FinancialDashboard } from '../../../../core/models';
 import { LucideAngularModule } from 'lucide-angular';
@@ -27,11 +27,13 @@ import { RecentPaymentsComponent } from '../../components/recent-payments/recent
 export class HomeComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly dashboardService = inject(DashboardService);
+  private readonly usersService = inject(UsersService);
   readonly network = inject(NetworkService);
 
   // Dashboard stats
   readonly dashboardStats = signal<FinancialDashboard | null>(null);
   readonly isLoadingStats = signal(false);
+  readonly isExporting = signal(false);
 
   readonly user = this.store.selectSignal(AuthState.user);
   readonly profile = this.store.selectSignal(UserState.profile);
@@ -74,6 +76,27 @@ export class HomeComponent implements OnInit {
       },
       error: () => {
         this.isLoadingStats.set(false);
+      },
+    });
+  }
+
+  exportMembers(): void {
+    this.isExporting.set(true);
+    this.usersService.exportMembers().subscribe({
+      next: (blob) => {
+        // Crear URL del blob y descargar automáticamente
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `miembros-fitflow-${new Date().toISOString().split('T')[0]}.xlsx`;
+        link.click();
+        // Limpiar URL
+        window.URL.revokeObjectURL(url);
+        this.isExporting.set(false);
+      },
+      error: () => {
+        this.isExporting.set(false);
+        // TODO: Mostrar mensaje de error al usuario
       },
     });
   }

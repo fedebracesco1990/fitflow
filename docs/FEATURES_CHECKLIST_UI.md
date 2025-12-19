@@ -10,7 +10,7 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 
 | Sección                  | Total  | Completadas | Pendientes |
 | ------------------------ | ------ | ----------- | ---------- |
-| Dashboard Admin          | 8      | 3           | 5          |
+| Dashboard Admin          | 8      | 6           | 2          |
 | Centro de Reportes       | 7      | 0           | 7          |
 | Directorio de Usuarios   | 5      | 0           | 5          |
 | Gestión de Entrenamiento | 8      | 0           | 8          |
@@ -18,7 +18,7 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Ingresos (Acceso)        | 2      | 0           | 2          |
 | Tipos de Membresía       | 3      | 0           | 3          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **3**       | **34**     |
+| **TOTAL**                | **37** | **6**       | **31**     |
 
 ---
 
@@ -113,52 +113,60 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-04] Acciones Rápidas del Dashboard
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada
 
 **Descripción:** Como administrador, quiero tener accesos directos a las acciones más frecuentes para agilizar mi trabajo.
 
 **Criterios de Aceptación:**
 
-- [ ] Botón "Directorio de Usuarios" - navega a lista de usuarios
-- [ ] Botón "+ Nuevo Miembro" - abre formulario de crear membresía
-- [ ] Botón "$ Nuevo Pago" - abre formulario de registrar pago
-- [ ] Botón "Check-in" - navega a escáner QR
-- [ ] Diseño con iconos y colores distintivos
-- [ ] Responsive: botones apilados en mobile
+- [x] Botón "Directorio de Usuarios" - navega a lista de usuarios
+- [x] Botón "+ Nuevo Miembro" - abre formulario de crear membresía
+- [x] Botón "$ Nuevo Pago" - abre formulario de registrar pago
+- [x] Botón "Check-in" - navega a escáner QR
+- [x] Diseño con iconos y colores distintivos
+- [x] Responsive: botones apilados en mobile
 
 ---
 
 ### [FITFLOW-DS-05] Exportar Miembros
 
 **Tipo:** Frontend / Backend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada
+**Fecha:** 2024-12-19
 
 **Descripción:** Como administrador, quiero exportar la lista de miembros para reportes externos.
 
 **Criterios de Aceptación:**
 
-- [ ] Botón "Exportar Miembros" en header del dashboard
-- [ ] Exportación a formato CSV o Excel
-- [ ] Incluir datos: nombre, email, membresía, estado, fecha vencimiento
-- [ ] API endpoint GET /api/users/export
-- [ ] Descarga automática del archivo
+- [x] Botón "Exportar Miembros" en header del dashboard
+- [x] Exportación a formato Excel (.xlsx)
+- [x] Incluir datos: nombre, email, membresía, estado, fecha vencimiento
+- [x] API endpoint GET /api/users/export
+- [x] Descarga automática del archivo
+
+**Implementación:**
+
+- Backend: Endpoint con ExcelJS, query LEFT JOIN, formato DD/MM/YYYY
+- Frontend: Botón con icono Download, descarga automática vía Blob
+- Archivos: 8 modificados/creados (3 backend, 5 frontend)
 
 ---
 
 ### [FITFLOW-DS-06] Menú Reportes
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado
 
 **Descripción:** Como administrador, quiero acceder a una sección de reportes para análisis detallados.
 
 **Criterios de Aceptación:**
 
-- [ ] Item "Reportes" en sidebar (solo Admin)
-- [ ] Página de reportes con opciones de filtrado
-- [ ] Reportes disponibles: Ingresos, Asistencia, Membresías
-- [ ] Gráficos de tendencias
-- [ ] Filtros por rango de fechas
+- [x] Item "Reportes" en sidebar (solo Admin)
+- [x] Página de reportes con opciones de filtrado
+- [x] Reportes disponibles: Ingresos, Asistencia, Membresías
+- [x] Gráficos de tendencias (Chart.js)
+- [x] Filtros por rango de fechas
+- [x] Exportación a Excel
 
 ---
 
@@ -758,9 +766,12 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 
 ## Historial de Cambios
 
-| Fecha      | Tarea            | Estado | Notas                                   |
-| ---------- | ---------------- | ------ | --------------------------------------- |
-| 2024-12-18 | Documento creado | -      | 37 tareas iniciales                     |
-| 2024-12-18 | FITFLOW-DS-01    | ✅     | Métricas del Dashboard Admin completada |
-| 2024-12-18 | FITFLOW-DS-02    | ✅     | Tabla Actividad en Vivo completada      |
-| 2024-12-18 | FITFLOW-DS-03    | ✅     | Tabla Pagos Recientes completada        |
+| Fecha      | Tarea            | Estado | Notas                                     |
+| ---------- | ---------------- | ------ | ----------------------------------------- |
+| 2024-12-18 | Documento creado | -      | 37 tareas iniciales                       |
+| 2024-12-18 | FITFLOW-DS-01    | ✅     | Métricas del Dashboard Admin completada   |
+| 2024-12-18 | FITFLOW-DS-02    | ✅     | Tabla Actividad en Vivo completada        |
+| 2024-12-18 | FITFLOW-DS-03    | ✅     | Tabla Pagos Recientes completada          |
+| 2024-12-19 | FITFLOW-DS-04    | ✅     | Acciones Rápidas del Dashboard completada |
+| 2024-12-19 | FITFLOW-DS-05    | ✅     | Exportar Miembros a Excel completada      |
+| 2024-12-19 | FITFLOW-DS-06    | ✅     | Menú Reportes con Chart.js completada     |

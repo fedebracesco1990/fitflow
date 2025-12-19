@@ -3,6 +3,7 @@ export * from './network.service';
 export * from './api.service';
 export * from './auth.service';
 export * from './user.service';
+export * from './users.service';
 export * from './membership-types.service';
 export * from './payments.service';
 export * from './memberships.service';

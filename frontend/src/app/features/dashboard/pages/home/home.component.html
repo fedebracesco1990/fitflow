@@ -24,7 +24,18 @@
   <!-- ==================== ADMIN DASHBOARD ==================== -->
   @if (isAdmin()) {
     <section class="dashboard-section">
-      <h2>📊 Resumen del Gimnasio</h2>
+      <div class="section-header">
+        <h2>📊 Resumen del Gimnasio</h2>
+        <fit-flow-button
+          variant="outline"
+          size="sm"
+          (click)="exportMembers()"
+          [disabled]="isExporting()"
+        >
+          <lucide-icon name="download" [size]="20"></lucide-icon>
+          <span>{{ isExporting() ? 'Exportando...' : 'Exportar Miembros' }}</span>
+        </fit-flow-button>
+      </div>
       <div class="stats-grid">
         <fit-flow-card padding="md" class="stat-card">
           <div class="stat-icon">
@@ -105,24 +116,28 @@
     <section class="dashboard-section">
       <h2>⚡ Acciones Rápidas</h2>
       <div class="actions-grid">
-        <a routerLink="/membership-types">
-          <fit-flow-button variant="secondary" [fullWidth]="true">
-            <span class="action-icon">🏷️</span>
-            <span>Tipos de Membresía</span>
+        <a routerLink="/memberships">
+          <fit-flow-button variant="secondary" [fullWidth]="true" class="action-btn--directory">
+            <lucide-icon name="users" [size]="20"></lucide-icon>
+            <span>Directorio de Usuarios</span>
           </fit-flow-button>
         </a>
-        <fit-flow-button variant="secondary" [fullWidth]="true">
-          <span class="action-icon">👤</span>
-          <span>Gestionar Usuarios</span>
-        </fit-flow-button>
-        <fit-flow-button variant="secondary" [fullWidth]="true">
-          <span class="action-icon">💵</span>
-          <span>Registrar Pago</span>
-        </fit-flow-button>
-        <a routerLink="/dashboard/financial">
-          <fit-flow-button variant="secondary" [fullWidth]="true">
-            <span class="action-icon">📈</span>
-            <span>Dashboard Financiero</span>
+        <a routerLink="/memberships/new">
+          <fit-flow-button variant="secondary" [fullWidth]="true" class="action-btn--new-member">
+            <lucide-icon name="user-plus" [size]="20"></lucide-icon>
+            <span>+ Nuevo Miembro</span>
+          </fit-flow-button>
+        </a>
+        <a routerLink="/payments/new">
+          <fit-flow-button variant="secondary" [fullWidth]="true" class="action-btn--payment">
+            <lucide-icon name="dollar-sign" [size]="20"></lucide-icon>
+            <span>$ Nuevo Pago</span>
+          </fit-flow-button>
+        </a>
+        <a routerLink="/access/scan">
+          <fit-flow-button variant="secondary" [fullWidth]="true" class="action-btn--checkin">
+            <lucide-icon name="scan" [size]="20"></lucide-icon>
+            <span>Check-in</span>
           </fit-flow-button>
         </a>
       </div>
@@ -261,22 +276,28 @@
     <section class="dashboard-section">
       <h2>⚡ Acciones Rápidas</h2>
       <div class="actions-grid">
-        <fit-flow-button variant="secondary" [fullWidth]="true">
-          <span class="action-icon">➕</span>
-          <span>Nuevo Entrenamiento</span>
-        </fit-flow-button>
-        <fit-flow-button variant="secondary" [fullWidth]="true">
-          <span class="action-icon">📊</span>
-          <span>Ver Progreso</span>
-        </fit-flow-button>
-        <fit-flow-button variant="secondary" [fullWidth]="true">
-          <span class="action-icon">📋</span>
-          <span>Mis Rutinas</span>
-        </fit-flow-button>
-        <a routerLink="/profile">
-          <fit-flow-button variant="secondary" [fullWidth]="true">
-            <span class="action-icon">👤</span>
-            <span>Mi Perfil</span>
+        <a routerLink="/memberships">
+          <fit-flow-button variant="secondary" [fullWidth]="true" class="action-btn--directory">
+            <lucide-icon name="users" [size]="20"></lucide-icon>
+            <span>Directorio de Usuarios</span>
+          </fit-flow-button>
+        </a>
+        <a routerLink="/memberships/new">
+          <fit-flow-button variant="secondary" [fullWidth]="true" class="action-btn--new-member">
+            <lucide-icon name="user-plus" [size]="20"></lucide-icon>
+            <span>+ Nuevo Miembro</span>
+          </fit-flow-button>
+        </a>
+        <a routerLink="/payments/new">
+          <fit-flow-button variant="secondary" [fullWidth]="true" class="action-btn--payment">
+            <lucide-icon name="dollar-sign" [size]="20"></lucide-icon>
+            <span>$ Nuevo Pago</span>
+          </fit-flow-button>
+        </a>
+        <a routerLink="/access/scan">
+          <fit-flow-button variant="secondary" [fullWidth]="true" class="action-btn--checkin">
+            <lucide-icon name="scan" [size]="20"></lucide-icon>
+            <span>Check-in</span>
           </fit-flow-button>
         </a>
       </div>

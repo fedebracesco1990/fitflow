@@ -32,15 +32,15 @@
             <div class="table-row">
               <span class="col-date">{{ formatDate(log.createdAt) }}</span>
               <span class="col-user">
-                <strong>{{ log.user?.name || 'Desconocido' }}</strong>
-                <small>{{ log.user?.email || '' }}</small>
+                <strong>{{ log.user.name || 'Desconocido' }}</strong>
+                <small>{{ log.user.email || '' }}</small>
               </span>
               <span class="col-status">
                 <fit-flow-badge [variant]="getBadgeVariant(log.granted)">
                   {{ log.granted ? 'Permitido' : 'Denegado' }}
                 </fit-flow-badge>
               </span>
-              <span class="col-scanned">{{ log.scannedBy?.name || 'Sistema' }}</span>
+              <span class="col-scanned">{{ log.scannedBy.name || 'Sistema' }}</span>
             </div>
           }
         </div>

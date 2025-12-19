@@ -16,6 +16,27 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { Role } from '../../common/enums/role.enum';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import * as bcrypt from 'bcrypt';
+import * as ExcelJS from 'exceljs';
+
+interface RawUserMembershipResult {
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  membership_id: string | null;
+  membership_status: string | null;
+  membership_endDate: Date | null;
+  membershipType_name: string | null;
+}
+
+interface UserMembershipData {
+  name: string;
+  email: string;
+  memberships: Array<{
+    status: string;
+    endDate: Date;
+    membershipTypeName: string;
+  }>;
+}
 
 @Injectable()
 export class UsersService {
@@ -312,5 +333,128 @@ export class UsersService {
     if (currentUserRole === Role.USER) {
       throw new ForbiddenException('No tienes permisos para ver este perfil');
     }
+  }
+
+  // ==================== EXPORT ====================
+
+  async exportMembers(): Promise<Buffer> {
+    // Query con LEFT JOIN para incluir usuarios sin membresía
+    const users = await this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoin('memberships', 'membership', 'membership.userId = user.id')
+      .leftJoin(
+        'membership_types',
+        'membershipType',
+        'membershipType.id = membership.membershipTypeId'
+      )
+      .select([
+        'user.id',
+        'user.name',
+        'user.email',
+        'membership.id',
+        'membership.status',
+        'membership.endDate',
+        'membershipType.name',
+      ])
+      .where('user.isActive = :isActive', { isActive: true })
+      .orderBy('user.name', 'ASC')
+      .getRawMany<RawUserMembershipResult>();
+
+    // Agrupar por usuario y obtener membresía más relevante
+    const userMap = new Map<string, UserMembershipData>();
+
+    users.forEach((row) => {
+      const userId = row.user_id;
+
+      if (!userMap.has(userId)) {
+        userMap.set(userId, {
+          name: row.user_name,
+          email: row.user_email,
+          memberships: [],
+        });
+      }
+
+      if (
+        row.membership_id &&
+        row.membership_status &&
+        row.membership_endDate &&
+        row.membershipType_name
+      ) {
+        const userData = userMap.get(userId);
+        if (userData) {
+          userData.memberships.push({
+            status: row.membership_status,
+            endDate: row.membership_endDate,
+            membershipTypeName: row.membershipType_name,
+          });
+        }
+      }
+    });
+
+    // Crear workbook y worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Miembros');
+
+    // Definir columnas
+    worksheet.columns = [
+      { header: 'Nombre', key: 'name', width: 30 },
+      { header: 'Email', key: 'email', width: 35 },
+      { header: 'Tipo de Membresía', key: 'membershipType', width: 25 },
+      { header: 'Estado', key: 'status', width: 20 },
+      { header: 'Fecha Vencimiento', key: 'endDate', width: 20 },
+    ];
+
+    // Traducir estados
+    const statusTranslations: Record<string, string> = {
+      active: 'Activa',
+      expired: 'Vencida',
+      cancelled: 'Cancelada',
+      grace_period: 'Período de Gracia',
+    };
+
+    // Formatear fecha DD/MM/YYYY
+    const formatDate = (date: Date | string | null): string => {
+      if (!date) return '';
+      const d = new Date(date);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+
+    // Mapear datos
+    userMap.forEach((userData) => {
+      let relevantMembership: UserMembershipData['memberships'][0] | null = null;
+
+      if (userData.memberships.length > 0) {
+        // Prioridad: ACTIVE > GRACE_PERIOD > más reciente
+        const activeMembership = userData.memberships.find((m) => m.status === 'active');
+        const gracePeriodMembership = userData.memberships.find((m) => m.status === 'grace_period');
+
+        if (activeMembership) {
+          relevantMembership = activeMembership;
+        } else if (gracePeriodMembership) {
+          relevantMembership = gracePeriodMembership;
+        } else {
+          relevantMembership = userData.memberships.sort(
+            (a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime()
+          )[0];
+        }
+      }
+
+      worksheet.addRow({
+        name: userData.name,
+        email: userData.email,
+        membershipType: relevantMembership?.membershipTypeName || 'Sin membresía',
+        status: relevantMembership
+          ? statusTranslations[relevantMembership.status] || relevantMembership.status
+          : 'Sin membresía',
+        endDate: relevantMembership ? formatDate(relevantMembership.endDate) : '',
+      });
+    });
+
+    // Generar buffer
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 }

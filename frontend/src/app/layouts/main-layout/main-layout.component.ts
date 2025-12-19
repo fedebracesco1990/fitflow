@@ -41,6 +41,7 @@ export class MainLayoutComponent {
     if (this.isAdmin()) {
       items.push(
         { label: 'Finanzas', icon: 'bar-chart-3', route: '/dashboard/financial' },
+        { label: 'Reportes', icon: 'bar-chart-3', route: '/reports' },
         { label: 'Membresías', icon: 'id-card', route: '/memberships' },
         { label: 'Tipos', icon: 'tags', route: '/membership-types' },
         { label: 'Pagos', icon: 'credit-card', route: '/payments' },

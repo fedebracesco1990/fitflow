@@ -28,6 +28,17 @@
 }
 
 .dashboard-section {
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      margin: 0;
+    }
+  }
+
   h2 {
     margin: 0 0 1rem;
     font-size: 1.25rem;
@@ -116,47 +127,11 @@
   }
 }
 
-.quick-actions {
-  h2 {
-    margin: 0 0 1rem;
-    font-size: 1.25rem;
-    color: #1e293b;
-  }
-}
-
+// Actions grid
 .actions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
-}
-
-.action-btn {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.5rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    border-color: #667eea;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-    transform: translateY(-2px);
-  }
-}
-
-.action-icon {
-  font-size: 1.5rem;
-}
-
-.action-btn span:last-child {
-  font-size: 0.875rem;
-  color: #374151;
-  font-weight: 500;
 }
 
 // Membership card for user dashboard
@@ -213,9 +188,56 @@
   }
 }
 
+// Semantic color variables
+$color-directory: #3b82f6;
+$color-directory-hover: #2563eb;
+$color-new-member: #22c55e;
+$color-new-member-hover: #16a34a;
+$color-payment: #f59e0b;
+$color-payment-hover: #d97706;
+$color-checkin: #8b5cf6;
+$color-checkin-hover: #7c3aed;
+
+// Mixin for action button styles
+@mixin action-button($bg-color, $hover-color, $shadow-color) {
+  ::ng-deep .btn {
+    background-color: $bg-color;
+    border-color: $bg-color;
+    color: white;
+
+    &:hover {
+      background-color: $hover-color;
+      border-color: $hover-color;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px $shadow-color;
+    }
+
+    lucide-icon {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
 // Actions grid with links
 .actions-grid {
   a {
     text-decoration: none;
+  }
+
+  // Custom action button styles with semantic colors
+  .action-btn--directory {
+    @include action-button($color-directory, $color-directory-hover, rgba(59, 130, 246, 0.3));
+  }
+
+  .action-btn--new-member {
+    @include action-button($color-new-member, $color-new-member-hover, rgba(34, 197, 94, 0.3));
+  }
+
+  .action-btn--payment {
+    @include action-button($color-payment, $color-payment-hover, rgba(245, 158, 11, 0.3));
+  }
+
+  .action-btn--checkin {
+    @include action-button($color-checkin, $color-checkin-hover, rgba(139, 92, 246, 0.3));
   }
 }

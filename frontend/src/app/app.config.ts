@@ -43,6 +43,9 @@ import {
   Calendar,
   ClipboardCheck,
   RefreshCw,
+  Download,
+  UserPlus,
+  Scan,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -118,6 +121,9 @@ export const appConfig: ApplicationConfig = {
         Calendar,
         ClipboardCheck,
         RefreshCw,
+        Download,
+        UserPlus,
+        Scan,
       })
     ),
   ],
