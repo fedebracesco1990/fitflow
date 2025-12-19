@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "dev": "ng serve",
     "config": "node scripts/set-env.js",
     "build": "npm run config && ng build --configuration production",
-    "start:prod": "serve -s browser -l ${PORT:-4200}",
+    "start": "serve -s browser -l ${PORT:-4200}",
     "watch": "ng build --watch --configuration development",
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",

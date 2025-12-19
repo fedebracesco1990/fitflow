@@ -621,7 +621,10 @@ npm run build
 npm run lint
 
 # Desarrollo
-npm start
+npm run dev
+
+# Producción (simular Railway)
+npm run build && npm start
 ```
 
 ---

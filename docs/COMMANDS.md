@@ -78,7 +78,8 @@ npm run start:frontend   # Frontend (opcional)
 ### Frontend (`cd frontend`)
 
 ```bash
-npm start              # Desarrollo (puerto 4200)
+npm run dev            # Desarrollo (puerto 4200)
+npm start              # Producción con serve (para Railway)
 npm run build          # Build producción
 npm run lint           # ESLint
 npm run lint:fix       # ESLint con fix
