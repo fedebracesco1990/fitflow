@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment } from '../payments/entities/payment.entity';
 import { Membership, MembershipStatus } from '../memberships/entities/membership.entity';
+import { UserRoutine } from '../user-routines/entities/user-routine.entity';
 
 interface RawRevenueResult {
   total: string;
@@ -33,7 +34,9 @@ export class DashboardService {
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Membership)
-    private readonly membershipRepository: Repository<Membership>
+    private readonly membershipRepository: Repository<Membership>,
+    @InjectRepository(UserRoutine)
+    private readonly userRoutineRepository: Repository<UserRoutine>
   ) {}
 
   async getFinancialDashboard(): Promise<FinancialDashboardDto> {
@@ -47,7 +50,9 @@ export class DashboardService {
     const [
       currentMonthRevenue,
       previousMonthRevenue,
+      todayRevenue,
       totalActiveMembers,
+      activeRoutines,
       debtors,
       expiringMemberships,
       paymentMethodDistribution,
@@ -55,7 +60,9 @@ export class DashboardService {
     ] = await Promise.all([
       this.getCurrentMonthRevenue(currentMonthStart, currentMonthEnd),
       this.getMonthRevenue(previousMonthStart, previousMonthEnd),
+      this.getTodayRevenue(today),
       this.getTotalActiveMembers(),
+      this.getActiveRoutinesCount(),
       this.getDebtors(today),
       this.getExpiringMemberships(today),
       this.getPaymentMethodDistribution(currentMonthStart, currentMonthEnd),
@@ -74,9 +81,11 @@ export class DashboardService {
       currentMonthRevenue,
       previousMonthRevenue,
       revenueGrowthPercentage: Math.round(revenueGrowthPercentage * 100) / 100,
+      todayRevenue,
       totalActiveMembers,
       totalDebtors: debtors.length,
       expiringInSevenDays: expiringMemberships.length,
+      activeRoutines,
       paymentMethodDistribution,
       monthlyRevenue,
       debtors,
@@ -105,6 +114,25 @@ export class DashboardService {
     return this.membershipRepository.count({
       where: {
         status: MembershipStatus.ACTIVE,
+      },
+    });
+  }
+
+  private async getTodayRevenue(today: Date): Promise<number> {
+    const todayStr = today.toISOString().split('T')[0];
+    const result = await this.paymentRepository
+      .createQueryBuilder('payment')
+      .select('COALESCE(SUM(payment.amount), 0)', 'total')
+      .where('DATE(payment.paymentDate) = :today', { today: todayStr })
+      .getRawOne<RawRevenueResult>();
+
+    return parseFloat(result?.total ?? '0') || 0;
+  }
+
+  private async getActiveRoutinesCount(): Promise<number> {
+    return this.userRoutineRepository.count({
+      where: {
+        isActive: true,
       },
     });
   }

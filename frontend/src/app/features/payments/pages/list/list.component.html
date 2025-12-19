@@ -71,6 +71,30 @@
           </tbody>
         </table>
       </div>
+
+      @if (paginationMeta() && paginationMeta()!.totalPages > 1) {
+        <div class="pagination">
+          <fit-flow-button
+            variant="outline"
+            size="sm"
+            [disabled]="paginationMeta()!.page === 1 || loading()"
+            (click)="prevPage()"
+          >
+            Anterior
+          </fit-flow-button>
+          <span class="page-info"
+            >{{ paginationMeta()!.page }} / {{ paginationMeta()!.totalPages }}</span
+          >
+          <fit-flow-button
+            variant="outline"
+            size="sm"
+            [disabled]="paginationMeta()!.page === paginationMeta()!.totalPages || loading()"
+            (click)="nextPage()"
+          >
+            Siguiente
+          </fit-flow-button>
+        </div>
+      }
     </fit-flow-card>
   }
 </div>

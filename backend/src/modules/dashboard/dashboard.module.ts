@@ -4,9 +4,10 @@ import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
 import { Payment } from '../payments/entities/payment.entity';
 import { Membership } from '../memberships/entities/membership.entity';
+import { UserRoutine } from '../user-routines/entities/user-routine.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment, Membership])],
+  imports: [TypeOrmModule.forFeature([Payment, Membership, UserRoutine])],
   controllers: [DashboardController],
   providers: [DashboardService],
   exports: [DashboardService],

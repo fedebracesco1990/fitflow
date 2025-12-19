@@ -98,4 +98,18 @@ export class PaymentsListComponent implements OnInit {
   getMembershipTypeName(payment: Payment): string {
     return payment.membership?.membershipType?.name || 'Sin tipo';
   }
+
+  nextPage(): void {
+    const meta = this.paginationMeta();
+    if (meta && meta.page < meta.totalPages) {
+      this.loadPayments(meta.page + 1);
+    }
+  }
+
+  prevPage(): void {
+    const meta = this.paginationMeta();
+    if (meta && meta.page > 1) {
+      this.loadPayments(meta.page - 1);
+    }
+  }
 }

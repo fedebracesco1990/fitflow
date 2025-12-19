@@ -27,41 +27,79 @@
       <h2>📊 Resumen del Gimnasio</h2>
       <div class="stats-grid">
         <fit-flow-card padding="md" class="stat-card">
-          <div class="stat-icon">👥</div>
+          <div class="stat-icon">
+            <lucide-icon name="users" [size]="28"></lucide-icon>
+          </div>
           <div class="stat-content">
-            <h3>Usuarios</h3>
-            <p class="stat-value">--</p>
-            <span class="stat-label">Registrados</span>
+            <h3>Miembros Activos</h3>
+            <p class="stat-value">{{ dashboardStats()?.totalActiveMembers ?? '--' }}</p>
+            <span class="stat-label">Con membresía vigente</span>
           </div>
         </fit-flow-card>
 
         <fit-flow-card padding="md" class="stat-card">
-          <div class="stat-icon">💳</div>
+          <div class="stat-icon warning">
+            <lucide-icon name="clock" [size]="28"></lucide-icon>
+          </div>
           <div class="stat-content">
-            <h3>Membresías</h3>
-            <p class="stat-value">--</p>
-            <span class="stat-label">Activas</span>
+            <h3>Expiran Pronto</h3>
+            <p class="stat-value">{{ dashboardStats()?.expiringInSevenDays ?? '--' }}</p>
+            <span class="stat-label">Próximos 7 días</span>
           </div>
         </fit-flow-card>
 
         <fit-flow-card padding="md" class="stat-card">
-          <div class="stat-icon">💰</div>
+          <div class="stat-icon danger">
+            <lucide-icon name="alert-triangle" [size]="28"></lucide-icon>
+          </div>
+          <div class="stat-content">
+            <h3>Morosos</h3>
+            <p class="stat-value">{{ dashboardStats()?.totalDebtors ?? '--' }}</p>
+            <span class="stat-label">Pagos pendientes</span>
+          </div>
+        </fit-flow-card>
+
+        <fit-flow-card padding="md" class="stat-card">
+          <div class="stat-icon success">
+            <lucide-icon name="dollar-sign" [size]="28"></lucide-icon>
+          </div>
           <div class="stat-content">
             <h3>Ingresos</h3>
-            <p class="stat-value">--</p>
+            <p class="stat-value">${{ dashboardStats()?.currentMonthRevenue ?? '--' }}</p>
             <span class="stat-label">Este mes</span>
           </div>
         </fit-flow-card>
 
         <fit-flow-card padding="md" class="stat-card">
-          <div class="stat-icon">⚠️</div>
+          <div class="stat-icon">
+            <lucide-icon name="calendar" [size]="28"></lucide-icon>
+          </div>
           <div class="stat-content">
-            <h3>Vencimientos</h3>
-            <p class="stat-value">--</p>
-            <span class="stat-label">Próximos 7 días</span>
+            <h3>Ingresos Hoy</h3>
+            <p class="stat-value">${{ dashboardStats()?.todayRevenue ?? '--' }}</p>
+            <span class="stat-label">Recaudado hoy</span>
+          </div>
+        </fit-flow-card>
+
+        <fit-flow-card padding="md" class="stat-card">
+          <div class="stat-icon">
+            <lucide-icon name="clipboard-check" [size]="28"></lucide-icon>
+          </div>
+          <div class="stat-content">
+            <h3>Rutinas Activas</h3>
+            <p class="stat-value">{{ dashboardStats()?.activeRoutines ?? '--' }}</p>
+            <span class="stat-label">Asignadas</span>
           </div>
         </fit-flow-card>
       </div>
+    </section>
+
+    <section class="dashboard-section">
+      <fit-flow-activity-live [limit]="25" [refreshInterval]="30000" />
+    </section>
+
+    <section class="dashboard-section">
+      <fit-flow-recent-payments />
     </section>
 
     <section class="dashboard-section">
@@ -132,6 +170,10 @@
           </div>
         </fit-flow-card>
       </div>
+    </section>
+
+    <section class="dashboard-section">
+      <fit-flow-activity-live [limit]="25" [refreshInterval]="30000" />
     </section>
 
     <section class="dashboard-section">

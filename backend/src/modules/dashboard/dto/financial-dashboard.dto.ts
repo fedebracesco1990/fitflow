@@ -32,11 +32,13 @@ export class FinancialDashboardDto {
   currentMonthRevenue: number;
   previousMonthRevenue: number;
   revenueGrowthPercentage: number;
+  todayRevenue: number;
 
   // Membresías
   totalActiveMembers: number;
   totalDebtors: number;
   expiringInSevenDays: number;
+  activeRoutines: number;
 
   // Distribución por método de pago (mes actual)
   paymentMethodDistribution: PaymentMethodDistributionDto[];

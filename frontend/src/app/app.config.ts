@@ -33,9 +33,16 @@ import {
   CalendarCheck,
   ListChecks,
   User,
+  Users,
   LogOut,
   Wifi,
   WifiOff,
+  Clock,
+  AlertTriangle,
+  DollarSign,
+  Calendar,
+  ClipboardCheck,
+  RefreshCw,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -101,9 +108,16 @@ export const appConfig: ApplicationConfig = {
         CalendarCheck,
         ListChecks,
         User,
+        Users,
         LogOut,
         Wifi,
         WifiOff,
+        Clock,
+        AlertTriangle,
+        DollarSign,
+        Calendar,
+        ClipboardCheck,
+        RefreshCw,
       })
     ),
   ],
