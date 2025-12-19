@@ -10,7 +10,7 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 
 | Sección                  | Total  | Completadas | Pendientes |
 | ------------------------ | ------ | ----------- | ---------- |
-| Dashboard Admin          | 8      | 6           | 2          |
+| Dashboard Admin          | 8      | 7           | 1          |
 | Centro de Reportes       | 7      | 0           | 7          |
 | Directorio de Usuarios   | 5      | 0           | 5          |
 | Gestión de Entrenamiento | 8      | 0           | 8          |
@@ -18,7 +18,7 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Ingresos (Acceso)        | 2      | 0           | 2          |
 | Tipos de Membresía       | 3      | 0           | 3          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **6**       | **31**     |
+| **TOTAL**                | **37** | **7**       | **30**     |
 
 ---
 
@@ -172,18 +172,25 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 
 ### [FITFLOW-DS-07] Menú Directorio de Usuarios
 
-**Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Tipo:** Frontend / Backend
+**Estado:** ✅ Completada
+**Fecha:** 2024-12-19
 
 **Descripción:** Como administrador, quiero acceder a un directorio completo de usuarios del gimnasio.
 
 **Criterios de Aceptación:**
 
-- [ ] Item "Directorio" en sidebar (solo Admin)
-- [ ] Lista de todos los usuarios registrados
-- [ ] Búsqueda por nombre o email
-- [ ] Filtros por rol, estado de membresía
-- [ ] Acciones: ver perfil, editar, asignar membresía
+- [x] Item "Directorio" en sidebar (solo Admin)
+- [x] Lista de todos los usuarios registrados
+- [x] Búsqueda por nombre o email
+- [x] Filtros por rol, estado de membresía
+- [x] Acciones: ver perfil, editar, asignar membresía
+
+**Implementación:**
+
+- Backend: SearchUsersDto, LEFT JOIN con memberships, búsqueda LIKE, filtros
+- Frontend: Componente con debounce 300ms, filtros dropdown, paginación, badges
+- Archivos: 10 modificados/creados (3 backend, 7 frontend)
 
 ---
 
@@ -775,3 +782,4 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | 2024-12-19 | FITFLOW-DS-04    | ✅     | Acciones Rápidas del Dashboard completada |
 | 2024-12-19 | FITFLOW-DS-05    | ✅     | Exportar Miembros a Excel completada      |
 | 2024-12-19 | FITFLOW-DS-06    | ✅     | Menú Reportes con Chart.js completada     |
+| 2024-12-19 | FITFLOW-DS-07    | ✅     | Directorio de Usuarios completado         |

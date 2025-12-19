@@ -21,7 +21,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
-import { PaginationDto } from '../../common/dto';
+import { SearchUsersDto } from './dto/search-users.dto';
 import { QrService } from '../qr/qr.service';
 
 @Controller('users')
@@ -66,9 +66,9 @@ export class UsersController {
   async findAll(
     @CurrentUser('userId') userId: string,
     @CurrentUser('role') role: Role,
-    @Query() pagination: PaginationDto
+    @Query() searchParams: SearchUsersDto
   ) {
-    return await this.usersService.findAll(userId, role, pagination.page, pagination.limit);
+    return await this.usersService.findAll(userId, role, searchParams);
   }
 
   @Get('export')

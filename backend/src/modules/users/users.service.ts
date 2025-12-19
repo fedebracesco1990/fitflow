@@ -17,6 +17,7 @@ import { Role } from '../../common/enums/role.enum';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import * as bcrypt from 'bcrypt';
 import * as ExcelJS from 'exceljs';
+import { SearchUsersDto } from './dto/search-users.dto';
 
 interface RawUserMembershipResult {
   user_id: string;
@@ -86,25 +87,79 @@ export class UsersService {
   async findAll(
     currentUserId: string,
     currentUserRole: Role,
-    page = 1,
-    limit = 20
+    searchParams: SearchUsersDto
   ): Promise<PaginatedResponse<User>> {
-    let query = this.usersRepository.createQueryBuilder('user');
+    const { search, role, membershipStatus, page = 1, limit = 20 } = searchParams;
 
+    // Query base para contar
+    let countQuery = this.usersRepository.createQueryBuilder('user');
+
+    // Filtro base: solo usuarios activos
+    countQuery = countQuery.where('user.isActive = :isActive', { isActive: true });
+
+    // Filtro por rol del usuario actual
     if (currentUserRole === Role.TRAINER) {
-      query = query.where('user.role = :role', { role: Role.USER });
+      countQuery = countQuery.andWhere('user.role = :userRole', { userRole: Role.USER });
     }
 
-    query = query.andWhere('user.isActive = :isActive', { isActive: true });
+    // Búsqueda por nombre o email
+    if (search) {
+      countQuery = countQuery.andWhere('(user.name LIKE :search OR user.email LIKE :search)', {
+        search: `%${search}%`,
+      });
+    }
 
-    const total = await query.getCount();
+    // Filtro por rol
+    if (role) {
+      countQuery = countQuery.andWhere('user.role = :role', { role });
+    }
 
-    query = query
+    // Filtro por estado de membresía
+    if (membershipStatus) {
+      countQuery = countQuery
+        .innerJoin('user.memberships', 'membership')
+        .andWhere('membership.status = :membershipStatus', { membershipStatus });
+    }
+
+    // Contar total
+    const total = await countQuery.getCount();
+
+    // Query para obtener datos con paginación
+    let dataQuery = this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.memberships', 'membership')
+      .leftJoinAndSelect('membership.membershipType', 'membershipType');
+
+    // Aplicar los mismos filtros
+    dataQuery = dataQuery.where('user.isActive = :isActive', { isActive: true });
+
+    if (currentUserRole === Role.TRAINER) {
+      dataQuery = dataQuery.andWhere('user.role = :userRole', { userRole: Role.USER });
+    }
+
+    if (search) {
+      dataQuery = dataQuery.andWhere('(user.name LIKE :search OR user.email LIKE :search)', {
+        search: `%${search}%`,
+      });
+    }
+
+    if (role) {
+      dataQuery = dataQuery.andWhere('user.role = :role', { role });
+    }
+
+    if (membershipStatus) {
+      dataQuery = dataQuery.andWhere('membership.status = :membershipStatus', {
+        membershipStatus,
+      });
+    }
+
+    // Aplicar paginación y ordenamiento
+    dataQuery = dataQuery
       .skip((page - 1) * limit)
       .take(limit)
       .orderBy('user.name', 'ASC');
 
-    const data = await query.getMany();
+    const data = await dataQuery.getMany();
 
     return {
       data,

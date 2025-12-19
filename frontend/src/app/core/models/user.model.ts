@@ -12,6 +12,16 @@ export interface User {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  memberships?: Membership[];
+}
+
+interface Membership {
+  id: string;
+  status: string;
+  endDate: string;
+  membershipType?: {
+    name: string;
+  };
 }
 
 export interface UserProfile {

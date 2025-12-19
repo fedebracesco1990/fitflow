@@ -113,6 +113,12 @@ export const routes: Routes = [
     loadChildren: () => import('./features/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
   },
   {
+    path: 'users',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.ADMIN] },
+    loadChildren: () => import('./features/users/users.routes').then((m) => m.usersRoutes),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

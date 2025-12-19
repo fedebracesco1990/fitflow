@@ -7,9 +7,11 @@ import {
   BeforeInsert,
   BeforeUpdate,
   AfterLoad,
+  OneToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../../../common/enums/role.enum';
+import { Membership } from '../../memberships/entities/membership.entity';
 
 @Entity('users')
 export class User {
@@ -49,6 +51,9 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Membership, (membership) => membership.user)
+  memberships: Membership[];
 
   private tempPassword: string;
 

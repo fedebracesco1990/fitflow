@@ -1,0 +1,147 @@
+<div class="users-list-page">
+  <div class="page-header">
+    <h1>Directorio de Usuarios</h1>
+  </div>
+
+  <!-- Filtros -->
+  <fit-flow-card class="filters-card">
+    <div class="filters">
+      <div class="search-box">
+        <input
+          type="search"
+          placeholder="Buscar por nombre o email..."
+          (input)="onSearchChange($event)"
+          class="search-input"
+        />
+      </div>
+
+      <div class="filter-group">
+        <select (change)="onRoleChange($event)" class="filter-select" [value]="selectedRole()">
+          @for (role of roles; track role.value) {
+            <option [value]="role.value">{{ role.label }}</option>
+          }
+        </select>
+
+        <select
+          (change)="onMembershipStatusChange($event)"
+          class="filter-select"
+          [value]="selectedMembershipStatus()"
+        >
+          @for (status of membershipStatuses; track status.value) {
+            <option [value]="status.value">{{ status.label }}</option>
+          }
+        </select>
+
+        <fit-flow-button variant="outline" size="sm" (click)="clearFilters()">
+          Limpiar filtros
+        </fit-flow-button>
+      </div>
+    </div>
+  </fit-flow-card>
+
+  @if (error()) {
+    <fit-flow-alert type="error" [message]="error()!" />
+  }
+
+  @if (loading()) {
+    <div class="loading">
+      <p>Cargando usuarios...</p>
+    </div>
+  } @else if (users().length === 0) {
+    <fit-flow-card>
+      <div class="empty-state">
+        <p>No se encontraron usuarios</p>
+      </div>
+    </fit-flow-card>
+  } @else {
+    <fit-flow-card>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Membresía</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of users(); track user.id) {
+              <tr>
+                <td>
+                  <div class="user-name">{{ user.name }}</div>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>
+                  <fit-flow-badge [variant]="getRoleBadgeVariant(user.role)">
+                    {{ getRoleLabel(user.role) }}
+                  </fit-flow-badge>
+                </td>
+                <td>
+                  @if (getUserMembership(user); as membership) {
+                    <div class="membership-info">
+                      <div>{{ membership.membershipType?.name || 'N/A' }}</div>
+                      @if (membership.endDate) {
+                        <small class="membership-date">
+                          Vence: {{ membership.endDate | date: 'dd/MM/yyyy' }}
+                        </small>
+                      }
+                    </div>
+                  } @else {
+                    <span class="no-membership">Sin membresía</span>
+                  }
+                </td>
+                <td>
+                  @if (getUserMembership(user); as membership) {
+                    <fit-flow-badge [variant]="getMembershipStatusBadgeVariant(membership.status)">
+                      {{ getMembershipStatusLabel(membership.status) }}
+                    </fit-flow-badge>
+                  } @else {
+                    <fit-flow-badge variant="neutral"> Sin membresía </fit-flow-badge>
+                  }
+                </td>
+                <td>
+                  <div class="actions">
+                    <a [routerLink]="['/users', user.id]">
+                      <fit-flow-button variant="outline" size="sm">Ver perfil</fit-flow-button>
+                    </a>
+                    <a [routerLink]="['/users', user.id, 'edit']">
+                      <fit-flow-button variant="outline" size="sm">Editar</fit-flow-button>
+                    </a>
+                    <a [routerLink]="['/memberships/new']" [queryParams]="{ userId: user.id }">
+                      <fit-flow-button variant="outline" size="sm"
+                        >Asignar membresía</fit-flow-button
+                      >
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </fit-flow-card>
+
+    @if (paginationMeta()?.totalPages && paginationMeta()!.totalPages > 1) {
+      <div class="pagination">
+        <fit-flow-button
+          variant="outline"
+          [disabled]="paginationMeta()!.page <= 1"
+          (click)="loadUsers(paginationMeta()!.page - 1)"
+        >
+          Anterior
+        </fit-flow-button>
+        <span>Página {{ paginationMeta()!.page }} de {{ paginationMeta()!.totalPages }}</span>
+        <fit-flow-button
+          variant="outline"
+          [disabled]="paginationMeta()!.page >= paginationMeta()!.totalPages"
+          (click)="loadUsers(paginationMeta()!.page + 1)"
+        >
+          Siguiente
+        </fit-flow-button>
+      </div>
+    }
+  }
+</div>

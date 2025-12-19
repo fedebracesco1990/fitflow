@@ -6,7 +6,10 @@ import { ApiService } from './api.service';
 import { User, UpdateProfileRequest, ChangePasswordRequest } from '../models';
 import { PaginatedResponse } from '../models/api-response.model';
 
-export interface UsersPaginationParams {
+export interface UsersSearchParams {
+  search?: string;
+  role?: string;
+  membershipStatus?: string;
   page?: number;
   limit?: number;
 }
@@ -39,8 +42,11 @@ export class UserService {
   }
 
   // Admin/Trainer endpoints
-  getAll(params?: UsersPaginationParams): Observable<PaginatedResponse<User>> {
+  getAll(params?: UsersSearchParams): Observable<PaginatedResponse<User>> {
     const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.set('search', params.search);
+    if (params?.role) queryParams.set('role', params.role);
+    if (params?.membershipStatus) queryParams.set('membershipStatus', params.membershipStatus);
     if (params?.page) queryParams.set('page', params.page.toString());
     if (params?.limit) queryParams.set('limit', params.limit.toString());
 
