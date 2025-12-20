@@ -473,12 +473,12 @@ export class DashboardService {
         .getCount(),
     ]);
 
-    const ingresoTotal = payments.reduce((sum, p) => sum + p.amount, 0);
+    const ingresoTotal = payments.reduce((sum, p) => sum + Number(p.amount), 0);
     const transacciones = payments.length;
 
     const desglose: TransactionItemDto[] = payments.map((p) => ({
       fecha: p.paymentDate,
-      monto: p.amount,
+      monto: Number(p.amount),
       metodo: p.paymentMethod,
       miembro: p.membership?.user?.email || 'N/A',
     }));
@@ -527,10 +527,13 @@ export class DashboardService {
     const activeVisits = accessLogs.filter((log) => activeUserIds.includes(log.user.id));
     const expiredVisits = accessLogs.filter((log) => expiredUserIds.includes(log.user.id));
 
+    const activeUsersWithVisits = new Set(activeVisits.map((log) => log.user.id));
+    const expiredUsersWithVisits = new Set(expiredVisits.map((log) => log.user.id));
+
     const visitasPromActivos =
-      activeMemberships.length > 0 ? activeVisits.length / activeMemberships.length : 0;
+      activeUsersWithVisits.size > 0 ? activeVisits.length / activeUsersWithVisits.size : 0;
     const visitasPromMorosos =
-      expiredMemberships.length > 0 ? expiredVisits.length / expiredMemberships.length : 0;
+      expiredUsersWithVisits.size > 0 ? expiredVisits.length / expiredUsersWithVisits.size : 0;
 
     const userVisitCounts = new Map<string, number>();
     accessLogs.forEach((log) => {

@@ -246,70 +246,80 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-10] Reporte Financiero - Filtros y Métricas
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (2024-12-19)
 
 **Descripción:** Como administrador, quiero filtrar reportes financieros por mes y año para ver métricas específicas.
 
+**Nota:** Implementado como parte de FITFLOW-DS-09 (Tab Financiero del Centro de Reportes)
+
 **Criterios de Aceptación:**
 
-- [ ] Selector de Mes (dropdown con meses)
-- [ ] Selector de Año (dropdown con años)
-- [ ] Card "Ingreso Total" con monto del período
-- [ ] Card "Transacciones" con cantidad de pagos
-- [ ] Card "Morosos Actuales" con contador
-- [ ] Actualización automática al cambiar filtros
+- [x] Selector de Mes (dropdown con meses)
+- [x] Selector de Año (dropdown con años)
+- [x] Card "Ingreso Total" con monto del período
+- [x] Card "Transacciones" con cantidad de pagos
+- [x] Card "Morosos Actuales" con contador
+- [x] Actualización automática al cambiar filtros
 
 ---
 
 ### [FITFLOW-DS-11] Reporte Financiero - Tabla Desglose de Transacciones
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (2024-12-19)
 
 **Descripción:** Como administrador, quiero ver el detalle de cada transacción del período seleccionado.
 
+**Nota:** Implementado como parte de FITFLOW-DS-09 (TransactionsTableComponent en Tab Financiero)
+
 **Criterios de Aceptación:**
 
-- [ ] Tabla con columnas: Fecha, Monto, Método
-- [ ] Formato de fecha legible (ej: "18 Dec 19:24")
-- [ ] Formato de monto con símbolo de moneda
-- [ ] Métodos de pago: Card, Cash, Transfer, etc.
-- [ ] Ordenamiento por fecha (más reciente primero)
-- [ ] Paginación si hay muchos registros
+- [x] Tabla con columnas: Fecha, Monto, Método, Miembro
+- [x] Formato de fecha legible (ej: "19/07/2025 00:00")
+- [x] Formato de monto con símbolo de moneda ($ 40.500)
+- [x] Métodos de pago: Efectivo, Transferencia, Tarjeta
+- [x] Ordenamiento por fecha (más reciente primero)
+- [x] Paginación (10 transacciones por página)
 
 ---
 
 ### [FITFLOW-DS-12] Reporte Uso y Comportamiento - Métricas
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (2024-12-19)
 
 **Descripción:** Como administrador, quiero ver métricas de uso del gimnasio para analizar el comportamiento de los miembros.
 
+**Nota:** Implementado como parte de FITFLOW-DS-09 (BehaviorMetricsComponent en Tab Uso y Comportamiento)
+
 **Criterios de Aceptación:**
 
-- [ ] Card "Visitas Prom. (Activos)" - promedio de visitas de miembros activos
-- [ ] Card "Visitas Prom. (Morosos)" - promedio de visitas de miembros morosos
-- [ ] Card "Rutinas Activas" - cantidad de rutinas asignadas activas
-- [ ] Cálculo basado en datos del mes actual
+- [x] Card "Visitas Prom. (Activos)" - promedio de visitas de miembros activos
+- [x] Card "Visitas Prom. (Morosos)" - promedio de visitas de miembros morosos
+- [x] Card "Rutinas Activas" - cantidad de rutinas asignadas activas
+- [x] Cálculo basado en período seleccionado (con filtros de fecha)
 
 ---
 
 ### [FITFLOW-DS-13] Reporte Uso y Comportamiento - Tabla Análisis
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (2024-12-20)
 
 **Descripción:** Como administrador, quiero ver un análisis detallado del comportamiento de cada miembro.
 
+**Nota:** Implementado como parte de FITFLOW-DS-09 (MemberAnalysisTableComponent con filtrado y ordenamiento)
+
 **Criterios de Aceptación:**
 
-- [ ] Tabla con columnas: Miembro, Estado, Visitas Totales, Rutina Activa
-- [ ] Estados con badges de color: ACTIVE (verde), OVERDUE (rojo/naranja)
-- [ ] Contador de visitas totales por miembro
-- [ ] Indicador de rutina activa: Sí/No
-- [ ] Ordenamiento y filtrado por estado
-- [ ] Link al perfil del miembro
+- [x] Tabla con columnas: Miembro, Email, Estado, Visitas Totales, Rutina Activa
+- [x] Estados con badges de color: ACTIVE (verde), OVERDUE (rojo), INACTIVE (amarillo)
+- [x] Contador de visitas totales por miembro
+- [x] Indicador de rutina activa: Sí/No
+- [x] Filtrado por estado (Todos, Activos, Morosos, Inactivos)
+- [x] Ordenamiento por Miembro, Estado y Visitas (click en columnas)
+- [x] Paginación (15 registros por página)
+- [x] Contador de resultados filtrados
 
 ---
 

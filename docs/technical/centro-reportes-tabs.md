@@ -1,8 +1,18 @@
 # Centro de Reportes con Tabs - Documentación Técnica
 
+**Tasks Relacionadas:**
+
+- FITFLOW-DS-09: Página Centro de Reportes con Tabs
+- FITFLOW-DS-10: Reporte Financiero - Filtros y Métricas
+- FITFLOW-DS-11: Reporte Financiero - Tabla Desglose de Transacciones
+- FITFLOW-DS-12: Reporte Uso y Comportamiento - Métricas
+- FITFLOW-DS-13: Reporte Uso y Comportamiento - Tabla Análisis
+
 ## Descripción General
 
 El Centro de Reportes es una funcionalidad que consolida los reportes financieros y de comportamiento de miembros en una única interfaz con navegación por tabs. Reemplaza la página de dashboard financiero independiente y reorganiza los reportes existentes.
+
+Esta implementación cubre todas las funcionalidades de reportes financieros y de comportamiento, incluyendo filtros, métricas, tablas de análisis y exportación CSV.
 
 ## Arquitectura
 
@@ -11,6 +21,7 @@ El Centro de Reportes es una funcionalidad que consolida los reportes financiero
 **Opción C: Arquitectura Híbrida con Componentes Tab Dedicados**
 
 Cada tab es un componente standalone y self-contained que:
+
 - Gestiona su propio estado y lógica
 - Tiene sus propios sub-componentes (filtros, tablas, métricas)
 - Se comunica con su servicio dedicado
@@ -40,10 +51,12 @@ ReportsComponent (Contenedor Principal)
 **Endpoint:** `GET /api/dashboard/reports/financial`
 
 **Query Parameters:**
+
 - `month` (opcional): Número del mes (1-12)
 - `year` (opcional): Año (ej: 2024)
 
 **Response:**
+
 ```typescript
 {
   ingresoTotal: number;
@@ -59,6 +72,7 @@ ReportsComponent (Contenedor Principal)
 ```
 
 **Lógica:**
+
 - Si no se especifica mes/año, usa el mes actual
 - Calcula ingreso total sumando todos los pagos del período
 - Cuenta transacciones totales
@@ -70,10 +84,12 @@ ReportsComponent (Contenedor Principal)
 **Endpoint:** `GET /api/dashboard/reports/behavior`
 
 **Query Parameters:**
+
 - `startDate` (opcional): Fecha inicio en formato ISO
 - `endDate` (opcional): Fecha fin en formato ISO
 
 **Response:**
+
 ```typescript
 {
   visitasPromActivos: number;
@@ -93,6 +109,7 @@ ReportsComponent (Contenedor Principal)
 ```
 
 **Lógica:**
+
 - Si no se especifica período, usa el mes actual
 - Calcula promedio de visitas para miembros activos vs morosos
 - Cuenta rutinas activas totales
@@ -106,6 +123,7 @@ ReportsComponent (Contenedor Principal)
 **Endpoint:** `GET /api/dashboard/reports/export-csv`
 
 **Query Parameters:**
+
 - `type`: 'financial' | 'behavior'
 - `month` (opcional): Para tipo financial
 - `year` (opcional): Para tipo financial
@@ -117,6 +135,7 @@ ReportsComponent (Contenedor Principal)
 **Formatos:**
 
 **Financial CSV:**
+
 ```
 Fecha,Monto,Método,Miembro
 19/12/2024,5000,CASH,usuario@email.com
@@ -124,6 +143,7 @@ Fecha,Monto,Método,Miembro
 ```
 
 **Behavior CSV:**
+
 ```
 Miembro,Email,Estado,Visitas Totales,Rutina Activa
 usuario,usuario@email.com,ACTIVE,15,Sí
@@ -135,16 +155,19 @@ otro,otro@email.com,OVERDUE,3,No
 ### ReportsComponent
 
 **Responsabilidades:**
+
 - Gestión de navegación entre tabs
 - Exportación CSV del tab activo
 - Layout general de la página
 
 **Signals:**
+
 - `activeTab`: 'financial' | 'behavior'
 - `isExporting`: boolean
 - `exportError`: string | null
 
 **Métodos:**
+
 - `setActiveTab(tab)`: Cambia el tab activo
 - `exportToCsv()`: Exporta datos del tab actual
 - `downloadCsv(blob, filename)`: Descarga el archivo CSV
@@ -152,11 +175,13 @@ otro,otro@email.com,OVERDUE,3,No
 ### FinancialTabComponent
 
 **Responsabilidades:**
+
 - Gestión de filtros mes/año
 - Carga de datos financieros
 - Visualización de métricas y transacciones
 
 **Signals:**
+
 - `report`: FinancialReport | null
 - `loading`: boolean
 - `error`: string | null
@@ -164,17 +189,20 @@ otro,otro@email.com,OVERDUE,3,No
 - `currentYear`: number
 
 **Sub-componentes:**
+
 - `MonthYearFilterComponent`: Selectores de mes y año
 - `TransactionsTableComponent`: Tabla paginada de transacciones
 
 ### BehaviorTabComponent
 
 **Responsabilidades:**
+
 - Gestión de filtros de fecha
 - Carga de datos de comportamiento
 - Visualización de métricas y análisis de miembros
 
 **Signals:**
+
 - `report`: BehaviorReport | null
 - `loading`: boolean
 - `error`: string | null
@@ -182,6 +210,7 @@ otro,otro@email.com,OVERDUE,3,No
 - `endDate`: string
 
 **Sub-componentes:**
+
 - `BehaviorMetricsComponent`: Cards de métricas
 - `MemberAnalysisTableComponent`: Tabla paginada de análisis
 
@@ -206,24 +235,29 @@ exportBehaviorCsv(startDate?, endDate?): Observable<Blob>
 ### Backend Helpers (DashboardService)
 
 **`roundToOneDecimal(value: number): number`**
+
 - Redondea números a un decimal
 - Usado para promedios de visitas
 
 **`mapMembershipStatusToReportStatus(status): 'ACTIVE' | 'OVERDUE' | 'INACTIVE'`**
+
 - Mapea estados de membresía a estados de reporte
 - Centraliza lógica de mapeo
 
 **`getMembershipsByStatus(status): Promise<Membership[]>`**
+
 - Query reutilizable para obtener membresías por estado
 - Reduce duplicación de código
 
 ### Frontend Pipes
 
 **`MembershipStatusBadgePipe`**
+
 - Transforma estado a variante de badge ('success' | 'error' | 'warning')
 - Reutilizable en toda la aplicación
 
 **`MembershipStatusLabelPipe`**
+
 - Transforma estado a label en español
 - Consistencia en toda la UI
 
@@ -288,6 +322,104 @@ exportBehaviorCsv(startDate?, endDate?): Observable<Blob>
 - **Testabilidad**: Componentes independientes más fáciles de testear
 - **Escalabilidad**: Fácil agregar nuevos tabs en el futuro
 
+## Mapeo de Tasks a Componentes
+
+### FITFLOW-DS-09: Página Centro de Reportes con Tabs
+
+**Componentes:**
+
+- `ReportsComponent` - Contenedor principal con navegación de tabs
+- Sistema de tabs con estado activo
+- Botón "Exportar CSV" en header
+- Routing en `/reports`
+
+**Archivos:**
+
+- `frontend/src/app/features/reports/pages/reports/reports.component.ts`
+- `frontend/src/app/features/reports/pages/reports/reports.component.html`
+- `frontend/src/app/features/reports/pages/reports/reports.component.scss`
+
+### FITFLOW-DS-10: Reporte Financiero - Filtros y Métricas
+
+**Componentes:**
+
+- `MonthYearFilterComponent` - Selectores de mes y año
+- `FinancialTabComponent` - Cards de métricas (Ingreso Total, Transacciones, Morosos)
+
+**Endpoint:**
+
+- `GET /api/dashboard/reports/financial?month=X&year=Y`
+
+**Archivos:**
+
+- `frontend/src/app/features/reports/components/month-year-filter/`
+- `frontend/src/app/features/reports/components/financial-tab/`
+- `backend/src/modules/dashboard/dto/financial-report.dto.ts`
+- `backend/src/modules/dashboard/dto/financial-report-filters.dto.ts`
+
+### FITFLOW-DS-11: Reporte Financiero - Tabla Desglose de Transacciones
+
+**Componentes:**
+
+- `TransactionsTableComponent` - Tabla paginada con columnas: Fecha, Monto, Método, Miembro
+
+**Características:**
+
+- Paginación (10 registros por página)
+- Formato de moneda ($ 40.500)
+- Formato de fecha (19/07/2025 00:00)
+- Ordenamiento por fecha descendente
+
+**Archivos:**
+
+- `frontend/src/app/features/reports/components/transactions-table/`
+
+### FITFLOW-DS-12: Reporte Uso y Comportamiento - Métricas
+
+**Componentes:**
+
+- `BehaviorMetricsComponent` - Cards de métricas (Visitas Prom. Activos, Visitas Prom. Morosos, Rutinas Activas)
+
+**Endpoint:**
+
+- `GET /api/dashboard/reports/behavior?startDate=X&endDate=Y`
+
+**Archivos:**
+
+- `frontend/src/app/features/reports/components/behavior-metrics/`
+- `backend/src/modules/dashboard/dto/behavior-report.dto.ts`
+- `backend/src/modules/dashboard/dto/behavior-report-filters.dto.ts`
+
+### FITFLOW-DS-13: Reporte Uso y Comportamiento - Tabla Análisis
+
+**Componentes:**
+
+- `MemberAnalysisTableComponent` - Tabla paginada con análisis de miembros
+- `MembershipStatusBadgePipe` - Pipe para badges de estado
+- `MembershipStatusLabelPipe` - Pipe para labels de estado
+
+**Características:**
+
+- **Filtrado por estado:**
+  - Botones: Todos, Activos, Morosos, Inactivos
+  - Colores temáticos por estado (Verde, Rojo, Naranja)
+  - Contador de resultados filtrados
+- **Ordenamiento interactivo:**
+  - Click en columnas para ordenar (Miembro, Estado, Visitas)
+  - Toggle ascendente/descendente
+  - Indicador visual (▲/▼) del ordenamiento activo
+  - Ordenamiento por estado: ACTIVE → OVERDUE → INACTIVE
+- **Paginación:**
+  - 15 registros por página
+  - Reset automático al filtrar u ordenar
+- **Columnas:** Miembro, Email, Estado, Visitas Totales, Rutina Activa
+- **Badges de color:** Verde=Activo, Rojo=Moroso, Amarillo=Inactivo
+
+**Archivos:**
+
+- `frontend/src/app/features/reports/components/member-analysis-table/`
+- `frontend/src/app/features/reports/pipes/membership-status-badge.pipe.ts`
+
 ## Migraciones y Cambios
 
 ### Código Eliminado
@@ -299,6 +431,7 @@ exportBehaviorCsv(startDate?, endDate?): Observable<Blob>
 ### Código Mantenido
 
 Los siguientes componentes se mantuvieron por precaución (podrían usarse en otras partes):
+
 - `AttendanceChartComponent`
 - `MembershipsChartComponent`
 - `RevenueChartComponent`
@@ -319,6 +452,7 @@ Los siguientes componentes se mantuvieron por precaución (podrían usarse en ot
 ### Casos de Prueba Sugeridos
 
 **Backend:**
+
 - Reporte financiero con mes/año específico
 - Reporte financiero sin parámetros (mes actual)
 - Reporte de comportamiento con período específico
@@ -327,6 +461,7 @@ Los siguientes componentes se mantuvieron por precaución (podrían usarse en ot
 - Manejo de períodos sin datos
 
 **Frontend:**
+
 - Navegación entre tabs
 - Cambio de filtros y recarga de datos
 - Paginación en tablas

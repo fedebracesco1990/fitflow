@@ -4,13 +4,67 @@
       <p>No hay miembros para mostrar</p>
     </div>
   } @else {
+    <div class="filters-section">
+      <div class="filter-group">
+        <label>Filtrar por estado:</label>
+        <div class="filter-buttons">
+          <button
+            (click)="setFilter('ALL')"
+            [class.active]="filterStatus() === 'ALL'"
+            class="filter-btn"
+          >
+            Todos
+          </button>
+          <button
+            (click)="setFilter('ACTIVE')"
+            [class.active]="filterStatus() === 'ACTIVE'"
+            class="filter-btn active-btn"
+          >
+            Activos
+          </button>
+          <button
+            (click)="setFilter('OVERDUE')"
+            [class.active]="filterStatus() === 'OVERDUE'"
+            class="filter-btn overdue-btn"
+          >
+            Morosos
+          </button>
+          <button
+            (click)="setFilter('INACTIVE')"
+            [class.active]="filterStatus() === 'INACTIVE'"
+            class="filter-btn inactive-btn"
+          >
+            Inactivos
+          </button>
+        </div>
+      </div>
+      <div class="results-count">
+        Mostrando {{ filteredAndSortedMembers().length }} de {{ allMembers().length }} miembros
+      </div>
+    </div>
+
     <div class="table-container">
       <table>
         <thead>
           <tr>
-            <th>Miembro</th>
-            <th>Estado</th>
-            <th>Visitas Totales</th>
+            <th (click)="setSortBy('miembro')" class="sortable">
+              Miembro
+              @if (sortBy() === 'miembro') {
+                <span class="sort-icon">{{ sortOrder() === 'asc' ? '▲' : '▼' }}</span>
+              }
+            </th>
+            <th (click)="setSortBy('estado')" class="sortable">
+              Estado
+              @if (sortBy() === 'estado') {
+                <span class="sort-icon">{{ sortOrder() === 'asc' ? '▲' : '▼' }}</span>
+              }
+            </th>
+            <th (click)="setSortBy('visitas')" class="sortable">
+              Visitas Totales
+              @if (sortBy() === 'visitas') {
+                <span class="sort-icon">{{ sortOrder() === 'asc' ? '▲' : '▼' }}</span>
+              }
+            </th>
             <th>Rutina Activa</th>
           </tr>
         </thead>
@@ -42,21 +96,11 @@
 
     @if (totalPages() > 1) {
       <div class="pagination">
-        <button 
-          (click)="prevPage()" 
-          [disabled]="!hasPrevPage()"
-          class="pagination-btn"
-        >
+        <button (click)="prevPage()" [disabled]="!hasPrevPage()" class="pagination-btn">
           Anterior
         </button>
-        <span class="page-info">
-          Página {{ currentPage() }} de {{ totalPages() }}
-        </span>
-        <button 
-          (click)="nextPage()" 
-          [disabled]="!hasNextPage()"
-          class="pagination-btn"
-        >
+        <span class="page-info"> Página {{ currentPage() }} de {{ totalPages() }} </span>
+        <button (click)="nextPage()" [disabled]="!hasNextPage()" class="pagination-btn">
           Siguiente
         </button>
       </div>
