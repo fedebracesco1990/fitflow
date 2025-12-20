@@ -228,18 +228,18 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-09] Página Centro de Reportes con Tabs
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completado (2024-12-19)
 
 **Descripción:** Como administrador, quiero acceder a un centro de reportes con diferentes vistas organizadas en tabs.
 
 **Criterios de Aceptación:**
 
-- [ ] Ruta /reports accesible desde sidebar (solo Admin)
-- [ ] Header con título "Centro de Reportes"
-- [ ] Botón "Exportar CSV" en header
-- [ ] Sistema de tabs: "Financiero" y "Uso y Comportamiento (RF29)"
-- [ ] Navegación entre tabs sin recargar página
-- [ ] Estado activo visible en tab seleccionado
+- [x] Ruta /reports accesible desde sidebar (solo Admin)
+- [x] Header con título "Centro de Reportes"
+- [x] Botón "Exportar CSV" en header
+- [x] Sistema de tabs: "Financiero" y "Uso y Comportamiento (RF29)"
+- [x] Navegación entre tabs sin recargar página
+- [x] Estado activo visible en tab seleccionado
 
 ---
 

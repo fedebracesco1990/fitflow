@@ -1,19 +1,16 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReportsService } from '../../services/reports.service';
-import { ReportsData } from '../../models';
+import { FinancialReportService } from '../../services/financial-report.service';
+import { BehaviorReportService } from '../../services/behavior-report.service';
 import {
   CardComponent,
-  LoadingSpinnerComponent,
-  AlertComponent,
   ButtonComponent,
+  AlertComponent,
 } from '../../../../shared';
-import { ReportFiltersComponent } from '../../components/report-filters/report-filters.component';
-import { RevenueChartComponent } from '../../components/revenue-chart/revenue-chart.component';
-import { AttendanceChartComponent } from '../../components/attendance-chart/attendance-chart.component';
-import { MembershipsChartComponent } from '../../components/memberships-chart/memberships-chart.component';
+import { FinancialTabComponent } from '../../components/financial-tab/financial-tab.component';
+import { BehaviorTabComponent } from '../../components/behavior-tab/behavior-tab.component';
 
-type TabType = 'revenue' | 'attendance' | 'memberships';
+type TabType = 'financial' | 'behavior';
 
 @Component({
   selector: 'fit-flow-reports',
@@ -21,83 +18,73 @@ type TabType = 'revenue' | 'attendance' | 'memberships';
   imports: [
     CommonModule,
     CardComponent,
-    LoadingSpinnerComponent,
     AlertComponent,
     ButtonComponent,
-    ReportFiltersComponent,
-    RevenueChartComponent,
-    AttendanceChartComponent,
-    MembershipsChartComponent,
+    FinancialTabComponent,
+    BehaviorTabComponent,
   ],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss',
 })
-export class ReportsComponent implements OnInit {
-  private readonly reportsService = inject(ReportsService);
+export class ReportsComponent {
+  private readonly financialReportService = inject(FinancialReportService);
+  private readonly behaviorReportService = inject(BehaviorReportService);
 
-  readonly activeTab = signal<TabType>('revenue');
-  readonly reportsData = signal<ReportsData | null>(null);
-  readonly loading = signal(true);
-  readonly error = signal<string | null>(null);
+  @ViewChild(FinancialTabComponent) financialTab?: FinancialTabComponent;
+  @ViewChild(BehaviorTabComponent) behaviorTab?: BehaviorTabComponent;
+
+  readonly activeTab = signal<TabType>('financial');
   readonly isExporting = signal(false);
-
-  private startDate: string | undefined;
-  private endDate: string | undefined;
-
-  ngOnInit(): void {
-    this.loadData();
-  }
-
-  loadData(): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.reportsService.getReportsData(this.startDate, this.endDate).subscribe({
-      next: (data) => {
-        this.reportsData.set(data);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set(err.friendlyMessage || 'Error al cargar los reportes');
-        this.loading.set(false);
-      },
-    });
-  }
-
-  onFiltersApplied(filters: { startDate?: string; endDate?: string }): void {
-    this.startDate = filters.startDate;
-    this.endDate = filters.endDate;
-    this.loadData();
-  }
-
-  onClearFilters(): void {
-    this.startDate = undefined;
-    this.endDate = undefined;
-    this.loadData();
-  }
+  readonly exportError = signal<string | null>(null);
 
   setActiveTab(tab: TabType): void {
     this.activeTab.set(tab);
   }
 
-  exportToExcel(): void {
+  exportToCsv(): void {
     this.isExporting.set(true);
+    this.exportError.set(null);
 
-    this.reportsService.exportReports(this.startDate, this.endDate).subscribe({
-      next: (blob) => {
-        const today = new Date().toISOString().split('T')[0];
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `reportes-fitflow-${today}.xlsx`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-        this.isExporting.set(false);
-      },
-      error: (err) => {
-        this.error.set(err.friendlyMessage || 'Error al exportar los reportes');
-        this.isExporting.set(false);
-      },
-    });
+    const activeTabType = this.activeTab();
+
+    if (activeTabType === 'financial') {
+      const month = this.financialTab?.['currentMonth'];
+      const year = this.financialTab?.['currentYear'];
+      
+      this.financialReportService.exportFinancialCsv(month, year).subscribe({
+        next: (blob) => {
+          this.downloadCsv(blob, 'reporte-financiero');
+          this.isExporting.set(false);
+        },
+        error: (err) => {
+          this.exportError.set(err.friendlyMessage || 'Error al exportar el reporte');
+          this.isExporting.set(false);
+        },
+      });
+    } else {
+      const startDate = this.behaviorTab?.startDate;
+      const endDate = this.behaviorTab?.endDate;
+      
+      this.behaviorReportService.exportBehaviorCsv(startDate, endDate).subscribe({
+        next: (blob) => {
+          this.downloadCsv(blob, 'reporte-comportamiento');
+          this.isExporting.set(false);
+        },
+        error: (err) => {
+          this.exportError.set(err.friendlyMessage || 'Error al exportar el reporte');
+          this.isExporting.set(false);
+        },
+      });
+    }
+  }
+
+  private downloadCsv(blob: Blob, filename: string): void {
+    const today = new Date().toISOString().split('T')[0];
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename}-${today}.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 }

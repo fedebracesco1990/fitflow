@@ -31,6 +31,10 @@ import {
   AttendanceItemDto,
   MembershipItemDto,
   DashboardStatsDto,
+  FinancialReportDto,
+  TransactionItemDto,
+  BehaviorReportDto,
+  MemberAnalysisDto,
 } from './dto';
 import * as ExcelJS from 'exceljs';
 import { AccessLog } from '../access/entities/access-log.entity';
@@ -443,5 +447,176 @@ export class DashboardService {
 
     const buffer = await workbook.xlsx.writeBuffer();
     return Buffer.from(buffer);
+  }
+
+  async getFinancialReport(month?: number, year?: number): Promise<FinancialReportDto> {
+    const today = new Date();
+    const targetMonth = month ?? today.getMonth() + 1;
+    const targetYear = year ?? today.getFullYear();
+
+    const monthStart = new Date(targetYear, targetMonth - 1, 1);
+    const monthEnd = new Date(targetYear, targetMonth, 0, 23, 59, 59);
+
+    const [payments, debtorsCount] = await Promise.all([
+      this.paymentRepository
+        .createQueryBuilder('payment')
+        .leftJoinAndSelect('payment.membership', 'membership')
+        .leftJoinAndSelect('membership.user', 'user')
+        .where('payment.paymentDate >= :start', { start: monthStart })
+        .andWhere('payment.paymentDate <= :end', { end: monthEnd })
+        .orderBy('payment.paymentDate', 'DESC')
+        .getMany(),
+      this.membershipRepository
+        .createQueryBuilder('membership')
+        .where('membership.status = :status', { status: MembershipStatus.EXPIRED })
+        .andWhere('membership.endDate < :today', { today: new Date() })
+        .getCount(),
+    ]);
+
+    const ingresoTotal = payments.reduce((sum, p) => sum + p.amount, 0);
+    const transacciones = payments.length;
+
+    const desglose: TransactionItemDto[] = payments.map((p) => ({
+      fecha: p.paymentDate,
+      monto: p.amount,
+      metodo: p.paymentMethod,
+      miembro: p.membership?.user?.email || 'N/A',
+    }));
+
+    return {
+      ingresoTotal,
+      transacciones,
+      morososActuales: debtorsCount,
+      desglose,
+    };
+  }
+
+  async getBehaviorReport(startDate?: Date, endDate?: Date): Promise<BehaviorReportDto> {
+    const today = new Date();
+    const start = startDate ?? new Date(today.getFullYear(), today.getMonth(), 1);
+    const end = endDate ?? new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
+
+    const [activeMemberships, expiredMemberships, activeRoutines, accessLogs, allUsers] =
+      await Promise.all([
+        this.getMembershipsByStatus(MembershipStatus.ACTIVE),
+        this.membershipRepository
+          .createQueryBuilder('membership')
+          .leftJoinAndSelect('membership.user', 'user')
+          .where('membership.status = :status', { status: MembershipStatus.EXPIRED })
+          .andWhere('membership.endDate < :today', { today: new Date() })
+          .getMany(),
+        this.userRoutineRepository
+          .createQueryBuilder('userRoutine')
+          .where('userRoutine.isActive = :active', { active: true })
+          .getCount(),
+        this.accessLogRepository
+          .createQueryBuilder('log')
+          .leftJoinAndSelect('log.user', 'user')
+          .where('log.createdAt >= :start', { start })
+          .andWhere('log.createdAt <= :end', { end })
+          .getMany(),
+        this.membershipRepository
+          .createQueryBuilder('membership')
+          .leftJoinAndSelect('membership.user', 'user')
+          .getMany(),
+      ]);
+
+    const activeUserIds = activeMemberships.map((m) => m.user.id);
+    const expiredUserIds = expiredMemberships.map((m) => m.user.id);
+
+    const activeVisits = accessLogs.filter((log) => activeUserIds.includes(log.user.id));
+    const expiredVisits = accessLogs.filter((log) => expiredUserIds.includes(log.user.id));
+
+    const visitasPromActivos =
+      activeMemberships.length > 0 ? activeVisits.length / activeMemberships.length : 0;
+    const visitasPromMorosos =
+      expiredMemberships.length > 0 ? expiredVisits.length / expiredMemberships.length : 0;
+
+    const userVisitCounts = new Map<string, number>();
+    accessLogs.forEach((log) => {
+      const count = userVisitCounts.get(log.user.id) || 0;
+      userVisitCounts.set(log.user.id, count + 1);
+    });
+
+    const userRoutinesMap = new Map<string, boolean>();
+    const userRoutines = await this.userRoutineRepository
+      .createQueryBuilder('userRoutine')
+      .where('userRoutine.isActive = :active', { active: true })
+      .getMany();
+    
+    userRoutines.forEach((routine) => {
+      userRoutinesMap.set(routine.userId, true);
+    });
+
+    const analisis: MemberAnalysisDto[] = allUsers.map((membership) => {
+      const user = membership.user;
+      const visitasTotales = userVisitCounts.get(user.id) || 0;
+      const hasActiveRoutine = userRoutinesMap.get(user.id) || false;
+
+      return {
+        userId: user.id,
+        miembro: user.email.split('@')[0],
+        email: user.email,
+        estado: this.mapMembershipStatusToReportStatus(membership.status),
+        visitasTotales,
+        rutinaActiva: hasActiveRoutine,
+        membershipEndDate: membership.endDate,
+      };
+    });
+
+    return {
+      visitasPromActivos: this.roundToOneDecimal(visitasPromActivos),
+      visitasPromMorosos: this.roundToOneDecimal(visitasPromMorosos),
+      rutinasActivas: activeRoutines,
+      analisis,
+      totalMembers: allUsers.length,
+    };
+  }
+
+  async exportReportToCsv(
+    type: 'financial' | 'behavior',
+    filters: { month?: number; year?: number; startDate?: Date; endDate?: Date }
+  ): Promise<string> {
+    let csvContent = '';
+
+    if (type === 'financial') {
+      const report = await this.getFinancialReport(filters.month, filters.year);
+      csvContent = 'Fecha,Monto,Método,Miembro\n';
+      report.desglose.forEach((item) => {
+        const fecha = new Date(item.fecha).toLocaleDateString('es-AR');
+        csvContent += `${fecha},${item.monto},${item.metodo},${item.miembro}\n`;
+      });
+    } else {
+      const report = await this.getBehaviorReport(filters.startDate, filters.endDate);
+      csvContent = 'Miembro,Email,Estado,Visitas Totales,Rutina Activa\n';
+      report.analisis.forEach((item) => {
+        csvContent += `${item.miembro},${item.email},${item.estado},${item.visitasTotales},${item.rutinaActiva ? 'Sí' : 'No'}\n`;
+      });
+    }
+
+    return csvContent;
+  }
+
+  private roundToOneDecimal(value: number): number {
+    return Math.round(value * 10) / 10;
+  }
+
+  private mapMembershipStatusToReportStatus(
+    status: MembershipStatus
+  ): 'ACTIVE' | 'OVERDUE' | 'INACTIVE' {
+    if (status === MembershipStatus.ACTIVE) {
+      return 'ACTIVE';
+    } else if (status === MembershipStatus.EXPIRED) {
+      return 'OVERDUE';
+    }
+    return 'INACTIVE';
+  }
+
+  private async getMembershipsByStatus(status: MembershipStatus): Promise<Membership[]> {
+    return this.membershipRepository
+      .createQueryBuilder('membership')
+      .leftJoinAndSelect('membership.user', 'user')
+      .where('membership.status = :status', { status })
+      .getMany();
   }
 }

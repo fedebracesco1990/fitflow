@@ -40,7 +40,6 @@ export class MainLayoutComponent {
 
     if (this.isAdmin()) {
       items.push(
-        { label: 'Finanzas', icon: 'bar-chart-3', route: '/dashboard/financial' },
         { label: 'Reportes', icon: 'bar-chart-3', route: '/reports' },
         { label: 'Directorio', icon: 'users', route: '/users' },
         { label: 'Membresías', icon: 'id-card', route: '/memberships' },

@@ -5,7 +5,13 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
-import { FinancialDashboardDto, ReportsDataDto, DashboardStatsDto } from './dto';
+import { 
+  FinancialDashboardDto, 
+  ReportsDataDto, 
+  DashboardStatsDto,
+  FinancialReportDto,
+  BehaviorReportDto,
+} from './dto';
 
 @Controller('dashboard')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -56,5 +62,57 @@ export class DashboardController {
       'Content-Disposition': `attachment; filename="reportes-fitflow-${today}.xlsx"`,
     });
     res.send(excelBuffer);
+  }
+
+  @Get('reports/financial')
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  async getFinancialReport(
+    @Query('month') month?: string,
+    @Query('year') year?: string
+  ): Promise<FinancialReportDto> {
+    const monthNum = month ? parseInt(month, 10) : undefined;
+    const yearNum = year ? parseInt(year, 10) : undefined;
+    return this.dashboardService.getFinancialReport(monthNum, yearNum);
+  }
+
+  @Get('reports/behavior')
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  async getBehaviorReport(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string
+  ): Promise<BehaviorReportDto> {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.dashboardService.getBehaviorReport(start, end);
+  }
+
+  @Get('reports/export-csv')
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  async exportReportCsv(
+    @Res() res: Response,
+    @Query('type') type: 'financial' | 'behavior',
+    @Query('month') month?: string,
+    @Query('year') year?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string
+  ) {
+    const filters = {
+      month: month ? parseInt(month, 10) : undefined,
+      year: year ? parseInt(year, 10) : undefined,
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined,
+    };
+
+    const csvContent = await this.dashboardService.exportReportToCsv(type, filters);
+    const today = new Date().toISOString().split('T')[0];
+    
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-Disposition': `attachment; filename="reporte-${type}-${today}.csv"`,
+    });
+    res.send(csvContent);
   }
 }

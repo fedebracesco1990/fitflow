@@ -1,0 +1,65 @@
+<div class="member-analysis-table">
+  @if (allMembers().length === 0) {
+    <div class="empty-state">
+      <p>No hay miembros para mostrar</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Miembro</th>
+            <th>Estado</th>
+            <th>Visitas Totales</th>
+            <th>Rutina Activa</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (member of paginatedMembers(); track member.userId) {
+            <tr>
+              <td>
+                <div class="member-info">
+                  <span class="member-name">{{ member.miembro }}</span>
+                  <span class="member-email">{{ member.email }}</span>
+                </div>
+              </td>
+              <td>
+                <fit-flow-badge [variant]="member.estado | membershipStatusBadge">
+                  {{ member.estado | membershipStatusLabel }}
+                </fit-flow-badge>
+              </td>
+              <td class="visits">{{ member.visitasTotales }}</td>
+              <td>
+                <span [class]="member.rutinaActiva ? 'has-routine' : 'no-routine'">
+                  {{ member.rutinaActiva ? 'Sí' : 'No' }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button 
+          (click)="prevPage()" 
+          [disabled]="!hasPrevPage()"
+          class="pagination-btn"
+        >
+          Anterior
+        </button>
+        <span class="page-info">
+          Página {{ currentPage() }} de {{ totalPages() }}
+        </span>
+        <button 
+          (click)="nextPage()" 
+          [disabled]="!hasNextPage()"
+          class="pagination-btn"
+        >
+          Siguiente
+        </button>
+      </div>
+    }
+  }
+</div>

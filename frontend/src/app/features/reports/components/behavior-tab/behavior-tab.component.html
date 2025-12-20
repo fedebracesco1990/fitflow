@@ -1,0 +1,50 @@
+<div class="behavior-tab">
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="start-date">Fecha Inicio:</label>
+      <input 
+        type="date" 
+        id="start-date" 
+        [(ngModel)]="startDate"
+        class="date-input"
+      />
+    </div>
+
+    <div class="filter-group">
+      <label for="end-date">Fecha Fin:</label>
+      <input 
+        type="date" 
+        id="end-date" 
+        [(ngModel)]="endDate"
+        class="date-input"
+      />
+    </div>
+
+    <div class="filter-actions">
+      <button (click)="applyFilters()" class="btn-primary">Aplicar</button>
+      <button (click)="clearFilters()" class="btn-secondary">Limpiar</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <fit-flow-loading-spinner></fit-flow-loading-spinner>
+    </div>
+  } @else if (error()) {
+    <fit-flow-alert [message]="error()!" type="error"></fit-flow-alert>
+  } @else if (report()) {
+    <fit-flow-behavior-metrics
+      [visitasPromActivos]="report()!.visitasPromActivos"
+      [visitasPromMorosos]="report()!.visitasPromMorosos"
+      [rutinasActivas]="report()!.rutinasActivas"
+    ></fit-flow-behavior-metrics>
+
+    <fit-flow-card padding="md" class="analysis-card">
+      <div class="card-header">
+        <h3>Análisis de Miembros</h3>
+        <span class="total-count">Total: {{ report()!.totalMembers }} miembros</span>
+      </div>
+      <fit-flow-member-analysis-table [members]="report()!.analisis"></fit-flow-member-analysis-table>
+    </fit-flow-card>
+  }
+</div>

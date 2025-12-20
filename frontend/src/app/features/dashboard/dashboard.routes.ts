@@ -13,16 +13,6 @@ export const DASHBOARD_ROUTES: Routes = [
         title: 'Inicio',
         loadComponent: () => import('./pages/home/home.component').then((m) => m.HomeComponent),
       },
-      {
-        path: 'financial',
-        title: 'Dashboard Financiero',
-        canActivate: [roleGuard],
-        data: { roles: [Role.ADMIN] },
-        loadComponent: () =>
-          import('./pages/financial/financial.component').then(
-            (m) => m.FinancialDashboardComponent
-          ),
-      },
     ],
   },
 ];

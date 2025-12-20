@@ -1,0 +1,52 @@
+<div class="transactions-table">
+  @if (allTransactions().length === 0) {
+    <div class="empty-state">
+      <p>No hay transacciones para mostrar</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Monto</th>
+            <th>Método</th>
+            <th>Miembro</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (transaction of paginatedTransactions(); track transaction.fecha) {
+            <tr>
+              <td>{{ transaction.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="amount">{{ formatCurrency(transaction.monto) }}</td>
+              <td>{{ getPaymentMethodLabel(transaction.metodo) }}</td>
+              <td>{{ transaction.miembro || 'N/A' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button 
+          (click)="prevPage()" 
+          [disabled]="!hasPrevPage()"
+          class="pagination-btn"
+        >
+          Anterior
+        </button>
+        <span class="page-info">
+          Página {{ currentPage() }} de {{ totalPages() }}
+        </span>
+        <button 
+          (click)="nextPage()" 
+          [disabled]="!hasNextPage()"
+          class="pagination-btn"
+        >
+          Siguiente
+        </button>
+      </div>
+    }
+  }
+</div>

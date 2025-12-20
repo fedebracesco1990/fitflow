@@ -1,99 +1,50 @@
 <div class="reports-page">
   <header class="page-header">
-    <h1>Reportes</h1>
-    <p class="subtitle">Análisis detallado de ingresos, asistencia y membresías</p>
+    <div class="header-content">
+      <div>
+        <h1>Centro de Reportes</h1>
+        <p class="subtitle">Análisis financiero y de comportamiento de miembros</p>
+      </div>
+      <fit-flow-button
+        variant="secondary"
+        [disabled]="isExporting()"
+        (click)="exportToCsv()"
+      >
+        {{ isExporting() ? 'Exportando...' : 'Exportar CSV' }}
+      </fit-flow-button>
+    </div>
   </header>
 
-  <fit-flow-report-filters
-    (filtersApplied)="onFiltersApplied($event)"
-    (clearFilters)="onClearFilters()"
-  ></fit-flow-report-filters>
-
-  @if (loading()) {
-    <div class="loading-container">
-      <fit-flow-loading-spinner></fit-flow-loading-spinner>
-    </div>
-  } @else if (error()) {
-    <fit-flow-alert [message]="error()!" type="error"></fit-flow-alert>
-  } @else if (reportsData()) {
-    <div class="reports-content">
-      <div class="tabs-header">
-        <button
-          class="tab-button"
-          [class.active]="activeTab() === 'revenue'"
-          (click)="setActiveTab('revenue')"
-        >
-          Ingresos
-        </button>
-        <button
-          class="tab-button"
-          [class.active]="activeTab() === 'attendance'"
-          (click)="setActiveTab('attendance')"
-        >
-          Asistencia
-        </button>
-        <button
-          class="tab-button"
-          [class.active]="activeTab() === 'memberships'"
-          (click)="setActiveTab('memberships')"
-        >
-          Membresías
-        </button>
-      </div>
-
-      <div class="tab-content">
-        @if (activeTab() === 'revenue') {
-          <fit-flow-card>
-            <div class="chart-header">
-              <h2>Ingresos Mensuales</h2>
-              <fit-flow-button
-                variant="secondary"
-                [disabled]="isExporting()"
-                (click)="exportToExcel()"
-              >
-                {{ isExporting() ? 'Exportando...' : 'Exportar Excel' }}
-              </fit-flow-button>
-            </div>
-            <fit-flow-revenue-chart [data]="reportsData()!.revenue"></fit-flow-revenue-chart>
-          </fit-flow-card>
-        }
-
-        @if (activeTab() === 'attendance') {
-          <fit-flow-card>
-            <div class="chart-header">
-              <h2>Asistencia Diaria</h2>
-              <fit-flow-button
-                variant="secondary"
-                [disabled]="isExporting()"
-                (click)="exportToExcel()"
-              >
-                {{ isExporting() ? 'Exportando...' : 'Exportar Excel' }}
-              </fit-flow-button>
-            </div>
-            <fit-flow-attendance-chart
-              [data]="reportsData()!.attendance"
-            ></fit-flow-attendance-chart>
-          </fit-flow-card>
-        }
-
-        @if (activeTab() === 'memberships') {
-          <fit-flow-card>
-            <div class="chart-header">
-              <h2>Membresías por Estado</h2>
-              <fit-flow-button
-                variant="secondary"
-                [disabled]="isExporting()"
-                (click)="exportToExcel()"
-              >
-                {{ isExporting() ? 'Exportando...' : 'Exportar Excel' }}
-              </fit-flow-button>
-            </div>
-            <fit-flow-memberships-chart
-              [data]="reportsData()!.memberships"
-            ></fit-flow-memberships-chart>
-          </fit-flow-card>
-        }
-      </div>
-    </div>
+  @if (exportError()) {
+    <fit-flow-alert [message]="exportError()!" type="error"></fit-flow-alert>
   }
+
+  <div class="reports-content">
+    <div class="tabs-header">
+      <button
+        class="tab-button"
+        [class.active]="activeTab() === 'financial'"
+        (click)="setActiveTab('financial')"
+      >
+        Financiero
+      </button>
+      <button
+        class="tab-button"
+        [class.active]="activeTab() === 'behavior'"
+        (click)="setActiveTab('behavior')"
+      >
+        Uso y Comportamiento
+      </button>
+    </div>
+
+    <div class="tab-content">
+      @if (activeTab() === 'financial') {
+        <fit-flow-financial-tab></fit-flow-financial-tab>
+      }
+
+      @if (activeTab() === 'behavior') {
+        <fit-flow-behavior-tab></fit-flow-behavior-tab>
+      }
+    </div>
+  </div>
 </div>
