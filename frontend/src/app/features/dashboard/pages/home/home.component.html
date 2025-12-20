@@ -43,7 +43,7 @@
           </div>
           <div class="stat-content">
             <h3>Miembros Activos</h3>
-            <p class="stat-value">{{ dashboardStats()?.totalActiveMembers ?? '--' }}</p>
+            <p class="stat-value">{{ dashboardStats()?.miembrosActivos ?? '--' }}</p>
             <span class="stat-label">Con membresía vigente</span>
           </div>
         </fit-flow-card>
@@ -54,7 +54,7 @@
           </div>
           <div class="stat-content">
             <h3>Expiran Pronto</h3>
-            <p class="stat-value">{{ dashboardStats()?.expiringInSevenDays ?? '--' }}</p>
+            <p class="stat-value">{{ dashboardStats()?.expiranPronto ?? '--' }}</p>
             <span class="stat-label">Próximos 7 días</span>
           </div>
         </fit-flow-card>
@@ -65,7 +65,7 @@
           </div>
           <div class="stat-content">
             <h3>Morosos</h3>
-            <p class="stat-value">{{ dashboardStats()?.totalDebtors ?? '--' }}</p>
+            <p class="stat-value">{{ dashboardStats()?.morosos ?? '--' }}</p>
             <span class="stat-label">Pagos pendientes</span>
           </div>
         </fit-flow-card>
@@ -76,7 +76,7 @@
           </div>
           <div class="stat-content">
             <h3>Ingresos</h3>
-            <p class="stat-value">${{ dashboardStats()?.currentMonthRevenue ?? '--' }}</p>
+            <p class="stat-value">${{ dashboardStats()?.ingresosMes ?? '--' }}</p>
             <span class="stat-label">Este mes</span>
           </div>
         </fit-flow-card>
@@ -87,7 +87,7 @@
           </div>
           <div class="stat-content">
             <h3>Ingresos Hoy</h3>
-            <p class="stat-value">${{ dashboardStats()?.todayRevenue ?? '--' }}</p>
+            <p class="stat-value">${{ dashboardStats()?.ingresosHoy ?? '--' }}</p>
             <span class="stat-label">Recaudado hoy</span>
           </div>
         </fit-flow-card>
@@ -98,7 +98,7 @@
           </div>
           <div class="stat-content">
             <h3>Rutinas Activas</h3>
-            <p class="stat-value">{{ dashboardStats()?.activeRoutines ?? '--' }}</p>
+            <p class="stat-value">{{ dashboardStats()?.rutinasActivas ?? '--' }}</p>
             <span class="stat-label">Asignadas</span>
           </div>
         </fit-flow-card>

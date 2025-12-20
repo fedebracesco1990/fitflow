@@ -30,6 +30,7 @@ import {
   RevenueItemDto,
   AttendanceItemDto,
   MembershipItemDto,
+  DashboardStatsDto,
 } from './dto';
 import * as ExcelJS from 'exceljs';
 import { AccessLog } from '../access/entities/access-log.entity';
@@ -115,6 +116,38 @@ export class DashboardService {
       monthlyRevenue,
       debtors,
       expiringMemberships,
+    };
+  }
+
+  async getStats(): Promise<DashboardStatsDto> {
+    const today = new Date();
+    const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    // Ejecutar queries en paralelo
+    const [
+      currentMonthRevenue,
+      todayRevenue,
+      totalActiveMembers,
+      activeRoutines,
+      debtors,
+      expiringMemberships,
+    ] = await Promise.all([
+      this.getCurrentMonthRevenue(currentMonthStart, currentMonthEnd),
+      this.getTodayRevenue(today),
+      this.getTotalActiveMembers(),
+      this.getActiveRoutinesCount(),
+      this.getDebtors(today),
+      this.getExpiringMemberships(today),
+    ]);
+
+    return {
+      miembrosActivos: totalActiveMembers,
+      expiranPronto: expiringMemberships.length,
+      morosos: debtors.length,
+      ingresosMes: currentMonthRevenue,
+      ingresosHoy: todayRevenue,
+      rutinasActivas: activeRoutines,
     };
   }
 

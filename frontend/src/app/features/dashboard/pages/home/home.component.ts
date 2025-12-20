@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { AuthState, UserState, LoadProfile } from '../../../../core/store';
 import { DashboardService, NetworkService, UsersService } from '../../../../core/services';
 import { AlertComponent, ButtonComponent, CardComponent } from '../../../../shared';
-import { Role, FinancialDashboard } from '../../../../core/models';
+import { Role, DashboardStats } from '../../../../core/models';
 import { LucideAngularModule } from 'lucide-angular';
 import { ActivityLiveComponent } from '../../components/activity-live/activity-live.component';
 import { RecentPaymentsComponent } from '../../components/recent-payments/recent-payments.component';
@@ -31,7 +31,7 @@ export class HomeComponent implements OnInit {
   readonly network = inject(NetworkService);
 
   // Dashboard stats
-  readonly dashboardStats = signal<FinancialDashboard | null>(null);
+  readonly dashboardStats = signal<DashboardStats | null>(null);
   readonly isLoadingStats = signal(false);
   readonly isExporting = signal(false);
 
@@ -69,7 +69,7 @@ export class HomeComponent implements OnInit {
 
   private loadDashboardStats(): void {
     this.isLoadingStats.set(true);
-    this.dashboardService.getFinancialDashboard().subscribe({
+    this.dashboardService.getStats().subscribe({
       next: (data) => {
         this.dashboardStats.set(data);
         this.isLoadingStats.set(false);

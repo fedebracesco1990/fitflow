@@ -1,3 +1,14 @@
+// Dashboard Stats Models
+
+export interface DashboardStats {
+  miembrosActivos: number;
+  expiranPronto: number;
+  morosos: number;
+  ingresosMes: number;
+  ingresosHoy: number;
+  rutinasActivas: number;
+}
+
 // Dashboard Financial Models
 
 export interface PaymentMethodDistribution {

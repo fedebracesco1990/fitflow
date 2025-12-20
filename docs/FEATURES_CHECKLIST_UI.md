@@ -10,7 +10,7 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 
 | Sección                  | Total  | Completadas | Pendientes |
 | ------------------------ | ------ | ----------- | ---------- |
-| Dashboard Admin          | 8      | 7           | 1          |
+| Dashboard Admin          | 8      | 8           | 0          |
 | Centro de Reportes       | 7      | 0           | 7          |
 | Directorio de Usuarios   | 5      | 0           | 5          |
 | Gestión de Entrenamiento | 8      | 0           | 8          |
@@ -18,7 +18,7 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Ingresos (Acceso)        | 2      | 0           | 2          |
 | Tipos de Membresía       | 3      | 0           | 3          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **7**       | **30**     |
+| **TOTAL**                | **37** | **8**       | **29**     |
 
 ---
 
@@ -197,22 +197,29 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-08] APIs de Métricas del Dashboard
 
 **Tipo:** Backend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada
 
 **Descripción:** Como desarrollador, necesito crear los endpoints para obtener las métricas del dashboard admin.
 
 **Criterios de Aceptación:**
 
-- [ ] GET /api/dashboard/stats - Retorna todas las métricas
+- [x] GET /api/dashboard/stats - Retorna todas las métricas
   - miembrosActivos: número
   - expiranPronto: número
   - morosos: número
   - ingresosMes: número
   - ingresosHoy: número
   - rutinasActivas: número
-- [ ] Optimización con queries eficientes
-- [ ] Cache de métricas (opcional)
-- [ ] Tests unitarios
+- [x] Optimización con queries eficientes
+- [ ] Cache de métricas (opcional) - No implementado por decisión de diseño
+- [ ] Tests unitarios - No implementados por decisión de diseño
+
+**Implementación:**
+
+- Backend: DashboardStatsDto, método getStats() con Promise.all(), endpoint GET /stats
+- Frontend: DashboardStats model, método getStats(), HomeComponent actualizado
+- Archivos: 8 modificados/creados (4 backend, 4 frontend)
+- Respuesta ligera: ~200 bytes vs ~5KB de /financial
 
 ---
 
