@@ -227,8 +227,14 @@ exportFinancialCsv(month?, year?): Observable<Blob>
 
 ```typescript
 getBehaviorReport(startDate?, endDate?): Observable<BehaviorReport>
-exportBehaviorCsv(startDate?, endDate?): Observable<Blob>
+exportBehaviorCsv(startDate?, endDate?, status?): Observable<Blob>
 ```
+
+**Parámetros de exportación:**
+
+- `startDate`: Fecha inicio del período (opcional)
+- `endDate`: Fecha fin del período (opcional)
+- `status`: Filtro de estado de membresía ('ACTIVE' | 'OVERDUE' | 'INACTIVE') (opcional)
 
 ## Helpers y Utilidades
 
@@ -279,10 +285,14 @@ exportBehaviorCsv(startDate?, endDate?): Observable<Blob>
 
 1. Usuario hace clic en "Exportar CSV"
 2. `ReportsComponent.exportToCsv()` identifica tab activo
-3. Obtiene filtros actuales del tab (usando ViewChild)
+3. Obtiene filtros actuales del tab (usando ViewChild):
+   - Tab Financiero: `month`, `year`
+   - Tab Comportamiento: `startDate`, `endDate`, `status` (filtro de estado activo)
 4. Llama al servicio correspondiente con filtros
-5. Backend genera string CSV
-6. Frontend recibe Blob y descarga archivo
+5. Backend genera string CSV aplicando filtros:
+   - Filtra datos por período
+   - **Filtra por estado de membresía** si se especifica (ACTIVE, OVERDUE, INACTIVE)
+6. Frontend recibe Blob y descarga archivo con nombre dinámico
 
 ## Performance Considerations
 

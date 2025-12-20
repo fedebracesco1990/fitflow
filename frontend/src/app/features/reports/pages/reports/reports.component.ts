@@ -2,11 +2,7 @@ import { Component, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FinancialReportService } from '../../services/financial-report.service';
 import { BehaviorReportService } from '../../services/behavior-report.service';
-import {
-  CardComponent,
-  ButtonComponent,
-  AlertComponent,
-} from '../../../../shared';
+import { CardComponent, ButtonComponent, AlertComponent } from '../../../../shared';
 import { FinancialTabComponent } from '../../components/financial-tab/financial-tab.component';
 import { BehaviorTabComponent } from '../../components/behavior-tab/behavior-tab.component';
 
@@ -50,7 +46,7 @@ export class ReportsComponent {
     if (activeTabType === 'financial') {
       const month = this.financialTab?.['currentMonth'];
       const year = this.financialTab?.['currentYear'];
-      
+
       this.financialReportService.exportFinancialCsv(month, year).subscribe({
         next: (blob) => {
           this.downloadCsv(blob, 'reporte-financiero');
@@ -64,8 +60,10 @@ export class ReportsComponent {
     } else {
       const startDate = this.behaviorTab?.startDate;
       const endDate = this.behaviorTab?.endDate;
-      
-      this.behaviorReportService.exportBehaviorCsv(startDate, endDate).subscribe({
+      const filterStatus = this.behaviorTab?.currentFilterStatus;
+      const status = filterStatus && filterStatus !== 'ALL' ? filterStatus : undefined;
+
+      this.behaviorReportService.exportBehaviorCsv(startDate, endDate, status).subscribe({
         next: (blob) => {
           this.downloadCsv(blob, 'reporte-comportamiento');
           this.isExporting.set(false);

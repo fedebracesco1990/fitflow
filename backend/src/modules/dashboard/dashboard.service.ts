@@ -578,7 +578,13 @@ export class DashboardService {
 
   async exportReportToCsv(
     type: 'financial' | 'behavior',
-    filters: { month?: number; year?: number; startDate?: Date; endDate?: Date }
+    filters: {
+      month?: number;
+      year?: number;
+      startDate?: Date;
+      endDate?: Date;
+      status?: 'ACTIVE' | 'OVERDUE' | 'INACTIVE';
+    }
   ): Promise<string> {
     let csvContent = '';
 
@@ -591,8 +597,14 @@ export class DashboardService {
       });
     } else {
       const report = await this.getBehaviorReport(filters.startDate, filters.endDate);
+      let analisisData = report.analisis;
+
+      if (filters.status) {
+        analisisData = analisisData.filter((item) => item.estado === filters.status);
+      }
+
       csvContent = 'Miembro,Email,Estado,Visitas Totales,Rutina Activa\n';
-      report.analisis.forEach((item) => {
+      analisisData.forEach((item) => {
         csvContent += `${item.miembro},${item.email},${item.estado},${item.visitasTotales},${item.rutinaActiva ? 'Sí' : 'No'}\n`;
       });
     }
