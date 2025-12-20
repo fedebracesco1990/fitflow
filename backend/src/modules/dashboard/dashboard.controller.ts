@@ -5,9 +5,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
-import { 
-  FinancialDashboardDto, 
-  ReportsDataDto, 
+import {
+  FinancialDashboardDto,
+  ReportsDataDto,
   DashboardStatsDto,
   FinancialReportDto,
   BehaviorReportDto,
@@ -108,7 +108,7 @@ export class DashboardController {
 
     const csvContent = await this.dashboardService.exportReportToCsv(type, filters);
     const today = new Date().toISOString().split('T')[0];
-    
+
     res.set({
       'Content-Type': 'text/csv',
       'Content-Disposition': `attachment; filename="reporte-${type}-${today}.csv"`,

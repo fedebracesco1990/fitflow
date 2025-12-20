@@ -543,7 +543,7 @@ export class DashboardService {
       .createQueryBuilder('userRoutine')
       .where('userRoutine.isActive = :active', { active: true })
       .getMany();
-    
+
     userRoutines.forEach((routine) => {
       userRoutinesMap.set(routine.userId, true);
     });

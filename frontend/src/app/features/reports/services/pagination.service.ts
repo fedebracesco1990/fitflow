@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, Signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 
 export interface PaginationConfig<T> {
   items: T[];
@@ -38,7 +38,7 @@ export class PaginationService<T> {
     hasPrevPage: this.hasPrevPage(),
   }));
 
-  setItems(items: T[], pageSize: number = 10): void {
+  setItems(items: T[], pageSize = 10): void {
     this.allItems.set(items);
     this.pageSize = pageSize;
     this.currentPage.set(1);
