@@ -8,11 +8,20 @@ import { User, Role } from '../../../../core/models';
 import { MembershipStatus } from '../../../../core/models/membership.model';
 import { PaginationMeta } from '../../../../core/models/api-response.model';
 import { AlertComponent, ButtonComponent, CardComponent, BadgeComponent } from '../../../../shared';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'fit-flow-users-list',
   standalone: true,
-  imports: [RouterLink, AlertComponent, ButtonComponent, CardComponent, BadgeComponent, DatePipe],
+  imports: [
+    RouterLink,
+    AlertComponent,
+    ButtonComponent,
+    CardComponent,
+    BadgeComponent,
+    DatePipe,
+    LucideAngularModule,
+  ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
 })

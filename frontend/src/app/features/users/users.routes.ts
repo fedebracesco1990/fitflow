@@ -11,6 +11,11 @@ export const usersRoutes: Routes = [
         loadComponent: () =>
           import('./pages/list/list.component').then((m) => m.UsersListComponent),
       },
+      {
+        path: 'new',
+        title: 'Nuevo Usuario',
+        loadComponent: () => import('./pages/form/form.component').then((m) => m.UserFormComponent),
+      },
     ],
   },
 ];

@@ -60,10 +60,8 @@ export class ReportsComponent {
     } else {
       const startDate = this.behaviorTab?.startDate;
       const endDate = this.behaviorTab?.endDate;
-      const filterStatus = this.behaviorTab?.currentFilterStatus;
-      const status = filterStatus && filterStatus !== 'ALL' ? filterStatus : undefined;
 
-      this.behaviorReportService.exportBehaviorCsv(startDate, endDate, status).subscribe({
+      this.behaviorReportService.exportBehaviorCsv(startDate, endDate).subscribe({
         next: (blob) => {
           this.downloadCsv(blob, 'reporte-comportamiento');
           this.isExporting.set(false);

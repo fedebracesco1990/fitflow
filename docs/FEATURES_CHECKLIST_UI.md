@@ -11,14 +11,14 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Sección                  | Total  | Completadas | Pendientes |
 | ------------------------ | ------ | ----------- | ---------- |
 | Dashboard Admin          | 8      | 8           | 0          |
-| Centro de Reportes       | 7      | 0           | 7          |
-| Directorio de Usuarios   | 5      | 0           | 5          |
+| Centro de Reportes       | 7      | 7           | 0          |
+| Directorio de Usuarios   | 5      | 4           | 1          |
 | Gestión de Entrenamiento | 8      | 0           | 8          |
 | Pagos                    | 3      | 0           | 3          |
 | Ingresos (Acceso)        | 2      | 0           | 2          |
 | Tipos de Membresía       | 3      | 0           | 3          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **8**       | **29**     |
+| **TOTAL**                | **37** | **19**      | **18**     |
 
 ---
 
@@ -326,41 +326,55 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-14] APIs de Reportes
 
 **Tipo:** Backend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-20)
 
 **Descripción:** Como desarrollador, necesito crear los endpoints para obtener datos de reportes.
 
 **Criterios de Aceptación:**
 
-- [ ] GET /api/reports/financial?month=X&year=Y
+- [x] GET /api/dashboard/reports/financial?month=X&year=Y
   - ingresoTotal: número
   - transacciones: número
   - morososActuales: número
   - desglose: array de { fecha, monto, metodo }
-- [ ] GET /api/reports/behavior
+- [x] GET /api/dashboard/reports/behavior?startDate=X&endDate=Y
   - visitasPromActivos: número
   - visitasPromMorosos: número
   - rutinasActivas: número
   - analisis: array de { miembro, estado, visitasTotales, rutinaActiva }
-- [ ] Optimización con queries eficientes
-- [ ] Tests unitarios
+- [x] Optimización con queries eficientes
+- [ ] Tests unitarios - No implementados
+
+**Implementación:**
+
+- Backend: Endpoints en DashboardController (líneas 67-89)
+- Métodos getFinancialReport() y getBehaviorReport() en DashboardService
+- DTOs: FinancialReportDto, BehaviorReportDto
+- Queries optimizadas con LEFT JOIN y agregaciones
 
 ---
 
 ### [FITFLOW-DS-15] Exportar Reporte a CSV
 
 **Tipo:** Frontend / Backend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-20)
 
 **Descripción:** Como administrador, quiero exportar los datos del reporte actual a un archivo CSV.
 
 **Criterios de Aceptación:**
 
-- [ ] Botón "Exportar CSV" funcional en ambos tabs
-- [ ] Exporta datos del tab activo (Financiero o Comportamiento)
-- [ ] Incluye filtros aplicados en el nombre del archivo
-- [ ] API endpoint GET /api/reports/export?type=financial|behavior
-- [ ] Descarga automática del archivo
+- [x] Botón "Exportar CSV" funcional en ambos tabs
+- [x] Exporta datos del tab activo (Financiero o Comportamiento)
+- [x] Incluye filtros aplicados en el nombre del archivo
+- [x] API endpoint GET /api/dashboard/reports/export-csv?type=financial|behavior
+- [x] Descarga automática del archivo
+
+**Implementación:**
+
+- Backend: Endpoint exportReportCsv() en DashboardController (líneas 91-117)
+- Frontend: Método exportToCsv() en ReportsComponent (líneas 40-77)
+- Servicios: FinancialReportService.exportFinancialCsv(), BehaviorReportService.exportBehaviorCsv()
+- Descarga automática vía Blob con nombre dinámico según fecha
 
 ---
 
@@ -369,54 +383,99 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-16] Página Directorio de Usuarios
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-19, actualizada 2024-12-21)
 
 **Descripción:** Como administrador, quiero acceder a un directorio completo de todos los usuarios del sistema.
 
 **Criterios de Aceptación:**
 
-- [ ] Ruta /users accesible desde sidebar (solo Admin)
-- [ ] Header con título "Directorio de Usuarios"
-- [ ] Botón "+ Nuevo Usuario" en header
-- [ ] Tabla con columnas: Nombre, Email, Rol, Estado (Membresía)
-- [ ] Badges de color para roles: ADMIN, TRAINER, MEMBER
-- [ ] Badges de estado: ACTIVO (verde), MOROSO (rojo)
-- [ ] Estado "-" para usuarios sin membresía (Admin, Trainer)
+- [x] Ruta /users accesible desde sidebar (solo Admin)
+- [x] Header con título "Directorio de Usuarios"
+- [x] Botón "+ Nuevo Usuario" en header - ✅ Implementado (2024-12-21)
+- [x] Tabla con columnas: Nombre, Email, Rol, Membresía, Estado
+- [x] Badges de color para roles: ADMIN, TRAINER, MEMBER
+- [x] Badges de estado: ACTIVO (verde), MOROSO (rojo), etc.
+- [x] Estado "Sin membresía" para usuarios sin membresía
+
+**Implementación:**
+
+- Frontend: UsersListComponent en features/users/pages/list
+- Ruta /users en sidebar (main-layout.component.ts línea 44)
+- Tabla con 6 columnas + acciones (ver perfil, editar, asignar membresía)
+- Paginación implementada (20 usuarios por página)
+- Botón "+ Nuevo Usuario" con icono user-plus agregado (2024-12-21)
 
 ---
 
 ### [FITFLOW-DS-17] Búsqueda y Filtros de Usuarios
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-19)
 
 **Descripción:** Como administrador, quiero buscar y filtrar usuarios para encontrar rápidamente a quien necesito.
 
 **Criterios de Aceptación:**
 
-- [ ] Campo de búsqueda por nombre o email
-- [ ] Búsqueda en tiempo real (debounce)
-- [ ] Dropdown filtro por rol (Todos, Admin, Trainer, Member)
-- [ ] Combinación de búsqueda + filtro
-- [ ] Indicador de resultados encontrados
+- [x] Campo de búsqueda por nombre o email
+- [x] Búsqueda en tiempo real (debounce 300ms)
+- [x] Dropdown filtro por rol (Todos, Admin, Trainer, Member)
+- [x] Dropdown filtro por estado de membresía
+- [x] Combinación de búsqueda + filtros
+- [x] Botón "Limpiar filtros"
+- [x] Paginación con indicador de resultados
+
+**Implementación:**
+
+- Búsqueda con debounce de 300ms (list.component.ts línea 51)
+- Filtros por rol y estado de membresía
+- SearchUsersDto en backend con parámetros search, role, membershipStatus
+- Query con LIKE e ILIKE para búsqueda case-insensitive
 
 ---
 
 ### [FITFLOW-DS-18] Formulario Crear Usuario (Admin)
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-21)
 
 **Descripción:** Como administrador, quiero crear nuevos usuarios desde el directorio.
 
 **Criterios de Aceptación:**
 
-- [ ] Modal o página de formulario "Nuevo Usuario"
-- [ ] Campos: Nombre, Email, Contraseña, Rol (dropdown)
-- [ ] Validaciones de formulario
-- [ ] Asignación de rol al crear
-- [ ] Mensaje de éxito/error
-- [ ] Redirección al directorio tras crear
+- [x] Botón "+ Nuevo Usuario" visible en header del directorio
+- [x] Página de formulario "Nuevo Usuario" en ruta /users/new
+- [x] Campos: Nombre, Email, Contraseña, Confirmar Contraseña, Rol (dropdown)
+- [x] Validaciones de formulario completas (ReactiveFormsModule)
+- [x] Custom validator para match de contraseñas
+- [x] Asignación de rol al crear (Admin, Trainer, Usuario)
+- [x] Mensaje de éxito/error con AlertComponent
+- [x] Redirección al directorio tras crear exitosamente
+- [x] Solo accesible para administradores (ruta protegida)
+
+**Implementación:**
+
+- Frontend: UserFormComponent en features/users/pages/form/
+- Componente standalone con ReactiveFormsModule, FormBuilder, validaciones
+- FormGroup con 5 campos: name, email, password, confirmPassword, role
+- Validaciones: required, minLength, maxLength, email, pattern regex para password
+- Custom validator passwordMatch para confirmar contraseña
+- Signals para loading y error state
+- Integración con userService.create() (POST /api/users)
+- Ruta /users/new agregada en users.routes.ts
+- Botón "+ Nuevo Usuario" con icono user-plus en header del directorio
+- Estilos adaptados de RegisterComponent para layout de admin
+
+**Archivos Creados:**
+
+- `features/users/pages/form/form.component.ts` (119 líneas)
+- `features/users/pages/form/form.component.html` (97 líneas)
+- `features/users/pages/form/form.component.scss` (73 líneas)
+
+**Archivos Modificados:**
+
+- `features/users/users.routes.ts` - Ruta /new agregada
+- `features/users/pages/list/list.component.html` - Botón en header
+- `features/users/pages/list/list.component.ts` - Import LucideAngularModule
 
 ---
 
@@ -440,19 +499,28 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-20] API Gestión de Usuarios
 
 **Tipo:** Backend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-19)
 
 **Descripción:** Como desarrollador, necesito endpoints para gestionar usuarios desde el directorio.
 
 **Criterios de Aceptación:**
 
-- [ ] GET /api/users - Lista todos los usuarios (solo Admin)
-  - Incluir: id, nombre, email, rol, estadoMembresía
-  - Soportar query params: search, role
-- [ ] POST /api/users - Crear usuario (solo Admin)
-- [ ] PUT /api/users/:id - Actualizar usuario (solo Admin)
-- [ ] DELETE /api/users/:id - Eliminar usuario (solo Admin)
-- [ ] Tests unitarios
+- [x] GET /api/users - Lista todos los usuarios (Admin y Trainer)
+  - Incluir: id, nombre, email, rol, membresía, estadoMembresía
+  - Soportar query params: search, role, membershipStatus, page, limit
+- [x] POST /api/users - Crear usuario (solo Admin)
+- [x] PATCH /api/users/:id - Actualizar usuario (solo Admin)
+- [x] DELETE /api/users/:id - Eliminar usuario (solo Admin)
+- [x] GET /api/users/export - Exportar miembros a Excel (solo Admin)
+- [ ] Tests unitarios - No implementados
+
+**Implementación:**
+
+- Backend: UsersController con todos los endpoints CRUD
+- SearchUsersDto con filtros avanzados
+- UsersService con métodos findAll(), createByAdmin(), update(), remove()
+- Query con LEFT JOIN a memberships y membershipTypes
+- Paginación implementada con meta información
 
 ---
 
