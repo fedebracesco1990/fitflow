@@ -14,11 +14,11 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Centro de Reportes       | 7      | 7           | 0          |
 | Directorio de Usuarios   | 5      | 5           | 0          |
 | Gestión de Entrenamiento | 8      | 3           | 5          |
-| Pagos                    | 3      | 0           | 3          |
+| Pagos                    | 3      | 1           | 2          |
 | Ingresos (Acceso)        | 2      | 0           | 2          |
 | Tipos de Membresía       | 3      | 0           | 3          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **23**      | **14**     |
+| **TOTAL**                | **37** | **24**      | **13**     |
 
 ---
 
@@ -753,20 +753,34 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-29] Mejoras UI Lista de Pagos
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-21)
 
 **Descripción:** Como administrador, quiero ver la lista de pagos con información de cobertura.
 
 **Criterios de Aceptación:**
 
-- [ ] Header con título "Pagos"
-- [ ] Botón "+ Registrar Pago" (abre modal)
-- [ ] Tabla con columnas: Miembro, Monto, Método, Fecha, Cobertura, Acciones
-- [ ] Columna Cobertura: rango de fechas "31 Oct - 29 Nov"
-- [ ] Formato de monto con símbolo de moneda
-- [ ] Formato de fecha con hora
-- [ ] Métodos con texto legible: Card, Cash, Transfer
-- [ ] Acción: Editar
+- [x] Header con título "Pagos"
+- [x] Botón "+ Registrar Pago" (abre modal)
+- [x] Tabla con columnas: Miembro, Monto, Método, Fecha, Cobertura, Acciones
+- [x] Columna Cobertura: rango de fechas "31 Oct - 29 Nov"
+- [x] Formato de monto con símbolo de moneda
+- [x] Formato de fecha con hora
+- [x] Métodos con texto legible: Card, Cash, Transfer
+- [x] Acción: Editar
+
+**Implementación:**
+
+- Frontend: Agregada columna "Cobertura" después de "Método" en tabla
+- Frontend: Rango de fechas con formato 'd MMM' → "31 Oct - 29 Nov"
+- Frontend: Manejo de caso null (muestra "-" si no hay membership)
+- Frontend: Formato de fecha cambiado a 'd MMM, y HH:mm' → "21 Dec, 2024 22:59"
+- Frontend: Texto botón cambiado a "+ Registrar Pago"
+- Frontend: Operador de navegación segura (?) para TypeScript strict mode
+- Frontend: Tabla final con 8 columnas (Fecha, Usuario, Membresía, Monto, Método, Cobertura, Referencia, Acciones)
+
+**Archivos Modificados:**
+
+- `features/payments/pages/list/list.component.html` - Columna Cobertura + formato fecha + texto botón
 
 ---
 

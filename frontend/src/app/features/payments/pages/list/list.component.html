@@ -3,7 +3,7 @@
     <h1>Pagos</h1>
     <a routerLink="/payments/new">
       <fit-flow-button variant="primary">
-        <span>+ Nuevo Pago</span>
+        <span>+ Registrar Pago</span>
       </fit-flow-button>
     </a>
   </div>
@@ -36,6 +36,7 @@
               <th>Membresía</th>
               <th>Monto</th>
               <th>Método</th>
+              <th>Cobertura</th>
               <th>Referencia</th>
               <th>Acciones</th>
             </tr>
@@ -43,7 +44,7 @@
           <tbody>
             @for (payment of payments(); track payment.id) {
               <tr>
-                <td>{{ payment.paymentDate | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ payment.paymentDate | date: 'd MMM, y HH:mm' }}</td>
                 <td>
                   <div class="user-info">
                     <span class="user-name">{{ getUserName(payment) }}</span>
@@ -56,6 +57,14 @@
                   <span class="method-badge" [attr.data-method]="payment.paymentMethod">
                     {{ getPaymentMethodLabel(payment.paymentMethod) }}
                   </span>
+                </td>
+                <td>
+                  @if (payment.membership?.startDate && payment.membership?.endDate) {
+                    {{ payment.membership?.startDate | date: 'd MMM' }} -
+                    {{ payment.membership?.endDate | date: 'd MMM' }}
+                  } @else {
+                    -
+                  }
                 </td>
                 <td>{{ payment.reference || '-' }}</td>
                 <td class="actions">
