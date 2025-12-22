@@ -57,9 +57,9 @@
                   </span>
                 </td>
                 <td>
-                  @if (payment.membership?.startDate && payment.membership?.endDate) {
-                    {{ payment.membership?.startDate | date: 'd MMM' }} -
-                    {{ payment.membership?.endDate | date: 'd MMM' }}
+                  @if (payment.coverageStart && payment.coverageEnd) {
+                    {{ payment.coverageStart | date: 'd MMM' }} -
+                    {{ payment.coverageEnd | date: 'd MMM' }}
                   } @else {
                     -
                   }

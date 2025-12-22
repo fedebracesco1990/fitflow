@@ -9,6 +9,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { PaymentMethod } from '../entities/payment.entity';
+import { IsCoverageValid } from '../../../common/validators/is-coverage-valid.validator';
 
 export class CreatePaymentDto {
   @IsUUID()
@@ -23,6 +24,13 @@ export class CreatePaymentDto {
 
   @IsDateString()
   paymentDate: string;
+
+  @IsDateString()
+  coverageStartDate: string;
+
+  @IsDateString()
+  @IsCoverageValid('coverageStartDate')
+  coverageEndDate: string;
 
   @IsOptional()
   @IsString()

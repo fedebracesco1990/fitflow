@@ -42,6 +42,12 @@ export class Payment {
   @Column({ type: 'date' })
   paymentDate: Date;
 
+  @Column({ type: 'date', nullable: false })
+  coverageStart: Date;
+
+  @Column({ type: 'date', nullable: false })
+  coverageEnd: Date;
+
   @Column({ type: 'varchar', length: 100, nullable: true })
   reference: string | null;
 

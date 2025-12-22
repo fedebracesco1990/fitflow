@@ -850,6 +850,8 @@ export class SeederService implements OnModuleInit {
       amount: number;
       paymentMethod: PaymentMethod;
       paymentDate: Date;
+      coverageStart: Date;
+      coverageEnd: Date;
       reference: string | null;
       notes: string | null;
     }> = [];
@@ -866,6 +868,8 @@ export class SeederService implements OnModuleInit {
           amount: Number(membership.membershipType.price),
           paymentMethod: this.getRandomPaymentMethod(),
           paymentDate: membership.startDate,
+          coverageStart: membership.startDate,
+          coverageEnd: membership.endDate,
           reference: `PAY-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           notes: `Pago de membresía ${membership.membershipType.name}`,
         });
@@ -900,6 +904,8 @@ export class SeederService implements OnModuleInit {
           amount: hp.amount,
           paymentMethod: hp.method,
           paymentDate: subMonths(today, hp.monthsAgo),
+          coverageStart: activeMembership.startDate,
+          coverageEnd: activeMembership.endDate,
           reference: `HIST-${hp.monthsAgo}M-${Math.random().toString(36).substr(2, 6)}`,
           notes: `Pago histórico - ${hp.monthsAgo} mes(es) atrás`,
         });

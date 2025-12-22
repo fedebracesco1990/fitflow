@@ -12,7 +12,7 @@ const AppDataSource = new DataSource({
   synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',
   entities: ['dist/**/*.entity{.ts,.js}'],
-  migrations: ['dist/migrations/*{.ts,.js}'],
+  migrations: ['src/database/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });

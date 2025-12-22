@@ -33,6 +33,8 @@ export interface Payment {
   amount: number;
   paymentMethod: PaymentMethod;
   paymentDate: string;
+  coverageStart: string;
+  coverageEnd: string;
   reference: string | null;
   notes: string | null;
   registeredById: string;
@@ -50,6 +52,8 @@ export interface CreatePaymentDto {
   amount: number;
   paymentMethod: PaymentMethod;
   paymentDate: string;
+  coverageStartDate: string;
+  coverageEndDate: string;
   reference?: string;
   notes?: string;
 }

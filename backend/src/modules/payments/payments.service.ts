@@ -33,6 +33,8 @@ export class PaymentsService {
       const payment = queryRunner.manager.create(Payment, {
         ...createDto,
         paymentDate: new Date(createDto.paymentDate),
+        coverageStart: new Date(createDto.coverageStartDate),
+        coverageEnd: new Date(createDto.coverageEndDate),
         registeredById,
       });
 
@@ -113,6 +115,12 @@ export class PaymentsService {
     Object.assign(payment, updateDto);
     if (updateDto.paymentDate) {
       payment.paymentDate = new Date(updateDto.paymentDate);
+    }
+    if (updateDto.coverageStartDate) {
+      payment.coverageStart = new Date(updateDto.coverageStartDate);
+    }
+    if (updateDto.coverageEndDate) {
+      payment.coverageEnd = new Date(updateDto.coverageEndDate);
     }
 
     return await this.paymentRepository.save(payment);

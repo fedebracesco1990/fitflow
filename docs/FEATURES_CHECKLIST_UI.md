@@ -14,11 +14,11 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Centro de Reportes       | 7      | 7           | 0          |
 | Directorio de Usuarios   | 5      | 5           | 0          |
 | Gestión de Entrenamiento | 8      | 3           | 5          |
-| Pagos                    | 3      | 2           | 1          |
+| Pagos                    | 3      | 3           | 0          |
 | Ingresos (Acceso)        | 2      | 0           | 2          |
 | Tipos de Membresía       | 3      | 0           | 3          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **25**      | **12**     |
+| **TOTAL**                | **37** | **26**      | **11**     |
 
 ---
 
@@ -828,25 +828,70 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 
 **Archivos Modificados:**
 
-- `features/payments/pages/list/list.component.ts` - Signal + métodos para modal
-- `features/payments/pages/list/list.component.html` - Botón + modal en template
+- `features/payments/pages/list/list.component.ts` - Integración del modal
+- `features/payments/pages/list/list.component.html` - Botón + modal component
 
 ---
 
 ### [FITFLOW-DS-31] Campo Cobertura en Pagos
 
-**Tipo:** Backend / Frontend
-**Estado:** ⬜ Pendiente
+**Tipo:** Backend + Frontend
+**Estado:** ✅ Completada (2024-12-22)
 
-**Descripción:** Como sistema, necesito almacenar y mostrar el período de cobertura de cada pago.
+**Descripción:** Almacenar y mostrar el período de cobertura de cada pago en la base de datos, permitiendo que el sistema registre exactamente qué período cubre cada pago realizado.
 
 **Criterios de Aceptación:**
 
-- [ ] Agregar campos coverageStart y coverageEnd a entidad Payment
-- [ ] Migración de base de datos
-- [ ] API retorna campos de cobertura
-- [ ] Frontend muestra rango de cobertura en tabla
-- [ ] Cálculo automático de coverageEnd basado en tipo de membresía
+- [x] Agregar campos coverageStart y coverageEnd a entidad Payment (Backend)
+- [x] Migración de base de datos ejecutada exitosamente
+- [x] API retorna campos de cobertura en GET /api/payments
+- [x] Frontend muestra rango de cobertura en tabla de pagos
+- [x] Cálculo automático de coverageEnd basado en tipo de membresía
+- [x] Validación: coverageEnd >= coverageStart
+
+**Implementación:**
+
+**Backend:**
+
+- Creado validador custom `@IsCoverageValid()` para validar rango de fechas
+- Agregados campos `coverageStart` y `coverageEnd` (type: date, NOT NULL) a entidad Payment
+- Actualizados DTOs: `CreatePaymentDto` con `coverageStartDate` y `coverageEndDate` + validaciones
+- Modificado `PaymentsService.create()` para convertir strings a Date y guardar campos
+- Modificado `PaymentsService.update()` para actualizar campos de cobertura
+- Actualizado seeder para incluir campos de cobertura en pagos de prueba
+- Generada migración TypeORM con estrategia de 3 pasos (nullable → populate → NOT NULL)
+- Migración incluye UPDATE para poblar datos existentes desde membership.startDate/endDate
+- Actualizada configuración TypeORM para apuntar a `src/database/migrations/`
+
+**Frontend:**
+
+- Agregados campos `coverageStart` y `coverageEnd` a interface `Payment`
+- Agregados campos `coverageStartDate` y `coverageEndDate` a `CreatePaymentDto`
+- Modificada tabla de pagos para mostrar cobertura del PAGO en lugar de cobertura de MEMBERSHIP
+- Columna "Cobertura" ahora usa `payment.coverageStart` - `payment.coverageEnd`
+- PaymentModalComponent ya enviaba estos campos desde DS-30 (solo faltaban tipos)
+
+**Archivos Creados:**
+
+- `backend/src/common/validators/is-coverage-valid.validator.ts` - Validador custom
+- `backend/src/database/migrations/1766409048652-AddCoverageToPayments.ts` - Migración TypeORM
+
+**Archivos Modificados:**
+
+- `backend/src/modules/payments/entities/payment.entity.ts` - Campos coverageStart/coverageEnd
+- `backend/src/modules/payments/dto/create-payment.dto.ts` - Campos con validaciones
+- `backend/src/modules/payments/dto/update-payment.dto.ts` - Hereda cambios
+- `backend/src/modules/payments/payments.service.ts` - Métodos create() y update()
+- `backend/src/database/seeders/seeder.service.ts` - Campos de cobertura en pagos
+- `backend/src/config/migrations.config.ts` - Ruta de migraciones actualizada
+- `frontend/src/app/core/models/payment.model.ts` - Interfaces actualizadas
+- `frontend/src/app/features/payments/pages/list/list.component.html` - Columna Cobertura
+
+**Desafíos Resueltos:**
+
+- Sintaxis SQL de MySQL no acepta `DEFAULT CURRENT_DATE` en ALTER TABLE
+- Solución: Migración de 3 pasos (agregar nullable → poblar datos → cambiar a NOT NULL)
+- TypeORM no detectaba migración: ruta incorrecta en config (dist/migrations vs src/database/migrations)
 
 ---
 
