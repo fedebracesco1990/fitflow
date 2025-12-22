@@ -51,7 +51,7 @@ export class MainLayoutComponent {
     if (this.isAdmin() || this.isTrainer()) {
       items.push(
         { label: 'Entrenamiento', icon: 'dumbbell', route: '/training' },
-        { label: 'Escanear QR', icon: 'qr-code', route: '/access/scan' },
+        { label: 'Ingresos', icon: 'qr-code', route: '/access/scan' },
         { label: 'Asistencias', icon: 'calendar-check', route: '/access/stats' }
       );
     }

@@ -17,8 +17,8 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Pagos                    | 3      | 3           | 0          |
 | Ingresos (Acceso)        | 2      | 0           | 2          |
 | Tipos de Membresía       | 3      | 3           | 0          |
-| Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **29**      | **8**      |
+| Menú Sidebar             | 1      | 1           | 0          |
+| **TOTAL**                | **37** | **30**      | **7**      |
 
 ---
 
@@ -1140,20 +1140,47 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-37] Reorganización Menú Sidebar
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-22)
 
-**Descripción:** Como sistema, necesito reorganizar el menú sidebar según el nuevo diseño.
+**Descripción:** Reorganizar el menú sidebar según el nuevo diseño para mejorar la navegación y organización del sistema.
 
 **Criterios de Aceptación:**
 
-- [ ] Agregar item "Reportes" (Admin) - ruta /reports
-- [ ] Agregar item "Directorio" (Admin) - ruta /users
-- [ ] Agregar item "Entrenamiento" (Admin/Trainer) - ruta /training
-- [ ] Renombrar "Escanear QR" a "Ingresos" - ruta /access/scan
-- [ ] Eliminar item "Finanzas" separado (se integra en Reportes)
-- [ ] Mantener: Tipos, Membresías, Asistencias, Mis Rutinas, Mi Perfil, Pagos
-- [ ] Actualizar MainLayoutComponent.menuItems
-- [ ] Mantener estética actual del sidebar
+- [x] Agregar item "Reportes" (Admin) - ruta /reports ✅ (ya existía)
+- [x] Agregar item "Directorio" (Admin) - ruta /users ✅ (ya existía)
+- [x] Agregar item "Entrenamiento" (Admin/Trainer) - ruta /training ✅ (ya existía)
+- [x] Renombrar "Escanear QR" a "Ingresos" - ruta /access/scan
+- [x] Eliminar item "Finanzas" separado ✅ (no existía)
+- [x] Mantener: Tipos, Membresías, Asistencias, Mis Rutinas, Mi Perfil, Pagos
+- [x] Actualizar MainLayoutComponent.menuItems
+- [x] Mantener estética actual del sidebar
+
+**Implementación:**
+
+**Frontend:**
+
+- Modificado `MainLayoutComponent` en `frontend/src/app/layouts/main-layout/main-layout.component.ts`
+- Renombrado label de "Escanear QR" a "Ingresos" en línea 54
+- Cambio en computed signal menuItems:
+  - Antes: `{ label: 'Escanear QR', icon: 'qr-code', route: '/access/scan' }`
+  - Después: `{ label: 'Ingresos', icon: 'qr-code', route: '/access/scan' }`
+- Mantenido icon 'qr-code' y ruta '/access/scan'
+- Items "Reportes", "Directorio" y "Entrenamiento" ya existían en el menú
+- Item "Finanzas" no existía (no requirió eliminación)
+- Estética del sidebar sin cambios
+
+**Archivos Modificados:**
+
+- `frontend/src/app/layouts/main-layout/main-layout.component.ts` - Línea 54 (cambio de label)
+
+**Notas Técnicas:**
+
+- Cambio extremadamente simple: 1 línea modificada
+- Computed signal menuItems mantiene estructura limpia con lógica de roles (isAdmin, isTrainer)
+- SidebarComponent no requirió cambios (solo recibe datos vía @Input)
+- Build exitoso (4.994s)
+- Código limpio sin dead code detectado
+- No requirió refactoring
 
 ---
 
