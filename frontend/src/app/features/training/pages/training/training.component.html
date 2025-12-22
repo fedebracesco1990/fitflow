@@ -1,0 +1,59 @@
+<div class="training-page">
+  <header class="page-header">
+    <div class="header-content">
+      <div>
+        <h1>Gestión de Entrenamiento</h1>
+        <p class="subtitle">Administra rutinas, ejercicios y clases grupales</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="training-content">
+    <div class="tabs-header">
+      <button
+        class="tab-button"
+        [class.active]="activeTab() === 'routines'"
+        (click)="setActiveTab('routines')"
+      >
+        Rutinas
+      </button>
+      @if (isAdmin()) {
+        <button
+          class="tab-button"
+          [class.active]="activeTab() === 'exercises'"
+          (click)="setActiveTab('exercises')"
+        >
+          Ejercicios
+        </button>
+      }
+      <button
+        class="tab-button"
+        [class.active]="activeTab() === 'classes'"
+        (click)="setActiveTab('classes')"
+      >
+        Clases
+      </button>
+    </div>
+
+    <div class="tab-content">
+      @if (activeTab() === 'routines') {
+        <fit-flow-routine-list></fit-flow-routine-list>
+      }
+
+      @if (activeTab() === 'exercises') {
+        <fit-flow-exercise-list></fit-flow-exercise-list>
+      }
+
+      @if (activeTab() === 'classes') {
+        <div class="placeholder-content">
+          <div class="placeholder-icon">🏋️</div>
+          <h2>Sistema de Clases Grupales</h2>
+          <p>Esta funcionalidad estará disponible próximamente.</p>
+          <p class="placeholder-hint">
+            Podrás gestionar clases grupales, inscripciones y horarios.
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

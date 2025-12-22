@@ -17,86 +17,54 @@
   }
 }
 
-.routines-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-}
+.table-container {
+  overflow-x: auto;
 
-.routine-card {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  table {
+    width: 100%;
+    border-collapse: collapse;
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
+    thead {
+      background-color: #f8fafc;
+      border-bottom: 2px solid #e2e8f0;
 
-  &.inactive {
-    opacity: 0.6;
-  }
-}
+      th {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #475569;
+        white-space: nowrap;
+      }
+    }
 
-.routine-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.75rem;
+    tbody {
+      tr {
+        border-bottom: 1px solid #e2e8f0;
+        transition: background-color 0.2s;
 
-  h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    color: #1f2937;
-  }
-}
+        &:hover {
+          background-color: #f8fafc;
+        }
+      }
 
-.badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-
-  &-difficulty {
-    background: #fef3c7;
-    color: #92400e;
+      td {
+        padding: 1rem;
+        font-size: 0.875rem;
+        color: #1e293b;
+      }
+    }
   }
 }
 
-.routine-description {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0 0 1rem;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.routine-meta {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 0.75rem;
-}
-
-.routine-creator {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin-bottom: 1rem;
-}
-
-.routine-actions {
+.actions {
   display: flex;
   gap: 0.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+
+  a {
+    text-decoration: none;
+  }
 }
 
 .btn {

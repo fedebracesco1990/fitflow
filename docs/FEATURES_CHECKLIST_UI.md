@@ -12,13 +12,13 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | ------------------------ | ------ | ----------- | ---------- |
 | Dashboard Admin          | 8      | 8           | 0          |
 | Centro de Reportes       | 7      | 7           | 0          |
-| Directorio de Usuarios   | 5      | 4           | 1          |
-| Gestión de Entrenamiento | 8      | 0           | 8          |
+| Directorio de Usuarios   | 5      | 5           | 0          |
+| Gestión de Entrenamiento | 8      | 3           | 5          |
 | Pagos                    | 3      | 0           | 3          |
 | Ingresos (Acceso)        | 2      | 0           | 2          |
 | Tipos de Membresía       | 3      | 0           | 3          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **19**      | **18**     |
+| **TOTAL**                | **37** | **23**      | **14**     |
 
 ---
 
@@ -482,17 +482,38 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-19] Eliminar Registro Público
 
 **Tipo:** Frontend / Backend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-21)
 
 **Descripción:** Como sistema, necesito que solo los administradores puedan crear usuarios nuevos.
 
 **Criterios de Aceptación:**
 
-- [ ] Eliminar link/botón de registro de la página de login
-- [ ] Eliminar ruta /register del frontend
-- [ ] Mantener API POST /auth/register pero protegerla con rol Admin
-- [ ] Actualizar guards y middleware de autenticación
-- [ ] Redirigir intentos de acceso a /register hacia /login
+- [x] Eliminar link/botón de registro de la página de login
+- [x] Eliminar ruta /register del frontend
+- [x] Mantener API POST /auth/register pero protegerla con rol Admin
+- [x] Actualizar guards y middleware de autenticación
+- [x] Redirigir intentos de acceso a /register hacia /login (404)
+
+**Implementación:**
+
+- Frontend: Eliminado link "Regístrate" de login.component.html
+- Frontend: Eliminada ruta `/register` de app.routes.ts y auth.routes.ts
+- Frontend: Eliminado directorio completo `features/auth/pages/register/` (3 archivos)
+- Backend: Endpoint `POST /auth/register` protegido con `@Roles(Role.ADMIN)`
+- Backend: Agregados imports de `Roles` decorator y `Role` enum
+- Resultado: Solo administradores pueden crear usuarios (vía formulario DS-18)
+- Brecha de seguridad cerrada: API ya no es pública
+
+**Archivos Modificados:**
+
+- `frontend/src/app/features/auth/pages/login/login.component.html`
+- `frontend/src/app/app.routes.ts`
+- `frontend/src/app/features/auth/auth.routes.ts`
+- `backend/src/modules/auth/auth.controller.ts`
+
+**Archivos Eliminados:**
+
+- Directorio completo `features/auth/pages/register/` (register.component.ts/html/scss)
 
 ---
 
@@ -529,54 +550,109 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-21] Página Unificada Gestión de Entrenamiento
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-21)
 
 **Descripción:** Como administrador/trainer, quiero acceder a una página unificada de gestión de entrenamiento con tabs.
 
 **Criterios de Aceptación:**
 
-- [ ] Ruta /training accesible desde sidebar (Admin y Trainer)
-- [ ] Header con título "Gestión de Entrenamiento"
-- [ ] Sistema de tabs: "Rutinas", "Ejercicios", "Clases"
-- [ ] Navegación entre tabs sin recargar página
-- [ ] Tab "Ejercicios" solo visible para Admin
-- [ ] Tabs "Rutinas" y "Clases" visibles para Admin y Trainer
+- [x] Ruta /training accesible desde sidebar (Admin y Trainer)
+- [x] Header con título "Gestión de Entrenamiento"
+- [x] Sistema de tabs: "Rutinas", "Ejercicios", "Clases"
+- [x] Navegación entre tabs sin recargar página
+- [x] Tab "Ejercicios" solo visible para Admin
+- [x] Tabs "Rutinas" y "Clases" visibles para Admin y Trainer
+
+**Implementación:**
+
+- Frontend: TrainingComponent con sistema de tabs (signal activeTab, setActiveTab)
+- Frontend: Tab Rutinas carga RoutinesListComponent directamente
+- Frontend: Tab Ejercicios carga ExercisesListComponent directamente (solo Admin)
+- Frontend: Tab Clases muestra placeholder "Próximamente - Sistema de Clases Grupales"
+- Frontend: Estilos adaptados de ReportsComponent con animación fadeIn
+- Rutas: `/training` con roleGuard [ADMIN, TRAINER]
+- Sidebar: Entrada "Entrenamiento" con ícono 'dumbbell'
+- Sidebar: Eliminadas entradas duplicadas "Rutinas" y "Ejercicios" (ahora centralizadas en /training)
+
+**Archivos Creados:**
+
+- `features/training/training.routes.ts`
+- `features/training/pages/training/training.component.ts`
+- `features/training/pages/training/training.component.html`
+- `features/training/pages/training/training.component.scss`
+
+**Archivos Modificados:**
+
+- `app.routes.ts` - Ruta /training agregada
+- `layouts/main-layout/main-layout.component.ts` - Sidebar actualizado
 
 ---
 
 ### [FITFLOW-DS-22] Tab Rutinas - Mejoras de UI
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-21)
 
 **Descripción:** Como administrador/trainer, quiero ver la lista de rutinas con información mejorada.
 
 **Criterios de Aceptación:**
 
-- [ ] Botón "+ Crear Rutina"
-- [ ] Tabla con columnas: Nombre, Dificultad, Creada, Acciones
-- [ ] Badges de dificultad con colores: BEGINNER, INTERMEDIATE, ADVANCED
-- [ ] Formato de fecha legible (ej: "8 Dec, 2025")
-- [ ] Acción: Editar (link a formulario de edición)
-- [ ] Integrar con rutas existentes de rutinas
+- [x] Botón "+ Crear Rutina"
+- [x] Tabla con columnas: Nombre, Dificultad, Creada, Acciones
+- [x] Badges de dificultad con colores: BEGINNER, INTERMEDIATE, ADVANCED
+- [x] Formato de fecha legible (ej: "8 Dec, 2025")
+- [x] Acción: Editar (link a formulario de edición)
+- [x] Integrar con rutas existentes de rutinas
+
+**Implementación:**
+
+- Frontend: Reemplazado grid de cards por tabla HTML estándar con 4 columnas
+- Frontend: BadgeComponent con variants dinámicos (success/warning/error) según dificultad
+- Frontend: DatePipe de Angular con formato 'd MMM, y' para fechas legibles
+- Frontend: Método getDifficultyBadgeVariant() para mapear Difficulty a variant
+- Frontend: Estilos de tabla copiados de UsersListComponent (responsive, hover effects)
+- Frontend: Mantenidas funcionalidades existentes (botón crear, editar, eliminar)
+
+**Archivos Modificados:**
+
+- `features/routines/pages/list/list.component.ts` - Imports + método getDifficultyBadgeVariant
+- `features/routines/pages/list/list.component.html` - Grid → Tabla
+- `features/routines/pages/list/list.component.scss` - Estilos grid → tabla
 
 ---
 
 ### [FITFLOW-DS-23] Tab Ejercicios - Mejoras de UI
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-21)
 
 **Descripción:** Como administrador, quiero ver la lista de ejercicios con información de grupo muscular.
 
 **Criterios de Aceptación:**
 
-- [ ] Botón "+ Nuevo Ejercicio"
-- [ ] Tabla con columnas: Nombre, Grupo Muscular, Dificultad, Acciones
-- [ ] Grupos musculares como texto (Piernas, Pecho, Espalda, etc.)
-- [ ] Badges de dificultad con colores
-- [ ] Acción: Editar
-- [ ] Integrar con rutas existentes de ejercicios
+- [x] Botón "+ Nuevo Ejercicio"
+- [x] Tabla con columnas: Nombre, Grupo Muscular, Dificultad, Acciones
+- [x] Grupos musculares como texto (Piernas, Pecho, Espalda, etc.)
+- [x] Badges de dificultad con colores
+- [x] Acción: Editar
+- [x] Integrar con rutas existentes de ejercicios
+
+**Implementación:**
+
+- Frontend: Reemplazado grid de cards por tabla HTML estándar con 4 columnas
+- Frontend: BadgeComponent con variants dinámicos (success/warning/error) según dificultad
+- Frontend: Grupo muscular como texto simple (exercise.muscleGroup?.name || 'Sin grupo')
+- Frontend: Método getDifficultyBadgeVariant() copiado de DS-22
+- Frontend: Estilos de tabla copiados de RoutinesListComponent (responsive, hover effects)
+- Frontend: Removida lógica completa de filtros para consistencia con DS-22
+- Frontend: Mantenidas funcionalidades existentes (botón crear, editar, eliminar con ConfirmDialogComponent)
+- Frontend: Componente simplificado significativamente (105→67 líneas TS, 89→65 líneas HTML, 215→110 líneas SCSS)
+
+**Archivos Modificados:**
+
+- `features/exercises/pages/list/list.component.ts` - Imports + método + sin filtros
+- `features/exercises/pages/list/list.component.html` - Grid → Tabla
+- `features/exercises/pages/list/list.component.scss` - Estilos grid → tabla
 
 ---
 

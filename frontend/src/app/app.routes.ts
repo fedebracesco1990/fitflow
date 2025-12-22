@@ -21,14 +21,6 @@ export const routes: Routes = [
           import('./features/auth/pages/login/login.component').then((m) => m.LoginComponent),
       },
       {
-        path: 'register',
-        title: 'Crear Cuenta',
-        loadComponent: () =>
-          import('./features/auth/pages/register/register.component').then(
-            (m) => m.RegisterComponent
-          ),
-      },
-      {
         path: 'forgot-password',
         title: 'Recuperar Contraseña',
         loadComponent: () =>
@@ -86,6 +78,13 @@ export const routes: Routes = [
     data: { roles: [Role.ADMIN] },
     loadChildren: () =>
       import('./features/exercises/exercises.routes').then((m) => m.EXERCISES_ROUTES),
+  },
+  {
+    path: 'training',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.ADMIN, Role.TRAINER] },
+    loadChildren: () =>
+      import('./features/training/training.routes').then((m) => m.TRAINING_ROUTES),
   },
   {
     path: 'routines',

@@ -1,26 +1,23 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ExercisesService, MuscleGroupsService } from '../../../../core/services';
-import { Exercise, MuscleGroup, DifficultyLabels } from '../../../../core/models';
-import { ConfirmDialogComponent } from '../../../../shared';
+import { ExercisesService } from '../../../../core/services';
+import { Exercise, DifficultyLabels, Difficulty } from '../../../../core/models';
+import { BadgeComponent, CardComponent, ConfirmDialogComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-exercise-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ConfirmDialogComponent],
+  imports: [CommonModule, RouterLink, BadgeComponent, CardComponent, ConfirmDialogComponent],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
 })
 export class ExercisesListComponent implements OnInit {
   private readonly exercisesService = inject(ExercisesService);
-  private readonly muscleGroupsService = inject(MuscleGroupsService);
 
   exercises = signal<Exercise[]>([]);
-  muscleGroups = signal<MuscleGroup[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
-  selectedMuscleGroupId = signal<string | null>(null);
 
   difficultyLabels = DifficultyLabels;
 
@@ -29,51 +26,32 @@ export class ExercisesListComponent implements OnInit {
   selectedExercise = signal<Exercise | null>(null);
 
   ngOnInit(): void {
-    this.loadMuscleGroups();
     this.loadExercises();
-  }
-
-  loadMuscleGroups(): void {
-    this.muscleGroupsService.getAll().subscribe({
-      next: (groups) => this.muscleGroups.set(groups),
-      error: (err) => console.error('Error loading muscle groups', err),
-    });
   }
 
   loadExercises(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    const muscleGroupId = this.selectedMuscleGroupId();
-
-    if (muscleGroupId) {
-      this.exercisesService.getByMuscleGroup(muscleGroupId).subscribe({
-        next: (exercises: Exercise[]) => {
-          this.exercises.set(exercises);
-          this.loading.set(false);
-        },
-        error: (err: { error?: { message?: string } }) => {
-          this.error.set(err.error?.message || 'Error al cargar ejercicios');
-          this.loading.set(false);
-        },
-      });
-    } else {
-      this.exercisesService.getAll({ includeInactive: true, limit: 100 }).subscribe({
-        next: (response) => {
-          this.exercises.set(response.data);
-          this.loading.set(false);
-        },
-        error: (err: { error?: { message?: string } }) => {
-          this.error.set(err.error?.message || 'Error al cargar ejercicios');
-          this.loading.set(false);
-        },
-      });
-    }
+    this.exercisesService.getAll({ includeInactive: true, limit: 100 }).subscribe({
+      next: (response) => {
+        this.exercises.set(response.data);
+        this.loading.set(false);
+      },
+      error: (err: { error?: { message?: string } }) => {
+        this.error.set(err.error?.message || 'Error al cargar ejercicios');
+        this.loading.set(false);
+      },
+    });
   }
 
-  filterByMuscleGroup(muscleGroupId: string | null): void {
-    this.selectedMuscleGroupId.set(muscleGroupId);
-    this.loadExercises();
+  getDifficultyBadgeVariant(difficulty: Difficulty): 'success' | 'warning' | 'error' {
+    const variantMap = {
+      [Difficulty.BEGINNER]: 'success' as const,
+      [Difficulty.INTERMEDIATE]: 'warning' as const,
+      [Difficulty.ADVANCED]: 'error' as const,
+    };
+    return variantMap[difficulty];
   }
 
   openDeleteDialog(exercise: Exercise): void {

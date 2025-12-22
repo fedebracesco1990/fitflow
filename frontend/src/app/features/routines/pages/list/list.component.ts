@@ -2,12 +2,13 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { RoutinesService } from '../../../../core/services';
-import { Routine, DifficultyLabels } from '../../../../core/models';
+import { Routine, DifficultyLabels, Difficulty } from '../../../../core/models';
+import { BadgeComponent, CardComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-routine-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, BadgeComponent, CardComponent],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
 })
@@ -38,6 +39,15 @@ export class RoutinesListComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  getDifficultyBadgeVariant(difficulty: Difficulty): 'success' | 'warning' | 'error' {
+    const variantMap = {
+      [Difficulty.BEGINNER]: 'success' as const,
+      [Difficulty.INTERMEDIATE]: 'warning' as const,
+      [Difficulty.ADVANCED]: 'error' as const,
+    };
+    return variantMap[difficulty];
   }
 
   deleteRoutine(routine: Routine): void {

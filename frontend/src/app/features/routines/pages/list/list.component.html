@@ -16,29 +16,38 @@
       <a routerLink="new" class="btn btn-outline">Crear primera rutina</a>
     </div>
   } @else {
-    <div class="routines-grid">
-      @for (routine of routines(); track routine.id) {
-        <div class="routine-card" [class.inactive]="!routine.isActive">
-          <div class="routine-header">
-            <h3>{{ routine.name }}</h3>
-            <span class="badge badge-difficulty">{{ difficultyLabels[routine.difficulty] }}</span>
-          </div>
-          @if (routine.description) {
-            <p class="routine-description">{{ routine.description }}</p>
-          }
-          <div class="routine-meta">
-            <span>⏱️ {{ routine.estimatedDuration }} min</span>
-            <span>💪 {{ routine.exercises.length }} ejercicios</span>
-          </div>
-          @if (routine.createdBy) {
-            <div class="routine-creator">Creado por: {{ routine.createdBy.name }}</div>
-          }
-          <div class="routine-actions">
-            <a [routerLink]="[routine.id, 'edit']" class="btn btn-sm btn-outline">Editar</a>
-            <button class="btn btn-sm btn-danger" (click)="deleteRoutine(routine)">Eliminar</button>
-          </div>
-        </div>
-      }
-    </div>
+    <fit-flow-card>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Dificultad</th>
+              <th>Creada</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (routine of routines(); track routine.id) {
+              <tr>
+                <td>{{ routine.name }}</td>
+                <td>
+                  <fit-flow-badge [variant]="getDifficultyBadgeVariant(routine.difficulty)">
+                    {{ difficultyLabels[routine.difficulty] }}
+                  </fit-flow-badge>
+                </td>
+                <td>{{ routine.createdAt | date: 'd MMM, y' }}</td>
+                <td class="actions">
+                  <a [routerLink]="[routine.id, 'edit']" class="btn btn-sm btn-outline">Editar</a>
+                  <button class="btn btn-sm btn-danger" (click)="deleteRoutine(routine)">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </fit-flow-card>
   }
 </div>

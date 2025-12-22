@@ -4,26 +4,6 @@
     <a routerLink="new" class="btn btn-primary">+ Nuevo Ejercicio</a>
   </header>
 
-  <!-- Filtros -->
-  <div class="filters">
-    <button
-      class="filter-btn"
-      [class.active]="selectedMuscleGroupId() === null"
-      (click)="filterByMuscleGroup(null)"
-    >
-      Todos
-    </button>
-    @for (mg of muscleGroups(); track mg.id) {
-      <button
-        class="filter-btn"
-        [class.active]="selectedMuscleGroupId() === mg.id"
-        (click)="filterByMuscleGroup(mg.id)"
-      >
-        {{ mg.icon }} {{ mg.name }}
-      </button>
-    }
-  </div>
-
   @if (error()) {
     <div class="alert alert-error">{{ error() }}</div>
   }
@@ -36,39 +16,39 @@
       <a routerLink="new" class="btn btn-outline">Crear primer ejercicio</a>
     </div>
   } @else {
-    <div class="exercises-grid">
-      @for (exercise of exercises(); track exercise.id) {
-        <div class="exercise-card" [class.inactive]="!exercise.isActive">
-          @if (exercise.imageUrl) {
-            <img [src]="exercise.imageUrl" [alt]="exercise.name" class="exercise-image" />
-          } @else {
-            <div class="exercise-image-placeholder">
-              <span>{{ exercise.muscleGroup?.icon }} {{ exercise.muscleGroup?.name }}</span>
-            </div>
-          }
-          <div class="exercise-content">
-            <h3>{{ exercise.name }}</h3>
-            <div class="exercise-meta">
-              <span class="badge badge-muscle">{{
-                exercise.muscleGroup?.name || 'Sin grupo'
-              }}</span>
-              <span class="badge badge-difficulty">{{
-                difficultyLabels[exercise.difficulty]
-              }}</span>
-            </div>
-            @if (exercise.description) {
-              <p class="exercise-description">{{ exercise.description }}</p>
+    <fit-flow-card>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Grupo Muscular</th>
+              <th>Dificultad</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (exercise of exercises(); track exercise.id) {
+              <tr>
+                <td>{{ exercise.name }}</td>
+                <td>{{ exercise.muscleGroup?.name || 'Sin grupo' }}</td>
+                <td>
+                  <fit-flow-badge [variant]="getDifficultyBadgeVariant(exercise.difficulty)">
+                    {{ difficultyLabels[exercise.difficulty] }}
+                  </fit-flow-badge>
+                </td>
+                <td class="actions">
+                  <a [routerLink]="[exercise.id, 'edit']" class="btn btn-sm btn-outline">Editar</a>
+                  <button class="btn btn-sm btn-danger" (click)="openDeleteDialog(exercise)">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
             }
-            <div class="exercise-actions">
-              <a [routerLink]="[exercise.id, 'edit']" class="btn btn-sm btn-outline">Editar</a>
-              <button class="btn btn-sm btn-danger" (click)="openDeleteDialog(exercise)">
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-    </div>
+          </tbody>
+        </table>
+      </div>
+    </fit-flow-card>
   }
 </div>
 

@@ -44,14 +44,13 @@ export class MainLayoutComponent {
         { label: 'Directorio', icon: 'users', route: '/users' },
         { label: 'Membresías', icon: 'id-card', route: '/memberships' },
         { label: 'Tipos', icon: 'tags', route: '/membership-types' },
-        { label: 'Pagos', icon: 'credit-card', route: '/payments' },
-        { label: 'Ejercicios', icon: 'dumbbell', route: '/exercises' }
+        { label: 'Pagos', icon: 'credit-card', route: '/payments' }
       );
     }
 
     if (this.isAdmin() || this.isTrainer()) {
       items.push(
-        { label: 'Rutinas', icon: 'clipboard-list', route: '/routines' },
+        { label: 'Entrenamiento', icon: 'dumbbell', route: '/training' },
         { label: 'Escanear QR', icon: 'qr-code', route: '/access/scan' },
         { label: 'Asistencias', icon: 'calendar-check', route: '/access/stats' }
       );

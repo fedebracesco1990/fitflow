@@ -3,6 +3,8 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Public } from './decorators/public.decorator';
+import { Roles } from './decorators/roles.decorator';
+import { Role } from '../../common/enums/role.enum';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import type { AuthenticatedUser } from './types/authenticated-user.type';
@@ -14,7 +16,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
+  @Roles(Role.ADMIN)
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerDto: RegisterDto): Promise<TokensResponse> {
