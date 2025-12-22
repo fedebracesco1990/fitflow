@@ -1,0 +1,137 @@
+@if (isOpen()) {
+  <div
+    class="dialog-backdrop"
+    (click)="onBackdropClick($event)"
+    (keydown.escape)="onCancel()"
+    tabindex="-1"
+  >
+    <div class="dialog" role="dialog" aria-modal="true">
+      <div class="dialog-header">
+        <h3>{{ dialogTitle() }}</h3>
+      </div>
+      <div class="dialog-body">
+        @if (error()) {
+          <fit-flow-alert type="error" [message]="error()!" />
+        }
+
+        @if (isLoading()) {
+          <div class="loading">
+            <p>Cargando...</p>
+          </div>
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="form-grid">
+              <!-- Nombre -->
+              <div class="form-group full-width">
+                <label for="name">Nombre *</label>
+                <input
+                  type="text"
+                  id="name"
+                  formControlName="name"
+                  placeholder="Ej: Mensual, Trimestral, Anual"
+                />
+                @if (isFieldInvalid('name')) {
+                  <span class="error-message">El nombre es requerido (máx. 100 caracteres)</span>
+                }
+              </div>
+
+              <!-- Descripción -->
+              <div class="form-group full-width">
+                <label for="description">Descripción</label>
+                <textarea
+                  id="description"
+                  formControlName="description"
+                  placeholder="Descripción opcional del tipo de membresía"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <!-- Precio -->
+              <div class="form-group">
+                <label for="price">Precio *</label>
+                <input
+                  type="number"
+                  id="price"
+                  formControlName="price"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                />
+                @if (isFieldInvalid('price')) {
+                  <span class="error-message"
+                    >El precio es requerido y debe ser mayor o igual a 0</span
+                  >
+                }
+              </div>
+
+              <!-- Duración -->
+              <div class="form-group">
+                <label for="durationDays">Duración (días) *</label>
+                <input
+                  type="number"
+                  id="durationDays"
+                  formControlName="durationDays"
+                  placeholder="30"
+                  min="1"
+                />
+                @if (isFieldInvalid('durationDays')) {
+                  <span class="error-message"
+                    >La duración es requerida y debe ser al menos 1 día</span
+                  >
+                }
+              </div>
+
+              <!-- Días de gracia -->
+              <div class="form-group">
+                <label for="gracePeriodDays">Días de gracia</label>
+                <input
+                  type="number"
+                  id="gracePeriodDays"
+                  formControlName="gracePeriodDays"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+
+              <!-- Tipo de Acceso -->
+              <div class="form-group">
+                <label for="accessType">Tipo de Acceso *</label>
+                <select id="accessType" formControlName="accessType">
+                  @for (type of accessTypes; track type.value) {
+                    <option [value]="type.value">{{ type.label }}</option>
+                  }
+                </select>
+                @if (isFieldInvalid('accessType')) {
+                  <span class="error-message">Selecciona un tipo de acceso</span>
+                }
+              </div>
+
+              <!-- Activo (solo en modo edición) -->
+              @if (isEditMode()) {
+                <div class="form-group checkbox-group full-width">
+                  <label class="checkbox-label">
+                    <input type="checkbox" formControlName="isActive" />
+                    <span>Activo</span>
+                  </label>
+                </div>
+              }
+            </div>
+          </form>
+        }
+      </div>
+      <div class="dialog-footer">
+        <fit-flow-button type="button" variant="outline" (click)="onCancel()">
+          Cancelar
+        </fit-flow-button>
+        <fit-flow-button
+          type="button"
+          variant="primary"
+          [disabled]="form.invalid || isSaving() || isLoading()"
+          (click)="onSubmit()"
+        >
+          {{ isSaving() ? 'Guardando...' : isEditMode() ? 'Guardar Cambios' : 'Crear Tipo' }}
+        </fit-flow-button>
+      </div>
+    </div>
+  </div>
+}

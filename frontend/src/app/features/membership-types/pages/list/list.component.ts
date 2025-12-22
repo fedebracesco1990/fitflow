@@ -12,6 +12,7 @@ import {
   ConfirmDialogComponent,
   TooltipComponent,
 } from '../../../../shared';
+import { MembershipTypeDialogComponent } from '../../components';
 
 @Component({
   selector: 'fit-flow-membership-types-list',
@@ -24,6 +25,7 @@ import {
     AlertComponent,
     ConfirmDialogComponent,
     TooltipComponent,
+    MembershipTypeDialogComponent,
   ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
@@ -36,7 +38,9 @@ export class MembershipTypesListComponent implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
   showDeleteDialog = signal(false);
+  showMembershipTypeDialog = signal(false);
   selectedType = signal<MembershipType | null>(null);
+  selectedTypeId = signal<string | null>(null);
 
   isAdmin = this.store.selectSignal(AuthState.isAdmin);
 
@@ -110,6 +114,22 @@ export class MembershipTypesListComponent implements OnInit {
       `Días de gracia: ${type.gracePeriodDays}`,
     ];
     return lines.join('\n');
+  }
+
+  openCreateDialog(): void {
+    this.selectedTypeId.set(null);
+    this.showMembershipTypeDialog.set(true);
+  }
+
+  openEditDialog(type: MembershipType): void {
+    this.selectedTypeId.set(type.id);
+    this.showMembershipTypeDialog.set(true);
+  }
+
+  closeMembershipTypeDialog(): void {
+    this.showMembershipTypeDialog.set(false);
+    this.selectedTypeId.set(null);
+    this.loadMembershipTypes();
   }
 
   private formatDuration(days: number): string {

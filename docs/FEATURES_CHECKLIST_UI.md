@@ -16,9 +16,9 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Gestión de Entrenamiento | 8      | 3           | 5          |
 | Pagos                    | 3      | 3           | 0          |
 | Ingresos (Acceso)        | 2      | 0           | 2          |
-| Tipos de Membresía       | 3      | 2           | 1          |
+| Tipos de Membresía       | 3      | 3           | 0          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **28**      | **9**      |
+| **TOTAL**                | **37** | **29**      | **8**      |
 
 ---
 
@@ -1006,22 +1006,81 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-35] Dialog Crear/Editar Tipo de Membresía
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-22)
 
-**Descripción:** Como administrador, quiero crear y editar tipos de membresía con campos adicionales.
+**Descripción:** Crear dialog modal para crear y editar tipos de membresía, reemplazando la navegación a página de formulario, e incluyendo el campo `accessType` implementado en DS-36.
 
 **Criterios de Aceptación:**
 
-- [ ] Dialog modal en lugar de página separada
-- [ ] Campo: Nombre (input texto, requerido)
-- [ ] Campo: Precio (input numérico, requerido)
-- [ ] Campo: Duración en Días (input numérico, requerido)
-- [ ] Campo: Período de Gracia en Días (input numérico)
-- [ ] Campo: Tipo de Acceso (dropdown: Solo Gimnasio, All Access, Solo Clases)
-- [ ] Checkbox: Activo (por defecto marcado)
-- [ ] Botón "Cancelar" cierra dialog
-- [ ] Botón "Guardar" guarda y cierra
-- [ ] Validaciones de formulario
+- [x] Dialog modal en lugar de página separada
+- [x] Campo: Nombre (input texto, requerido)
+- [x] Campo: Descripción (textarea, opcional)
+- [x] Campo: Precio (input numérico, requerido)
+- [x] Campo: Duración en Días (input numérico, requerido)
+- [x] Campo: Período de Gracia en Días (input numérico, opcional)
+- [x] Campo: Tipo de Acceso (dropdown: Solo Gimnasio, Acceso Completo, Solo Clases)
+- [x] Checkbox: Activo (por defecto marcado, solo en modo edición)
+- [x] Botón "Cancelar" cierra dialog
+- [x] Botón "Guardar" guarda y cierra
+- [x] Validaciones de formulario
+
+**Implementación:**
+
+**Frontend:**
+
+- Creado `MembershipTypeDialogComponent` en `features/membership-types/components/membership-type-dialog/`
+  - Componente standalone siguiendo patrón de PaymentModalComponent
+  - Input signals: `isOpen`, `membershipTypeId` (para modo edición)
+  - Output: `cancelled` (emite al cerrar o guardar)
+- FormGroup con 7 campos:
+  - name (required, maxLength 100)
+  - description (optional)
+  - price (required, min 0)
+  - durationDays (required, min 1, default 30)
+  - gracePeriodDays (optional, min 0, default 0)
+  - **accessType** (required, default ALL_ACCESS) - NUEVO
+  - isActive (checkbox, solo en modo edición)
+- Dropdown accessType con 3 opciones mapeadas:
+  - GYM_ONLY → "Solo Gimnasio"
+  - ALL_ACCESS → "Acceso Completo"
+  - CLASSES_ONLY → "Solo Clases"
+- Effect reactivo para cargar datos en modo edición
+- Validaciones con Validators de Angular
+- Loading states durante carga y guardado
+- Error handling con AlertComponent
+- Cierre por backdrop click o botón cancelar
+- Form grid responsive (2 columnas → 1 columna en mobile)
+- Integración con lista:
+  - Botón "+ Nuevo Tipo" abre dialog vacío
+  - Botón "Editar" abre dialog con datos precargados
+  - Dialog emite evento al guardar para refrescar lista
+- **Formulario de página mantenido como fallback** (decisión de diseño Option A)
+
+**Archivos Creados:**
+
+- `frontend/src/app/features/membership-types/components/membership-type-dialog/membership-type-dialog.component.ts` (148 líneas)
+- `frontend/src/app/features/membership-types/components/membership-type-dialog/membership-type-dialog.component.html`
+- `frontend/src/app/features/membership-types/components/membership-type-dialog/membership-type-dialog.component.scss`
+- `frontend/src/app/features/membership-types/components/index.ts`
+
+**Archivos Modificados:**
+
+- `frontend/src/app/features/membership-types/pages/list/list.component.ts` - Métodos para abrir/cerrar dialog
+- `frontend/src/app/features/membership-types/pages/list/list.component.html` - Botones modificados, dialog agregado
+
+**Notas Técnicas:**
+
+- Dialog modal siguiendo patrón establecido de PaymentModalComponent
+- Input/output signals correctamente implementados (Angular signals API)
+- Effect reactivo para cargar datos automáticamente en modo edición
+- FormGroup con campo accessType integrado
+- Dropdown con opciones mapeadas a texto legible en español
+- Error handling consistente con AlertComponent
+- Estilos responsive con form grid (max-width 600px)
+- Backdrop con rgba(0,0,0,0.5) y z-index 1000
+- Formulario de página existente mantenido intencionalmente como fallback
+- Build exitoso (4.481s)
+- Código limpio sin dead code detectado
 
 ---
 
