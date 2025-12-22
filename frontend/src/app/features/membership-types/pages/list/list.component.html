@@ -34,10 +34,8 @@
           <thead>
             <tr>
               <th>Nombre</th>
-              <th>Descripción</th>
               <th>Precio</th>
-              <th>Duración</th>
-              <th>Días de Gracia</th>
+              <th>Acceso</th>
               <th>Estado</th>
               @if (isAdmin()) {
                 <th>Acciones</th>
@@ -47,11 +45,13 @@
           <tbody>
             @for (type of membershipTypes(); track type.id) {
               <tr [class.inactive]="!type.isActive">
-                <td class="name">{{ type.name }}</td>
-                <td class="description">{{ type.description || '-' }}</td>
+                <td class="name">
+                  <fit-flow-tooltip [content]="getTooltipContent(type)" position="right">
+                    <span class="name-with-tooltip">{{ type.name }}</span>
+                  </fit-flow-tooltip>
+                </td>
                 <td class="price">{{ formatPrice(type.price) }}</td>
-                <td class="duration">{{ formatDuration(type.durationDays) }}</td>
-                <td class="grace">{{ type.gracePeriodDays }} días</td>
+                <td class="access">{{ formatAccessType(type.accessType) }}</td>
                 <td class="status">
                   <span
                     class="badge"

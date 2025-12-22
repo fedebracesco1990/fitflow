@@ -15,6 +15,7 @@ import { AccessLog } from '../../modules/access/entities/access-log.entity';
 import { Role } from '../../common/enums/role.enum';
 import { Difficulty } from '../../common/enums/difficulty.enum';
 import { DayOfWeek } from '../../common/enums/day-of-week.enum';
+import { AccessType } from '../../common/enums/access-type.enum';
 
 @Injectable()
 export class SeederService implements OnModuleInit {
@@ -531,6 +532,7 @@ export class SeederService implements OnModuleInit {
         price: 15000,
         durationDays: 30,
         gracePeriodDays: 5,
+        accessType: AccessType.ALL_ACCESS,
         isActive: true,
       },
       {
@@ -539,6 +541,7 @@ export class SeederService implements OnModuleInit {
         price: 40500,
         durationDays: 90,
         gracePeriodDays: 7,
+        accessType: AccessType.ALL_ACCESS,
         isActive: true,
       },
       {
@@ -547,6 +550,7 @@ export class SeederService implements OnModuleInit {
         price: 76500,
         durationDays: 180,
         gracePeriodDays: 10,
+        accessType: AccessType.ALL_ACCESS,
         isActive: true,
       },
       {
@@ -555,6 +559,7 @@ export class SeederService implements OnModuleInit {
         price: 144000,
         durationDays: 365,
         gracePeriodDays: 15,
+        accessType: AccessType.ALL_ACCESS,
         isActive: true,
       },
       {
@@ -563,6 +568,7 @@ export class SeederService implements OnModuleInit {
         price: 1500,
         durationDays: 1,
         gracePeriodDays: 0,
+        accessType: AccessType.GYM_ONLY,
         isActive: true,
       },
       {
@@ -571,6 +577,7 @@ export class SeederService implements OnModuleInit {
         price: 12000,
         durationDays: 30,
         gracePeriodDays: 3,
+        accessType: AccessType.ALL_ACCESS,
         isActive: false,
       },
     ];

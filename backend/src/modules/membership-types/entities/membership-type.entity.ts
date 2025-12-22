@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AccessType } from '../../../common/enums/access-type.enum';
 
 @Entity('membership_types')
 export class MembershipType {
@@ -25,6 +26,14 @@ export class MembershipType {
 
   @Column({ type: 'int', default: 0, comment: 'Días de gracia después del vencimiento' })
   gracePeriodDays: number;
+
+  @Column({
+    type: 'enum',
+    enum: AccessType,
+    default: AccessType.ALL_ACCESS,
+    comment: 'Tipo de acceso que otorga la membresía',
+  })
+  accessType: AccessType;
 
   @Column({ default: true })
   isActive: boolean;

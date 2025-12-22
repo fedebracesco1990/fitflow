@@ -77,14 +77,16 @@
 
 .name {
   font-weight: 500;
+
+  .name-with-tooltip {
+    border-bottom: 1px dotted var(--text-secondary);
+    cursor: help;
+  }
 }
 
-.description {
-  color: var(--text-secondary);
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.access {
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .price {

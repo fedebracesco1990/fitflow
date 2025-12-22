@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MembershipTypesService } from '../../../../core/services';
-import { MembershipType } from '../../../../core/models';
+import { MembershipType, AccessType } from '../../../../core/models';
 import { Store } from '@ngxs/store';
 import { AuthState } from '../../../../core/store/auth/auth.state';
 import {
@@ -10,6 +10,7 @@ import {
   ButtonComponent,
   AlertComponent,
   ConfirmDialogComponent,
+  TooltipComponent,
 } from '../../../../shared';
 
 @Component({
@@ -22,6 +23,7 @@ import {
     ButtonComponent,
     AlertComponent,
     ConfirmDialogComponent,
+    TooltipComponent,
   ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
@@ -91,7 +93,26 @@ export class MembershipTypesListComponent implements OnInit {
     }).format(price);
   }
 
-  formatDuration(days: number): string {
+  formatAccessType(accessType: AccessType): string {
+    const accessTypeMap: Record<AccessType, string> = {
+      [AccessType.GYM_ONLY]: 'Solo Gimnasio',
+      [AccessType.ALL_ACCESS]: 'Acceso Completo',
+      [AccessType.CLASSES_ONLY]: 'Solo Clases',
+    };
+    return accessTypeMap[accessType] || accessType;
+  }
+
+  getTooltipContent(type: MembershipType): string {
+    const duration = this.formatDuration(type.durationDays);
+    const lines = [
+      type.description || 'Sin descripción',
+      `Duración: ${duration}`,
+      `Días de gracia: ${type.gracePeriodDays}`,
+    ];
+    return lines.join('\n');
+  }
+
+  private formatDuration(days: number): string {
     if (days === 1) return '1 día';
     if (days < 30) return `${days} días`;
     if (days === 30) return '1 mes';

@@ -16,9 +16,9 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Gestión de Entrenamiento | 8      | 3           | 5          |
 | Pagos                    | 3      | 3           | 0          |
 | Ingresos (Acceso)        | 2      | 0           | 2          |
-| Tipos de Membresía       | 3      | 0           | 3          |
+| Tipos de Membresía       | 3      | 2           | 1          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **26**      | **11**     |
+| **TOTAL**                | **37** | **28**      | **9**      |
 
 ---
 
@@ -939,19 +939,67 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-34] Mejoras UI Lista Tipos de Membresía
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-22)
 
-**Descripción:** Como administrador, quiero ver la lista de tipos de membresía con información de acceso.
+**Descripción:** Mejorar la UI de la lista de tipos de membresía para mostrar el campo `accessType` (implementado en DS-36) con una tabla simplificada y tooltips para información adicional.
 
 **Criterios de Aceptación:**
 
-- [ ] Header con título "Tipos de Membresía"
-- [ ] Botón "+ Nuevo Tipo"
-- [ ] Tabla con columnas: Nombre, Precio, Acceso, Estado, Acciones
-- [ ] Columna Acceso: Gym Only, All Access, Classes Only
-- [ ] Estado con badge de color: ACTIVO (verde), INACTIVO (gris)
-- [ ] Acciones: Editar, Eliminar (con confirmación)
-- [ ] Formato de precio con símbolo de moneda
+- [x] Header con título "Tipos de Membresía"
+- [x] Botón "+ Nuevo Tipo"
+- [x] Tabla con columnas: Nombre, Precio, Acceso, Estado, Acciones (5 columnas)
+- [x] Columna Acceso: "Solo Gimnasio", "Acceso Completo", "Solo Clases"
+- [x] Estado con badge de color: ACTIVO (verde), INACTIVO (gris)
+- [x] Acciones: Editar, Eliminar (con confirmación)
+- [x] Formato de precio con símbolo de moneda
+
+**Implementación:**
+
+**Frontend:**
+
+- Creado enum `AccessType` en `frontend/src/app/core/models/access-type.enum.ts`
+  - Valores: GYM_ONLY, ALL_ACCESS, CLASSES_ONLY
+- Actualizado modelo `MembershipType` con campo `accessType: AccessType`
+- Actualizado `CreateMembershipTypeRequest` con campo `accessType`
+- Creado `TooltipComponent` reutilizable en `shared/components/tooltip/`
+  - Componente standalone sin dependencias externas
+  - Posicionamiento configurable (top/bottom/left/right)
+  - Hover para mostrar/ocultar
+- Simplificada tabla de 7 a 5 columnas:
+  - **Eliminadas**: Descripción, Duración, Días de Gracia
+  - **Agregada**: Acceso
+  - **Mantenidas**: Nombre, Precio, Estado, Acciones
+- Tooltip en columna Nombre muestra info adicional:
+  - Descripción del tipo
+  - Duración (formateada)
+  - Días de gracia
+- Método `formatAccessType()` mapea enum a texto legible
+- Método `getTooltipContent()` genera contenido del tooltip
+
+**Archivos Creados:**
+
+- `frontend/src/app/core/models/access-type.enum.ts` - Enum AccessType
+- `frontend/src/app/shared/components/tooltip/tooltip.component.ts` - Componente
+- `frontend/src/app/shared/components/tooltip/tooltip.component.html` - Template
+- `frontend/src/app/shared/components/tooltip/tooltip.component.scss` - Estilos
+
+**Archivos Modificados:**
+
+- `frontend/src/app/core/models/index.ts` - Export AccessType
+- `frontend/src/app/core/models/membership-type.model.ts` - Campo accessType
+- `frontend/src/app/shared/components/index.ts` - Export TooltipComponent
+- `frontend/src/app/features/membership-types/pages/list/list.component.ts` - Métodos y lógica
+- `frontend/src/app/features/membership-types/pages/list/list.component.html` - Tabla simplificada
+- `frontend/src/app/features/membership-types/pages/list/list.component.scss` - Estilos actualizados
+
+**Notas Técnicas:**
+
+- Tabla más compacta y responsive (7→5 columnas)
+- Info secundaria disponible on-demand via tooltip
+- TooltipComponent reutilizable para futuras features
+- Type safety con enum TypeScript
+- Build exitoso (4.676s)
+- Código limpio sin dead code detectado
 
 ---
 
@@ -980,18 +1028,51 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-36] Campos Adicionales Tipo de Membresía
 
 **Tipo:** Backend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-22)
 
-**Descripción:** Como desarrollador, necesito agregar campos adicionales a la entidad MembershipType.
+**Descripción:** Agregar campo `accessType` a la entidad MembershipType para soportar diferentes tipos de acceso (gimnasio, clases, o acceso completo).
 
 **Criterios de Aceptación:**
 
-- [ ] Agregar campo accessType: enum (GYM_ONLY, ALL_ACCESS, CLASSES_ONLY)
-- [ ] Agregar campo gracePeriodDays: number (default 0)
-- [ ] Agregar campo isActive: boolean (default true)
-- [ ] Migración de base de datos
-- [ ] Actualizar API para incluir nuevos campos
-- [ ] Tests unitarios
+- [x] Agregar campo accessType: enum (GYM_ONLY, ALL_ACCESS, CLASSES_ONLY)
+- [x] Campo gracePeriodDays: number (ya existía - verificado)
+- [x] Campo isActive: boolean (ya existía - verificado)
+- [x] Sincronización de base de datos (TypeORM automático)
+- [x] API retorna campo accessType en responses
+- [x] Validación con @IsEnum() en DTOs
+
+**Implementación:**
+
+**Backend:**
+
+- Creado enum `AccessType` en `backend/src/common/enums/access-type.enum.ts`
+  - Valores: GYM_ONLY, ALL_ACCESS, CLASSES_ONLY
+- Agregado campo `accessType` a entidad MembershipType
+  - Tipo: enum con default ALL_ACCESS
+  - Comment descriptivo en columna
+- Actualizado `CreateMembershipTypeDto` con validación @IsEnum(AccessType)
+- Actualizado seeder con accessType en 6 tipos de membresía
+  - 5 tipos con ALL_ACCESS (Mensual, Trimestral, Semestral, Anual, Promoción Verano)
+  - 1 tipo con GYM_ONLY (Pase Diario)
+- TypeORM sincronizó automáticamente la columna en base de datos
+
+**Archivos Creados:**
+
+- `backend/src/common/enums/access-type.enum.ts` - Enum AccessType
+
+**Archivos Modificados:**
+
+- `backend/src/common/enums/index.ts` - Export de AccessType
+- `backend/src/modules/membership-types/entities/membership-type.entity.ts` - Campo accessType
+- `backend/src/modules/membership-types/dto/create-membership-type.dto.ts` - Validación
+- `backend/src/database/seeders/seeder.service.ts` - Datos de prueba
+
+**Notas Técnicas:**
+
+- Campos `gracePeriodDays` e `isActive` ya estaban implementados
+- No requirió migración manual (TypeORM synchronize: true en desarrollo)
+- Código limpio desde implementación - sin dead code detectado
+- Build y lint exitosos
 
 ---
 

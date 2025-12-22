@@ -1,3 +1,5 @@
+import { AccessType } from './access-type.enum';
+
 export interface MembershipType {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export interface MembershipType {
   price: number;
   durationDays: number;
   gracePeriodDays: number;
+  accessType: AccessType;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -16,6 +19,7 @@ export interface CreateMembershipTypeRequest {
   price: number;
   durationDays: number;
   gracePeriodDays?: number;
+  accessType: AccessType;
 }
 
 export interface UpdateMembershipTypeRequest extends Partial<CreateMembershipTypeRequest> {

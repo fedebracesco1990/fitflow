@@ -1,0 +1,8 @@
+<div class="tooltip-wrapper">
+  <div class="tooltip-trigger">
+    <ng-content></ng-content>
+  </div>
+  <div class="tooltip-content" [ngClass]="'tooltip-' + position()">
+    {{ content() }}
+  </div>
+</div>

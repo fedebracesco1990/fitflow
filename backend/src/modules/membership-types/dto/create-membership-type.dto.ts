@@ -7,7 +7,9 @@ import {
   IsInt,
   Min,
   MaxLength,
+  IsEnum,
 } from 'class-validator';
+import { AccessType } from '../../../common/enums/access-type.enum';
 
 export class CreateMembershipTypeDto {
   @IsString()
@@ -31,4 +33,7 @@ export class CreateMembershipTypeDto {
   @Min(0)
   @IsOptional()
   gracePeriodDays?: number;
+
+  @IsEnum(AccessType)
+  accessType: AccessType;
 }
