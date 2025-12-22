@@ -14,11 +14,11 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 | Centro de Reportes       | 7      | 7           | 0          |
 | Directorio de Usuarios   | 5      | 5           | 0          |
 | Gestión de Entrenamiento | 8      | 3           | 5          |
-| Pagos                    | 3      | 1           | 2          |
+| Pagos                    | 3      | 2           | 1          |
 | Ingresos (Acceso)        | 2      | 0           | 2          |
 | Tipos de Membresía       | 3      | 0           | 3          |
 | Menú Sidebar             | 1      | 0           | 1          |
-| **TOTAL**                | **37** | **24**      | **13**     |
+| **TOTAL**                | **37** | **25**      | **12**     |
 
 ---
 
@@ -787,23 +787,49 @@ Backlog de Mejoras de UI - Sistema de Gestión de Gimnasio FitFlow
 ### [FITFLOW-DS-30] Modal Registrar Pago
 
 **Tipo:** Frontend
-**Estado:** ⬜ Pendiente
+**Estado:** ✅ Completada (2024-12-21)
 
 **Descripción:** Como administrador, quiero registrar pagos usando un modal en lugar de navegar a otra página.
 
 **Criterios de Aceptación:**
 
-- [ ] Modal "Registrar Pago" en lugar de página separada
-- [ ] Campo: Miembro (dropdown con búsqueda)
-- [ ] Campo: Monto (input numérico)
-- [ ] Campo: Método (dropdown: Tarjeta, Efectivo, Transferencia)
-- [ ] Campo: Cobertura Desde (date picker)
-- [ ] Campo: Cobertura Hasta (date picker)
-- [ ] Auto-cálculo de Cobertura Hasta basado en tipo de membresía
-- [ ] Botón "Cancelar" cierra modal
-- [ ] Botón "Registrar Pago" guarda y cierra
-- [ ] Validaciones de formulario
-- [ ] Mensaje de éxito/error
+- [x] Modal "Registrar Pago" en lugar de página separada
+- [x] Campo: Miembro (dropdown con búsqueda)
+- [x] Campo: Monto (input numérico)
+- [x] Campo: Método (dropdown: Tarjeta, Efectivo, Transferencia)
+- [x] Campo: Cobertura Desde (date picker)
+- [x] Campo: Cobertura Hasta (date picker)
+- [x] Auto-cálculo de Cobertura Hasta basado en tipo de membresía
+- [x] Botón "Cancelar" cierra modal
+- [x] Botón "Registrar Pago" guarda y cierra
+- [x] Validaciones de formulario
+- [x] Mensaje de éxito/error
+
+**Implementación:**
+
+- Frontend: Creado PaymentModalComponent con estructura de ConfirmDialogComponent
+- Frontend: Formulario reactivo con 8 campos (membresía, monto, método, fecha pago, cobertura desde/hasta, referencia, notas)
+- Frontend: Auto-cálculo de Cobertura Hasta con combineLatest (membershipId + coverageStartDate → durationDays)
+- Frontend: Auto-fill de monto cuando se selecciona membresía (membershipType.price)
+- Frontend: Select nativo para membresías con label "Usuario - Tipo de membresía"
+- Frontend: Validaciones completas (required, min 0.01 para monto)
+- Frontend: coverageEndDate readonly con hint "Calculado automáticamente"
+- Frontend: Manejo de loading, error states con signals
+- Frontend: OnDestroy con cleanup de suscripciones (Subject + takeUntil)
+- Frontend: Botón "+ Registrar Pago" abre modal (cambió de routerLink a (click))
+- Frontend: Al crear pago: modal se cierra, lista se recarga automáticamente
+- Frontend: Responsive design para mobile
+
+**Archivos Creados:**
+
+- `features/payments/components/payment-modal/payment-modal.component.ts` - Componente modal
+- `features/payments/components/payment-modal/payment-modal.component.html` - Template
+- `features/payments/components/payment-modal/payment-modal.component.scss` - Estilos
+
+**Archivos Modificados:**
+
+- `features/payments/pages/list/list.component.ts` - Signal + métodos para modal
+- `features/payments/pages/list/list.component.html` - Botón + modal en template
 
 ---
 

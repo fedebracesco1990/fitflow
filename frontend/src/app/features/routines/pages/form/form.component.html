@@ -90,9 +90,10 @@
                 </div>
                 <div class="exercise-config">
                   <div class="config-item">
-                    <label>Series</label>
+                    <label for="sets-{{ re.exerciseId }}">Series</label>
                     <input
                       type="number"
+                      id="sets-{{ re.exerciseId }}"
                       [value]="re.sets"
                       min="1"
                       max="10"
@@ -100,9 +101,10 @@
                     />
                   </div>
                   <div class="config-item">
-                    <label>Reps</label>
+                    <label for="reps-{{ re.exerciseId }}">Reps</label>
                     <input
                       type="number"
+                      id="reps-{{ re.exerciseId }}"
                       [value]="re.reps"
                       min="1"
                       max="100"
@@ -110,9 +112,10 @@
                     />
                   </div>
                   <div class="config-item">
-                    <label>Descanso</label>
+                    <label for="rest-{{ re.exerciseId }}">Descanso</label>
                     <input
                       type="number"
+                      id="rest-{{ re.exerciseId }}"
                       [value]="re.restSeconds"
                       min="0"
                       max="300"

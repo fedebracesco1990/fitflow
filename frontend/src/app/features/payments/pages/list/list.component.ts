@@ -10,6 +10,7 @@ import {
   CardComponent,
   ConfirmDialogComponent,
 } from '../../../../shared';
+import { PaymentModalComponent } from '../../components/payment-modal/payment-modal.component';
 
 @Component({
   selector: 'fit-flow-payments-list',
@@ -22,6 +23,7 @@ import {
     ButtonComponent,
     CardComponent,
     ConfirmDialogComponent,
+    PaymentModalComponent,
   ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
@@ -39,6 +41,9 @@ export class PaymentsListComponent implements OnInit {
   // Dialog state
   readonly showDeleteDialog = signal(false);
   readonly selectedPayment = signal<Payment | null>(null);
+
+  // Payment modal state
+  readonly showPaymentModal = signal(false);
 
   ngOnInit(): void {
     this.loadPayments();
@@ -111,5 +116,18 @@ export class PaymentsListComponent implements OnInit {
     if (meta && meta.page > 1) {
       this.loadPayments(meta.page - 1);
     }
+  }
+
+  openPaymentModal(): void {
+    this.showPaymentModal.set(true);
+  }
+
+  onPaymentCreated(): void {
+    this.showPaymentModal.set(false);
+    this.loadPayments();
+  }
+
+  onModalCancelled(): void {
+    this.showPaymentModal.set(false);
   }
 }

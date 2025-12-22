@@ -4,7 +4,7 @@ import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class PageTitleStrategy extends TitleStrategy {
-  private readonly appName = 'FitFlow';
+  private readonly appName = 'Impetu';
 
   constructor(private readonly title: Title) {
     super();

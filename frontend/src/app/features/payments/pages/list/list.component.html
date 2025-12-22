@@ -1,11 +1,9 @@
 <div class="payments-list-page">
   <div class="page-header">
     <h1>Pagos</h1>
-    <a routerLink="/payments/new">
-      <fit-flow-button variant="primary">
-        <span>+ Registrar Pago</span>
-      </fit-flow-button>
-    </a>
+    <fit-flow-button variant="primary" (click)="openPaymentModal()">
+      <span>+ Registrar Pago</span>
+    </fit-flow-button>
   </div>
 
   @if (error()) {
@@ -121,4 +119,11 @@
   variant="danger"
   (confirmed)="confirmDelete()"
   (cancelled)="closeDeleteDialog()"
+/>
+
+<!-- Payment Modal -->
+<fit-flow-payment-modal
+  [isOpen]="showPaymentModal()"
+  (paymentCreated)="onPaymentCreated()"
+  (cancelled)="onModalCancelled()"
 />

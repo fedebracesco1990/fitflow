@@ -2,7 +2,7 @@ import { Component, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FinancialReportService } from '../../services/financial-report.service';
 import { BehaviorReportService } from '../../services/behavior-report.service';
-import { CardComponent, ButtonComponent, AlertComponent } from '../../../../shared';
+import { ButtonComponent, AlertComponent } from '../../../../shared';
 import { FinancialTabComponent } from '../../components/financial-tab/financial-tab.component';
 import { BehaviorTabComponent } from '../../components/behavior-tab/behavior-tab.component';
 
@@ -13,7 +13,6 @@ type TabType = 'financial' | 'behavior';
   standalone: true,
   imports: [
     CommonModule,
-    CardComponent,
     AlertComponent,
     ButtonComponent,
     FinancialTabComponent,
