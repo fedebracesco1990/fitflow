@@ -1,5 +1,5 @@
 {
-  "public": "browser",
+  "public": "browser/browser",
   "rewrites": [{ "source": "**", "destination": "/index.html" }],
   "headers": [
     {
