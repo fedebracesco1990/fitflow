@@ -1,9 +1,9 @@
 <div class="month-year-filter">
   <div class="filter-group">
     <label for="month-select">Mes:</label>
-    <select 
-      id="month-select" 
-      [value]="selectedMonth()" 
+    <select
+      id="month-select"
+      [value]="selectedMonth()"
       (change)="onMonthChange($event)"
       class="filter-select"
     >
@@ -15,9 +15,9 @@
 
   <div class="filter-group">
     <label for="year-select">Año:</label>
-    <select 
-      id="year-select" 
-      [value]="selectedYear()" 
+    <select
+      id="year-select"
+      [value]="selectedYear()"
       (change)="onYearChange($event)"
       class="filter-select"
     >

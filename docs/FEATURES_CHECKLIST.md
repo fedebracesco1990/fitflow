@@ -427,7 +427,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-36] Sistema de Notificaciones con Firebase
+### [FITFLOW-36] Sistema de Notificaciones con Firebase ✅
 
 **Tipo:** Backend
 
@@ -435,15 +435,22 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Configuración de Firebase Admin SDK
-- [ ] Servicio de notificaciones creado
-- [ ] POST /api/notifications/send
-- [ ] Almacenamiento de tokens de dispositivos
-- [ ] Templates de notificaciones predefinidos
+- [x] Configuración de Firebase Admin SDK
+- [x] Servicio de notificaciones creado
+- [x] POST /api/notifications/send
+- [x] Almacenamiento de tokens de dispositivos
+- [x] Templates de notificaciones predefinidos
+
+**Implementación:**
+
+- `NotificationsModule` con service, controller, DTOs
+- Entidades: `DeviceToken`, `NotificationTemplate`
+- 4 templates predefinidos: MEMBERSHIP_EXPIRING, MEMBERSHIP_EXPIRED, LOW_ATTENDANCE, CUSTOM
+- Soporte multi-dispositivo por usuario
 
 ---
 
-### [FITFLOW-37] Gestión de Notificaciones Push
+### [FITFLOW-37] Gestión de Notificaciones Push ✅
 
 **Tipo:** Frontend
 
@@ -451,15 +458,24 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Solicitud de permisos de notificaciones
-- [ ] Registro de token FCM en backend
-- [ ] Service Worker configurado para notificaciones
-- [ ] Manejo de notificaciones en primer/segundo plano
-- [ ] Centro de notificaciones en la app
+- [x] Solicitud de permisos de notificaciones
+- [x] Registro de token FCM en backend
+- [x] Service Worker configurado para notificaciones
+- [x] Manejo de notificaciones en primer/segundo plano
+- [x] Centro de notificaciones en la app
+
+**Implementación:**
+
+- `PushNotificationsService` - Integración Firebase Messaging
+- `NotificationsState` (NGXS) - State management con persistencia
+- `NotificationBellComponent` - Icono con badge de no leídas
+- `NotificationCenterComponent` - Panel con lista de notificaciones
+- `NotificationPromptComponent` - Modal para solicitar permisos
+- `firebase-messaging-sw.js` - Service Worker para background
 
 ---
 
-### [FITFLOW-38] Cron Job de Notificaciones Automáticas
+### [FITFLOW-38] Cron Job de Notificaciones Automáticas ✅ COMPLETO
 
 **Tipo:** Backend
 
@@ -467,47 +483,57 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Cron job diario para revisar vencimientos
-- [ ] Notificación 3 días antes del vencimiento
-- [ ] Notificación al vencer la cuota
-- [ ] Notificación de baja asistencia (<8 visitas/mes)
-- [ ] Configuración de días de anticipación
+- [x] Cron job diario para revisar vencimientos
+- [x] Notificación 3 días antes del vencimiento
+- [x] Notificación al vencer la cuota
+- [x] Notificación de baja asistencia (<8 visitas/mes)
+- [x] Configuración de días de anticipación
+
+**Implementación:**
+
+- `SchedulerModule` con `@nestjs/schedule`
+- `SchedulerService` con 3 cron jobs:
+  - `handleExpiringMemberships()` - Diario 8:00 AM (America/Montevideo)
+  - `handleExpiredMemberships()` - Diario 8:00 AM
+  - `handleLowAttendance()` - Semanal Lunes 9:00 AM
+- Constantes configurables: `EXPIRATION_DAYS_AHEAD`, `MIN_MONTHLY_VISITS`
+- Método `findUsersWithLowAttendance()` en AttendanceService
 
 ---
 
 ## Estado de Implementación - Tareas Requeridas
 
-| ID         | Funcionalidad                         | Estado       | Notas                                                                 |
-| ---------- | ------------------------------------- | ------------ | --------------------------------------------------------------------- |
-| FITFLOW-10 | Configuración de Repositorio          | ✅ COMPLETO  | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json |
-| FITFLOW-11 | Diseño de Arquitectura                | ✅ COMPLETO  | ARCHITECTURE.md con diagramas Mermaid, modelo de datos, PWA           |
-| FITFLOW-12 | Modelo de Base de Datos               | ✅ COMPLETO  | User, MembershipType, Membership, Payment, Exercise, Routine, etc.    |
-| FITFLOW-13 | Taller de Deploy                      | ✅ COMPLETO  | Documentación externa al repositorio                                  |
-| FITFLOW-14 | API de Registro                       | ✅ COMPLETO  | POST /auth/register, validación, bcrypt, rol por defecto              |
-| FITFLOW-15 | Formulario de Registro                | ✅ COMPLETO  | Formulario con validaciones, campos requeridos, responsive            |
-| FITFLOW-16 | API de Login/JWT                      | ✅ COMPLETO  | POST /auth/login, JWT con payload, refresh token, guards              |
-| FITFLOW-17 | Formulario de Login                   | ✅ COMPLETO  | Formulario, localStorage, interceptor, manejo errores                 |
-| FITFLOW-18 | Sistema de Logout                     | ✅ COMPLETO  | Botón en navbar, elimina tokens, redirige, limpia estado              |
-| FITFLOW-19 | Sistema de Roles (Backend)            | ✅ COMPLETO  | Roles enum, @Roles decorator, RolesGuard                              |
-| FITFLOW-20 | Rutas Protegidas (Frontend)           | ✅ COMPLETO  | AuthGuard, RoleGuard, rutas protegidas, dashboard por rol             |
-| FITFLOW-21 | API Recuperación Contraseña           | ⚠️ PARCIAL   | Endpoints creados. Falta: envío real de email                         |
-| FITFLOW-22 | Flujo Recuperación Contraseña         | ✅ COMPLETO  | Link en login, formulario solicitud, página reset, feedback           |
-| FITFLOW-23 | API Tipos de Membresía                | ✅ COMPLETO  | CRUD completo con validaciones y roles                                |
-| FITFLOW-24 | Panel Tipos de Membresía              | ✅ COMPLETO  | Lista, formulario crear/editar, eliminar, solo admin                  |
-| FITFLOW-25 | API de Pagos                          | ✅ COMPLETO  | CRUD completo con validaciones y roles                                |
-| FITFLOW-26 | Formulario de Pagos                   | ✅ COMPLETO  | Formulario crear/editar pago, selección membresía                     |
-| FITFLOW-27 | Lista de Pagos                        | ✅ COMPLETO  | Lista con tabla, filtros, acciones, solo admin                        |
-| FITFLOW-28 | API Dashboard Financiero              | ✅ COMPLETO  | GET /dashboard/financial con KPIs, morosos, vencimientos              |
-| FITFLOW-29 | Dashboard Financiero                  | ✅ COMPLETO  | KPIs, gráfico ingresos, distribución pagos, morosos                   |
-| FITFLOW-30 | Generación de Códigos QR              | ✅ COMPLETO  | QrService con JWT, endpoints GET /users/:id/qr y /profile/me/qr       |
-| FITFLOW-31 | Visualización de QR Personal          | ✅ COMPLETO  | Página Mi QR con fullscreen, descarga PNG, instrucciones              |
-| FITFLOW-32 | API Validación de Acceso por QR       | ✅ COMPLETO  | POST /access/validate-qr, verificación membresía, registro accesos    |
-| FITFLOW-33 | Lector de QR para Control de Acceso   | ✅ COMPLETO  | Escáner QR con html5-qrcode, feedback visual, historial paginado      |
-| FITFLOW-34 | API de Historial de Asistencia        | ✅ COMPLETO  | Módulo attendance, stats por día/mes, permisos por rol                |
-| FITFLOW-35 | Visualización Historial de Asistencia | ✅ COMPLETO  | Calendario, contador, gráficos, vista admin                           |
-| FITFLOW-36 | Sistema de Notificaciones Firebase    | ⬜ PENDIENTE | FCM SDK, endpoints, templates                                         |
-| FITFLOW-37 | Gestión de Notificaciones Push        | ⬜ PENDIENTE | Permisos, registro tokens, service worker                             |
-| FITFLOW-38 | Cron Job Notificaciones Automáticas   | ⬜ PENDIENTE | Recordatorios vencimientos, baja asistencia                           |
+| ID         | Funcionalidad                         | Estado      | Notas                                                                 |
+| ---------- | ------------------------------------- | ----------- | --------------------------------------------------------------------- |
+| FITFLOW-10 | Configuración de Repositorio          | ✅ COMPLETO | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json |
+| FITFLOW-11 | Diseño de Arquitectura                | ✅ COMPLETO | ARCHITECTURE.md con diagramas Mermaid, modelo de datos, PWA           |
+| FITFLOW-12 | Modelo de Base de Datos               | ✅ COMPLETO | User, MembershipType, Membership, Payment, Exercise, Routine, etc.    |
+| FITFLOW-13 | Taller de Deploy                      | ✅ COMPLETO | Documentación externa al repositorio                                  |
+| FITFLOW-14 | API de Registro                       | ✅ COMPLETO | POST /auth/register, validación, bcrypt, rol por defecto              |
+| FITFLOW-15 | Formulario de Registro                | ✅ COMPLETO | Formulario con validaciones, campos requeridos, responsive            |
+| FITFLOW-16 | API de Login/JWT                      | ✅ COMPLETO | POST /auth/login, JWT con payload, refresh token, guards              |
+| FITFLOW-17 | Formulario de Login                   | ✅ COMPLETO | Formulario, localStorage, interceptor, manejo errores                 |
+| FITFLOW-18 | Sistema de Logout                     | ✅ COMPLETO | Botón en navbar, elimina tokens, redirige, limpia estado              |
+| FITFLOW-19 | Sistema de Roles (Backend)            | ✅ COMPLETO | Roles enum, @Roles decorator, RolesGuard                              |
+| FITFLOW-20 | Rutas Protegidas (Frontend)           | ✅ COMPLETO | AuthGuard, RoleGuard, rutas protegidas, dashboard por rol             |
+| FITFLOW-21 | API Recuperación Contraseña           | ⚠️ PARCIAL  | Endpoints creados. Falta: envío real de email                         |
+| FITFLOW-22 | Flujo Recuperación Contraseña         | ✅ COMPLETO | Link en login, formulario solicitud, página reset, feedback           |
+| FITFLOW-23 | API Tipos de Membresía                | ✅ COMPLETO | CRUD completo con validaciones y roles                                |
+| FITFLOW-24 | Panel Tipos de Membresía              | ✅ COMPLETO | Lista, formulario crear/editar, eliminar, solo admin                  |
+| FITFLOW-25 | API de Pagos                          | ✅ COMPLETO | CRUD completo con validaciones y roles                                |
+| FITFLOW-26 | Formulario de Pagos                   | ✅ COMPLETO | Formulario crear/editar pago, selección membresía                     |
+| FITFLOW-27 | Lista de Pagos                        | ✅ COMPLETO | Lista con tabla, filtros, acciones, solo admin                        |
+| FITFLOW-28 | API Dashboard Financiero              | ✅ COMPLETO | GET /dashboard/financial con KPIs, morosos, vencimientos              |
+| FITFLOW-29 | Dashboard Financiero                  | ✅ COMPLETO | KPIs, gráfico ingresos, distribución pagos, morosos                   |
+| FITFLOW-30 | Generación de Códigos QR              | ✅ COMPLETO | QrService con JWT, endpoints GET /users/:id/qr y /profile/me/qr       |
+| FITFLOW-31 | Visualización de QR Personal          | ✅ COMPLETO | Página Mi QR con fullscreen, descarga PNG, instrucciones              |
+| FITFLOW-32 | API Validación de Acceso por QR       | ✅ COMPLETO | POST /access/validate-qr, verificación membresía, registro accesos    |
+| FITFLOW-33 | Lector de QR para Control de Acceso   | ✅ COMPLETO | Escáner QR con html5-qrcode, feedback visual, historial paginado      |
+| FITFLOW-34 | API de Historial de Asistencia        | ✅ COMPLETO | Módulo attendance, stats por día/mes, permisos por rol                |
+| FITFLOW-35 | Visualización Historial de Asistencia | ✅ COMPLETO | Calendario, contador, gráficos, vista admin                           |
+| FITFLOW-36 | Sistema de Notificaciones Firebase    | ✅ COMPLETO | NotificationsModule, DeviceToken, templates, FCM SDK                  |
+| FITFLOW-37 | Gestión de Notificaciones Push        | ✅ COMPLETO | PushNotificationsService, NotificationsState, UI components           |
+| FITFLOW-38 | Cron Job Notificaciones Automáticas   | ✅ COMPLETO | SchedulerModule, 3 cron jobs, constantes configurables                |
 
 ---
 
@@ -556,9 +582,9 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Tareas Requeridas (FITFLOW-10 a FITFLOW-38)
 
-- ✅ **Completadas:** 25
+- ✅ **Completadas:** 28
 - ⚠️ **Parciales:** 1 (FITFLOW-21 - falta envío real de email)
-- ⬜ **Pendientes:** 3 (FITFLOW-36 a FITFLOW-38)
+- ⬜ **Pendientes:** 0
 - **Total:** 29 tareas
 
 ### Tareas Secundarias
@@ -580,16 +606,20 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Prioridad Media
 
-3. **FITFLOW-34 a FITFLOW-35**: Historial de Asistencia
-   - APIs de consulta de asistencia
-   - Dashboard personal de asistencias
+3. ~~**FITFLOW-34 a FITFLOW-35**: Historial de Asistencia~~ ✅ COMPLETADO
+
+   - ~~APIs de consulta de asistencia~~ ✅ FITFLOW-34 completado
+   - ~~Dashboard personal de asistencias~~ ✅ FITFLOW-35 completado
+
+4. ~~**FITFLOW-36 a FITFLOW-37**: Sistema de Notificaciones Push~~ ✅ COMPLETADO
+   - ~~Integración con Firebase Cloud Messaging~~ ✅ FITFLOW-36 completado
+   - ~~Notificaciones push en frontend~~ ✅ FITFLOW-37 completado
 
 ### Prioridad Media-Baja
 
-4. **FITFLOW-36 a FITFLOW-38**: Sistema de Notificaciones
-   - Integración con Firebase Cloud Messaging
-   - Notificaciones push en frontend
-   - Cron jobs para notificaciones automáticas
+5. ~~**FITFLOW-38**: Cron Jobs de Notificaciones Automáticas~~ ✅ COMPLETADO
+   - ~~Recordatorios de vencimientos~~ ✅
+   - ~~Alertas de baja asistencia~~ ✅
 
 ---
 
@@ -607,9 +637,12 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 - FITFLOW-34: API de Historial de Asistencia
 - FITFLOW-35: Visualización Historial
 
-### Sprint 8 - Sistema de Notificaciones (2 semanas)
+### Sprint 8 - Sistema de Notificaciones (2 semanas) ✅ COMPLETO
 
-- FITFLOW-36: Integración Firebase
-- FITFLOW-37: Notificaciones Push Frontend
-- FITFLOW-38: Cron Jobs Automáticos
-- FITFLOW-21: Completar envío de emails
+- ~~FITFLOW-36: Integración Firebase~~ ✅
+- ~~FITFLOW-37: Notificaciones Push Frontend~~ ✅
+- ~~FITFLOW-38: Cron Jobs Automáticos~~ ✅
+
+### Pendiente
+
+- FITFLOW-21: Completar envío de emails ⬜

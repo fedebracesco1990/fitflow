@@ -25,15 +25,18 @@ import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import qrConfig from './config/qr.config';
+import firebaseConfig from './config/firebase.config';
 import { validationSchema } from './config/validation.schema';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { SchedulerModule } from './modules/scheduler/scheduler.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', '../.env'],
-      load: [appConfig, databaseConfig, jwtConfig, qrConfig],
+      load: [appConfig, databaseConfig, jwtConfig, qrConfig, firebaseConfig],
       validationSchema: validationSchema,
       validationOptions: {
         allowUnknown: true,
@@ -94,6 +97,8 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     DashboardModule,
     AccessModule,
     AttendanceModule,
+    NotificationsModule,
+    SchedulerModule,
     SeederModule,
   ],
   controllers: [AppController],

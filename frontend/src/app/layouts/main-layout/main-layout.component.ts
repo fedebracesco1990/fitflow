@@ -1,19 +1,37 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Store, Actions, ofActionSuccessful } from '@ngxs/store';
 import { take } from 'rxjs/operators';
-import { AuthState, Logout, LogoutSuccess } from '../../core/store';
+import {
+  AuthState,
+  Logout,
+  LogoutSuccess,
+  NotificationsState,
+  InitializeNotifications,
+} from '../../core/store';
 import { SidebarComponent, MenuItem, SidebarUser } from '../sidebar/sidebar.component';
 import { LucideAngularModule } from 'lucide-angular';
+import {
+  NotificationBellComponent,
+  NotificationCenterComponent,
+  NotificationPromptComponent,
+} from '../../shared/components';
 
 @Component({
   selector: 'fit-flow-main-layout',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, LucideAngularModule],
+  imports: [
+    RouterOutlet,
+    SidebarComponent,
+    LucideAngularModule,
+    NotificationBellComponent,
+    NotificationCenterComponent,
+    NotificationPromptComponent,
+  ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
 })
-export class MainLayoutComponent {
+export class MainLayoutComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly router = inject(Router);
   private readonly actions$ = inject(Actions);
@@ -24,6 +42,10 @@ export class MainLayoutComponent {
 
   readonly sidebarCollapsed = signal(false);
   readonly mobileMenuOpen = signal(false);
+  readonly notificationCenterOpen = signal(false);
+  readonly showNotificationPrompt = signal(false);
+
+  readonly permissionStatus = this.store.selectSignal(NotificationsState.permissionStatus);
 
   readonly sidebarUser = computed<SidebarUser | null>(() => {
     const u = this.user();
@@ -64,6 +86,16 @@ export class MainLayoutComponent {
     return items;
   });
 
+  ngOnInit(): void {
+    this.store.dispatch(new InitializeNotifications());
+
+    setTimeout(() => {
+      if (this.permissionStatus() === 'default') {
+        this.showNotificationPrompt.set(true);
+      }
+    }, 3000);
+  }
+
   toggleSidebar(): void {
     this.sidebarCollapsed.update((v) => !v);
   }
@@ -74,6 +106,18 @@ export class MainLayoutComponent {
 
   closeMobileMenu(): void {
     this.mobileMenuOpen.set(false);
+  }
+
+  toggleNotificationCenter(): void {
+    this.notificationCenterOpen.update((v) => !v);
+  }
+
+  closeNotificationCenter(): void {
+    this.notificationCenterOpen.set(false);
+  }
+
+  dismissNotificationPrompt(): void {
+    this.showNotificationPrompt.set(false);
   }
 
   logout(): void {

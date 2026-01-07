@@ -1,9 +1,10 @@
 {
-  "name": "frontend",
-  "short_name": "frontend",
+  "name": "FitFlow",
+  "short_name": "FitFlow",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
+  "gcm_sender_id": "103953800507",
   "icons": [
     {
       "src": "icons/icon-72x72.png",

@@ -3,11 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BehaviorReportService } from '../../services/behavior-report.service';
 import { BehaviorReport } from '../../models';
-import {
-  CardComponent,
-  LoadingSpinnerComponent,
-  AlertComponent,
-} from '../../../../shared';
+import { CardComponent, LoadingSpinnerComponent, AlertComponent } from '../../../../shared';
 import { BehaviorMetricsComponent } from '../behavior-metrics/behavior-metrics.component';
 import { MemberAnalysisTableComponent } from '../member-analysis-table/member-analysis-table.component';
 

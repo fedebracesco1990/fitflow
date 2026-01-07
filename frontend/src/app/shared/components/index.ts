@@ -8,3 +8,6 @@ export * from './tooltip/tooltip.component';
 export * from './empty-state/empty-state.component';
 export * from './loading-spinner/loading-spinner.component';
 export * from './attendance-calendar/attendance-calendar.component';
+export * from './notification-bell/notification-bell.component';
+export * from './notification-center/notification-center.component';
+export * from './notification-prompt/notification-prompt.component';

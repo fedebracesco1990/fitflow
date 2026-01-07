@@ -19,7 +19,9 @@ export class FinancialReportService {
     if (year) {
       params = params.set('year', year.toString());
     }
-    return this.http.get<FinancialReport>(`${this.baseUrl}/dashboard/reports/financial`, { params });
+    return this.http.get<FinancialReport>(`${this.baseUrl}/dashboard/reports/financial`, {
+      params,
+    });
   }
 
   exportFinancialCsv(month?: number, year?: number): Observable<Blob> {

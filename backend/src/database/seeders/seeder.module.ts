@@ -12,6 +12,7 @@ import { MembershipType } from '../../modules/membership-types/entities/membersh
 import { Membership } from '../../modules/memberships/entities/membership.entity';
 import { Payment } from '../../modules/payments/entities/payment.entity';
 import { AccessLog } from '../../modules/access/entities/access-log.entity';
+import { NotificationTemplate } from '../../modules/notifications/entities/notification-template.entity';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AccessLog } from '../../modules/access/entities/access-log.entity';
       Membership,
       Payment,
       AccessLog,
+      NotificationTemplate,
     ]),
     MuscleGroupsModule,
   ],

@@ -2,22 +2,12 @@
   <div class="filters-section">
     <div class="filter-group">
       <label for="start-date">Fecha Inicio:</label>
-      <input 
-        type="date" 
-        id="start-date" 
-        [(ngModel)]="startDate"
-        class="date-input"
-      />
+      <input type="date" id="start-date" [(ngModel)]="startDate" class="date-input" />
     </div>
 
     <div class="filter-group">
       <label for="end-date">Fecha Fin:</label>
-      <input 
-        type="date" 
-        id="end-date" 
-        [(ngModel)]="endDate"
-        class="date-input"
-      />
+      <input type="date" id="end-date" [(ngModel)]="endDate" class="date-input" />
     </div>
 
     <div class="filter-actions">
@@ -44,7 +34,9 @@
         <h3>Análisis de Miembros</h3>
         <span class="total-count">Total: {{ report()!.totalMembers }} miembros</span>
       </div>
-      <fit-flow-member-analysis-table [members]="report()!.analisis"></fit-flow-member-analysis-table>
+      <fit-flow-member-analysis-table
+        [members]="report()!.analisis"
+      ></fit-flow-member-analysis-table>
     </fit-flow-card>
   }
 </div>

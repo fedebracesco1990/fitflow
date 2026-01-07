@@ -61,6 +61,17 @@ $transition-speed: 0.2s;
   background-clip: text;
 }
 
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-wrapper {
+  position: relative;
+}
+
 .main-content {
   flex: 1;
   padding: 2rem;

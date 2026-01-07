@@ -12,10 +12,19 @@ export class AddCoverageToPayments1766409048652 implements MigrationInterface {
     // Usar NULLIF para convertir '0000-00-00' a NULL, y COALESCE para usar paymentDate como fallback
     await queryRunner.query(`
       UPDATE \`payments\` p
-      INNER JOIN \`memberships\` m ON p.membershipId = m.id
+      LEFT JOIN \`memberships\` m ON p.membershipId = m.id
       SET 
-        p.coverageStart = COALESCE(NULLIF(m.startDate, '0000-00-00'), p.paymentDate, CURDATE()),
-        p.coverageEnd = COALESCE(NULLIF(m.endDate, '0000-00-00'), DATE_ADD(p.paymentDate, INTERVAL 30 DAY), DATE_ADD(CURDATE(), INTERVAL 30 DAY))
+        p.coverageStart = COALESCE(
+          NULLIF(m.startDate, '0000-00-00'), 
+          NULLIF(p.paymentDate, '0000-00-00'),
+          CURDATE()
+        ),
+        p.coverageEnd = COALESCE(
+          NULLIF(m.endDate, '0000-00-00'), 
+          DATE_ADD(NULLIF(p.paymentDate, '0000-00-00'), INTERVAL 30 DAY),
+          DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+        )
+      WHERE p.coverageStart IS NULL OR p.coverageEnd IS NULL
     `);
 
     // Paso 3: Cambiar columnas a NOT NULL después de poblar datos

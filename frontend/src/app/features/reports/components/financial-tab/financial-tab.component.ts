@@ -2,11 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FinancialReportService } from '../../services/financial-report.service';
 import { FinancialReport } from '../../models';
-import {
-  CardComponent,
-  LoadingSpinnerComponent,
-  AlertComponent,
-} from '../../../../shared';
+import { CardComponent, LoadingSpinnerComponent, AlertComponent } from '../../../../shared';
 import { MonthYearFilterComponent } from '../month-year-filter/month-year-filter.component';
 import { TransactionsTableComponent } from '../transactions-table/transactions-table.component';
 
