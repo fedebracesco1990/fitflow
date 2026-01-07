@@ -1,5 +1,6 @@
 import { IsString, IsOptional, IsEnum, IsUrl, MaxLength, IsUUID } from 'class-validator';
 import { Difficulty } from '../../../common/enums/difficulty.enum';
+import { Equipment } from '../../../common/enums/equipment.enum';
 
 export class CreateExerciseDto {
   @IsString()
@@ -16,6 +17,10 @@ export class CreateExerciseDto {
   @IsOptional()
   @IsEnum(Difficulty)
   difficulty?: Difficulty;
+
+  @IsOptional()
+  @IsEnum(Equipment)
+  equipment?: Equipment;
 
   @IsOptional()
   @IsUrl()

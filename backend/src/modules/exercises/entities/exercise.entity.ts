@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Difficulty } from '../../../common/enums/difficulty.enum';
+import { Equipment } from '../../../common/enums/equipment.enum';
 import { MuscleGroup } from '../../muscle-groups/entities/muscle-group.entity';
 
 @Entity('exercises')
@@ -34,6 +35,13 @@ export class Exercise {
     default: Difficulty.BEGINNER,
   })
   difficulty: Difficulty;
+
+  @Column({
+    type: 'enum',
+    enum: Equipment,
+    default: Equipment.NONE,
+  })
+  equipment: Equipment;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   videoUrl: string | null;

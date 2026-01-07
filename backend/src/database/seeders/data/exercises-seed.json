@@ -1,0 +1,1068 @@
+{
+  "exercises": [
+    {
+      "name": "Press de Banca",
+      "description": "Acostado en banco plano, bajar barra al pecho y empujar hacia arriba",
+      "muscleCode": "chest",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Press Inclinado con Barra",
+      "description": "En banco inclinado a 30-45 grados, press con barra",
+      "muscleCode": "chest",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Press Declinado con Barra",
+      "description": "En banco declinado, press con barra para pecho inferior",
+      "muscleCode": "chest",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Press de Banca con Mancuernas",
+      "description": "Acostado en banco plano, press con mancuernas",
+      "muscleCode": "chest",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Press Inclinado con Mancuernas",
+      "description": "En banco inclinado, press con mancuernas",
+      "muscleCode": "chest",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Aperturas con Mancuernas",
+      "description": "Movimiento de apertura y cierre con brazos en banco plano",
+      "muscleCode": "chest",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Aperturas Inclinadas",
+      "description": "Aperturas en banco inclinado para pecho superior",
+      "muscleCode": "chest",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Fondos en Paralelas",
+      "description": "Bajar el cuerpo flexionando codos y empujar, inclinando hacia adelante",
+      "muscleCode": "chest",
+      "difficulty": "advanced",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Flexiones de Pecho",
+      "description": "Flexiones tradicionales con manos a la altura de los hombros",
+      "muscleCode": "chest",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Flexiones Inclinadas",
+      "description": "Flexiones con manos elevadas para principiantes",
+      "muscleCode": "chest",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Flexiones Declinadas",
+      "description": "Flexiones con pies elevados para mayor intensidad",
+      "muscleCode": "chest",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Flexiones Diamante",
+      "description": "Flexiones con manos juntas formando un diamante",
+      "muscleCode": "chest",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Cruces en Polea Alta",
+      "description": "De pie entre poleas, cruzar cables hacia abajo",
+      "muscleCode": "chest",
+      "difficulty": "intermediate",
+      "equipment": "cable"
+    },
+    {
+      "name": "Cruces en Polea Baja",
+      "description": "De pie entre poleas, cruzar cables hacia arriba",
+      "muscleCode": "chest",
+      "difficulty": "intermediate",
+      "equipment": "cable"
+    },
+    {
+      "name": "Press en Máquina",
+      "description": "Press de pecho en máquina guiada",
+      "muscleCode": "chest",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Pec Deck",
+      "description": "Aperturas en máquina contractora",
+      "muscleCode": "chest",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Pullover con Mancuerna",
+      "description": "Acostado, llevar mancuerna detrás de la cabeza y volver",
+      "muscleCode": "chest",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Dominadas",
+      "description": "Colgarse de barra y subir el cuerpo hasta que el mentón pase la barra",
+      "muscleCode": "back",
+      "difficulty": "advanced",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Dominadas Supinas",
+      "description": "Dominadas con agarre supino (palmas hacia ti)",
+      "muscleCode": "back",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Dominadas Neutras",
+      "description": "Dominadas con agarre neutro (palmas enfrentadas)",
+      "muscleCode": "back",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Dominadas Asistidas",
+      "description": "Dominadas con asistencia de máquina o banda",
+      "muscleCode": "back",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Remo con Barra",
+      "description": "Inclinado hacia adelante, tirar barra hacia el abdomen",
+      "muscleCode": "back",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Remo Pendlay",
+      "description": "Remo con barra desde el suelo, torso paralelo",
+      "muscleCode": "back",
+      "difficulty": "advanced",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Remo con Mancuerna",
+      "description": "Apoyado en banco, tirar mancuerna hacia la cadera",
+      "muscleCode": "back",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Remo con Mancuernas a Dos Manos",
+      "description": "Inclinado, remar con ambas mancuernas simultáneamente",
+      "muscleCode": "back",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Jalón al Pecho",
+      "description": "En máquina de polea alta, tirar barra hacia el pecho",
+      "muscleCode": "back",
+      "difficulty": "beginner",
+      "equipment": "cable"
+    },
+    {
+      "name": "Jalón Supino",
+      "description": "Jalón con agarre supino para énfasis en dorsales bajos",
+      "muscleCode": "back",
+      "difficulty": "beginner",
+      "equipment": "cable"
+    },
+    {
+      "name": "Jalón con Agarre Cerrado",
+      "description": "Jalón con agarre en V cerrado",
+      "muscleCode": "back",
+      "difficulty": "beginner",
+      "equipment": "cable"
+    },
+    {
+      "name": "Remo en Polea Baja",
+      "description": "Sentado, tirar polea hacia el abdomen",
+      "muscleCode": "back",
+      "difficulty": "beginner",
+      "equipment": "cable"
+    },
+    {
+      "name": "Remo en Máquina",
+      "description": "Remo en máquina con soporte de pecho",
+      "muscleCode": "back",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Peso Muerto Convencional",
+      "description": "Levantar barra del suelo con espalda recta",
+      "muscleCode": "back",
+      "difficulty": "advanced",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Peso Muerto Sumo",
+      "description": "Peso muerto con piernas abiertas y agarre estrecho",
+      "muscleCode": "back",
+      "difficulty": "advanced",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Pullover en Polea",
+      "description": "De pie frente a polea alta, tirar barra hacia abajo con brazos rectos",
+      "muscleCode": "back",
+      "difficulty": "intermediate",
+      "equipment": "cable"
+    },
+    {
+      "name": "Remo T-Bar",
+      "description": "Remo con barra en soporte T-bar",
+      "muscleCode": "back",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Encogimientos con Barra",
+      "description": "De pie con barra, elevar hombros hacia las orejas",
+      "muscleCode": "back",
+      "difficulty": "beginner",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Encogimientos con Mancuernas",
+      "description": "Encogimientos de hombros con mancuernas a los lados",
+      "muscleCode": "back",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Press Militar con Barra",
+      "description": "De pie o sentado, empujar barra sobre la cabeza",
+      "muscleCode": "shoulders",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Press Militar con Mancuernas",
+      "description": "Press de hombros con mancuernas sentado o de pie",
+      "muscleCode": "shoulders",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Press Arnold",
+      "description": "Press con rotación de muñecas durante el movimiento",
+      "muscleCode": "shoulders",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Elevaciones Laterales",
+      "description": "Elevar mancuernas a los lados hasta la altura de los hombros",
+      "muscleCode": "shoulders",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Elevaciones Laterales en Polea",
+      "description": "Elevaciones laterales usando polea baja",
+      "muscleCode": "shoulders",
+      "difficulty": "intermediate",
+      "equipment": "cable"
+    },
+    {
+      "name": "Elevaciones Frontales",
+      "description": "Elevar mancuernas al frente hasta la altura de los hombros",
+      "muscleCode": "shoulders",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Elevaciones Frontales con Barra",
+      "description": "Elevar barra al frente con brazos rectos",
+      "muscleCode": "shoulders",
+      "difficulty": "beginner",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Elevaciones Frontales con Disco",
+      "description": "Elevar disco al frente agarrándolo por los lados",
+      "muscleCode": "shoulders",
+      "difficulty": "beginner",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Pájaros con Mancuernas",
+      "description": "Inclinado, elevar mancuernas a los lados para deltoides posterior",
+      "muscleCode": "shoulders",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Pájaros en Máquina",
+      "description": "Aperturas inversas en máquina pec deck",
+      "muscleCode": "shoulders",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Face Pull",
+      "description": "Tirar cuerda hacia la cara desde polea alta",
+      "muscleCode": "shoulders",
+      "difficulty": "beginner",
+      "equipment": "cable"
+    },
+    {
+      "name": "Remo al Mentón",
+      "description": "Tirar barra hacia arriba hasta el mentón",
+      "muscleCode": "shoulders",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Press en Máquina de Hombros",
+      "description": "Press de hombros en máquina guiada",
+      "muscleCode": "shoulders",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Curl con Barra",
+      "description": "Flexionar codos subiendo barra con agarre supino",
+      "muscleCode": "biceps",
+      "difficulty": "beginner",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Curl con Barra Z",
+      "description": "Curl con barra Z para menor tensión en muñecas",
+      "muscleCode": "biceps",
+      "difficulty": "beginner",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Curl con Mancuernas Alterno",
+      "description": "Curl alternando brazos con supinación",
+      "muscleCode": "biceps",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Curl con Mancuernas Simultáneo",
+      "description": "Curl con ambas mancuernas al mismo tiempo",
+      "muscleCode": "biceps",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Curl Martillo",
+      "description": "Curl con agarre neutro (palmas enfrentadas)",
+      "muscleCode": "biceps",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Curl Concentrado",
+      "description": "Sentado, curl con codo apoyado en la rodilla",
+      "muscleCode": "biceps",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Curl en Banco Inclinado",
+      "description": "Curl con mancuernas en banco inclinado hacia atrás",
+      "muscleCode": "biceps",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Curl en Banco Scott",
+      "description": "Curl con brazos apoyados en banco predicador",
+      "muscleCode": "biceps",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Curl en Polea Baja",
+      "description": "Curl de bíceps usando polea baja",
+      "muscleCode": "biceps",
+      "difficulty": "beginner",
+      "equipment": "cable"
+    },
+    {
+      "name": "Curl en Polea Alta",
+      "description": "Curl con brazos extendidos hacia los lados",
+      "muscleCode": "biceps",
+      "difficulty": "intermediate",
+      "equipment": "cable"
+    },
+    {
+      "name": "Curl Araña",
+      "description": "Curl en banco inclinado con pecho apoyado",
+      "muscleCode": "biceps",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Curl 21s",
+      "description": "7 reps parciales bajas + 7 altas + 7 completas",
+      "muscleCode": "biceps",
+      "difficulty": "advanced",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Press Francés con Barra",
+      "description": "Acostado, bajar barra a la frente y extender",
+      "muscleCode": "triceps",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Press Francés con Mancuerna",
+      "description": "Extensión de tríceps acostado con mancuerna",
+      "muscleCode": "triceps",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Extensión de Tríceps sobre Cabeza",
+      "description": "De pie o sentado, extender mancuerna sobre la cabeza",
+      "muscleCode": "triceps",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Extensión de Tríceps a Dos Manos",
+      "description": "Extensión sobre cabeza con una mancuerna agarrada con ambas manos",
+      "muscleCode": "triceps",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Fondos en Banco",
+      "description": "Bajar y subir el cuerpo apoyando manos en banco detrás",
+      "muscleCode": "triceps",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Fondos en Paralelas para Tríceps",
+      "description": "Fondos con torso erguido para énfasis en tríceps",
+      "muscleCode": "triceps",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Extensión en Polea Alta",
+      "description": "Empujar cuerda o barra hacia abajo extendiendo codos",
+      "muscleCode": "triceps",
+      "difficulty": "beginner",
+      "equipment": "cable"
+    },
+    {
+      "name": "Extensión en Polea con Cuerda",
+      "description": "Extensión de tríceps con cuerda separando al final",
+      "muscleCode": "triceps",
+      "difficulty": "beginner",
+      "equipment": "cable"
+    },
+    {
+      "name": "Extensión en Polea Inversa",
+      "description": "Extensión con agarre supino en polea",
+      "muscleCode": "triceps",
+      "difficulty": "intermediate",
+      "equipment": "cable"
+    },
+    {
+      "name": "Patada de Tríceps",
+      "description": "Inclinado, extender brazo hacia atrás",
+      "muscleCode": "triceps",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Press Cerrado",
+      "description": "Press de banca con agarre cerrado para tríceps",
+      "muscleCode": "triceps",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Flexiones Diamante",
+      "description": "Flexiones con manos juntas para énfasis en tríceps",
+      "muscleCode": "triceps",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Sentadilla con Barra",
+      "description": "Sentadilla con barra sobre los trapecios",
+      "muscleCode": "legs",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Sentadilla Frontal",
+      "description": "Sentadilla con barra en la parte frontal de los hombros",
+      "muscleCode": "legs",
+      "difficulty": "advanced",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Sentadilla Goblet",
+      "description": "Sentadilla sosteniendo mancuerna o kettlebell al pecho",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Sentadilla Búlgara",
+      "description": "Sentadilla con pie trasero elevado en banco",
+      "muscleCode": "legs",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Sentadilla Sumo",
+      "description": "Sentadilla con piernas muy abiertas y pies hacia afuera",
+      "muscleCode": "legs",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Sentadilla Hack",
+      "description": "Sentadilla en máquina hack con espalda apoyada",
+      "muscleCode": "legs",
+      "difficulty": "intermediate",
+      "equipment": "machine"
+    },
+    {
+      "name": "Prensa de Piernas",
+      "description": "Empujar plataforma con piernas en prensa 45 grados",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Prensa de Piernas Horizontal",
+      "description": "Prensa de piernas en máquina horizontal",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Extensión de Cuádriceps",
+      "description": "En máquina, extender piernas desde posición sentada",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Curl de Piernas Acostado",
+      "description": "Flexionar piernas en máquina boca abajo",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Curl de Piernas Sentado",
+      "description": "Flexionar piernas en máquina sentada",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Zancadas con Mancuernas",
+      "description": "Dar paso largo y bajar con mancuernas",
+      "muscleCode": "legs",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Zancadas con Barra",
+      "description": "Zancadas con barra sobre los hombros",
+      "muscleCode": "legs",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Zancadas Caminando",
+      "description": "Zancadas avanzando con cada paso",
+      "muscleCode": "legs",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Step Ups",
+      "description": "Subir a cajón alternando piernas",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Peso Muerto Rumano",
+      "description": "Bajar barra manteniendo piernas semi-flexionadas",
+      "muscleCode": "legs",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Peso Muerto Rumano con Mancuernas",
+      "description": "Peso muerto rumano con mancuernas",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Peso Muerto a Una Pierna",
+      "description": "Peso muerto rumano en una sola pierna",
+      "muscleCode": "legs",
+      "difficulty": "advanced",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Buenos Días",
+      "description": "Con barra en hombros, inclinarse hacia adelante",
+      "muscleCode": "legs",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Elevación de Talones de Pie",
+      "description": "Elevar talones para trabajar pantorrillas de pie",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Elevación de Talones Sentado",
+      "description": "Elevar talones sentado para sóleo",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Elevación de Talones en Prensa",
+      "description": "Elevar talones en máquina de prensa",
+      "muscleCode": "legs",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Hip Thrust con Barra",
+      "description": "Empuje de cadera con barra apoyado en banco",
+      "muscleCode": "glutes",
+      "difficulty": "intermediate",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Hip Thrust con Mancuerna",
+      "description": "Hip thrust con mancuerna sobre la cadera",
+      "muscleCode": "glutes",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Puente de Glúteos",
+      "description": "Elevar cadera acostado en el suelo",
+      "muscleCode": "glutes",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Puente de Glúteos a Una Pierna",
+      "description": "Puente con una pierna extendida",
+      "muscleCode": "glutes",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Patada de Glúteo en Polea",
+      "description": "Patada hacia atrás con tobillera en polea baja",
+      "muscleCode": "glutes",
+      "difficulty": "beginner",
+      "equipment": "cable"
+    },
+    {
+      "name": "Patada de Glúteo en Máquina",
+      "description": "Patada de glúteo en máquina específica",
+      "muscleCode": "glutes",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Abducción de Cadera en Máquina",
+      "description": "Abrir piernas contra resistencia",
+      "muscleCode": "glutes",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Abducción de Cadera con Banda",
+      "description": "Abducción lateral con banda elástica",
+      "muscleCode": "glutes",
+      "difficulty": "beginner",
+      "equipment": "bands"
+    },
+    {
+      "name": "Clamshell",
+      "description": "Acostado de lado, abrir rodillas con banda",
+      "muscleCode": "glutes",
+      "difficulty": "beginner",
+      "equipment": "bands"
+    },
+    {
+      "name": "Sentadilla Sumo con Mancuerna",
+      "description": "Sentadilla amplia con mancuerna colgando",
+      "muscleCode": "glutes",
+      "difficulty": "beginner",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Frog Pumps",
+      "description": "Puente con plantas de pies juntas y rodillas abiertas",
+      "muscleCode": "glutes",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Plancha Frontal",
+      "description": "Mantener posición de plancha sobre antebrazos",
+      "muscleCode": "core",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Plancha Lateral",
+      "description": "Plancha apoyado en un antebrazo de lado",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Plancha con Elevación de Brazo",
+      "description": "Plancha alternando elevación de brazos",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Plancha con Elevación de Pierna",
+      "description": "Plancha alternando elevación de piernas",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Crunch Abdominal",
+      "description": "Elevar torso contrayendo abdomen acostado",
+      "muscleCode": "core",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Crunch Inverso",
+      "description": "Elevar caderas del suelo contrayendo abdomen bajo",
+      "muscleCode": "core",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Crunch en Polea",
+      "description": "Crunch arrodillado tirando de polea alta",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "cable"
+    },
+    {
+      "name": "Crunch en Máquina",
+      "description": "Crunch abdominal en máquina específica",
+      "muscleCode": "core",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Elevación de Piernas Colgado",
+      "description": "Colgado de barra, elevar piernas rectas",
+      "muscleCode": "core",
+      "difficulty": "advanced",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Elevación de Rodillas Colgado",
+      "description": "Colgado de barra, elevar rodillas al pecho",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Elevación de Piernas Acostado",
+      "description": "Acostado, elevar piernas rectas sin tocar el suelo",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Bicicleta Abdominal",
+      "description": "Crunch alternando codo a rodilla opuesta",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Russian Twist",
+      "description": "Sentado, rotar torso tocando el suelo a cada lado",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Russian Twist con Peso",
+      "description": "Russian twist sosteniendo mancuerna o disco",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Woodchop en Polea",
+      "description": "Rotación diagonal tirando de polea alta a baja",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "cable"
+    },
+    {
+      "name": "Pallof Press",
+      "description": "Resistir rotación empujando polea al frente",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "cable"
+    },
+    {
+      "name": "Ab Rollout con Rueda",
+      "description": "Rodar hacia adelante con rueda abdominal",
+      "muscleCode": "core",
+      "difficulty": "advanced",
+      "equipment": "none"
+    },
+    {
+      "name": "Dead Bug",
+      "description": "Acostado, extender brazo y pierna opuestos alternando",
+      "muscleCode": "core",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Bird Dog",
+      "description": "En cuatro puntos, extender brazo y pierna opuestos",
+      "muscleCode": "core",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Mountain Climbers",
+      "description": "En posición de plancha, alternar rodillas al pecho rápido",
+      "muscleCode": "core",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Burpees",
+      "description": "Flexión, salto y repetir en movimiento continuo",
+      "muscleCode": "cardio",
+      "difficulty": "advanced",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Burpees sin Flexión",
+      "description": "Burpees simplificados sin la flexión",
+      "muscleCode": "cardio",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Jumping Jacks",
+      "description": "Saltar abriendo brazos y piernas simultáneamente",
+      "muscleCode": "cardio",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "High Knees",
+      "description": "Correr en el lugar elevando rodillas al pecho",
+      "muscleCode": "cardio",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Butt Kicks",
+      "description": "Correr en el lugar llevando talones a los glúteos",
+      "muscleCode": "cardio",
+      "difficulty": "beginner",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Saltos al Cajón",
+      "description": "Saltar sobre cajón y bajar con control",
+      "muscleCode": "cardio",
+      "difficulty": "intermediate",
+      "equipment": "none"
+    },
+    {
+      "name": "Sentadilla con Salto",
+      "description": "Sentadilla explosiva terminando en salto",
+      "muscleCode": "cardio",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Zancada con Salto",
+      "description": "Alternar zancadas con salto en el cambio",
+      "muscleCode": "cardio",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Skaters",
+      "description": "Saltos laterales imitando movimiento de patinador",
+      "muscleCode": "cardio",
+      "difficulty": "intermediate",
+      "equipment": "bodyweight"
+    },
+    {
+      "name": "Cuerda para Saltar",
+      "description": "Saltar la cuerda de forma continua",
+      "muscleCode": "cardio",
+      "difficulty": "beginner",
+      "equipment": "none"
+    },
+    {
+      "name": "Battle Ropes",
+      "description": "Hacer ondas con cuerdas pesadas",
+      "muscleCode": "cardio",
+      "difficulty": "intermediate",
+      "equipment": "none"
+    },
+    {
+      "name": "Remo en Máquina",
+      "description": "Cardio en máquina de remo",
+      "muscleCode": "cardio",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Bicicleta Estática",
+      "description": "Cardio en bicicleta estática",
+      "muscleCode": "cardio",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Cinta de Correr",
+      "description": "Caminar o correr en cinta",
+      "muscleCode": "cardio",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Elíptica",
+      "description": "Cardio en máquina elíptica",
+      "muscleCode": "cardio",
+      "difficulty": "beginner",
+      "equipment": "machine"
+    },
+    {
+      "name": "Escaladora",
+      "description": "Cardio en máquina escaladora",
+      "muscleCode": "cardio",
+      "difficulty": "intermediate",
+      "equipment": "machine"
+    },
+    {
+      "name": "Swing con Kettlebell",
+      "description": "Balancear kettlebell entre las piernas y elevar",
+      "muscleCode": "cardio",
+      "difficulty": "intermediate",
+      "equipment": "kettlebell"
+    },
+    {
+      "name": "Clean con Kettlebell",
+      "description": "Llevar kettlebell del suelo al hombro en un movimiento",
+      "muscleCode": "cardio",
+      "difficulty": "intermediate",
+      "equipment": "kettlebell"
+    },
+    {
+      "name": "Snatch con Kettlebell",
+      "description": "Llevar kettlebell del suelo a overhead en un movimiento",
+      "muscleCode": "cardio",
+      "difficulty": "advanced",
+      "equipment": "kettlebell"
+    },
+    {
+      "name": "Turkish Get Up",
+      "description": "Levantarse del suelo sosteniendo kettlebell arriba",
+      "muscleCode": "cardio",
+      "difficulty": "advanced",
+      "equipment": "kettlebell"
+    },
+    {
+      "name": "Thrusters",
+      "description": "Sentadilla frontal seguida de press sobre cabeza",
+      "muscleCode": "cardio",
+      "difficulty": "advanced",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Wall Balls",
+      "description": "Sentadilla lanzando balón medicinal a la pared",
+      "muscleCode": "cardio",
+      "difficulty": "intermediate",
+      "equipment": "none"
+    },
+    {
+      "name": "Curl de Muñeca con Barra",
+      "description": "Flexionar muñecas con barra, antebrazos apoyados",
+      "muscleCode": "biceps",
+      "difficulty": "beginner",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Extensión de Muñeca con Barra",
+      "description": "Extender muñecas con barra, antebrazos apoyados",
+      "muscleCode": "biceps",
+      "difficulty": "beginner",
+      "equipment": "barbell"
+    },
+    {
+      "name": "Farmer Walk",
+      "description": "Caminar cargando mancuernas pesadas a los lados",
+      "muscleCode": "back",
+      "difficulty": "intermediate",
+      "equipment": "dumbbell"
+    },
+    {
+      "name": "Renegade Row",
+      "description": "En posición de plancha, remar mancuernas alternando",
+      "muscleCode": "back",
+      "difficulty": "advanced",
+      "equipment": "dumbbell"
+    }
+  ]
+}

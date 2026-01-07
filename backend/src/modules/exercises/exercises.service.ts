@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Exercise } from './entities/exercise.entity';
-import { CreateExerciseDto, UpdateExerciseDto } from './dto';
+import { CreateExerciseDto, UpdateExerciseDto, FilterExercisesDto } from './dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
@@ -13,7 +13,6 @@ export class ExercisesService {
   ) {}
 
   async create(createDto: CreateExerciseDto): Promise<Exercise> {
-    // Verificar nombre único
     const existing = await this.exerciseRepository.findOne({
       where: { name: createDto.name },
     });
@@ -25,19 +24,49 @@ export class ExercisesService {
     return await this.exerciseRepository.save(exercise);
   }
 
-  async findAll(
-    includeInactive = false,
-    page = 1,
-    limit = 20
-  ): Promise<PaginatedResponse<Exercise>> {
-    const where = includeInactive ? {} : { isActive: true };
-    const [data, total] = await this.exerciseRepository.findAndCount({
-      where,
-      relations: ['muscleGroup'],
-      order: { name: 'ASC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+  async findAll(filters: FilterExercisesDto): Promise<PaginatedResponse<Exercise>> {
+    const {
+      page = 1,
+      limit = 20,
+      includeInactive,
+      muscleGroupId,
+      difficulty,
+      equipment,
+      search,
+    } = filters;
+
+    const queryBuilder = this.exerciseRepository
+      .createQueryBuilder('exercise')
+      .leftJoinAndSelect('exercise.muscleGroup', 'muscleGroup');
+
+    if (includeInactive !== 'true') {
+      queryBuilder.andWhere('exercise.isActive = :isActive', { isActive: true });
+    }
+
+    if (muscleGroupId) {
+      queryBuilder.andWhere('exercise.muscleGroupId = :muscleGroupId', { muscleGroupId });
+    }
+
+    if (difficulty) {
+      queryBuilder.andWhere('exercise.difficulty = :difficulty', { difficulty });
+    }
+
+    if (equipment) {
+      queryBuilder.andWhere('exercise.equipment = :equipment', { equipment });
+    }
+
+    if (search) {
+      queryBuilder.andWhere('(exercise.name LIKE :search OR exercise.description LIKE :search)', {
+        search: `%${search}%`,
+      });
+    }
+
+    queryBuilder
+      .orderBy('exercise.name', 'ASC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
 
     return {
       data,

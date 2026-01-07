@@ -18,8 +18,21 @@ import {
 } from '../../modules/notifications/entities/notification-template.entity';
 import { Role } from '../../common/enums/role.enum';
 import { Difficulty } from '../../common/enums/difficulty.enum';
+import { Equipment } from '../../common/enums/equipment.enum';
 import { DayOfWeek } from '../../common/enums/day-of-week.enum';
 import { AccessType } from '../../common/enums/access-type.enum';
+import * as fs from 'fs';
+import * as path from 'path';
+
+interface ExerciseSeedData {
+  name: string;
+  description: string;
+  muscleCode: string;
+  difficulty: string;
+  equipment: string;
+  videoUrl?: string;
+  imageUrl?: string;
+}
 
 @Injectable()
 export class SeederService implements OnModuleInit {
@@ -196,197 +209,35 @@ export class SeederService implements OnModuleInit {
   }
 
   async seedExercises() {
-    const exercisesData = [
-      // Pecho
-      {
-        name: 'Press de Banca',
-        muscleCode: 'chest',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'Acostado en banco plano, bajar barra al pecho y empujar',
-      },
-      {
-        name: 'Press Inclinado con Mancuernas',
-        muscleCode: 'chest',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'En banco inclinado, press con mancuernas',
-      },
-      {
-        name: 'Fondos en Paralelas',
-        muscleCode: 'chest',
-        difficulty: Difficulty.ADVANCED,
-        description: 'Bajar el cuerpo flexionando codos y empujar',
-      },
-      {
-        name: 'Aperturas con Mancuernas',
-        muscleCode: 'chest',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Movimiento de apertura y cierre con brazos',
-      },
-      // Espalda
-      {
-        name: 'Dominadas',
-        muscleCode: 'back',
-        difficulty: Difficulty.ADVANCED,
-        description: 'Colgarse de barra y subir el cuerpo',
-      },
-      {
-        name: 'Remo con Barra',
-        muscleCode: 'back',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'Inclinado, tirar barra hacia el abdomen',
-      },
-      {
-        name: 'Jalón al Pecho',
-        muscleCode: 'back',
-        difficulty: Difficulty.BEGINNER,
-        description: 'En máquina, tirar barra hacia el pecho',
-      },
-      {
-        name: 'Remo con Mancuerna',
-        muscleCode: 'back',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Apoyado en banco, tirar mancuerna',
-      },
-      // Hombros
-      {
-        name: 'Press Militar',
-        muscleCode: 'shoulders',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'Empujar barra sobre la cabeza',
-      },
-      {
-        name: 'Elevaciones Laterales',
-        muscleCode: 'shoulders',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Elevar mancuernas a los lados',
-      },
-      {
-        name: 'Elevaciones Frontales',
-        muscleCode: 'shoulders',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Elevar mancuernas al frente',
-      },
-      // Bíceps
-      {
-        name: 'Curl con Barra',
-        muscleCode: 'biceps',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Flexionar codos subiendo barra',
-      },
-      {
-        name: 'Curl con Mancuernas',
-        muscleCode: 'biceps',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Curl alternado con mancuernas',
-      },
-      {
-        name: 'Curl Martillo',
-        muscleCode: 'biceps',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Curl con agarre neutro',
-      },
-      // Tríceps
-      {
-        name: 'Fondos en Banco',
-        muscleCode: 'triceps',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Bajar y subir apoyado en banco',
-      },
-      {
-        name: 'Extensión de Tríceps',
-        muscleCode: 'triceps',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Extensión sobre la cabeza',
-      },
-      {
-        name: 'Press Francés',
-        muscleCode: 'triceps',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'Acostado, bajar barra a la frente',
-      },
-      // Piernas
-      {
-        name: 'Sentadilla',
-        muscleCode: 'legs',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'Bajar flexionando rodillas y caderas',
-      },
-      {
-        name: 'Prensa de Piernas',
-        muscleCode: 'legs',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Empujar plataforma con piernas',
-      },
-      {
-        name: 'Extensión de Cuádriceps',
-        muscleCode: 'legs',
-        difficulty: Difficulty.BEGINNER,
-        description: 'En máquina, extender piernas',
-      },
-      {
-        name: 'Curl de Piernas',
-        muscleCode: 'legs',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Flexionar piernas en máquina',
-      },
-      {
-        name: 'Zancadas',
-        muscleCode: 'legs',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'Dar paso largo y bajar',
-      },
-      // Glúteos
-      {
-        name: 'Hip Thrust',
-        muscleCode: 'glutes',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'Empuje de cadera con barra',
-      },
-      {
-        name: 'Peso Muerto Rumano',
-        muscleCode: 'glutes',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'Bajar barra manteniendo piernas semi-flexionadas',
-      },
-      // Core
-      {
-        name: 'Plancha',
-        muscleCode: 'core',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Mantener posición de plancha',
-      },
-      {
-        name: 'Crunch Abdominal',
-        muscleCode: 'core',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Elevar torso contrayendo abdomen',
-      },
-      {
-        name: 'Elevación de Piernas',
-        muscleCode: 'core',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'Elevar piernas acostado',
-      },
-      // Cardio
-      {
-        name: 'Burpees',
-        muscleCode: 'cardio',
-        difficulty: Difficulty.ADVANCED,
-        description: 'Flexión, salto y repetir',
-      },
-      {
-        name: 'Mountain Climbers',
-        muscleCode: 'cardio',
-        difficulty: Difficulty.INTERMEDIATE,
-        description: 'Correr en posición de plancha',
-      },
-      {
-        name: 'Jumping Jacks',
-        muscleCode: 'cardio',
-        difficulty: Difficulty.BEGINNER,
-        description: 'Saltar abriendo brazos y piernas',
-      },
-    ];
+    let exercisesData: ExerciseSeedData[] = [];
+
+    try {
+      const jsonPath = path.join(__dirname, 'data', 'exercises-seed.json');
+      const jsonContent = fs.readFileSync(jsonPath, 'utf-8');
+      const parsed = JSON.parse(jsonContent) as { exercises: ExerciseSeedData[] };
+      exercisesData = parsed.exercises || [];
+      this.logger.log(`  📂 Cargados ${exercisesData.length} ejercicios desde JSON`);
+    } catch (error) {
+      this.logger.error('  ✗ Error leyendo exercises-seed.json', error);
+      return;
+    }
+
+    const difficultyMap: Record<string, Difficulty> = {
+      beginner: Difficulty.BEGINNER,
+      intermediate: Difficulty.INTERMEDIATE,
+      advanced: Difficulty.ADVANCED,
+    };
+
+    const equipmentMap: Record<string, Equipment> = {
+      barbell: Equipment.BARBELL,
+      dumbbell: Equipment.DUMBBELL,
+      machine: Equipment.MACHINE,
+      cable: Equipment.CABLE,
+      bodyweight: Equipment.BODYWEIGHT,
+      kettlebell: Equipment.KETTLEBELL,
+      bands: Equipment.BANDS,
+      none: Equipment.NONE,
+    };
 
     let created = 0;
     for (const data of exercisesData) {
@@ -405,8 +256,11 @@ export class SeederService implements OnModuleInit {
               this.exerciseRepository.create({
                 name: data.name,
                 description: data.description,
-                difficulty: data.difficulty,
+                difficulty: difficultyMap[data.difficulty] || Difficulty.BEGINNER,
+                equipment: equipmentMap[data.equipment] || Equipment.NONE,
                 muscleGroupId: muscleGroup.id,
+                videoUrl: data.videoUrl || null,
+                imageUrl: data.imageUrl || null,
               })
             );
             created++;
