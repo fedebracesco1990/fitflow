@@ -29,6 +29,7 @@ import firebaseConfig from './config/firebase.config';
 import { validationSchema } from './config/validation.schema';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { SchedulerModule } from './modules/scheduler/scheduler.module';
 
 @Module({
   imports: [
@@ -97,6 +98,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     AccessModule,
     AttendanceModule,
     NotificationsModule,
+    SchedulerModule,
     SeederModule,
   ],
   controllers: [AppController],

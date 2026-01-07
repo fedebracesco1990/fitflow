@@ -209,4 +209,22 @@ export class AttendanceService {
       },
     });
   }
+
+  async findUsersWithLowAttendance(minVisits: number = 8): Promise<string[]> {
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+    const results = await this.accessLogRepository
+      .createQueryBuilder('log')
+      .select('log.userId', 'userId')
+      .addSelect('COUNT(*)', 'visitCount')
+      .where('log.granted = :granted', { granted: true })
+      .andWhere('log.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy('log.userId')
+      .having('COUNT(*) < :minVisits', { minVisits })
+      .getRawMany<{ userId: string; visitCount: string }>();
+
+    return results.map((r) => r.userId);
+  }
 }
