@@ -6,7 +6,7 @@
     "dev": "ng serve",
     "config": "node scripts/set-env.js",
     "build": "npm run config && ng build --configuration production",
-    "start": "serve -c serve.json",
+    "start": "serve -c serve.json -l ${PORT:-4200}",
     "watch": "ng build --watch --configuration development",
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
