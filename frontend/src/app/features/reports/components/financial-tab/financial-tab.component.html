@@ -1,5 +1,7 @@
 <div class="financial-tab">
-  <fit-flow-month-year-filter (filtersApplied)="onFiltersApplied($event)"></fit-flow-month-year-filter>
+  <fit-flow-month-year-filter
+    (filtersApplied)="onFiltersApplied($event)"
+  ></fit-flow-month-year-filter>
 
   @if (loading()) {
     <div class="loading-container">
@@ -38,7 +40,9 @@
 
     <fit-flow-card padding="md" class="transactions-card">
       <h3>Desglose de Transacciones</h3>
-      <fit-flow-transactions-table [transactions]="report()!.desglose"></fit-flow-transactions-table>
+      <fit-flow-transactions-table
+        [transactions]="report()!.desglose"
+      ></fit-flow-transactions-table>
     </fit-flow-card>
   }
 </div>

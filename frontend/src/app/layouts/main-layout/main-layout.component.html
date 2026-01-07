@@ -18,7 +18,22 @@
         <lucide-icon name="menu" [size]="24"></lucide-icon>
       </button>
       <span class="mobile-logo">FitFlow</span>
+      <div class="header-actions">
+        <div class="notification-wrapper">
+          <fit-flow-notification-bell (bellClick)="toggleNotificationCenter()" />
+          <fit-flow-notification-center
+            [isOpen]="notificationCenterOpen()"
+            (closePanel)="closeNotificationCenter()"
+          />
+        </div>
+      </div>
     </header>
+
+    <!-- Notification Prompt -->
+    <fit-flow-notification-prompt
+      [isVisible]="showNotificationPrompt()"
+      (dismissed)="dismissNotificationPrompt()"
+    />
 
     <!-- Main Content -->
     <main class="main-content">

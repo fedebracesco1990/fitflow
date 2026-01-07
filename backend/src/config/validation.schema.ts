@@ -30,4 +30,9 @@ export const validationSchema = Joi.object({
 
   // Frontend URL
   FRONTEND_URL: Joi.string().default('http://localhost:4200'),
+
+  // Firebase
+  FIREBASE_PROJECT_ID: Joi.string().optional(),
+  FIREBASE_CLIENT_EMAIL: Joi.string().optional(),
+  FIREBASE_PRIVATE_KEY: Joi.string().optional(),
 });

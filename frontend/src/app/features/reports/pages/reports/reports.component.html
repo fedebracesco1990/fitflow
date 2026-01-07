@@ -5,11 +5,7 @@
         <h1>Centro de Reportes</h1>
         <p class="subtitle">Análisis financiero y de comportamiento de miembros</p>
       </div>
-      <fit-flow-button
-        variant="secondary"
-        [disabled]="isExporting()"
-        (click)="exportToCsv()"
-      >
+      <fit-flow-button variant="secondary" [disabled]="isExporting()" (click)="exportToCsv()">
         {{ isExporting() ? 'Exportando...' : 'Exportar CSV' }}
       </fit-flow-button>
     </div>

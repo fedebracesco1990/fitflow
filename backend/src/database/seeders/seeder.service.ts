@@ -12,6 +12,10 @@ import { MembershipType } from '../../modules/membership-types/entities/membersh
 import { Membership, MembershipStatus } from '../../modules/memberships/entities/membership.entity';
 import { Payment, PaymentMethod } from '../../modules/payments/entities/payment.entity';
 import { AccessLog } from '../../modules/access/entities/access-log.entity';
+import {
+  NotificationTemplate,
+  NotificationType,
+} from '../../modules/notifications/entities/notification-template.entity';
 import { Role } from '../../common/enums/role.enum';
 import { Difficulty } from '../../common/enums/difficulty.enum';
 import { DayOfWeek } from '../../common/enums/day-of-week.enum';
@@ -42,7 +46,9 @@ export class SeederService implements OnModuleInit {
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(AccessLog)
-    private readonly accessLogRepository: Repository<AccessLog>
+    private readonly accessLogRepository: Repository<AccessLog>,
+    @InjectRepository(NotificationTemplate)
+    private readonly notificationTemplateRepository: Repository<NotificationTemplate>
   ) {}
 
   async onModuleInit() {
@@ -63,8 +69,62 @@ export class SeederService implements OnModuleInit {
     await this.seedMemberships();
     await this.seedPayments();
     await this.seedAccessLogs();
+    await this.seedNotificationTemplates();
 
     this.logger.log('✅ Seed completado');
+  }
+
+  async seedNotificationTemplates() {
+    const templatesData = [
+      {
+        type: NotificationType.MEMBERSHIP_EXPIRING,
+        title: '⏰ Tu membresía está por vencer',
+        body: 'Tu membresía vence en los próximos días. Renuévala para seguir disfrutando de FitFlow.',
+        isActive: true,
+      },
+      {
+        type: NotificationType.MEMBERSHIP_EXPIRED,
+        title: '❌ Membresía vencida',
+        body: 'Tu membresía ha vencido. Renuévala hoy para recuperar el acceso al gimnasio.',
+        isActive: true,
+      },
+      {
+        type: NotificationType.LOW_ATTENDANCE,
+        title: '💪 ¡Te extrañamos!',
+        body: 'Notamos que no has venido al gimnasio últimamente. ¡Vuelve pronto a entrenar!',
+        isActive: true,
+      },
+      {
+        type: NotificationType.CUSTOM,
+        title: 'Notificación de FitFlow',
+        body: 'Mensaje personalizado del gimnasio.',
+        isActive: true,
+      },
+    ];
+
+    let created = 0;
+    for (const data of templatesData) {
+      try {
+        const existing = await this.notificationTemplateRepository.findOne({
+          where: { type: data.type },
+        });
+
+        if (!existing) {
+          await this.notificationTemplateRepository.save(
+            this.notificationTemplateRepository.create(data)
+          );
+          created++;
+        }
+      } catch (error) {
+        this.logger.error(`  ✗ Error creando template ${data.type}`, error);
+      }
+    }
+
+    if (created > 0) {
+      this.logger.log(`  ✓ ${created} templates de notificación creados`);
+    } else {
+      this.logger.log('  - Templates de notificación ya existen');
+    }
   }
 
   async seedUsers() {

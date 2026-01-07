@@ -427,7 +427,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-36] Sistema de Notificaciones con Firebase
+### [FITFLOW-36] Sistema de Notificaciones con Firebase ✅
 
 **Tipo:** Backend
 
@@ -435,15 +435,22 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Configuración de Firebase Admin SDK
-- [ ] Servicio de notificaciones creado
-- [ ] POST /api/notifications/send
-- [ ] Almacenamiento de tokens de dispositivos
-- [ ] Templates de notificaciones predefinidos
+- [x] Configuración de Firebase Admin SDK
+- [x] Servicio de notificaciones creado
+- [x] POST /api/notifications/send
+- [x] Almacenamiento de tokens de dispositivos
+- [x] Templates de notificaciones predefinidos
+
+**Implementación:**
+
+- `NotificationsModule` con service, controller, DTOs
+- Entidades: `DeviceToken`, `NotificationTemplate`
+- 4 templates predefinidos: MEMBERSHIP_EXPIRING, MEMBERSHIP_EXPIRED, LOW_ATTENDANCE, CUSTOM
+- Soporte multi-dispositivo por usuario
 
 ---
 
-### [FITFLOW-37] Gestión de Notificaciones Push
+### [FITFLOW-37] Gestión de Notificaciones Push ✅
 
 **Tipo:** Frontend
 
@@ -451,11 +458,20 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Solicitud de permisos de notificaciones
-- [ ] Registro de token FCM en backend
-- [ ] Service Worker configurado para notificaciones
-- [ ] Manejo de notificaciones en primer/segundo plano
-- [ ] Centro de notificaciones en la app
+- [x] Solicitud de permisos de notificaciones
+- [x] Registro de token FCM en backend
+- [x] Service Worker configurado para notificaciones
+- [x] Manejo de notificaciones en primer/segundo plano
+- [x] Centro de notificaciones en la app
+
+**Implementación:**
+
+- `PushNotificationsService` - Integración Firebase Messaging
+- `NotificationsState` (NGXS) - State management con persistencia
+- `NotificationBellComponent` - Icono con badge de no leídas
+- `NotificationCenterComponent` - Panel con lista de notificaciones
+- `NotificationPromptComponent` - Modal para solicitar permisos
+- `firebase-messaging-sw.js` - Service Worker para background
 
 ---
 
@@ -505,8 +521,8 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-33 | Lector de QR para Control de Acceso   | ✅ COMPLETO  | Escáner QR con html5-qrcode, feedback visual, historial paginado      |
 | FITFLOW-34 | API de Historial de Asistencia        | ✅ COMPLETO  | Módulo attendance, stats por día/mes, permisos por rol                |
 | FITFLOW-35 | Visualización Historial de Asistencia | ✅ COMPLETO  | Calendario, contador, gráficos, vista admin                           |
-| FITFLOW-36 | Sistema de Notificaciones Firebase    | ⬜ PENDIENTE | FCM SDK, endpoints, templates                                         |
-| FITFLOW-37 | Gestión de Notificaciones Push        | ⬜ PENDIENTE | Permisos, registro tokens, service worker                             |
+| FITFLOW-36 | Sistema de Notificaciones Firebase    | ✅ COMPLETO  | NotificationsModule, DeviceToken, templates, FCM SDK                  |
+| FITFLOW-37 | Gestión de Notificaciones Push        | ✅ COMPLETO  | PushNotificationsService, NotificationsState, UI components           |
 | FITFLOW-38 | Cron Job Notificaciones Automáticas   | ⬜ PENDIENTE | Recordatorios vencimientos, baja asistencia                           |
 
 ---
@@ -556,9 +572,9 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Tareas Requeridas (FITFLOW-10 a FITFLOW-38)
 
-- ✅ **Completadas:** 25
+- ✅ **Completadas:** 27
 - ⚠️ **Parciales:** 1 (FITFLOW-21 - falta envío real de email)
-- ⬜ **Pendientes:** 3 (FITFLOW-36 a FITFLOW-38)
+- ⬜ **Pendientes:** 1 (FITFLOW-38)
 - **Total:** 29 tareas
 
 ### Tareas Secundarias

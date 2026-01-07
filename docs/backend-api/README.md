@@ -31,6 +31,7 @@ Authorization: Bearer <access_token>
 | [Routines](./ROUTINES.md)                 | `/routines`         | Rutinas de entrenamiento   |
 | [User Routines](./USER_ROUTINES.md)       | `/user-routines`    | Asignación de rutinas      |
 | [Workouts](./WORKOUTS.md)                 | `/workouts`         | Registro de entrenamientos |
+| [Notifications](./NOTIFICATIONS.md)       | `/notifications`    | Notificaciones push (FCM)  |
 
 ## Roles
 

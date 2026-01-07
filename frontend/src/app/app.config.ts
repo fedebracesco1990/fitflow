@@ -46,10 +46,14 @@ import {
   Download,
   UserPlus,
   Scan,
+  Bell,
+  BellOff,
+  Check,
+  Trash2,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
-import { AuthState, UserState, CheckSession } from './core/store';
+import { AuthState, UserState, NotificationsState, CheckSession } from './core/store';
 import { authInterceptor, errorInterceptor } from './core/interceptors';
 import { PageTitleStrategy } from './core/services';
 import { environment } from '../environments/environment';
@@ -79,9 +83,9 @@ export const appConfig: ApplicationConfig = {
       registrationStrategy: 'registerWhenStable:30000',
     }),
     provideStore(
-      [AuthState, UserState],
+      [AuthState, UserState, NotificationsState],
       withNgxsStoragePlugin({
-        keys: ['auth.user', 'auth.isAuthenticated', 'user.profile'],
+        keys: ['auth.user', 'auth.isAuthenticated', 'user.profile', 'notifications.notifications'],
       }),
       withNgxsReduxDevtoolsPlugin({ disabled: environment.production })
     ),
@@ -124,6 +128,10 @@ export const appConfig: ApplicationConfig = {
         Download,
         UserPlus,
         Scan,
+        Bell,
+        BellOff,
+        Check,
+        Trash2,
       })
     ),
   ],

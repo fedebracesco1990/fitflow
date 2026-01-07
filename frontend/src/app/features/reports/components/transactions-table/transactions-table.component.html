@@ -29,21 +29,11 @@
 
     @if (totalPages() > 1) {
       <div class="pagination">
-        <button 
-          (click)="prevPage()" 
-          [disabled]="!hasPrevPage()"
-          class="pagination-btn"
-        >
+        <button (click)="prevPage()" [disabled]="!hasPrevPage()" class="pagination-btn">
           Anterior
         </button>
-        <span class="page-info">
-          Página {{ currentPage() }} de {{ totalPages() }}
-        </span>
-        <button 
-          (click)="nextPage()" 
-          [disabled]="!hasNextPage()"
-          class="pagination-btn"
-        >
+        <span class="page-info"> Página {{ currentPage() }} de {{ totalPages() }} </span>
+        <button (click)="nextPage()" [disabled]="!hasNextPage()" class="pagination-btn">
           Siguiente
         </button>
       </div>
