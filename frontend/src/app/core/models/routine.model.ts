@@ -11,6 +11,7 @@ export interface RoutineExercise {
   reps: number;
   restSeconds: number;
   notes: string | null;
+  suggestedWeight: number | null;
 }
 
 export interface Routine {
@@ -45,6 +46,7 @@ export interface AddExerciseDto {
   reps?: number;
   restSeconds?: number;
   notes?: string;
+  suggestedWeight?: number;
 }
 
 export interface UpdateRoutineExerciseDto {
@@ -53,6 +55,7 @@ export interface UpdateRoutineExerciseDto {
   reps?: number;
   restSeconds?: number;
   notes?: string;
+  suggestedWeight?: number;
 }
 
 // Días de la semana

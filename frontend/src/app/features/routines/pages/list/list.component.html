@@ -1,7 +1,7 @@
 <div class="routines-list">
   <header class="page-header">
     <h1>Rutinas</h1>
-    <a routerLink="new" class="btn btn-primary">+ Nueva Rutina</a>
+    <a routerLink="/routines/new" class="btn btn-primary">+ Nueva Rutina</a>
   </header>
 
   @if (error()) {
@@ -13,7 +13,7 @@
   } @else if (routines().length === 0) {
     <div class="empty-state">
       <p>No hay rutinas creadas</p>
-      <a routerLink="new" class="btn btn-outline">Crear primera rutina</a>
+      <a routerLink="/routines/new" class="btn btn-outline">Crear primera rutina</a>
     </div>
   } @else {
     <fit-flow-card>
@@ -38,7 +38,9 @@
                 </td>
                 <td>{{ routine.createdAt | date: 'd MMM, y' }}</td>
                 <td class="actions">
-                  <a [routerLink]="[routine.id, 'edit']" class="btn btn-sm btn-outline">Editar</a>
+                  <a [routerLink]="['/routines', routine.id, 'edit']" class="btn btn-sm btn-outline"
+                    >Editar</a
+                  >
                   <button class="btn btn-sm btn-danger" (click)="deleteRoutine(routine)">
                     Eliminar
                   </button>

@@ -18,6 +18,7 @@ Endpoints para gestión de rutinas de entrenamiento.
 | POST   | `/routines/:id/exercises`             | Agregar ejercicio    | ADMIN, TRAINER |
 | PATCH  | `/routines/:id/exercises/:exerciseId` | Actualizar ejercicio | ADMIN, TRAINER |
 | DELETE | `/routines/:id/exercises/:exerciseId` | Quitar ejercicio     | ADMIN, TRAINER |
+| POST   | `/routines/:id/assign`                | Asignar a usuario    | ADMIN, TRAINER |
 
 ---
 
@@ -62,11 +63,12 @@ Lista rutinas con paginación.
 
 **Query Parameters:**
 
-| Parámetro       | Tipo   | Default | Descripción                    |
-| --------------- | ------ | ------- | ------------------------------ |
-| page            | number | 1       | Número de página               |
-| limit           | number | 20      | Elementos por página (max 100) |
-| includeInactive | string | false   | Incluir inactivas              |
+| Parámetro       | Tipo   | Default | Descripción                        |
+| --------------- | ------ | ------- | ---------------------------------- |
+| page            | number | 1       | Número de página                   |
+| limit           | number | 20      | Elementos por página (max 100)     |
+| includeInactive | string | false   | Incluir inactivas                  |
+| createdBy       | UUID   | -       | Filtrar por ID del trainer creador |
 
 **Response (200):**
 
@@ -156,14 +158,15 @@ Agrega un ejercicio a la rutina.
 
 **Request Body:**
 
-| Campo       | Tipo   | Requerido | Descripción                          |
-| ----------- | ------ | --------- | ------------------------------------ |
-| exerciseId  | UUID   | ✅        | ID del ejercicio                     |
-| sets        | number | ❌        | Número de series (default: 3)        |
-| reps        | number | ❌        | Repeticiones por serie (default: 12) |
-| restSeconds | number | ❌        | Segundos de descanso (default: 60)   |
-| order       | number | ❌        | Orden en la rutina (auto-calculado)  |
-| notes       | string | ❌        | Notas adicionales                    |
+| Campo           | Tipo   | Requerido | Descripción                          |
+| --------------- | ------ | --------- | ------------------------------------ |
+| exerciseId      | UUID   | ✅        | ID del ejercicio                     |
+| sets            | number | ❌        | Número de series (default: 3)        |
+| reps            | number | ❌        | Repeticiones por serie (default: 12) |
+| restSeconds     | number | ❌        | Segundos de descanso (default: 60)   |
+| order           | number | ❌        | Orden en la rutina (auto-calculado)  |
+| notes           | string | ❌        | Notas adicionales                    |
+| suggestedWeight | number | ❌        | Peso sugerido en kg (0-500)          |
 
 **Response (200):** Rutina actualizada con el nuevo ejercicio
 
@@ -177,13 +180,14 @@ Actualiza un ejercicio de la rutina.
 
 **Request Body:**
 
-| Campo       | Tipo   | Descripción  |
-| ----------- | ------ | ------------ |
-| sets        | number | Series       |
-| reps        | number | Repeticiones |
-| restSeconds | number | Descanso     |
-| order       | number | Orden        |
-| notes       | string | Notas        |
+| Campo           | Tipo   | Descripción         |
+| --------------- | ------ | ------------------- |
+| sets            | number | Series              |
+| reps            | number | Repeticiones        |
+| restSeconds     | number | Descanso            |
+| order           | number | Orden               |
+| notes           | string | Notas               |
+| suggestedWeight | number | Peso sugerido en kg |
 
 **Response (200):** Rutina actualizada
 
@@ -196,3 +200,42 @@ Quita un ejercicio de la rutina.
 **Roles:** `ADMIN`, `TRAINER`
 
 **Response (200):** Rutina actualizada sin el ejercicio
+
+---
+
+## POST /routines/:id/assign
+
+Asigna una rutina a un usuario para un día específico de la semana.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+**Request Body:**
+
+| Campo     | Tipo   | Requerido | Descripción                                                                       |
+| --------- | ------ | --------- | --------------------------------------------------------------------------------- |
+| userId    | UUID   | ✅        | ID del usuario al que se asigna                                                   |
+| dayOfWeek | string | ✅        | Día de la semana (monday, tuesday, wednesday, thursday, friday, saturday, sunday) |
+| startDate | string | ✅        | Fecha de inicio (ISO 8601)                                                        |
+| endDate   | string | ❌        | Fecha de fin (ISO 8601)                                                           |
+
+**Response (201):**
+
+```json
+{
+  "id": "uuid",
+  "userId": "uuid",
+  "routineId": "uuid",
+  "dayOfWeek": "monday",
+  "startDate": "2024-01-01",
+  "endDate": null,
+  "isActive": true,
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Errores:**
+
+| Código | Descripción                                   |
+| ------ | --------------------------------------------- |
+| 404    | Usuario o rutina no encontrada                |
+| 409    | Rutina ya asignada a este usuario en este día |

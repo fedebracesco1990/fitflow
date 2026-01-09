@@ -72,8 +72,15 @@ export class NotificationsState {
 
   @Action(InitializeNotifications)
   async initialize(ctx: StateContext<NotificationsStateModel>) {
+    const state = ctx.getState();
+    if (state.isInitialized) {
+      return;
+    }
+
     const isAuthenticated = this.store.selectSnapshot(AuthState.isAuthenticated);
-    if (!isAuthenticated) {
+    const isAuthInitialized = this.store.selectSnapshot(AuthState.isInitialized);
+
+    if (!isAuthenticated || !isAuthInitialized) {
       return;
     }
 

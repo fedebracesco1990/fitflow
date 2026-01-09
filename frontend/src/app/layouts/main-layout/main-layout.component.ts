@@ -2,13 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Store, Actions, ofActionSuccessful } from '@ngxs/store';
 import { take } from 'rxjs/operators';
-import {
-  AuthState,
-  Logout,
-  LogoutSuccess,
-  NotificationsState,
-  InitializeNotifications,
-} from '../../core/store';
+import { AuthState, Logout, LogoutSuccess, NotificationsState } from '../../core/store';
 import { SidebarComponent, MenuItem, SidebarUser } from '../sidebar/sidebar.component';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -87,8 +81,6 @@ export class MainLayoutComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.store.dispatch(new InitializeNotifications());
-
     setTimeout(() => {
       if (this.permissionStatus() === 'default') {
         this.showNotificationPrompt.set(true);

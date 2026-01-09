@@ -75,7 +75,7 @@ export const routes: Routes = [
   {
     path: 'exercises',
     canActivate: [authGuard, roleGuard],
-    data: { roles: [Role.ADMIN] },
+    data: { roles: [Role.ADMIN, Role.TRAINER] },
     loadChildren: () =>
       import('./features/exercises/exercises.routes').then((m) => m.EXERCISES_ROUTES),
   },

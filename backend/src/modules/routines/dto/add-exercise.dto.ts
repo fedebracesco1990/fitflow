@@ -1,4 +1,4 @@
-import { IsUUID, IsOptional, IsInt, Min, Max, IsString } from 'class-validator';
+import { IsUUID, IsOptional, IsInt, Min, Max, IsString, IsNumber } from 'class-validator';
 
 export class AddExerciseDto {
   @IsUUID()
@@ -30,6 +30,12 @@ export class AddExerciseDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(500)
+  suggestedWeight?: number;
 }
 
 export class UpdateRoutineExerciseDto {
@@ -59,4 +65,10 @@ export class UpdateRoutineExerciseDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(500)
+  suggestedWeight?: number;
 }

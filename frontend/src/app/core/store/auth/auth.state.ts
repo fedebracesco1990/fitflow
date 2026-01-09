@@ -24,6 +24,7 @@ import {
   SetAuthLoading,
 } from './auth.actions';
 import { ResetUserState } from '../user/user.actions';
+import { InitializeNotifications } from '../notifications/notifications.actions';
 
 export interface AuthStateModel {
   user: AuthenticatedUser | null;
@@ -198,6 +199,8 @@ export class AuthState {
       isInitialized: true,
       error: null,
     });
+
+    ctx.dispatch(new InitializeNotifications());
   }
 
   @Action(CheckSessionFailure)

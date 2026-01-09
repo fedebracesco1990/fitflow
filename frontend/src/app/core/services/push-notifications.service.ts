@@ -3,6 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage, Messaging } from 'firebase/messaging';
 import { environment } from '../../../environments/environment';
 import { ApiService } from './api.service';
+import { StorageService } from './storage.service';
 
 export type NotificationPermissionStatus = 'default' | 'granted' | 'denied';
 
@@ -20,6 +21,7 @@ export interface PushNotification {
 })
 export class PushNotificationsService {
   private readonly apiService = inject(ApiService);
+  private readonly storage = inject(StorageService);
   private messaging: Messaging | null = null;
   private initialized = false;
 
@@ -82,6 +84,17 @@ export class PushNotificationsService {
   }
 
   private async registerTokenInBackend(token: string): Promise<void> {
+    if (!this.storage.hasTokens()) {
+      return;
+    }
+
+    // Small delay to ensure auth tokens are fully propagated
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    if (!this.storage.hasTokens()) {
+      return;
+    }
+
     try {
       await this.apiService
         .post('notifications/register-token', {
@@ -89,8 +102,8 @@ export class PushNotificationsService {
           platform: 'web',
         })
         .toPromise();
-    } catch (error) {
-      console.error('Failed to register token in backend:', error);
+    } catch {
+      // Silently handle errors - push notification registration is not critical
     }
   }
 

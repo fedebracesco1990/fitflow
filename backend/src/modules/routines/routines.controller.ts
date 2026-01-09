@@ -17,18 +17,23 @@ import {
   UpdateRoutineDto,
   AddExerciseDto,
   UpdateRoutineExerciseDto,
+  FilterRoutinesDto,
+  AssignRoutineFromRoutineDto,
 } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
-import { PaginationWithFilterDto } from '../../common/dto';
+import { UserRoutinesService } from '../user-routines/user-routines.service';
 
 @Controller('routines')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class RoutinesController {
-  constructor(private readonly routinesService: RoutinesService) {}
+  constructor(
+    private readonly routinesService: RoutinesService,
+    private readonly userRoutinesService: UserRoutinesService
+  ) {}
 
   @Post()
   @Roles(Role.ADMIN, Role.TRAINER)
@@ -37,8 +42,13 @@ export class RoutinesController {
   }
 
   @Get()
-  findAll(@Query() query: PaginationWithFilterDto) {
-    return this.routinesService.findAll(query.includeInactive === 'true', query.page, query.limit);
+  findAll(@Query() query: FilterRoutinesDto) {
+    return this.routinesService.findAll(
+      query.includeInactive === 'true',
+      query.page,
+      query.limit,
+      query.createdBy
+    );
   }
 
   @Get(':id')
@@ -92,5 +102,17 @@ export class RoutinesController {
     @Request() req: { user: AuthenticatedUser }
   ) {
     return this.routinesService.removeExercise(id, exerciseId, req.user.userId, req.user.role);
+  }
+
+  @Post(':id/assign')
+  @Roles(Role.ADMIN, Role.TRAINER)
+  assign(@Param('id', ParseUUIDPipe) id: string, @Body() dto: AssignRoutineFromRoutineDto) {
+    return this.userRoutinesService.assign({
+      routineId: id,
+      userId: dto.userId,
+      dayOfWeek: dto.dayOfWeek,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
+    });
   }
 }

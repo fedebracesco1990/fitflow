@@ -35,4 +35,7 @@ export class RoutineExercise {
 
   @Column({ type: 'text', nullable: true })
   notes: string | null;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  suggestedWeight: number | null;
 }

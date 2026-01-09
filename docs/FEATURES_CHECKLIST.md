@@ -551,7 +551,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-41] API Completa de Rutinas
+### [FITFLOW-41] API Completa de Rutinas ✅
 
 **Tipo:** Backend
 
@@ -559,13 +559,20 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] POST /api/routines (crear rutina)
-- [ ] GET /api/routines (listar rutinas del trainer)
-- [ ] GET /api/routines/:id (detalle de rutina con ejercicios)
-- [ ] PUT /api/routines/:id (editar rutina)
-- [ ] DELETE /api/routines/:id
-- [ ] POST /api/routines/:id/assign (asignar a usuarios)
-- [ ] Estructura JSON para ejercicios por día con sets/reps/peso
+- [x] POST /api/routines (crear rutina)
+- [x] GET /api/routines (listar rutinas del trainer) - con filtro `createdBy` opcional
+- [x] GET /api/routines/:id (detalle de rutina con ejercicios)
+- [x] PATCH /api/routines/:id (editar rutina) - usa PATCH, equivalente a PUT
+- [x] DELETE /api/routines/:id
+- [x] POST /api/routines/:id/assign (asignar a usuarios) - wrapper de user-routines
+- [x] Estructura JSON para ejercicios por día con sets/reps/peso - campo `suggestedWeight` agregado
+
+**Implementación:**
+
+- Módulo `routines/` con CRUD completo + ejercicios anidados
+- `FilterRoutinesDto` con filtro `createdBy` para trainer
+- Endpoint `/routines/:id/assign` que delega a `UserRoutinesService`
+- Campo `suggestedWeight` en `RoutineExercise` para peso sugerido
 
 ---
 
@@ -766,7 +773,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-38 | Cron Job Notificaciones AutomÃ¡ticas        | ✅ COMPLETO  | SchedulerModule, 3 cron jobs, constantes configurables                  |
 | FITFLOW-39 | API de Biblioteca de Ejercicios             | ✅ COMPLETO  | CRUD ejercicios, filtros avanzados, equipment enum, seed 156 ejercicios |
 | FITFLOW-40 | Biblioteca de Ejercicios para Entrenador    | ✅ COMPLETO  | Grid/lista, filtros, detail page, form con equipment                    |
-| FITFLOW-41 | API Completa de Rutinas                     | ⬜ PENDIENTE |                                                                         |
+| FITFLOW-41 | API Completa de Rutinas                     | ✅ COMPLETO  | CRUD + filtro createdBy + assign + suggestedWeight                      |
 | FITFLOW-42 | Constructor Visual de Rutinas (Drag & Drop) | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-43 | Sistema de Plantillas de Rutinas            | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-44 | Gestión de Plantillas de Rutinas            | ⬜ PENDIENTE |                                                                         |
@@ -829,8 +836,8 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Tareas Nuevas (FITFLOW-40 a FITFLOW-51)
 
-- COMPLETO: 1 (FITFLOW-40)
-- PENDIENTE: 11
+- COMPLETO: 2 (FITFLOW-40, FITFLOW-41)
+- PENDIENTE: 10
 - Total: 12 tareas
 
 ### Tareas Secundarias

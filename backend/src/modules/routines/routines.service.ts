@@ -40,9 +40,15 @@ export class RoutinesService {
   async findAll(
     includeInactive = false,
     page = 1,
-    limit = 20
+    limit = 20,
+    createdBy?: string
   ): Promise<PaginatedResponse<Routine>> {
-    const where = includeInactive ? {} : { isActive: true };
+    const where: Record<string, unknown> = includeInactive ? {} : { isActive: true };
+
+    if (createdBy) {
+      where.createdById = createdBy;
+    }
+
     const [data, total] = await this.routineRepository.findAndCount({
       where,
       relations: ['createdBy', 'exercises', 'exercises.exercise'],
@@ -148,6 +154,7 @@ export class RoutinesService {
       reps: dto.reps || 12,
       restSeconds: dto.restSeconds || 60,
       notes: dto.notes,
+      suggestedWeight: dto.suggestedWeight,
     });
 
     return await this.routineExerciseRepository.save(routineExercise);

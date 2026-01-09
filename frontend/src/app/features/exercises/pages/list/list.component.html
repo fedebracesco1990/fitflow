@@ -8,7 +8,7 @@
     </div>
     <div class="page-actions">
       <fit-flow-view-toggle [mode]="viewMode()" (modeChange)="onViewModeChange($event)" />
-      <a routerLink="new">
+      <a routerLink="/exercises/new">
         <fit-flow-button variant="primary" size="md">
           <lucide-icon name="plus" [size]="18"></lucide-icon>
           Nuevo Ejercicio
@@ -28,7 +28,7 @@
   } @else if (exercises().length === 0) {
     <div class="empty-state">
       <p>No se encontraron ejercicios</p>
-      <a routerLink="new" class="btn btn-outline">Crear primer ejercicio</a>
+      <a routerLink="/exercises/new" class="btn btn-outline">Crear primer ejercicio</a>
     </div>
   } @else {
     @if (viewMode() === 'grid') {
@@ -62,7 +62,9 @@
                   </td>
                   <td>{{ equipmentLabels[exercise.equipment] }}</td>
                   <td class="actions" (click)="$event.stopPropagation()">
-                    <a [routerLink]="[exercise.id, 'edit']" class="btn btn-sm btn-outline"
+                    <a
+                      [routerLink]="['/exercises', exercise.id, 'edit']"
+                      class="btn btn-sm btn-outline"
                       >Editar</a
                     >
                     <button class="btn btn-sm btn-danger" (click)="openDeleteDialog(exercise)">
