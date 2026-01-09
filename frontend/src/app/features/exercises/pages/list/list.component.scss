@@ -9,12 +9,59 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
 
   h1 {
     margin: 0;
     font-size: 1.75rem;
-    color: #1f2937;
+    color: var(--text-primary, #1f2937);
   }
+
+  .exercise-count {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #6b7280);
+  }
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.exercises-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem 0;
+
+  span {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #6b7280);
+  }
+}
+
+.clickable-row {
+  cursor: pointer;
 }
 
 .table-container {

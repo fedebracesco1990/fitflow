@@ -19,6 +19,12 @@ export const EXERCISES_ROUTES: Routes = [
         title: 'Nuevo Ejercicio',
       },
       {
+        path: ':id',
+        loadComponent: () =>
+          import('./pages/detail/detail.component').then((m) => m.ExerciseDetailComponent),
+        title: 'Detalle de Ejercicio',
+      },
+      {
         path: ':id/edit',
         loadComponent: () =>
           import('./pages/form/form.component').then((m) => m.ExerciseFormComponent),

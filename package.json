@@ -6,7 +6,7 @@
   "scripts": {
     "prepare": "husky",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ..",
-    "start:frontend": "cd frontend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
     "start:backend": "cd backend && npm run start:dev",
     "start:all": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
     "build": "npm run build:frontend && npm run build:backend",

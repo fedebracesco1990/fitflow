@@ -30,7 +30,7 @@
     "angular-calendar": "0.32.0",
     "chart.js": "4.5.1",
     "date-fns": "4.1.0",
-    "firebase": "^12.7.0",
+    "firebase": "12.7.0",
     "html5-qrcode": "2.3.8",
     "lucide-angular": "0.561.0",
     "rxjs": "7.8.1",

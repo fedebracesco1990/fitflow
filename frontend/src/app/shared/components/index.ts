@@ -11,3 +11,4 @@ export * from './attendance-calendar/attendance-calendar.component';
 export * from './notification-bell/notification-bell.component';
 export * from './notification-center/notification-center.component';
 export * from './notification-prompt/notification-prompt.component';
+export * from './view-toggle/view-toggle.component';

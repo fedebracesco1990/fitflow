@@ -1,8 +1,23 @@
 <div class="exercises-list">
   <header class="page-header">
-    <h1>Ejercicios</h1>
-    <a routerLink="new" class="btn btn-primary">+ Nuevo Ejercicio</a>
+    <div class="page-title">
+      <h1>Biblioteca de Ejercicios</h1>
+      <span class="exercise-count" *ngIf="paginationMeta()">
+        {{ paginationMeta()!.total }} ejercicios
+      </span>
+    </div>
+    <div class="page-actions">
+      <fit-flow-view-toggle [mode]="viewMode()" (modeChange)="onViewModeChange($event)" />
+      <a routerLink="new">
+        <fit-flow-button variant="primary" size="md">
+          <lucide-icon name="plus" [size]="18"></lucide-icon>
+          Nuevo Ejercicio
+        </fit-flow-button>
+      </a>
+    </div>
   </header>
+
+  <fit-flow-exercise-filters [filters]="filters" (filtersChange)="onFiltersChange($event)" />
 
   @if (error()) {
     <div class="alert alert-error">{{ error() }}</div>
@@ -12,43 +27,75 @@
     <div class="loading">Cargando ejercicios...</div>
   } @else if (exercises().length === 0) {
     <div class="empty-state">
-      <p>No hay ejercicios registrados</p>
+      <p>No se encontraron ejercicios</p>
       <a routerLink="new" class="btn btn-outline">Crear primer ejercicio</a>
     </div>
   } @else {
-    <fit-flow-card>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Grupo Muscular</th>
-              <th>Dificultad</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (exercise of exercises(); track exercise.id) {
-              <tr>
-                <td>{{ exercise.name }}</td>
-                <td>{{ exercise.muscleGroup?.name || 'Sin grupo' }}</td>
-                <td>
-                  <fit-flow-badge [variant]="getDifficultyBadgeVariant(exercise.difficulty)">
-                    {{ difficultyLabels[exercise.difficulty] }}
-                  </fit-flow-badge>
-                </td>
-                <td class="actions">
-                  <a [routerLink]="[exercise.id, 'edit']" class="btn btn-sm btn-outline">Editar</a>
-                  <button class="btn btn-sm btn-danger" (click)="openDeleteDialog(exercise)">
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+    @if (viewMode() === 'grid') {
+      <div class="exercises-grid">
+        @for (exercise of exercises(); track exercise.id) {
+          <fit-flow-exercise-card [exercise]="exercise" (cardClick)="onExerciseClick($event)" />
+        }
       </div>
-    </fit-flow-card>
+    } @else {
+      <fit-flow-card>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Grupo Muscular</th>
+                <th>Dificultad</th>
+                <th>Equipamiento</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (exercise of exercises(); track exercise.id) {
+                <tr class="clickable-row" (click)="onExerciseClick(exercise)">
+                  <td>{{ exercise.name }}</td>
+                  <td>{{ exercise.muscleGroup?.name || 'Sin grupo' }}</td>
+                  <td>
+                    <fit-flow-badge [variant]="getDifficultyBadgeVariant(exercise.difficulty)">
+                      {{ difficultyLabels[exercise.difficulty] }}
+                    </fit-flow-badge>
+                  </td>
+                  <td>{{ equipmentLabels[exercise.equipment] }}</td>
+                  <td class="actions" (click)="$event.stopPropagation()">
+                    <a [routerLink]="[exercise.id, 'edit']" class="btn btn-sm btn-outline"
+                      >Editar</a
+                    >
+                    <button class="btn btn-sm btn-danger" (click)="openDeleteDialog(exercise)">
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </fit-flow-card>
+    }
+
+    @if (paginationMeta()?.totalPages && paginationMeta()!.totalPages > 1) {
+      <div class="pagination">
+        <fit-flow-button
+          variant="outline"
+          [disabled]="paginationMeta()!.page <= 1"
+          (click)="loadExercises(paginationMeta()!.page - 1)"
+        >
+          Anterior
+        </fit-flow-button>
+        <span>Página {{ paginationMeta()!.page }} de {{ paginationMeta()!.totalPages }}</span>
+        <fit-flow-button
+          variant="outline"
+          [disabled]="paginationMeta()!.page >= paginationMeta()!.totalPages"
+          (click)="loadExercises(paginationMeta()!.page + 1)"
+        >
+          Siguiente
+        </fit-flow-button>
+      </div>
+    }
   }
 </div>
 

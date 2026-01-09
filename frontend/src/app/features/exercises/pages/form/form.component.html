@@ -41,6 +41,15 @@
           }
         </select>
       </div>
+
+      <div class="form-group">
+        <label for="equipment">Equipamiento</label>
+        <select id="equipment" formControlName="equipment" class="form-control">
+          @for (e of equipments; track e) {
+            <option [value]="e">{{ equipmentLabels[e] }}</option>
+          }
+        </select>
+      </div>
     </div>
 
     <div class="form-group">

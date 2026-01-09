@@ -3,7 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ExercisesService, MuscleGroupsService } from '../../../../core/services';
-import { MuscleGroup, Difficulty, DifficultyLabels } from '../../../../core/models';
+import {
+  MuscleGroup,
+  Difficulty,
+  DifficultyLabels,
+  Equipment,
+  EquipmentLabels,
+} from '../../../../core/models';
 
 @Component({
   selector: 'fit-flow-exercise-form',
@@ -28,6 +34,8 @@ export class ExerciseFormComponent implements OnInit {
   muscleGroups = signal<MuscleGroup[]>([]);
   difficulties = Object.values(Difficulty);
   difficultyLabels = DifficultyLabels;
+  equipments = Object.values(Equipment);
+  equipmentLabels = EquipmentLabels;
 
   constructor() {
     this.form = this.fb.group({
@@ -35,6 +43,7 @@ export class ExerciseFormComponent implements OnInit {
       description: [''],
       muscleGroupId: ['', Validators.required],
       difficulty: [Difficulty.BEGINNER],
+      equipment: [Equipment.NONE],
       videoUrl: [''],
       imageUrl: [''],
     });
@@ -65,6 +74,7 @@ export class ExerciseFormComponent implements OnInit {
           description: exercise.description || '',
           muscleGroupId: exercise.muscleGroupId || '',
           difficulty: exercise.difficulty,
+          equipment: exercise.equipment || Equipment.NONE,
           videoUrl: exercise.videoUrl || '',
           imageUrl: exercise.imageUrl || '',
         });

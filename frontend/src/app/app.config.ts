@@ -50,6 +50,12 @@ import {
   BellOff,
   Check,
   Trash2,
+  ArrowLeft,
+  Pencil,
+  Plus,
+  LayoutGrid,
+  List,
+  PlayCircle,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -132,6 +138,12 @@ export const appConfig: ApplicationConfig = {
         BellOff,
         Check,
         Trash2,
+        ArrowLeft,
+        Pencil,
+        Plus,
+        LayoutGrid,
+        List,
+        PlayCircle,
       })
     ),
   ],
