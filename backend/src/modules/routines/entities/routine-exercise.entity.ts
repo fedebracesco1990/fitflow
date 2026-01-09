@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Routine } from './routine.entity';
 import { Exercise } from '../../exercises/entities/exercise.entity';
+import { DayOfWeek } from '../../../common/enums/day-of-week.enum';
 
 @Entity('routine_exercises')
 export class RoutineExercise {
@@ -38,4 +39,7 @@ export class RoutineExercise {
 
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   suggestedWeight: number | null;
+
+  @Column({ type: 'enum', enum: DayOfWeek, nullable: true })
+  dayOfWeek: DayOfWeek | null;
 }

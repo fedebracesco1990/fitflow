@@ -16,6 +16,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "20.3.7",
+    "@angular/cdk": "^19.2.19",
     "@angular/common": "20.3.7",
     "@angular/compiler": "20.3.7",
     "@angular/core": "20.3.7",
@@ -28,6 +29,8 @@
     "@ngxs/storage-plugin": "20.1.0",
     "@ngxs/store": "20.1.0",
     "angular-calendar": "0.32.0",
+    "angular-draggable-droppable": "^9.0.1",
+    "angular-resizable-element": "^8.0.1",
     "chart.js": "4.5.1",
     "date-fns": "4.1.0",
     "firebase": "12.7.0",

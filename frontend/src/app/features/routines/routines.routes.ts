@@ -19,6 +19,18 @@ export const ROUTINES_ROUTES: Routes = [
         title: 'Nueva Rutina',
       },
       {
+        path: 'builder',
+        loadComponent: () =>
+          import('./pages/builder/builder.component').then((m) => m.RoutineBuilderComponent),
+        title: 'Constructor de Rutinas',
+      },
+      {
+        path: ':id/builder',
+        loadComponent: () =>
+          import('./pages/builder/builder.component').then((m) => m.RoutineBuilderComponent),
+        title: 'Editar Rutina',
+      },
+      {
         path: ':id/edit',
         loadComponent: () =>
           import('./pages/form/form.component').then((m) => m.RoutineFormComponent),

@@ -1,4 +1,5 @@
-import { IsUUID, IsOptional, IsInt, Min, Max, IsString, IsNumber } from 'class-validator';
+import { IsUUID, IsOptional, IsInt, Min, Max, IsString, IsNumber, IsEnum } from 'class-validator';
+import { DayOfWeek } from '../../../common/enums/day-of-week.enum';
 
 export class AddExerciseDto {
   @IsUUID()
@@ -36,6 +37,10 @@ export class AddExerciseDto {
   @Min(0)
   @Max(500)
   suggestedWeight?: number;
+
+  @IsOptional()
+  @IsEnum(DayOfWeek)
+  dayOfWeek?: DayOfWeek;
 }
 
 export class UpdateRoutineExerciseDto {
@@ -71,4 +76,8 @@ export class UpdateRoutineExerciseDto {
   @Min(0)
   @Max(500)
   suggestedWeight?: number;
+
+  @IsOptional()
+  @IsEnum(DayOfWeek)
+  dayOfWeek?: DayOfWeek;
 }

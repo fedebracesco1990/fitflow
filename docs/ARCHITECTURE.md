@@ -290,6 +290,8 @@ erDiagram
         int restSeconds
         int order
         text notes
+        decimal suggestedWeight
+        enum dayOfWeek
     }
 
     USER ||--o{ USER_ROUTINE : assigned

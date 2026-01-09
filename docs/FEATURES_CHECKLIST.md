@@ -578,19 +578,28 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ### [FITFLOW-42] Constructor Visual de Rutinas (Drag & Drop)
 
-**Tipo:** Frontend
+**Tipo:** Frontend + Backend
 
 **Descripción:** Como entrenador, quiero crear rutinas arrastrando ejercicios de forma visual
 
 **Criterios de Aceptación:**
 
-- [ ] Panel izquierdo: biblioteca de ejercicios (drag source)
-- [ ] Panel derecho: días de la semana (drop zones)
-- [ ] Drag & drop funcional con Angular CDK
-- [ ] Configuración por ejercicio: sets, reps, peso, descanso
-- [ ] Reordenamiento de ejercicios dentro del día
-- [ ] Eliminación de ejercicios de la rutina
+- [x] Panel izquierdo: biblioteca de ejercicios (drag source)
+- [x] Panel derecho: días de la semana (drop zones)
+- [x] Drag & drop funcional con Angular CDK
+- [x] Configuración por ejercicio: sets, reps, peso, descanso
+- [x] Reordenamiento de ejercicios dentro del día
+- [x] Eliminación de ejercicios de la rutina
 - [ ] Preview de la rutina completa
+
+**Implementación:**
+
+- Campo `dayOfWeek` agregado a `RoutineExercise` entity (nullable enum)
+- `@angular/cdk` instalado para drag & drop
+- Componentes: `RoutineBuilderComponent`, `ExercisePanelComponent`, `DayColumnComponent`, `RoutineExerciseItemComponent`
+- Rutas: `/routines/builder` (nueva) y `/routines/:id/builder` (editar)
+- Documentación técnica: `docs/technical/constructor-visual-rutinas.md`
+- Guía de usuario: `docs/user_manuals/constructor-visual-rutinas-guia.md`
 
 ---
 

@@ -155,6 +155,7 @@ export class RoutinesService {
       restSeconds: dto.restSeconds || 60,
       notes: dto.notes,
       suggestedWeight: dto.suggestedWeight,
+      dayOfWeek: dto.dayOfWeek,
     });
 
     return await this.routineExerciseRepository.save(routineExercise);
