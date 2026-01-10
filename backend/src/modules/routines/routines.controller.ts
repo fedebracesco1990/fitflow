@@ -20,6 +20,8 @@ import {
   FilterRoutinesDto,
   AssignRoutineFromRoutineDto,
 } from './dto';
+import { SaveAsTemplateDto, FilterTemplatesDto, CreateFromTemplateDto } from './templates/dto';
+import { TemplatesService } from './templates/templates.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -32,7 +34,8 @@ import { UserRoutinesService } from '../user-routines/user-routines.service';
 export class RoutinesController {
   constructor(
     private readonly routinesService: RoutinesService,
-    private readonly userRoutinesService: UserRoutinesService
+    private readonly userRoutinesService: UserRoutinesService,
+    private readonly templatesService: TemplatesService
   ) {}
 
   @Post()
@@ -51,9 +54,35 @@ export class RoutinesController {
     );
   }
 
+  @Get('templates')
+  @Roles(Role.ADMIN, Role.TRAINER)
+  findAllTemplates(@Query() query: FilterTemplatesDto) {
+    return this.templatesService.findAll(query);
+  }
+
+  @Post('from-template/:templateId')
+  @Roles(Role.ADMIN, Role.TRAINER)
+  createFromTemplate(
+    @Param('templateId', ParseUUIDPipe) templateId: string,
+    @Body() dto: CreateFromTemplateDto,
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    return this.templatesService.createFromTemplate(templateId, dto, req.user.userId);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.routinesService.findOne(id);
+  }
+
+  @Post(':id/save-as-template')
+  @Roles(Role.ADMIN, Role.TRAINER)
+  saveAsTemplate(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: SaveAsTemplateDto,
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    return this.templatesService.saveAsTemplate(id, dto, req.user.userId, req.user.role);
   }
 
   @Patch(':id')

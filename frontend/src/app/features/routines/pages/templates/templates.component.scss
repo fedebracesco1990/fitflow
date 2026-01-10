@@ -1,0 +1,150 @@
+.templates-page {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+
+  .header-content {
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .subtitle {
+      margin: 0.25rem 0 0;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+  }
+
+  .btn-outline {
+    padding: 0.5rem 1rem;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    color: #374151;
+    font-size: 0.875rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+  }
+}
+
+.alert-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.filters-section {
+  margin-bottom: 1.5rem;
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    label {
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+
+    select {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      min-width: 200px;
+      cursor: pointer;
+
+      &:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+    }
+  }
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.empty-state {
+  max-width: 400px;
+  margin: 2rem auto;
+
+  .empty-content {
+    text-align: center;
+    padding: 2rem;
+
+    h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.125rem;
+      color: #1e293b;
+    }
+
+    p {
+      margin: 0 0 1.5rem;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 0.625rem 1.25rem;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: white;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: all 0.2s;
+
+      &:hover {
+        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+      }
+    }
+  }
+}
+
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .filters-section .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+
+    select {
+      min-width: 100%;
+    }
+  }
+}

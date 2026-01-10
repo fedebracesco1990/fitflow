@@ -6,16 +6,15 @@ import { Routine } from './entities/routine.entity';
 import { RoutineExercise } from './entities/routine-exercise.entity';
 import { Exercise } from '../exercises/entities/exercise.entity';
 import { UserRoutinesModule } from '../user-routines/user-routines.module';
-import { TemplatesModule } from './templates/templates.module';
+import { TemplatesService } from './templates/templates.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Routine, RoutineExercise, Exercise]),
     forwardRef(() => UserRoutinesModule),
-    TemplatesModule,
   ],
   controllers: [RoutinesController],
-  providers: [RoutinesService],
+  providers: [RoutinesService, TemplatesService],
   exports: [RoutinesService],
 })
 export class RoutinesModule {}

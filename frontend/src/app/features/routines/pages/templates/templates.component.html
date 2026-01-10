@@ -1,0 +1,67 @@
+<div class="templates-page">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Mis Plantillas</h1>
+      <p class="subtitle">Plantillas de rutinas reutilizables</p>
+    </div>
+    <a routerLink="/routines" class="btn btn-outline">← Volver a Rutinas</a>
+  </header>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="categoryFilter">Filtrar por categoría:</label>
+      <select
+        id="categoryFilter"
+        [ngModel]="selectedCategory()"
+        (ngModelChange)="onCategoryChange($event)"
+      >
+        <option value="">Todas las categorías</option>
+        @for (cat of categories; track cat) {
+          <option [value]="cat">{{ categoryLabels[cat] }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <span>Cargando plantillas...</span>
+    </div>
+  } @else if (templates().length === 0) {
+    <fit-flow-card class="empty-state">
+      <div class="empty-content">
+        <h3>No hay plantillas</h3>
+        <p>
+          @if (selectedCategory()) {
+            No hay plantillas en esta categoría.
+          } @else {
+            Aún no has guardado ninguna rutina como plantilla.
+          }
+        </p>
+        <a routerLink="/routines/builder" class="btn btn-primary">Crear nueva rutina</a>
+      </div>
+    </fit-flow-card>
+  } @else {
+    <div class="templates-grid">
+      @for (template of templates(); track template.id) {
+        <fit-flow-template-card
+          [template]="template"
+          (previewClicked)="onPreviewTemplate($event)"
+          (useClicked)="onUseTemplate($event)"
+        />
+      }
+    </div>
+  }
+</div>
+
+<fit-flow-template-preview-dialog
+  [isOpen]="previewDialogOpen()"
+  [template]="selectedTemplate()"
+  [loading]="creatingFromTemplate()"
+  (confirmed)="onPreviewConfirmed()"
+  (cancelled)="onPreviewCancelled()"
+/>

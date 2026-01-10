@@ -6,6 +6,11 @@
     </div>
     <div class="header-actions">
       <fit-flow-button variant="outline" (click)="onCancel()">Cancelar</fit-flow-button>
+      @if (isEditMode()) {
+        <fit-flow-button variant="outline" (click)="onOpenSaveAsTemplateDialog()">
+          📋 Guardar como Plantilla
+        </fit-flow-button>
+      }
       <fit-flow-button variant="primary" (click)="onSave()" [disabled]="saving()">
         {{ saving() ? 'Guardando...' : 'Guardar Rutina' }}
       </fit-flow-button>
@@ -87,3 +92,11 @@
     </div>
   }
 </div>
+
+<fit-flow-save-as-template-dialog
+  [isOpen]="saveAsTemplateDialogOpen()"
+  [routineName]="routineName()"
+  [saving]="savingAsTemplate()"
+  (confirmed)="onSaveAsTemplateConfirmed($event)"
+  (cancelled)="onSaveAsTemplateCancelled()"
+/>

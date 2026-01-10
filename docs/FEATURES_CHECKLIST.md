@@ -626,7 +626,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-44] Gestión de Plantillas de Rutinas
+### [FITFLOW-44] Gestión de Plantillas de Rutinas ✅
 
 **Tipo:** Frontend
 
@@ -634,11 +634,20 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Botón "Guardar como plantilla" en editor de rutinas
-- [ ] Modal de categorización de plantilla
-- [ ] Sección "Mis Plantillas" con grid de plantillas
-- [ ] Botón "Usar plantilla" que carga en editor
-- [ ] Preview de plantilla antes de usar
+- [x] Botón "Guardar como plantilla" en editor de rutinas
+- [x] Modal de categorización de plantilla
+- [x] Sección "Mis Plantillas" con grid de plantillas
+- [x] Botón "Usar plantilla" que carga en editor
+- [x] Preview de plantilla antes de usar
+
+**Implementación:**
+
+- Página `/routines/templates` con grid filtrable por categoría
+- `TemplateCardComponent` con nombre, categoría, stats y acciones
+- `SaveAsTemplateDialogComponent` para seleccionar categoría al guardar
+- `TemplatePreviewDialogComponent` para vista previa de ejercicios por día
+- Botón "📋 Guardar como Plantilla" en builder (modo edición)
+- Link "📋 Mis Plantillas" en lista de rutinas
 
 ---
 

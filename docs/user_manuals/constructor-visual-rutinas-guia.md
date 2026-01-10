@@ -75,6 +75,51 @@ Click en la **✕** en la esquina superior derecha del ejercicio.
 1. Completar el **nombre** de la rutina
 2. Click en **Guardar Rutina**
 
+### Guardar como Plantilla
+
+Una vez guardada la rutina, puedes convertirla en plantilla reutilizable:
+
+1. Edita una rutina existente (click en **🎨 Builder**)
+2. Click en **📋 Guardar como Plantilla**
+3. Selecciona una **categoría** (Fuerza, Hipertrofia, Cardio, etc.)
+4. Opcionalmente, cambia el nombre de la plantilla
+5. Click en **Guardar Plantilla**
+
+La plantilla estará disponible en **Mis Plantillas** para crear nuevas rutinas basadas en ella.
+
+## Plantillas de Rutinas
+
+### ¿Qué son las plantillas?
+
+Las plantillas son rutinas modelo que puedes reutilizar para crear nuevas rutinas rápidamente. Útil para:
+- Crear rutinas similares para múltiples clientes
+- Guardar tus diseños de rutinas favoritos
+- Compartir estructuras de entrenamiento probadas
+
+### Acceder a Mis Plantillas
+
+1. Ir a **Rutinas** en el menú lateral
+2. Click en **📋 Mis Plantillas**
+
+### Usar una Plantilla
+
+1. En **Mis Plantillas**, encuentra la plantilla deseada
+2. Click en **Ver detalle** para previsualizar los ejercicios
+3. Click en **Usar** para crear una nueva rutina basada en ella
+4. Se abrirá el constructor con todos los ejercicios precargados
+5. Personaliza según necesites y guarda
+
+### Filtrar Plantillas
+
+Usa el filtro de categoría para encontrar plantillas:
+- **Fuerza** - Rutinas de fuerza máxima
+- **Hipertrofia** - Rutinas de volumen muscular
+- **Resistencia** - Rutinas de resistencia
+- **Cardio** - Rutinas cardiovasculares
+- **Flexibilidad** - Rutinas de estiramiento
+- **Funcional** - Entrenamiento funcional
+- **Cuerpo Completo** - Rutinas full body
+
 ## Tips
 
 - **Planifica por grupos musculares:** Evita trabajar el mismo grupo muscular dos días seguidos

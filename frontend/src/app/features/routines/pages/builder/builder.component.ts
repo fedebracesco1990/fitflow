@@ -6,16 +6,17 @@ import { CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { RoutinesService } from '../../../../core/services';
 import {
   Routine,
-  Exercise,
   DayOfWeek,
   DayOfWeekLabels,
   Difficulty,
   DifficultyLabels,
   RoutineExercise,
+  TemplateCategory,
 } from '../../../../core/models';
 import { ExercisePanelComponent } from '../../components/exercise-panel/exercise-panel.component';
 import { DayColumnComponent, DayExercise } from '../../components/day-column/day-column.component';
 import { ButtonComponent, CardComponent } from '../../../../shared';
+import { SaveAsTemplateDialogComponent } from '../../components/save-as-template-dialog/save-as-template-dialog.component';
 
 type DayExercisesMap = Record<DayOfWeek, DayExercise[]>;
 
@@ -42,6 +43,7 @@ function createEmptyDayExercisesMap(): DayExercisesMap {
     DayColumnComponent,
     ButtonComponent,
     CardComponent,
+    SaveAsTemplateDialogComponent,
   ],
   templateUrl: './builder.component.html',
   styleUrl: './builder.component.scss',
@@ -55,7 +57,10 @@ export class RoutineBuilderComponent implements OnInit {
   isEditMode = signal(false);
   loading = signal(false);
   saving = signal(false);
+  savingAsTemplate = signal(false);
   error = signal<string | null>(null);
+
+  saveAsTemplateDialogOpen = signal(false);
 
   routineName = signal('');
   routineDescription = signal('');
@@ -192,14 +197,15 @@ export class RoutineBuilderComponent implements OnInit {
       const exercises = this.dayExercises()[day];
       for (let i = 0; i < exercises.length; i++) {
         const ex = exercises[i];
+        const weight = ex.suggestedWeight != null ? Number(ex.suggestedWeight) : undefined;
         await this.routinesService
           .addExercise(routineId, {
             exerciseId: ex.exercise.id,
             order: i + 1,
-            sets: ex.sets,
-            reps: ex.reps,
-            restSeconds: ex.restSeconds,
-            suggestedWeight: ex.suggestedWeight || undefined,
+            sets: Number(ex.sets) || 3,
+            reps: Number(ex.reps) || 12,
+            restSeconds: Number(ex.restSeconds) || 60,
+            suggestedWeight: weight && !isNaN(weight) ? weight : undefined,
             dayOfWeek: day,
           })
           .toPromise();
@@ -209,5 +215,59 @@ export class RoutineBuilderComponent implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['/routines']);
+  }
+
+  onOpenSaveAsTemplateDialog(): void {
+    if (!this.routineId) {
+      this.error.set('Primero guarda la rutina antes de convertirla en plantilla');
+      return;
+    }
+    this.saveAsTemplateDialogOpen.set(true);
+  }
+
+  async onSaveAsTemplateConfirmed(data: { category: TemplateCategory; name?: string }): Promise<void> {
+    if (!this.routineId) return;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(this.routineId)) {
+      this.error.set(`ID de rutina inválido: "${this.routineId}". Guarda la rutina primero.`);
+      this.saveAsTemplateDialogOpen.set(false);
+      return;
+    }
+
+    this.savingAsTemplate.set(true);
+    this.error.set(null);
+
+    try {
+      await this.routinesService
+        .update(this.routineId, {
+          name: this.routineName(),
+          description: this.routineDescription() || undefined,
+          difficulty: this.routineDifficulty(),
+        })
+        .toPromise();
+
+      await this.syncExercises(this.routineId);
+
+      this.routinesService.saveAsTemplate(this.routineId, { category: data.category, name: data.name }).subscribe({
+        next: () => {
+          this.savingAsTemplate.set(false);
+          this.saveAsTemplateDialogOpen.set(false);
+          this.router.navigate(['/routines/templates']);
+        },
+        error: (err) => {
+          this.savingAsTemplate.set(false);
+          this.error.set(err.error?.message || 'Error al guardar como plantilla');
+        },
+      });
+    } catch (err: unknown) {
+      const error = err as { error?: { message?: string } };
+      this.savingAsTemplate.set(false);
+      this.error.set(error.error?.message || 'Error al guardar cambios antes de crear plantilla');
+    }
+  }
+
+  onSaveAsTemplateCancelled(): void {
+    this.saveAsTemplateDialogOpen.set(false);
   }
 }

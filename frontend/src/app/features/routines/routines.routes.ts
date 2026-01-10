@@ -13,6 +13,12 @@ export const ROUTINES_ROUTES: Routes = [
         title: 'Rutinas',
       },
       {
+        path: 'templates',
+        loadComponent: () =>
+          import('./pages/templates/templates.component').then((m) => m.TemplatesListComponent),
+        title: 'Plantillas de Rutinas',
+      },
+      {
         path: 'new',
         loadComponent: () =>
           import('./pages/form/form.component').then((m) => m.RoutineFormComponent),

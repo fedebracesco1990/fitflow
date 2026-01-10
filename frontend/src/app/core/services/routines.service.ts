@@ -8,6 +8,9 @@ import {
   AddExerciseDto,
   UpdateRoutineExerciseDto,
   RoutineExercise,
+  SaveAsTemplateDto,
+  CreateFromTemplateDto,
+  FilterTemplatesParams,
 } from '../models';
 import { PaginatedResponse } from '../models/api-response.model';
 
@@ -70,5 +73,26 @@ export class RoutinesService {
 
   removeExercise(routineId: string, exerciseId: string): Observable<void> {
     return this.api.delete<void>(`${this.endpoint}/${routineId}/exercises/${exerciseId}`);
+  }
+
+  // Template methods
+  getTemplates(params?: FilterTemplatesParams): Observable<PaginatedResponse<Routine>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.set('page', params.page.toString());
+    if (params?.limit) queryParams.set('limit', params.limit.toString());
+    if (params?.category) queryParams.set('category', params.category);
+
+    const query = queryParams.toString();
+    const url = query ? `${this.endpoint}/templates?${query}` : `${this.endpoint}/templates`;
+
+    return this.api.get<PaginatedResponse<Routine>>(url);
+  }
+
+  saveAsTemplate(routineId: string, data: SaveAsTemplateDto): Observable<Routine> {
+    return this.api.post<Routine>(`${this.endpoint}/${routineId}/save-as-template`, data);
+  }
+
+  createFromTemplate(templateId: string, data?: CreateFromTemplateDto): Observable<Routine> {
+    return this.api.post<Routine>(`${this.endpoint}/from-template/${templateId}`, data || {});
   }
 }
