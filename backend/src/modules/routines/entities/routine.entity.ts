@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Difficulty } from '../../../common/enums/difficulty.enum';
+import { TemplateCategory } from '../../../common/enums/template-category.enum';
 import { RoutineExercise } from './routine-exercise.entity';
 
 @Entity('routines')
@@ -42,6 +43,12 @@ export class Routine {
 
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  isTemplate: boolean;
+
+  @Column({ type: 'enum', enum: TemplateCategory, nullable: true })
+  templateCategory: TemplateCategory | null;
 
   @OneToMany(() => RoutineExercise, (re) => re.routine, { cascade: true })
   exercises: RoutineExercise[];

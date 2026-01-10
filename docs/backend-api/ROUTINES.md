@@ -8,17 +8,20 @@ Endpoints para gestión de rutinas de entrenamiento.
 
 ## Endpoints
 
-| Método | Ruta                                  | Descripción          | Roles          |
-| ------ | ------------------------------------- | -------------------- | -------------- |
-| POST   | `/routines`                           | Crear rutina         | ADMIN, TRAINER |
-| GET    | `/routines`                           | Listar rutinas       | Todos          |
-| GET    | `/routines/:id`                       | Obtener rutina       | Todos          |
-| PATCH  | `/routines/:id`                       | Actualizar rutina    | ADMIN, TRAINER |
-| DELETE | `/routines/:id`                       | Eliminar rutina      | ADMIN          |
-| POST   | `/routines/:id/exercises`             | Agregar ejercicio    | ADMIN, TRAINER |
-| PATCH  | `/routines/:id/exercises/:exerciseId` | Actualizar ejercicio | ADMIN, TRAINER |
-| DELETE | `/routines/:id/exercises/:exerciseId` | Quitar ejercicio     | ADMIN, TRAINER |
-| POST   | `/routines/:id/assign`                | Asignar a usuario    | ADMIN, TRAINER |
+| Método | Ruta                                  | Descripción            | Roles          |
+| ------ | ------------------------------------- | ---------------------- | -------------- |
+| POST   | `/routines`                           | Crear rutina           | ADMIN, TRAINER |
+| GET    | `/routines`                           | Listar rutinas         | Todos          |
+| GET    | `/routines/:id`                       | Obtener rutina         | Todos          |
+| PATCH  | `/routines/:id`                       | Actualizar rutina      | ADMIN, TRAINER |
+| DELETE | `/routines/:id`                       | Eliminar rutina        | ADMIN          |
+| POST   | `/routines/:id/exercises`             | Agregar ejercicio      | ADMIN, TRAINER |
+| PATCH  | `/routines/:id/exercises/:exerciseId` | Actualizar ejercicio   | ADMIN, TRAINER |
+| DELETE | `/routines/:id/exercises/:exerciseId` | Quitar ejercicio       | ADMIN, TRAINER |
+| POST   | `/routines/:id/assign`                | Asignar a usuario      | ADMIN, TRAINER |
+| GET    | `/routines/templates`                 | Listar plantillas      | ADMIN, TRAINER |
+| POST   | `/routines/:id/save-as-template`      | Guardar como plantilla | ADMIN, TRAINER |
+| POST   | `/routines/from-template/:templateId` | Crear desde plantilla  | ADMIN, TRAINER |
 
 ---
 
@@ -239,3 +242,135 @@ Asigna una rutina a un usuario para un día específico de la semana.
 | ------ | --------------------------------------------- |
 | 404    | Usuario o rutina no encontrada                |
 | 409    | Rutina ya asignada a este usuario en este día |
+
+---
+
+## Plantillas de Rutinas
+
+Los siguientes endpoints permiten gestionar plantillas de rutinas reutilizables.
+
+### GET /routines/templates
+
+Lista todas las plantillas disponibles con filtros opcionales.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+**Query Parameters:**
+
+| Parámetro | Tipo   | Default | Descripción                                                                                          |
+| --------- | ------ | ------- | ---------------------------------------------------------------------------------------------------- |
+| page      | number | 1       | Número de página                                                                                     |
+| limit     | number | 20      | Elementos por página                                                                                 |
+| category  | string | -       | Filtrar por categoría (strength, hypertrophy, endurance, cardio, flexibility, functional, full_body) |
+
+**Response (200):**
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "name": "Plantilla: Fuerza 5x5",
+      "description": "Programa clásico de fuerza",
+      "difficulty": "intermediate",
+      "estimatedDuration": 60,
+      "isTemplate": true,
+      "templateCategory": "strength",
+      "exercises": [...],
+      "createdBy": { "id": "uuid", "firstName": "Juan" }
+    }
+  ],
+  "meta": {
+    "total": 10,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 1
+  }
+}
+```
+
+---
+
+### POST /routines/:id/save-as-template
+
+Convierte una rutina existente en una plantilla reutilizable.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+> TRAINER solo puede convertir sus propias rutinas
+
+**Request Body:**
+
+| Campo    | Tipo   | Requerido | Descripción                                                                              |
+| -------- | ------ | --------- | ---------------------------------------------------------------------------------------- |
+| category | string | ✅        | Categoría (strength, hypertrophy, endurance, cardio, flexibility, functional, full_body) |
+| name     | string | ❌        | Nuevo nombre para la plantilla                                                           |
+
+**Response (200):**
+
+```json
+{
+  "id": "uuid",
+  "name": "Plantilla: Mi Rutina",
+  "isTemplate": true,
+  "templateCategory": "hypertrophy",
+  ...
+}
+```
+
+**Errores:**
+
+| Código | Descripción                        |
+| ------ | ---------------------------------- |
+| 400    | La rutina ya es una plantilla      |
+| 403    | No tiene permisos para esta rutina |
+| 404    | Rutina no encontrada               |
+
+---
+
+### POST /routines/from-template/:templateId
+
+Crea una nueva rutina a partir de una plantilla existente, copiando todos sus ejercicios.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+**Request Body:**
+
+| Campo       | Tipo   | Requerido | Descripción                                        |
+| ----------- | ------ | --------- | -------------------------------------------------- |
+| name        | string | ❌        | Nombre para la nueva rutina (default: "X (copia)") |
+| description | string | ❌        | Descripción para la nueva rutina                   |
+
+**Response (201):**
+
+```json
+{
+  "id": "uuid-nueva",
+  "name": "Fuerza 5x5 (copia)",
+  "description": "Programa clásico de fuerza",
+  "isTemplate": false,
+  "templateCategory": null,
+  "exercises": [...],
+  "createdById": "uuid-del-usuario"
+}
+```
+
+**Errores:**
+
+| Código | Descripción             |
+| ------ | ----------------------- |
+| 404    | Plantilla no encontrada |
+
+---
+
+## Categorías de Plantillas
+
+| Valor       | Descripción     |
+| ----------- | --------------- |
+| strength    | Fuerza          |
+| hypertrophy | Hipertrofia     |
+| endurance   | Resistencia     |
+| cardio      | Cardio          |
+| flexibility | Flexibilidad    |
+| functional  | Funcional       |
+| full_body   | Cuerpo Completo |

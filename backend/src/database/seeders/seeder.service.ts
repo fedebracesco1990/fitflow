@@ -21,6 +21,7 @@ import { Difficulty } from '../../common/enums/difficulty.enum';
 import { Equipment } from '../../common/enums/equipment.enum';
 import { DayOfWeek } from '../../common/enums/day-of-week.enum';
 import { AccessType } from '../../common/enums/access-type.enum';
+import { TemplateCategory } from '../../common/enums/template-category.enum';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -322,24 +323,74 @@ export class SeederService implements OnModuleInit {
       },
     ];
 
+    const templatesData = [
+      {
+        name: 'Plantilla: Fuerza 5x5',
+        description: 'Programa clásico de fuerza con 5 series de 5 repeticiones',
+        difficulty: Difficulty.INTERMEDIATE,
+        estimatedDuration: 60,
+        isTemplate: true,
+        templateCategory: TemplateCategory.STRENGTH,
+        exercises: [
+          'Sentadilla',
+          'Press de Banca',
+          'Peso Muerto',
+          'Remo con Barra',
+          'Press Militar',
+        ],
+      },
+      {
+        name: 'Plantilla: Hipertrofia Push/Pull/Legs',
+        description: 'División clásica para maximizar el crecimiento muscular',
+        difficulty: Difficulty.INTERMEDIATE,
+        estimatedDuration: 50,
+        isTemplate: true,
+        templateCategory: TemplateCategory.HYPERTROPHY,
+        exercises: [
+          'Press de Banca',
+          'Press Inclinado con Mancuernas',
+          'Aperturas con Mancuernas',
+          'Fondos en Banco',
+        ],
+      },
+      {
+        name: 'Plantilla: Full Body Funcional',
+        description: 'Entrenamiento funcional para todo el cuerpo',
+        difficulty: Difficulty.BEGINNER,
+        estimatedDuration: 45,
+        isTemplate: true,
+        templateCategory: TemplateCategory.FUNCTIONAL,
+        exercises: ['Sentadilla', 'Plancha', 'Zancadas', 'Burpees'],
+      },
+    ];
+
     let created = 0;
-    for (const data of routinesData) {
+    const allRoutines = [...routinesData, ...templatesData];
+
+    for (const data of allRoutines) {
       try {
         const existing = await this.routineRepository.findOne({
           where: { name: data.name },
         });
 
         if (!existing) {
+          const isTemplate = 'isTemplate' in data && data.isTemplate === true;
+          const templateCategory =
+            'templateCategory' in data
+              ? (data as { templateCategory: TemplateCategory }).templateCategory
+              : null;
+
           const routine = await this.routineRepository.save(
             this.routineRepository.create({
               name: data.name,
               description: data.description,
               difficulty: data.difficulty,
               estimatedDuration: data.estimatedDuration,
+              isTemplate,
+              templateCategory,
             })
           );
 
-          // Add exercises to routine
           let order = 1;
           for (const exerciseName of data.exercises) {
             const exercise = await this.exerciseRepository.findOne({
@@ -366,7 +417,7 @@ export class SeederService implements OnModuleInit {
     }
 
     if (created > 0) {
-      this.logger.log(`  ✓ ${created} rutinas creadas`);
+      this.logger.log(`  ✓ ${created} rutinas creadas (incluyendo plantillas)`);
     } else {
       this.logger.log('  - Rutinas ya existen');
     }

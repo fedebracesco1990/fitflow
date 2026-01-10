@@ -603,7 +603,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-43] Sistema de Plantillas de Rutinas
+### [FITFLOW-43] Sistema de Plantillas de Rutinas ✅
 
 **Tipo:** Backend
 
@@ -611,11 +611,18 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Flag isTemplate en tabla Rutinas
-- [ ] GET /api/routines/templates (listar plantillas)
-- [ ] POST /api/routines/:id/save-as-template
-- [ ] POST /api/routines/from-template/:templateId (duplicar)
-- [ ] Categorización de plantillas (fuerza, hipertrofia, etc.)
+- [x] Flag isTemplate en tabla Rutinas
+- [x] GET /api/routines/templates (listar plantillas)
+- [x] POST /api/routines/:id/save-as-template
+- [x] POST /api/routines/from-template/:templateId (duplicar)
+- [x] Categorización de plantillas (fuerza, hipertrofia, etc.)
+
+**Implementación:**
+
+- Submódulo `routines/templates/` con TemplatesService y TemplatesController
+- Enum `TemplateCategory` con 7 categorías: strength, hypertrophy, endurance, cardio, flexibility, functional, full_body
+- Campos `isTemplate` y `templateCategory` en Routine entity
+- 3 plantillas de ejemplo en seeder
 
 ---
 
@@ -784,7 +791,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-40 | Biblioteca de Ejercicios para Entrenador    | ✅ COMPLETO  | Grid/lista, filtros, detail page, form con equipment                    |
 | FITFLOW-41 | API Completa de Rutinas                     | ✅ COMPLETO  | CRUD + filtro createdBy + assign + suggestedWeight                      |
 | FITFLOW-42 | Constructor Visual de Rutinas (Drag & Drop) | ⬜ PENDIENTE |                                                                         |
-| FITFLOW-43 | Sistema de Plantillas de Rutinas            | ⬜ PENDIENTE |                                                                         |
+| FITFLOW-43 | Sistema de Plantillas de Rutinas            | ✅ COMPLETO  | Submódulo templates, 3 endpoints, enum TemplateCategory                 |
 | FITFLOW-44 | Gestión de Plantillas de Rutinas            | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-45 | Asignación de Rutinas a Usuarios            | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-46 | API de Rutinas del Usuario                  | ⬜ PENDIENTE |                                                                         |
