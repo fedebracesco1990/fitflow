@@ -1,0 +1,93 @@
+<div class="today-routine">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Mi Rutina</h1>
+      <button type="button" class="btn btn-outline btn-sm" (click)="goToWeekView()">
+        Ver Semana
+      </button>
+    </div>
+  </header>
+
+  <fit-flow-day-navigator
+    [selectedDay]="selectedDay()"
+    [weekData]="weekData()"
+    [today]="today"
+    (dayChange)="onDayChange($event)"
+  />
+
+  @if (error()) {
+    <div class="alert alert-error">
+      <span>{{ error() }}</span>
+      <button type="button" class="btn btn-sm" (click)="loadData()">Reintentar</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando tu rutina...</p>
+    </div>
+  } @else {
+    <div class="routine-content">
+      @if (hasRoutineForSelectedDay()) {
+        <div class="routine-header">
+          <div class="routine-info">
+            <h2 class="routine-name">{{ currentRoutine()?.routine?.name }}</h2>
+            <div class="routine-meta">
+              <span class="meta-item">
+                <strong>{{ currentRoutine()?.routine?.estimatedDuration }}</strong> min
+              </span>
+              <span class="meta-divider">•</span>
+              <span class="meta-item">
+                {{ difficultyLabels[currentRoutine()?.routine?.difficulty || 'beginner'] }}
+              </span>
+              <span class="meta-divider">•</span>
+              <span class="meta-item">
+                <strong>{{ currentExercises().length }}</strong> ejercicios
+              </span>
+            </div>
+          </div>
+
+          @if (isToday()) {
+            <button type="button" class="btn btn-primary btn-start" (click)="startWorkout()">
+              🏋️ Iniciar Entrenamiento
+            </button>
+          }
+        </div>
+
+        @if (isToday() && todayData()?.hasHistory) {
+          <div class="history-notice">
+            <span class="notice-icon">📊</span>
+            <span>Mostrando pesos de tu última sesión</span>
+          </div>
+        }
+
+        <div class="exercises-list">
+          @for (exercise of currentExercises(); track exercise.id) {
+            <fit-flow-exercise-card [exercise]="exercise" [showHistory]="isToday()" />
+          }
+        </div>
+
+        @if (isToday()) {
+          <div class="start-workout-footer">
+            <button type="button" class="btn btn-primary btn-lg btn-block" (click)="startWorkout()">
+              🏋️ Iniciar Entrenamiento
+            </button>
+          </div>
+        }
+      } @else {
+        <div class="empty-state">
+          <div class="empty-icon">🧘</div>
+          <h3>{{ isToday() ? 'Día de descanso' : 'Sin rutina asignada' }}</h3>
+          <p>
+            @if (isToday()) {
+              No tienes rutina programada para hoy. ¡Disfruta tu descanso!
+            } @else {
+              No hay rutina asignada para {{ dayLabels[selectedDay()] }}.
+            }
+          </p>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -576,7 +576,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-42] Constructor Visual de Rutinas (Drag & Drop)
+### [FITFLOW-42] Constructor Visual de Rutinas (Drag & Drop) ✅
 
 **Tipo:** Frontend + Backend
 
@@ -651,7 +651,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-45] Asignación de Rutinas a Usuarios
+### [FITFLOW-45] Asignación de Rutinas a Usuarios ✅
 
 **Tipo:** Frontend + Backend
 
@@ -699,7 +699,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-47] Visualización de Rutina del Día (Socio)
+### [FITFLOW-47] Visualización de Rutina del Día (Socio) ✅
 
 **Tipo:** Frontend
 
@@ -707,11 +707,20 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Página "Mi Rutina de Hoy"
-- [ ] Lista de ejercicios del día con imagen
-- [ ] Visualización de: sets, reps, peso sugerido
-- [ ] Navegación entre días de la semana
-- [ ] Acceso offline (PWA)
+- [x] Página "Mi Rutina de Hoy"
+- [x] Lista de ejercicios del día con imagen
+- [x] Visualización de: sets, reps, peso sugerido
+- [x] Navegación entre días de la semana
+- [x] Acceso offline (PWA)
+
+**Implementación:**
+
+- `TodayRoutineComponent` con navegación semanal (DayNavigator)
+- `ExerciseCardComponent` con historial de última sesión
+- `WorkoutComponent` mejorado con agregar/eliminar series
+- Ruta `/my-routines/today` como landing principal para socios
+- PWA config en `ngsw-config.json` con dataGroups para API caching
+- Shared util `getCurrentDayOfWeek()` en `core/utils/`
 
 ---
 
@@ -816,12 +825,12 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-39 | API de Biblioteca de Ejercicios             | ✅ COMPLETO  | CRUD ejercicios, filtros avanzados, equipment enum, seed 156 ejercicios |
 | FITFLOW-40 | Biblioteca de Ejercicios para Entrenador    | ✅ COMPLETO  | Grid/lista, filtros, detail page, form con equipment                    |
 | FITFLOW-41 | API Completa de Rutinas                     | ✅ COMPLETO  | CRUD + filtro createdBy + assign + suggestedWeight                      |
-| FITFLOW-42 | Constructor Visual de Rutinas (Drag & Drop) | ⬜ PENDIENTE |                                                                         |
+| FITFLOW-42 | Constructor Visual de Rutinas (Drag & Drop) | ✅ COMPLETO  | CDK Drag&Drop, panel ejercicios, días semana, config sets/reps/peso     |
 | FITFLOW-43 | Sistema de Plantillas de Rutinas            | ✅ COMPLETO  | Submódulo templates, 3 endpoints, enum TemplateCategory                 |
-| FITFLOW-44 | Gestión de Plantillas de Rutinas            | ⬜ PENDIENTE |                                                                         |
-| FITFLOW-45 | Asignación de Rutinas a Usuarios            | ⬜ PENDIENTE |                                                                         |
+| FITFLOW-44 | Gestión de Plantillas de Rutinas            | ✅ COMPLETO  | Templates page, save/use dialogs, category filter                       |
+| FITFLOW-45 | Asignación de Rutinas a Usuarios            | ✅ COMPLETO  | AssignRoutineDialog, bulk assign, user search, notifications            |
 | FITFLOW-46 | API de Rutinas del Usuario                  | ✅ COMPLETO  | GET /user-routines/today con historial de última sesión                 |
-| FITFLOW-47 | Visualización de Rutina del Día (Socio)     | ⬜ PENDIENTE |                                                                         |
+| FITFLOW-47 | Visualización de Rutina del Día (Socio)     | ✅ COMPLETO  | TodayRoutine page, week navigation, workout flow, add/remove sets       |
 | FITFLOW-48 | API de Registro de Progreso                 | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-49 | Registro de Progreso en Rutina              | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-50 | Detección de Personal Records               | ⬜ PENDIENTE |                                                                         |
@@ -878,8 +887,8 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Tareas Nuevas (FITFLOW-40 a FITFLOW-51)
 
-- COMPLETO: 2 (FITFLOW-40, FITFLOW-41)
-- PENDIENTE: 10
+- COMPLETO: 8 (FITFLOW-40 a FITFLOW-47)
+- PENDIENTE: 4 (FITFLOW-48 a FITFLOW-51)
 - Total: 12 tareas
 
 ### Tareas Secundarias

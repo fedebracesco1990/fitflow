@@ -107,7 +107,38 @@ export class WorkoutsService {
   async startWorkout(id: string, userId: string): Promise<WorkoutLog> {
     const workoutLog = await this.findOne(id, userId);
     workoutLog.status = WorkoutStatus.IN_PROGRESS;
-    return await this.workoutLogRepository.save(workoutLog);
+    await this.workoutLogRepository.save(workoutLog);
+
+    // Pre-crear exercise logs para cada ejercicio de la rutina
+    const routineExercises = workoutLog.userRoutine.routine.exercises;
+    for (const re of routineExercises) {
+      // Crear un log para cada serie del ejercicio
+      for (let setNum = 1; setNum <= re.sets; setNum++) {
+        const existingLog = await this.exerciseLogRepository.findOne({
+          where: {
+            workoutLogId: id,
+            routineExerciseId: re.id,
+            setNumber: setNum,
+          },
+        });
+
+        if (!existingLog) {
+          await this.exerciseLogRepository.save(
+            this.exerciseLogRepository.create({
+              workoutLogId: id,
+              routineExerciseId: re.id,
+              setNumber: setNum,
+              reps: re.reps,
+              weight: re.suggestedWeight,
+              completed: false,
+            })
+          );
+        }
+      }
+    }
+
+    // Recargar workout con los nuevos logs
+    return await this.findOne(id, userId);
   }
 
   async completeWorkout(id: string, userId: string, duration?: number): Promise<WorkoutLog> {
@@ -174,5 +205,18 @@ export class WorkoutsService {
       relations: ['routineExercise', 'routineExercise.exercise'],
       order: { routineExerciseId: 'ASC', setNumber: 'ASC' },
     });
+  }
+
+  async deleteExerciseLog(workoutId: string, logId: string, userId: string): Promise<void> {
+    await this.findOne(workoutId, userId); // Verifica permisos
+
+    const exerciseLog = await this.exerciseLogRepository.findOne({
+      where: { id: logId, workoutLogId: workoutId },
+    });
+    if (!exerciseLog) {
+      throw new NotFoundException('Log de ejercicio no encontrado');
+    }
+
+    await this.exerciseLogRepository.remove(exerciseLog);
   }
 }

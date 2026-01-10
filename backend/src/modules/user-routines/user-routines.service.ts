@@ -267,7 +267,9 @@ export class UserRoutinesService {
       }
     }
 
-    const exercises: ExerciseWithHistory[] = userRoutine.routine.exercises
+    const routineExercises = userRoutine.routine?.exercises || [];
+    const exercises: ExerciseWithHistory[] = routineExercises
+      .filter((re) => re.exercise) // Filter out any exercises without loaded relation
       .sort((a, b) => a.order - b.order)
       .map((re) => {
         const logs = exerciseLogsMap.get(re.id) || [];
@@ -278,10 +280,10 @@ export class UserRoutinesService {
           exercise: {
             id: re.exercise.id,
             name: re.exercise.name,
-            description: re.exercise.description,
-            muscleGroupId: re.exercise.muscleGroupId,
-            imageUrl: re.exercise.imageUrl,
-            videoUrl: re.exercise.videoUrl,
+            description: re.exercise.description || null,
+            muscleGroupId: re.exercise.muscleGroupId || null,
+            imageUrl: re.exercise.imageUrl || null,
+            videoUrl: re.exercise.videoUrl || null,
           },
           order: re.order,
           sets: re.sets,
@@ -293,7 +295,7 @@ export class UserRoutinesService {
           lastWorkout:
             logs.length > 0
               ? {
-                  date: lastWorkout!.date.toISOString().split('T')[0],
+                  date: new Date(lastWorkout!.date).toISOString().split('T')[0],
                   sets: logs.map((l) => ({
                     setNumber: l.setNumber,
                     weight: l.weight,

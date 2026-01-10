@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { UserRoutinesService } from '../../../../core/services';
 import { UserRoutine, DayOfWeek, DayOfWeekLabels, DifficultyLabels } from '../../../../core/models';
+import { getCurrentDayOfWeek } from '../../../../core/utils';
 
 @Component({
   selector: 'fit-flow-my-week',
@@ -22,7 +23,7 @@ export class MyWeekComponent implements OnInit {
   dayLabels = DayOfWeekLabels;
   difficultyLabels = DifficultyLabels;
 
-  today = this.getTodayDayOfWeek();
+  today = getCurrentDayOfWeek();
 
   ngOnInit(): void {
     this.loadMyWeek();
@@ -40,19 +41,5 @@ export class MyWeekComponent implements OnInit {
         this.loading.set(false);
       },
     });
-  }
-
-  private getTodayDayOfWeek(): DayOfWeek {
-    const dayIndex = new Date().getDay();
-    const days = [
-      DayOfWeek.SUNDAY,
-      DayOfWeek.MONDAY,
-      DayOfWeek.TUESDAY,
-      DayOfWeek.WEDNESDAY,
-      DayOfWeek.THURSDAY,
-      DayOfWeek.FRIDAY,
-      DayOfWeek.SATURDAY,
-    ];
-    return days[dayIndex];
   }
 }

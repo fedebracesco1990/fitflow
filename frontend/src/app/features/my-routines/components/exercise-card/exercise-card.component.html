@@ -1,0 +1,51 @@
+<article class="exercise-card">
+  <div class="exercise-image">
+    @if (exercise.exercise.imageUrl) {
+      <img [src]="exercise.exercise.imageUrl" [alt]="exercise.exercise.name" />
+    } @else {
+      <div class="image-placeholder">
+        <span class="placeholder-icon">🏋️</span>
+      </div>
+    }
+  </div>
+
+  <div class="exercise-content">
+    <h3 class="exercise-name">{{ exercise.exercise.name }}</h3>
+
+    <div class="exercise-params">
+      <span class="param">
+        <strong>{{ exercise.sets }}</strong> series
+      </span>
+      <span class="param-divider">×</span>
+      <span class="param">
+        <strong>{{ exercise.reps }}</strong> reps
+      </span>
+      <span class="param-divider">•</span>
+      <span class="param weight">{{ displayWeight }}</span>
+    </div>
+
+    @if (exercise.restSeconds) {
+      <div class="rest-time">
+        <span class="rest-icon">⏱️</span>
+        <span>{{ exercise.restSeconds }}s descanso</span>
+      </div>
+    }
+
+    @if (showHistory && hasHistory) {
+      <div class="history-section">
+        <span class="history-label">Última sesión ({{ exercise.lastWorkout!.date }}):</span>
+        <div class="history-sets">
+          @for (set of exercise.lastWorkout!.sets; track set.setNumber) {
+            <span class="set-badge" [class.completed]="set.completed">
+              {{ set.weight || '-' }}kg × {{ set.reps }}
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    @if (exercise.notes) {
+      <p class="exercise-notes">{{ exercise.notes }}</p>
+    }
+  </div>
+</article>

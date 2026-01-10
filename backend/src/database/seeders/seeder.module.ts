@@ -13,6 +13,8 @@ import { Membership } from '../../modules/memberships/entities/membership.entity
 import { Payment } from '../../modules/payments/entities/payment.entity';
 import { AccessLog } from '../../modules/access/entities/access-log.entity';
 import { NotificationTemplate } from '../../modules/notifications/entities/notification-template.entity';
+import { WorkoutLog } from '../../modules/workouts/entities/workout-log.entity';
+import { ExerciseLog } from '../../modules/workouts/entities/exercise-log.entity';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { NotificationTemplate } from '../../modules/notifications/entities/notif
       Payment,
       AccessLog,
       NotificationTemplate,
+      WorkoutLog,
+      ExerciseLog,
     ]),
     MuscleGroupsModule,
   ],

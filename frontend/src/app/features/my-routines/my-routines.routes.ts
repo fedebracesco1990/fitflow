@@ -8,8 +8,19 @@ export const MY_ROUTINES_ROUTES: Routes = [
     children: [
       {
         path: '',
+        redirectTo: 'today',
+        pathMatch: 'full',
+      },
+      {
+        path: 'today',
+        loadComponent: () =>
+          import('./pages/today/today.component').then((m) => m.TodayRoutineComponent),
+        title: 'Mi Rutina de Hoy',
+      },
+      {
+        path: 'week',
         loadComponent: () => import('./pages/week/week.component').then((m) => m.MyWeekComponent),
-        title: 'Mis Rutinas',
+        title: 'Mi Semana',
       },
       {
         path: ':id/start',

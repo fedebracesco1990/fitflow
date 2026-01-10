@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Patch,
+  Delete,
   Param,
   UseGuards,
   ParseUUIDPipe,
@@ -88,5 +89,14 @@ export class WorkoutsController {
     @Request() req: { user: AuthenticatedUser }
   ) {
     return this.workoutsService.updateExerciseLog(id, logId, dto, req.user.userId);
+  }
+
+  @Delete(':id/exercises/:logId')
+  deleteExerciseLog(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('logId', ParseUUIDPipe) logId: string,
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    return this.workoutsService.deleteExerciseLog(id, logId, req.user.userId);
   }
 }

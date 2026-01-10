@@ -12,6 +12,9 @@ import { MembershipType } from '../../modules/membership-types/entities/membersh
 import { Membership, MembershipStatus } from '../../modules/memberships/entities/membership.entity';
 import { Payment, PaymentMethod } from '../../modules/payments/entities/payment.entity';
 import { AccessLog } from '../../modules/access/entities/access-log.entity';
+import { WorkoutLog } from '../../modules/workouts/entities/workout-log.entity';
+import { ExerciseLog } from '../../modules/workouts/entities/exercise-log.entity';
+import { WorkoutStatus } from '../../common/enums/workout-status.enum';
 import {
   NotificationTemplate,
   NotificationType,
@@ -62,7 +65,11 @@ export class SeederService implements OnModuleInit {
     @InjectRepository(AccessLog)
     private readonly accessLogRepository: Repository<AccessLog>,
     @InjectRepository(NotificationTemplate)
-    private readonly notificationTemplateRepository: Repository<NotificationTemplate>
+    private readonly notificationTemplateRepository: Repository<NotificationTemplate>,
+    @InjectRepository(WorkoutLog)
+    private readonly workoutLogRepository: Repository<WorkoutLog>,
+    @InjectRepository(ExerciseLog)
+    private readonly exerciseLogRepository: Repository<ExerciseLog>
   ) {}
 
   async onModuleInit() {
@@ -84,6 +91,7 @@ export class SeederService implements OnModuleInit {
     await this.seedPayments();
     await this.seedAccessLogs();
     await this.seedNotificationTemplates();
+    await this.seedWorkoutHistory();
 
     this.logger.log('✅ Seed completado');
   }
@@ -177,6 +185,13 @@ export class SeederService implements OnModuleInit {
         name: 'Usuario Inactivo',
         role: Role.USER,
         isActive: false,
+      },
+      {
+        email: 'athlete@fitflow.com',
+        password: 'User123!',
+        name: 'Atleta Dedicado',
+        role: Role.USER,
+        isActive: true,
       },
     ];
 
@@ -397,6 +412,9 @@ export class SeederService implements OnModuleInit {
               where: { name: exerciseName },
             });
             if (exercise) {
+              // Asignar peso sugerido basado en el tipo de ejercicio
+              const suggestedWeight = this.getSuggestedWeight(exerciseName);
+
               await this.routineExerciseRepository.save(
                 this.routineExerciseRepository.create({
                   routineId: routine.id,
@@ -405,6 +423,7 @@ export class SeederService implements OnModuleInit {
                   sets: 3,
                   reps: 12,
                   restSeconds: 60,
+                  suggestedWeight,
                 })
               );
             }
@@ -452,6 +471,38 @@ export class SeederService implements OnModuleInit {
         day: DayOfWeek.WEDNESDAY,
       },
       { userEmail: 'user2@fitflow.com', routineName: 'Día de Piernas', day: DayOfWeek.FRIDAY },
+      // Atleta dedicado - entrena los 7 días de la semana
+      {
+        userEmail: 'athlete@fitflow.com',
+        routineName: 'Día de Pecho y Tríceps',
+        day: DayOfWeek.MONDAY,
+      },
+      {
+        userEmail: 'athlete@fitflow.com',
+        routineName: 'Día de Espalda y Bíceps',
+        day: DayOfWeek.TUESDAY,
+      },
+      { userEmail: 'athlete@fitflow.com', routineName: 'Día de Piernas', day: DayOfWeek.WEDNESDAY },
+      {
+        userEmail: 'athlete@fitflow.com',
+        routineName: 'Día de Hombros y Core',
+        day: DayOfWeek.THURSDAY,
+      },
+      {
+        userEmail: 'athlete@fitflow.com',
+        routineName: 'Día de Pecho y Tríceps',
+        day: DayOfWeek.FRIDAY,
+      },
+      {
+        userEmail: 'athlete@fitflow.com',
+        routineName: 'Día de Espalda y Bíceps',
+        day: DayOfWeek.SATURDAY,
+      },
+      {
+        userEmail: 'athlete@fitflow.com',
+        routineName: 'Rutina Full Body Principiante',
+        day: DayOfWeek.SUNDAY,
+      },
     ];
 
     let created = 0;
@@ -687,6 +738,14 @@ export class SeederService implements OnModuleInit {
         endDate: addDays(today, 60),
         status: MembershipStatus.ACTIVE,
         notes: 'Membresía trimestral activa',
+      },
+      {
+        userEmail: 'athlete@fitflow.com',
+        typeName: 'Anual',
+        startDate: subDays(today, 60),
+        endDate: addDays(today, 305),
+        status: MembershipStatus.ACTIVE,
+        notes: 'Atleta dedicado - entrena 7 días/semana',
       },
       {
         userEmail: 'user3@fitflow.com',
@@ -998,5 +1057,156 @@ export class SeederService implements OnModuleInit {
     if (created > 0) {
       this.logger.log(`  ✓ ${created} logs de acceso creados`);
     }
+  }
+
+  async seedWorkoutHistory() {
+    // Verificar si ya hay workouts
+    const existingCount = await this.workoutLogRepository.count();
+    if (existingCount > 0) {
+      this.logger.log(`  - Ya existen ${existingCount} workouts`);
+      return;
+    }
+
+    const subDays = (date: Date, days: number): Date => {
+      const result = new Date(date);
+      result.setDate(result.getDate() - days);
+      return result;
+    };
+
+    const today = new Date();
+
+    // Obtener athlete user y sus rutinas asignadas
+    const athlete = await this.userRepository.findOne({ where: { email: 'athlete@fitflow.com' } });
+    if (!athlete) {
+      this.logger.log('  - Usuario athlete no encontrado, saltando workout history');
+      return;
+    }
+
+    const userRoutines = await this.userRoutineRepository.find({
+      where: { userId: athlete.id },
+      relations: ['routine', 'routine.exercises'],
+    });
+
+    if (userRoutines.length === 0) {
+      this.logger.log('  - No hay rutinas asignadas a athlete, saltando workout history');
+      return;
+    }
+
+    let workoutsCreated = 0;
+    let exerciseLogsCreated = 0;
+
+    // Crear workouts para los últimos 7, 14 y 21 días
+    for (const daysAgo of [7, 14, 21]) {
+      const workoutDate = subDays(today, daysAgo);
+      const dayOfWeek = workoutDate.getDay();
+
+      // Mapear día de la semana a DayOfWeek enum
+      const dayMap: Record<number, DayOfWeek> = {
+        0: DayOfWeek.SUNDAY,
+        1: DayOfWeek.MONDAY,
+        2: DayOfWeek.TUESDAY,
+        3: DayOfWeek.WEDNESDAY,
+        4: DayOfWeek.THURSDAY,
+        5: DayOfWeek.FRIDAY,
+        6: DayOfWeek.SATURDAY,
+      };
+
+      const userRoutine = userRoutines.find((ur) => ur.dayOfWeek === dayMap[dayOfWeek]);
+      if (!userRoutine) continue;
+
+      try {
+        // Crear workout log
+        const workoutLog = await this.workoutLogRepository.save(
+          this.workoutLogRepository.create({
+            userRoutineId: userRoutine.id,
+            date: workoutDate,
+            status: WorkoutStatus.COMPLETED,
+            duration: 45 + Math.floor(Math.random() * 30), // 45-75 min
+            notes: 'Entrenamiento completado',
+          })
+        );
+        workoutsCreated++;
+
+        // Crear exercise logs para cada ejercicio de la rutina
+        for (const re of userRoutine.routine.exercises) {
+          for (let setNum = 1; setNum <= re.sets; setNum++) {
+            // Variar peso ligeramente entre sets y días
+            const baseWeight = re.suggestedWeight || 20;
+            const weight = baseWeight + Math.floor(Math.random() * 5) - 2;
+
+            await this.exerciseLogRepository.save(
+              this.exerciseLogRepository.create({
+                workoutLogId: workoutLog.id,
+                routineExerciseId: re.id,
+                setNumber: setNum,
+                reps: re.reps + Math.floor(Math.random() * 3) - 1, // Variar reps ±1
+                weight: Math.max(0, weight),
+                completed: true,
+              })
+            );
+            exerciseLogsCreated++;
+          }
+        }
+      } catch (error) {
+        this.logger.error(`  ✗ Error creando workout history`, error);
+      }
+    }
+
+    if (workoutsCreated > 0) {
+      this.logger.log(
+        `  ✓ ${workoutsCreated} workouts y ${exerciseLogsCreated} exercise logs creados`
+      );
+    }
+  }
+
+  private getSuggestedWeight(exerciseName: string): number {
+    // Pesos sugeridos basados en el tipo de ejercicio
+    const weightMap: Record<string, number> = {
+      // Ejercicios de pecho
+      'Press de Banca': 40,
+      'Press Inclinado con Mancuernas': 16,
+      'Aperturas con Mancuernas': 12,
+      'Fondos en Paralelas': 0,
+      'Press de Banca con Mancuernas': 18,
+      // Ejercicios de espalda
+      Dominadas: 0,
+      'Remo con Barra': 35,
+      'Remo con Mancuerna': 18,
+      'Jalón al Pecho': 40,
+      'Peso Muerto': 60,
+      'Pull-over con Mancuerna': 14,
+      // Ejercicios de piernas
+      'Sentadilla con Barra': 50,
+      'Prensa de Piernas': 80,
+      'Extensión de Cuádriceps': 30,
+      'Curl de Isquiotibiales': 25,
+      'Elevación de Talones': 40,
+      'Zancadas con Mancuernas': 12,
+      'Peso Muerto Rumano': 40,
+      // Ejercicios de hombros
+      'Press Militar': 25,
+      'Elevaciones Laterales': 8,
+      'Elevaciones Frontales': 8,
+      Pájaros: 6,
+      'Press Arnold': 14,
+      // Ejercicios de bíceps
+      'Curl con Barra': 20,
+      'Curl con Mancuernas': 10,
+      'Curl Martillo': 10,
+      'Curl Concentrado': 8,
+      // Ejercicios de tríceps
+      'Extensión de Tríceps con Polea': 20,
+      'Fondos en Banco': 0,
+      'Press Francés': 15,
+      'Patada de Tríceps': 6,
+      // Ejercicios de core
+      Plancha: 0,
+      'Crunch Abdominal': 0,
+      'Elevación de Piernas': 0,
+      'Russian Twist': 5,
+      'Mountain Climbers': 0,
+    };
+
+    return weightMap[exerciseName] ?? 15; // Default 15kg si no está en el mapa
   }
 }

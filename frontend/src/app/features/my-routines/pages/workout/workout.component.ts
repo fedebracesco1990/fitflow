@@ -1,8 +1,19 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WorkoutsService, UserRoutinesService } from '../../../../core/services';
-import { UserRoutine, WorkoutLog, ExerciseLog, DifficultyLabels } from '../../../../core/models';
+import {
+  UserRoutine,
+  WorkoutLog,
+  ExerciseLog,
+  DifficultyLabels,
+  RoutineExercise,
+} from '../../../../core/models';
+
+interface ExerciseGroup {
+  routineExercise: RoutineExercise;
+  sets: ExerciseLog[];
+}
 
 @Component({
   selector: 'fit-flow-workout',
@@ -24,6 +35,40 @@ export class WorkoutComponent implements OnInit {
   error = signal<string | null>(null);
 
   difficultyLabels = DifficultyLabels;
+
+  // Computed: agrupa exercise logs por ejercicio
+  exerciseGroups = computed<ExerciseGroup[]>(() => {
+    const w = this.workout();
+    if (!w?.exerciseLogs) return [];
+
+    const groups = new Map<string, ExerciseGroup>();
+
+    for (const log of w.exerciseLogs) {
+      if (!groups.has(log.routineExerciseId)) {
+        groups.set(log.routineExerciseId, {
+          routineExercise: log.routineExercise,
+          sets: [],
+        });
+      }
+      groups.get(log.routineExerciseId)!.sets.push(log);
+    }
+
+    // Ordenar sets por número
+    for (const group of groups.values()) {
+      group.sets.sort((a, b) => a.setNumber - b.setNumber);
+    }
+
+    // Ordenar grupos por orden del ejercicio
+    return Array.from(groups.values()).sort(
+      (a, b) => a.routineExercise.order - b.routineExercise.order
+    );
+  });
+
+  // Computed: ejercicio actual con todas sus series
+  currentExerciseGroup = computed<ExerciseGroup | null>(() => {
+    const groups = this.exerciseGroups();
+    return groups[this.currentExerciseIndex()] || null;
+  });
 
   ngOnInit(): void {
     const userRoutineId = this.route.snapshot.paramMap.get('id');
@@ -50,22 +95,26 @@ export class WorkoutComponent implements OnInit {
     if (!ur) return;
 
     this.loading.set(true);
-    this.workoutsService.start(ur.routineId).subscribe({
+    const today = new Date().toISOString().split('T')[0];
+
+    this.workoutsService.create({ userRoutineId: ur.id, date: today }).subscribe({
       next: (workout) => {
-        this.workout.set(workout);
-        this.loading.set(false);
+        this.workoutsService.start(workout.id).subscribe({
+          next: (startedWorkout) => {
+            this.workout.set(startedWorkout);
+            this.loading.set(false);
+          },
+          error: (err) => {
+            this.error.set(err.error?.message || 'Error al iniciar entrenamiento');
+            this.loading.set(false);
+          },
+        });
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Error al iniciar entrenamiento');
+        this.error.set(err.error?.message || 'Error al crear entrenamiento');
         this.loading.set(false);
       },
     });
-  }
-
-  get currentExercise() {
-    const w = this.workout();
-    if (!w || !w.exerciseLogs) return null;
-    return w.exerciseLogs[this.currentExerciseIndex()];
   }
 
   get routineExercises() {
@@ -96,7 +145,7 @@ export class WorkoutComponent implements OnInit {
   }
 
   nextExercise(): void {
-    const max = this.routineExercises.length - 1;
+    const max = this.exerciseGroups().length - 1;
     if (this.currentExerciseIndex() < max) {
       this.currentExerciseIndex.update((i) => i + 1);
     }
@@ -106,6 +155,41 @@ export class WorkoutComponent implements OnInit {
     if (this.currentExerciseIndex() > 0) {
       this.currentExerciseIndex.update((i) => i - 1);
     }
+  }
+
+  addSet(): void {
+    const w = this.workout();
+    const group = this.currentExerciseGroup();
+    if (!w || !group) return;
+
+    const nextSetNumber = group.sets.length + 1;
+    const lastSet = group.sets[group.sets.length - 1];
+
+    this.workoutsService
+      .logExercise(w.id, {
+        routineExerciseId: group.routineExercise.id,
+        setNumber: nextSetNumber,
+        reps: lastSet?.reps || group.routineExercise.reps,
+        weight: lastSet?.weight || group.routineExercise.suggestedWeight || 0,
+        completed: false,
+      })
+      .subscribe({
+        next: () => this.refreshWorkout(),
+        error: (err) => this.error.set(err.error?.message || 'Error al agregar serie'),
+      });
+  }
+
+  removeSet(): void {
+    const w = this.workout();
+    const group = this.currentExerciseGroup();
+    if (!w || !group || group.sets.length <= 1) return;
+
+    const lastSet = group.sets[group.sets.length - 1];
+
+    this.workoutsService.deleteExerciseLog(w.id, lastSet.id).subscribe({
+      next: () => this.refreshWorkout(),
+      error: (err) => this.error.set(err.error?.message || 'Error al eliminar serie'),
+    });
   }
 
   completeWorkout(): void {

@@ -70,4 +70,8 @@ export class WorkoutsService {
   ): Observable<ExerciseLog> {
     return this.api.patch<ExerciseLog>(`${this.endpoint}/${workoutId}/exercises/${logId}`, data);
   }
+
+  deleteExerciseLog(workoutId: string, logId: string): Observable<void> {
+    return this.api.delete<void>(`${this.endpoint}/${workoutId}/exercises/${logId}`);
+  }
 }
