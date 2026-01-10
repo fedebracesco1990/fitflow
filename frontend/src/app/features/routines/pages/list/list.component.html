@@ -8,6 +8,10 @@
     </div>
   </header>
 
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
   @if (error()) {
     <div class="alert alert-error">{{ error() }}</div>
   }
@@ -42,6 +46,9 @@
                 </td>
                 <td>{{ routine.createdAt | date: 'd MMM, y' }}</td>
                 <td class="actions">
+                  <button class="btn btn-sm btn-primary" (click)="openAssignDialog(routine)">
+                    👥 Asignar
+                  </button>
                   <a [routerLink]="['/routines', routine.id, 'builder']" class="btn btn-sm btn-outline"
                     >🎨 Builder</a
                   >
@@ -60,3 +67,13 @@
     </fit-flow-card>
   }
 </div>
+
+@if (selectedRoutineForAssign()) {
+  <fit-flow-assign-routine-dialog
+    [isOpen]="assignDialogOpen()"
+    [routineId]="selectedRoutineForAssign()!.id"
+    [routineName]="selectedRoutineForAssign()!.name"
+    (confirmed)="onAssignConfirmed($event)"
+    (cancelled)="onAssignCancelled()"
+  />
+}

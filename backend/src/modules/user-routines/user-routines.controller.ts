@@ -11,7 +11,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { UserRoutinesService } from './user-routines.service';
-import { AssignRoutineDto, UpdateUserRoutineDto } from './dto';
+import { AssignRoutineDto, UpdateUserRoutineDto, BulkAssignRoutineDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -27,6 +27,12 @@ export class UserRoutinesController {
   @Roles(Role.ADMIN, Role.TRAINER)
   assign(@Body() dto: AssignRoutineDto) {
     return this.userRoutinesService.assign(dto);
+  }
+
+  @Post('bulk')
+  @Roles(Role.ADMIN, Role.TRAINER)
+  assignBulk(@Body() dto: BulkAssignRoutineDto) {
+    return this.userRoutinesService.assignBulk(dto);
   }
 
   @Get('my-week')

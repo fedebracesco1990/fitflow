@@ -1,0 +1,100 @@
+@if (isOpen()) {
+  <div
+    class="dialog-backdrop"
+    (click)="onBackdropClick($event)"
+    (keydown.escape)="onCancel()"
+    tabindex="-1"
+  >
+    <div class="dialog" role="dialog" aria-modal="true">
+      <div class="dialog-header">
+        <h3>Asignar Rutina</h3>
+        <span class="routine-name">{{ routineName() }}</span>
+      </div>
+
+      <div class="dialog-body">
+        @if (error()) {
+          <div class="error-message">{{ error() }}</div>
+        }
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Fecha de inicio</label>
+            <input
+              id="startDate"
+              type="date"
+              [ngModel]="startDate()"
+              (ngModelChange)="startDate.set($event)"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="dayOfWeek">Día de la semana</label>
+            <select
+              id="dayOfWeek"
+              [ngModel]="selectedDay()"
+              (ngModelChange)="selectedDay.set($event)"
+            >
+              @for (day of days; track day) {
+                <option [value]="day">{{ dayLabels[day] }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="users-section">
+          <div class="users-header">
+            <label>Seleccionar usuarios ({{ selectedCount() }} seleccionados)</label>
+            <div class="search-box">
+              <input
+                type="text"
+                placeholder="Buscar por nombre o email..."
+                [ngModel]="searchQuery()"
+                (ngModelChange)="searchQuery.set($event)"
+              />
+            </div>
+          </div>
+
+          @if (loading()) {
+            <div class="loading-state">Cargando usuarios...</div>
+          } @else if (filteredUsers().length === 0) {
+            <div class="empty-state">No se encontraron usuarios</div>
+          } @else {
+            <div class="users-list">
+              <div class="select-all" (click)="selectAll()">
+                <input
+                  type="checkbox"
+                  [checked]="allFilteredSelected()"
+                  [indeterminate]="someFilteredSelected()"
+                />
+                <span>Seleccionar todos</span>
+              </div>
+
+              @for (user of filteredUsers(); track user.id) {
+                <div class="user-item" [class.selected]="user.selected" (click)="toggleUser(user)">
+                  <input type="checkbox" [checked]="user.selected" />
+                  <div class="user-info">
+                    <span class="user-name">{{ user.name }}</span>
+                    <span class="user-email">{{ user.email }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="dialog-footer">
+        <fit-flow-button variant="outline" (click)="onCancel()" [disabled]="saving()">
+          Cancelar
+        </fit-flow-button>
+        <fit-flow-button
+          variant="primary"
+          (click)="onConfirm()"
+          [disabled]="saving() || selectedCount() === 0"
+        >
+          {{ saving() ? 'Asignando...' : 'Asignar a ' + selectedCount() + ' usuario(s)' }}
+        </fit-flow-button>
+      </div>
+    </div>
+  </div>
+}

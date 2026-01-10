@@ -7,6 +7,9 @@
     <div class="header-actions">
       <fit-flow-button variant="outline" (click)="onCancel()">Cancelar</fit-flow-button>
       @if (isEditMode()) {
+        <fit-flow-button variant="outline" (click)="onOpenAssignDialog()">
+          👥 Asignar a Usuarios
+        </fit-flow-button>
         <fit-flow-button variant="outline" (click)="onOpenSaveAsTemplateDialog()">
           📋 Guardar como Plantilla
         </fit-flow-button>
@@ -16,6 +19,13 @@
       </fit-flow-button>
     </div>
   </header>
+
+  @if (successMessage()) {
+    <div class="success-banner">
+      {{ successMessage() }}
+      <button (click)="successMessage.set(null)">✕</button>
+    </div>
+  }
 
   @if (error()) {
     <div class="error-banner">
@@ -100,3 +110,13 @@
   (confirmed)="onSaveAsTemplateConfirmed($event)"
   (cancelled)="onSaveAsTemplateCancelled()"
 />
+
+@if (routineId) {
+  <fit-flow-assign-routine-dialog
+    [isOpen]="assignDialogOpen()"
+    [routineId]="routineId"
+    [routineName]="routineName()"
+    (confirmed)="onAssignConfirmed($event)"
+    (cancelled)="onAssignCancelled()"
+  />
+}

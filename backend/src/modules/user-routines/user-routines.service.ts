@@ -1,21 +1,30 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserRoutine } from './entities/user-routine.entity';
 import { User } from '../users/entities/user.entity';
 import { Routine } from '../routines/entities/routine.entity';
-import { AssignRoutineDto, UpdateUserRoutineDto } from './dto';
+import {
+  AssignRoutineDto,
+  UpdateUserRoutineDto,
+  BulkAssignRoutineDto,
+  BulkAssignResult,
+} from './dto';
 import { DayOfWeek } from '../../common/enums/day-of-week.enum';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class UserRoutinesService {
+  private readonly logger = new Logger(UserRoutinesService.name);
+
   constructor(
     @InjectRepository(UserRoutine)
     private readonly userRoutineRepository: Repository<UserRoutine>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Routine)
-    private readonly routineRepository: Repository<Routine>
+    private readonly routineRepository: Repository<Routine>,
+    private readonly notificationsService: NotificationsService
   ) {}
 
   async assign(dto: AssignRoutineDto): Promise<UserRoutine> {
@@ -126,5 +135,80 @@ export class UserRoutinesService {
     const userRoutine = await this.findOne(id);
     userRoutine.isActive = false;
     return await this.userRoutineRepository.save(userRoutine);
+  }
+
+  async assignBulk(dto: BulkAssignRoutineDto): Promise<BulkAssignResult> {
+    const errors: string[] = [];
+    let totalAssigned = 0;
+    let totalNotifications = 0;
+
+    const routine = await this.routineRepository.findOne({
+      where: { id: dto.routineId, isActive: true },
+    });
+    if (!routine) {
+      throw new NotFoundException(`Rutina con ID "${dto.routineId}" no encontrada`);
+    }
+
+    const userIds = [...new Set(dto.assignments.map((a) => a.userId))];
+
+    for (const assignment of dto.assignments) {
+      try {
+        const user = await this.userRepository.findOne({
+          where: { id: assignment.userId },
+        });
+        if (!user) {
+          errors.push(`Usuario ${assignment.userId} no encontrado`);
+          continue;
+        }
+
+        const existing = await this.userRoutineRepository.findOne({
+          where: {
+            userId: assignment.userId,
+            routineId: dto.routineId,
+            dayOfWeek: assignment.dayOfWeek,
+            isActive: true,
+          },
+        });
+        if (existing) {
+          errors.push(`Rutina ya asignada a ${user.name} el ${assignment.dayOfWeek}`);
+          continue;
+        }
+
+        const userRoutine = this.userRoutineRepository.create({
+          userId: assignment.userId,
+          routineId: dto.routineId,
+          dayOfWeek: assignment.dayOfWeek,
+          startDate: new Date(dto.startDate),
+        });
+
+        await this.userRoutineRepository.save(userRoutine);
+        totalAssigned++;
+      } catch (error) {
+        this.logger.error(`Error asignando rutina a usuario ${assignment.userId}`, error);
+        errors.push(`Error asignando a usuario ${assignment.userId}`);
+      }
+    }
+
+    for (const userId of userIds) {
+      try {
+        const result = await this.notificationsService.sendToUser(
+          userId,
+          '¡Nueva rutina asignada!',
+          `Tu entrenador te ha asignado la rutina "${routine.name}". ¡A entrenar!`
+        );
+        if (result.sent > 0) {
+          totalNotifications++;
+        }
+      } catch (error) {
+        this.logger.warn(`No se pudo enviar notificación a usuario ${userId}`, error);
+      }
+    }
+
+    return {
+      success: totalAssigned > 0,
+      totalAssigned,
+      totalNotifications,
+      errors,
+    };
   }
 }

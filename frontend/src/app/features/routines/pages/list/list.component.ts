@@ -2,13 +2,14 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { RoutinesService } from '../../../../core/services';
-import { Routine, DifficultyLabels, Difficulty } from '../../../../core/models';
+import { Routine, DifficultyLabels, Difficulty, BulkAssignResult } from '../../../../core/models';
 import { BadgeComponent, CardComponent } from '../../../../shared';
+import { AssignRoutineDialogComponent } from '../../components/assign-routine-dialog/assign-routine-dialog.component';
 
 @Component({
   selector: 'fit-flow-routine-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, BadgeComponent, CardComponent],
+  imports: [CommonModule, RouterLink, BadgeComponent, CardComponent, AssignRoutineDialogComponent],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
 })
@@ -18,6 +19,10 @@ export class RoutinesListComponent implements OnInit {
   routines = signal<Routine[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+  successMessage = signal<string | null>(null);
+
+  assignDialogOpen = signal(false);
+  selectedRoutineForAssign = signal<Routine | null>(null);
 
   difficultyLabels = DifficultyLabels;
 
@@ -63,5 +68,32 @@ export class RoutinesListComponent implements OnInit {
         this.error.set(err.error?.message || 'Error al eliminar rutina');
       },
     });
+  }
+
+  openAssignDialog(routine: Routine): void {
+    this.selectedRoutineForAssign.set(routine);
+    this.assignDialogOpen.set(true);
+  }
+
+  onAssignConfirmed(result: BulkAssignResult): void {
+    this.assignDialogOpen.set(false);
+    this.selectedRoutineForAssign.set(null);
+
+    if (result.success) {
+      this.successMessage.set(
+        `Rutina asignada a ${result.totalAssigned} usuario(s). ${result.totalNotifications} notificación(es) enviada(s).`
+      );
+      setTimeout(() => this.successMessage.set(null), 5000);
+    }
+
+    if (result.errors.length > 0) {
+      this.error.set(result.errors.join(', '));
+      setTimeout(() => this.error.set(null), 5000);
+    }
+  }
+
+  onAssignCancelled(): void {
+    this.assignDialogOpen.set(false);
+    this.selectedRoutineForAssign.set(null);
   }
 }

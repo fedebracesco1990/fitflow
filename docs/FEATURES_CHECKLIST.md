@@ -653,17 +653,28 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ### [FITFLOW-45] Asignación de Rutinas a Usuarios
 
-**Tipo:** Frontend
+**Tipo:** Frontend + Backend
 
 **Descripción:** Como entrenador, quiero asignar rutinas a mis alumnos
 
 **Criterios de Aceptación:**
 
-- [ ] Selector múltiple de usuarios
-- [ ] Fecha de inicio de rutina
-- [ ] Opción de clonar rutina por usuario o compartir
-- [ ] Confirmación de asignación
-- [ ] Notificación al usuario de nueva rutina
+- [x] Selector múltiple de usuarios
+- [x] Fecha de inicio de rutina
+- [x] Opción de clonar rutina por usuario o compartir
+- [x] Confirmación de asignación
+- [x] Notificación al usuario de nueva rutina
+
+**Implementación:**
+
+- `AssignRoutineDialogComponent` con selector múltiple de usuarios y búsqueda
+- `POST /user-routines/bulk` endpoint para asignación masiva con notificaciones
+- Botón "👥 Asignar" en lista de rutinas (`/routines`)
+- Botón "👥 Asignar a Usuarios" en constructor visual (modo edición)
+- Date picker para fecha de inicio (default: hoy)
+- Selector de día de la semana
+- Notificación push automática vía Firebase a usuarios asignados
+- Mensajes de éxito/error con auto-dismiss
 
 ---
 

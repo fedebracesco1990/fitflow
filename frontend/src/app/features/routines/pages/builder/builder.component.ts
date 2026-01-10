@@ -12,11 +12,13 @@ import {
   DifficultyLabels,
   RoutineExercise,
   TemplateCategory,
+  BulkAssignResult,
 } from '../../../../core/models';
 import { ExercisePanelComponent } from '../../components/exercise-panel/exercise-panel.component';
 import { DayColumnComponent, DayExercise } from '../../components/day-column/day-column.component';
 import { ButtonComponent, CardComponent } from '../../../../shared';
 import { SaveAsTemplateDialogComponent } from '../../components/save-as-template-dialog/save-as-template-dialog.component';
+import { AssignRoutineDialogComponent } from '../../components/assign-routine-dialog/assign-routine-dialog.component';
 
 type DayExercisesMap = Record<DayOfWeek, DayExercise[]>;
 
@@ -44,6 +46,7 @@ function createEmptyDayExercisesMap(): DayExercisesMap {
     ButtonComponent,
     CardComponent,
     SaveAsTemplateDialogComponent,
+    AssignRoutineDialogComponent,
   ],
   templateUrl: './builder.component.html',
   styleUrl: './builder.component.scss',
@@ -61,6 +64,8 @@ export class RoutineBuilderComponent implements OnInit {
   error = signal<string | null>(null);
 
   saveAsTemplateDialogOpen = signal(false);
+  assignDialogOpen = signal(false);
+  successMessage = signal<string | null>(null);
 
   routineName = signal('');
   routineDescription = signal('');
@@ -269,5 +274,33 @@ export class RoutineBuilderComponent implements OnInit {
 
   onSaveAsTemplateCancelled(): void {
     this.saveAsTemplateDialogOpen.set(false);
+  }
+
+  onOpenAssignDialog(): void {
+    if (!this.routineId) {
+      this.error.set('Primero guarda la rutina antes de asignarla');
+      return;
+    }
+    this.assignDialogOpen.set(true);
+  }
+
+  onAssignConfirmed(result: BulkAssignResult): void {
+    this.assignDialogOpen.set(false);
+
+    if (result.success) {
+      this.successMessage.set(
+        `Rutina asignada a ${result.totalAssigned} usuario(s). ${result.totalNotifications} notificación(es) enviada(s).`
+      );
+      setTimeout(() => this.successMessage.set(null), 5000);
+    }
+
+    if (result.errors.length > 0) {
+      this.error.set(result.errors.join(', '));
+      setTimeout(() => this.error.set(null), 5000);
+    }
+  }
+
+  onAssignCancelled(): void {
+    this.assignDialogOpen.set(false);
   }
 }

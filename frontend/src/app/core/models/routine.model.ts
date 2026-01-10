@@ -138,3 +138,21 @@ export interface FilterTemplatesParams {
   limit?: number;
   category?: TemplateCategory;
 }
+
+export interface UserDayAssignment {
+  userId: string;
+  dayOfWeek: DayOfWeek;
+}
+
+export interface BulkAssignRoutineDto {
+  routineId: string;
+  assignments: UserDayAssignment[];
+  startDate: string;
+}
+
+export interface BulkAssignResult {
+  success: boolean;
+  totalAssigned: number;
+  totalNotifications: number;
+  errors: string[];
+}
