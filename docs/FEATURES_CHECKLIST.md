@@ -678,7 +678,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-46] API de Rutinas del Usuario
+### [FITFLOW-46] API de Rutinas del Usuario ✅
 
 **Tipo:** Backend
 
@@ -686,10 +686,16 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] GET /api/users/:userId/routines (rutinas activas)
-- [ ] GET /api/users/:userId/routines/history (historial)
-- [ ] GET /api/routines/:id/today (rutina del día actual)
-- [ ] Cálculo de día de la semana para mostrar ejercicios
+- [x] GET /user-routines/my-week (rutinas activas) - Ya existía
+- [x] GET /workouts/my-history (historial) - Ya existía
+- [x] GET /user-routines/today (rutina del día actual con historial)
+- [x] Cálculo de día de la semana para mostrar ejercicios
+
+**Notas de Implementación:**
+
+- Endpoint `/user-routines/today` devuelve la rutina del día con ejercicios enriquecidos
+- Incluye `lastWorkout` con pesos/reps de la última sesión de esa rutina
+- Helper `getCurrentDayOfWeek()` extraído a `common/utils/date.utils.ts`
 
 ---
 
@@ -814,7 +820,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-43 | Sistema de Plantillas de Rutinas            | ✅ COMPLETO  | Submódulo templates, 3 endpoints, enum TemplateCategory                 |
 | FITFLOW-44 | Gestión de Plantillas de Rutinas            | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-45 | Asignación de Rutinas a Usuarios            | ⬜ PENDIENTE |                                                                         |
-| FITFLOW-46 | API de Rutinas del Usuario                  | ⬜ PENDIENTE |                                                                         |
+| FITFLOW-46 | API de Rutinas del Usuario                  | ✅ COMPLETO  | GET /user-routines/today con historial de última sesión                 |
 | FITFLOW-47 | Visualización de Rutina del Día (Socio)     | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-48 | API de Registro de Progreso                 | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-49 | Registro de Progreso en Rutina              | ⬜ PENDIENTE |                                                                         |

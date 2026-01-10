@@ -1,7 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { UserRoutine, AssignRoutineDto, DayOfWeek, BulkAssignRoutineDto, BulkAssignResult } from '../models';
+import {
+  UserRoutine,
+  AssignRoutineDto,
+  DayOfWeek,
+  BulkAssignRoutineDto,
+  BulkAssignResult,
+  TodayRoutineResponse,
+} from '../models';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +27,10 @@ export class UserRoutinesService {
 
   getMyWeek(): Observable<Record<DayOfWeek, UserRoutine[]>> {
     return this.api.get<Record<DayOfWeek, UserRoutine[]>>(`${this.endpoint}/my-week`);
+  }
+
+  getToday(): Observable<TodayRoutineResponse | null> {
+    return this.api.get<TodayRoutineResponse | null>(`${this.endpoint}/today`);
   }
 
   getByUser(userId: string): Observable<UserRoutine[]> {

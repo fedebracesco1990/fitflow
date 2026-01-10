@@ -40,6 +40,11 @@ export class UserRoutinesController {
     return this.userRoutinesService.getMyWeek(req.user.userId);
   }
 
+  @Get('today')
+  getTodayRoutine(@Request() req: { user: AuthenticatedUser }) {
+    return this.userRoutinesService.getTodayRoutine(req.user.userId);
+  }
+
   @Get('user/:userId')
   @Roles(Role.ADMIN, Role.TRAINER)
   findByUser(@Param('userId', ParseUUIDPipe) userId: string) {

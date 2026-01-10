@@ -8,16 +8,17 @@ Endpoints para asignación de rutinas a usuarios.
 
 ## Endpoints
 
-| Método | Ruta                            | Descripción              | Roles          |
-| ------ | ------------------------------- | ------------------------ | -------------- |
-| POST   | `/user-routines`                | Asignar rutina           | ADMIN, TRAINER |
-| POST   | `/user-routines/bulk`           | Asignación masiva        | ADMIN, TRAINER |
-| GET    | `/user-routines/my-week`        | Mi semana                | Todos          |
-| GET    | `/user-routines/user/:userId`   | Rutinas de usuario       | ADMIN, TRAINER |
-| GET    | `/user-routines/:id`            | Obtener asignación       | Todos          |
-| PATCH  | `/user-routines/:id`            | Actualizar asignación    | ADMIN, TRAINER |
-| PATCH  | `/user-routines/:id/deactivate` | Desactivar asignación    | ADMIN, TRAINER |
-| DELETE | `/user-routines/:id`            | Eliminar asignación      | ADMIN, TRAINER |
+| Método | Ruta                            | Descripción                  | Roles          |
+| ------ | ------------------------------- | ---------------------------- | -------------- |
+| POST   | `/user-routines`                | Asignar rutina               | ADMIN, TRAINER |
+| POST   | `/user-routines/bulk`           | Asignación masiva            | ADMIN, TRAINER |
+| GET    | `/user-routines/my-week`        | Mi semana                    | Todos          |
+| GET    | `/user-routines/today`          | Rutina del día con historial | Todos          |
+| GET    | `/user-routines/user/:userId`   | Rutinas de usuario           | ADMIN, TRAINER |
+| GET    | `/user-routines/:id`            | Obtener asignación           | Todos          |
+| PATCH  | `/user-routines/:id`            | Actualizar asignación        | ADMIN, TRAINER |
+| PATCH  | `/user-routines/:id/deactivate` | Desactivar asignación        | ADMIN, TRAINER |
+| DELETE | `/user-routines/:id`            | Eliminar asignación          | ADMIN, TRAINER |
 
 ---
 
@@ -65,11 +66,11 @@ Asigna una rutina a múltiples usuarios en una sola operación. Envía notificac
 
 **Request Body:**
 
-| Campo       | Tipo   | Requerido | Descripción                    |
-| ----------- | ------ | --------- | ------------------------------ |
-| routineId   | UUID   | ✅        | ID de la rutina a asignar      |
-| assignments | array  | ✅        | Lista de asignaciones          |
-| startDate   | date   | ✅        | Fecha de inicio (YYYY-MM-DD)   |
+| Campo       | Tipo  | Requerido | Descripción                  |
+| ----------- | ----- | --------- | ---------------------------- |
+| routineId   | UUID  | ✅        | ID de la rutina a asignar    |
+| assignments | array | ✅        | Lista de asignaciones        |
+| startDate   | date  | ✅        | Fecha de inicio (YYYY-MM-DD) |
 
 **Estructura de assignments:**
 
@@ -110,9 +111,7 @@ Asigna una rutina a múltiples usuarios en una sola operación. Envía notificac
   "success": true,
   "totalAssigned": 2,
   "totalNotifications": 2,
-  "errors": [
-    "Rutina ya asignada a Juan Pérez el monday"
-  ]
+  "errors": ["Rutina ya asignada a Juan Pérez el monday"]
 }
 ```
 
@@ -123,6 +122,99 @@ Asigna una rutina a múltiples usuarios en una sola operación. Envía notificac
 Obtiene las rutinas asignadas del usuario para la semana.
 
 **Roles:** Todos los autenticados
+
+**Response (200):**
+
+```json
+{
+  "monday": [...],
+  "tuesday": [...],
+  ...
+}
+```
+
+---
+
+## GET /user-routines/today
+
+Obtiene la rutina del día actual con ejercicios enriquecidos con datos de la última sesión (pesos, reps, sets). Ideal para precargar valores cuando el usuario va a entrenar.
+
+**Roles:** Todos los autenticados
+
+**Response (200):**
+
+```json
+{
+  "userRoutine": {
+    "id": "uuid",
+    "dayOfWeek": "friday",
+    "startDate": "2026-01-01",
+    "isActive": true
+  },
+  "routine": {
+    "id": "uuid",
+    "name": "Día de Pecho",
+    "description": "Rutina enfocada en pectorales",
+    "difficulty": "intermediate",
+    "estimatedDuration": 50
+  },
+  "exercises": [
+    {
+      "id": "uuid",
+      "routineId": "uuid",
+      "exerciseId": "uuid",
+      "exercise": {
+        "id": "uuid",
+        "name": "Press de Banca",
+        "description": "Ejercicio compuesto para pecho",
+        "muscleGroupId": "uuid",
+        "imageUrl": null,
+        "videoUrl": null
+      },
+      "order": 1,
+      "sets": 4,
+      "reps": 10,
+      "restSeconds": 90,
+      "notes": null,
+      "suggestedWeight": 60.0,
+      "dayOfWeek": null,
+      "lastWorkout": {
+        "date": "2026-01-03",
+        "sets": [
+          { "setNumber": 1, "weight": 55.0, "reps": 10, "completed": true },
+          { "setNumber": 2, "weight": 57.5, "reps": 10, "completed": true },
+          { "setNumber": 3, "weight": 57.5, "reps": 8, "completed": true },
+          { "setNumber": 4, "weight": 55.0, "reps": 10, "completed": true }
+        ]
+      }
+    }
+  ],
+  "dayOfWeek": "friday",
+  "hasHistory": true
+}
+```
+
+**Response cuando no hay rutina asignada para hoy (200):**
+
+```json
+null
+```
+
+**Campos importantes:**
+
+| Campo                          | Descripción                                                            |
+| ------------------------------ | ---------------------------------------------------------------------- |
+| `exercises[].lastWorkout`      | Datos de la última vez que hizo esta rutina (null si no hay historial) |
+| `exercises[].lastWorkout.sets` | Array con peso/reps reales de cada set                                 |
+| `hasHistory`                   | `true` si existe historial previo de esta rutina                       |
+
+---
+
+## GET /user-routines/user/:userId
+
+Lista todas las rutinas asignadas a un usuario.
+
+**Roles:** `ADMIN`, `TRAINER`
 
 **Response (200):**
 
