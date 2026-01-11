@@ -19,6 +19,8 @@ Endpoints para registro de entrenamientos.
 | POST   | `/workouts/:id/exercises`        | Registrar ejercicio      | Todos |
 | GET    | `/workouts/:id/exercises`        | Listar ejercicios        | Todos |
 | PATCH  | `/workouts/:id/exercises/:logId` | Actualizar ejercicio     | Todos |
+| DELETE | `/workouts/:id/exercises/:logId` | Eliminar ejercicio       | Todos |
+| POST   | `/workouts/:id/exercises/bulk`   | Registrar múltiples sets | Todos |
 
 ---
 
@@ -206,14 +208,16 @@ Registra un set de un ejercicio.
 
 **Request Body:**
 
-| Campo             | Tipo    | Requerido | Descripción                    |
-| ----------------- | ------- | --------- | ------------------------------ |
-| routineExerciseId | UUID    | ✅        | ID del ejercicio en rutina     |
-| setNumber         | number  | ✅        | Número de serie                |
-| reps              | number  | ✅        | Repeticiones realizadas        |
-| weight            | number  | ❌        | Peso utilizado (kg)            |
-| completed         | boolean | ❌        | Si se completó (default: true) |
-| notes             | string  | ❌        | Notas del set                  |
+| Campo             | Tipo    | Requerido | Descripción                       |
+| ----------------- | ------- | --------- | --------------------------------- |
+| routineExerciseId | UUID    | ✅        | ID del ejercicio en rutina        |
+| setNumber         | number  | ✅        | Número de serie (1-20)            |
+| reps              | number  | ✅        | Repeticiones realizadas (0-100)   |
+| weight            | number  | ❌        | Peso utilizado (kg)               |
+| completed         | boolean | ❌        | Si se completó (default: true)    |
+| notes             | string  | ❌        | Notas del set                     |
+| rir               | number  | ❌        | Reps In Reserve (0-5)             |
+| rpe               | number  | ❌        | Rate of Perceived Exertion (1-10) |
 
 **Response (201):**
 
@@ -221,12 +225,14 @@ Registra un set de un ejercicio.
 {
   "id": "uuid",
   "workoutLogId": "uuid",
-  "exerciseId": "uuid",
+  "routineExerciseId": "uuid",
   "setNumber": 1,
   "reps": 12,
   "weight": 50,
   "completed": true,
-  "notes": null
+  "notes": null,
+  "rir": 2,
+  "rpe": 8.0
 }
 ```
 
@@ -266,14 +272,107 @@ Actualiza un log de ejercicio.
 
 **Request Body:**
 
-| Campo     | Tipo    | Descripción  |
-| --------- | ------- | ------------ |
-| reps      | number  | Repeticiones |
-| weight    | number  | Peso         |
-| completed | boolean | Completado   |
-| notes     | string  | Notas        |
+| Campo     | Tipo    | Descripción                       |
+| --------- | ------- | --------------------------------- |
+| reps      | number  | Repeticiones (0-100)              |
+| weight    | number  | Peso (kg)                         |
+| completed | boolean | Completado                        |
+| notes     | string  | Notas                             |
+| rir       | number  | Reps In Reserve (0-5)             |
+| rpe       | number  | Rate of Perceived Exertion (1-10) |
 
 **Response (200):** Log actualizado
+
+---
+
+## DELETE /workouts/:id/exercises/:logId
+
+Elimina un log de ejercicio.
+
+**Roles:** Todos los autenticados
+
+**Response (200):** Vacío
+
+---
+
+## POST /workouts/:id/exercises/bulk
+
+Registra múltiples sets de ejercicios en una sola llamada.
+
+**Roles:** Todos los autenticados
+
+**Request Body:**
+
+| Campo     | Tipo  | Requerido | Descripción           |
+| --------- | ----- | --------- | --------------------- |
+| exercises | array | ✅        | Array de sets a crear |
+
+**Estructura de cada ejercicio en el array:**
+
+| Campo             | Tipo    | Requerido | Descripción                       |
+| ----------------- | ------- | --------- | --------------------------------- |
+| routineExerciseId | UUID    | ✅        | ID del ejercicio en rutina        |
+| setNumber         | number  | ✅        | Número de serie (1-20)            |
+| reps              | number  | ✅        | Repeticiones realizadas (0-100)   |
+| weight            | number  | ❌        | Peso utilizado (kg)               |
+| completed         | boolean | ❌        | Si se completó (default: true)    |
+| notes             | string  | ❌        | Notas del set                     |
+| rir               | number  | ❌        | Reps In Reserve (0-5)             |
+| rpe               | number  | ❌        | Rate of Perceived Exertion (1-10) |
+
+**Ejemplo Request:**
+
+```json
+{
+  "exercises": [
+    {
+      "routineExerciseId": "uuid-1",
+      "setNumber": 1,
+      "reps": 12,
+      "weight": 50,
+      "rir": 2,
+      "rpe": 8
+    },
+    {
+      "routineExerciseId": "uuid-1",
+      "setNumber": 2,
+      "reps": 10,
+      "weight": 52.5,
+      "rir": 1,
+      "rpe": 8.5
+    },
+    {
+      "routineExerciseId": "uuid-2",
+      "setNumber": 1,
+      "reps": 8,
+      "weight": 80,
+      "completed": true
+    }
+  ]
+}
+```
+
+**Response (201):** Array de logs creados
+
+```json
+[
+  {
+    "id": "uuid",
+    "workoutLogId": "uuid",
+    "routineExerciseId": "uuid-1",
+    "setNumber": 1,
+    "reps": 12,
+    "weight": 50,
+    "completed": true,
+    "notes": null,
+    "rir": 2,
+    "rpe": 8.0
+  },
+  ...
+]
+```
+
+> **Nota:** Todos los ejercicios deben pertenecer a la rutina asociada al workout. Si alguno no pertenece, retorna error 404.
 
 ---
 
@@ -285,3 +384,33 @@ Actualiza un log de ejercicio.
 | `in_progress` | En progreso             |
 | `completed`   | Finalizado              |
 | `cancelled`   | Cancelado               |
+
+---
+
+## Campos RIR y RPE
+
+### RIR (Reps In Reserve)
+
+Indica cuántas repeticiones adicionales podrías haber hecho.
+
+| Valor | Significado                      |
+| ----- | -------------------------------- |
+| 0     | Fallo muscular                   |
+| 1     | Podría hacer 1 rep más           |
+| 2     | Podría hacer 2 reps más          |
+| 3     | Podría hacer 3 reps más          |
+| 4     | Podría hacer 4 reps más          |
+| 5     | Podría hacer 5+ reps más (fácil) |
+
+### RPE (Rate of Perceived Exertion)
+
+Escala de esfuerzo percibido del 1 al 10.
+
+| Valor | Significado             |
+| ----- | ----------------------- |
+| 10    | Máximo esfuerzo / Fallo |
+| 9     | Muy difícil, 1 rep más  |
+| 8     | Difícil, 2 reps más     |
+| 7     | Moderadamente difícil   |
+| 6     | Moderado                |
+| 1-5   | Fácil a muy fácil       |

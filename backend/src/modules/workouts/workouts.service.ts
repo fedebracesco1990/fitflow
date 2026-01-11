@@ -5,7 +5,13 @@ import { WorkoutLog } from './entities/workout-log.entity';
 import { ExerciseLog } from './entities/exercise-log.entity';
 import { UserRoutine } from '../user-routines/entities/user-routine.entity';
 import { RoutineExercise } from '../routines/entities/routine-exercise.entity';
-import { CreateWorkoutDto, UpdateWorkoutDto, LogExerciseDto, UpdateExerciseLogDto } from './dto';
+import {
+  CreateWorkoutDto,
+  UpdateWorkoutDto,
+  LogExerciseDto,
+  UpdateExerciseLogDto,
+  BulkLogExercisesDto,
+} from './dto';
 import { WorkoutStatus } from '../../common/enums/workout-status.enum';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
@@ -173,6 +179,8 @@ export class WorkoutsService {
       weight: dto.weight ?? null,
       completed: dto.completed ?? true,
       notes: dto.notes,
+      rir: dto.rir ?? null,
+      rpe: dto.rpe ?? null,
     });
 
     return await this.exerciseLogRepository.save(exerciseLog);
@@ -218,5 +226,45 @@ export class WorkoutsService {
     }
 
     await this.exerciseLogRepository.remove(exerciseLog);
+  }
+
+  async logExercisesBulk(
+    workoutId: string,
+    dto: BulkLogExercisesDto,
+    userId: string
+  ): Promise<ExerciseLog[]> {
+    const workoutLog = await this.findOne(workoutId, userId);
+
+    const routineExerciseIds = [...new Set(dto.exercises.map((e) => e.routineExerciseId))];
+    const routineExercises = await this.routineExerciseRepository.find({
+      where: routineExerciseIds.map((id) => ({
+        id,
+        routineId: workoutLog.userRoutine.routineId,
+      })),
+    });
+
+    const validIds = new Set(routineExercises.map((re) => re.id));
+    const invalidExercises = dto.exercises.filter((e) => !validIds.has(e.routineExerciseId));
+    if (invalidExercises.length > 0) {
+      throw new NotFoundException(
+        `Ejercicios no encontrados en la rutina: ${invalidExercises.map((e) => e.routineExerciseId).join(', ')}`
+      );
+    }
+
+    const exerciseLogs = dto.exercises.map((item) =>
+      this.exerciseLogRepository.create({
+        workoutLogId: workoutId,
+        routineExerciseId: item.routineExerciseId,
+        setNumber: item.setNumber,
+        reps: item.reps,
+        weight: item.weight ?? null,
+        completed: item.completed ?? true,
+        notes: item.notes ?? null,
+        rir: item.rir ?? null,
+        rpe: item.rpe ?? null,
+      })
+    );
+
+    return await this.exerciseLogRepository.save(exerciseLogs);
   }
 }

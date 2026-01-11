@@ -724,7 +724,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-48] API de Registro de Progreso
+### [FITFLOW-48] API de Registro de Progreso ✅
 
 **Tipo:** Backend
 
@@ -732,11 +732,17 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] POST /api/workout-logs (registrar sesión completa)
-- [ ] POST /api/exercise-logs (registrar ejercicio individual)
-- [ ] Campos por set: peso, reps completadas, RIR/RPE
-- [ ] Timestamp automático
-- [ ] Asociación con usuario, rutina y ejercicio
+- [x] POST /api/workout-logs (registrar sesión completa) - Usa POST /workouts
+- [x] POST /api/exercise-logs (registrar ejercicio individual) - Usa POST /workouts/:id/exercises
+- [x] Campos por set: peso, reps completadas, RIR/RPE
+- [x] Timestamp automático
+- [x] Asociación con usuario, rutina y ejercicio
+
+**Implementación:**
+
+- Campos `rir` (int 0-5) y `rpe` (decimal 1-10) en ExerciseLog
+- Endpoint `POST /workouts/:id/exercises/bulk` para registro masivo
+- Validaciones completas con class-validator
 
 ---
 
@@ -831,7 +837,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-45 | Asignación de Rutinas a Usuarios            | ✅ COMPLETO  | AssignRoutineDialog, bulk assign, user search, notifications            |
 | FITFLOW-46 | API de Rutinas del Usuario                  | ✅ COMPLETO  | GET /user-routines/today con historial de última sesión                 |
 | FITFLOW-47 | Visualización de Rutina del Día (Socio)     | ✅ COMPLETO  | TodayRoutine page, week navigation, workout flow, add/remove sets       |
-| FITFLOW-48 | API de Registro de Progreso                 | ⬜ PENDIENTE |                                                                         |
+| FITFLOW-48 | API de Registro de Progreso                 | ✅ COMPLETO  | RIR/RPE fields, bulk endpoint, validaciones                             |
 | FITFLOW-49 | Registro de Progreso en Rutina              | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-50 | Detección de Personal Records               | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-51 | Notificación y Visualización de PR          | ⬜ PENDIENTE |                                                                         |

@@ -1,4 +1,8 @@
+import { Type } from 'class-transformer';
 import {
+  IsArray,
+  ValidateNested,
+  ArrayMinSize,
   IsUUID,
   IsInt,
   IsNumber,
@@ -9,7 +13,7 @@ import {
   Max,
 } from 'class-validator';
 
-export class LogExerciseDto {
+export class BulkExerciseLogItemDto {
   @IsUUID()
   routineExerciseId: string;
 
@@ -40,39 +44,6 @@ export class LogExerciseDto {
   @IsInt()
   @Min(0)
   @Max(5)
-  rir?: number; // Reps In Reserve (0-5)
-
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  @Max(10)
-  rpe?: number; // Rate of Perceived Exertion (1-10)
-}
-
-export class UpdateExerciseLogDto {
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Max(100)
-  reps?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  weight?: number;
-
-  @IsOptional()
-  @IsBoolean()
-  completed?: boolean;
-
-  @IsOptional()
-  @IsString()
-  notes?: string;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Max(5)
   rir?: number;
 
   @IsOptional()
@@ -80,4 +51,12 @@ export class UpdateExerciseLogDto {
   @Min(1)
   @Max(10)
   rpe?: number;
+}
+
+export class BulkLogExercisesDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @ArrayMinSize(1)
+  @Type(() => BulkExerciseLogItemDto)
+  exercises: BulkExerciseLogItemDto[];
 }

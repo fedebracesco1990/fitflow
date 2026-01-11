@@ -12,7 +12,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { WorkoutsService } from './workouts.service';
-import { CreateWorkoutDto, UpdateWorkoutDto, LogExerciseDto, UpdateExerciseLogDto } from './dto';
+import {
+  CreateWorkoutDto,
+  UpdateWorkoutDto,
+  LogExerciseDto,
+  UpdateExerciseLogDto,
+  BulkLogExercisesDto,
+} from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { PaginationDto } from '../../common/dto';
@@ -98,5 +104,14 @@ export class WorkoutsController {
     @Request() req: { user: AuthenticatedUser }
   ) {
     return this.workoutsService.deleteExerciseLog(id, logId, req.user.userId);
+  }
+
+  @Post(':id/exercises/bulk')
+  logExercisesBulk(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: BulkLogExercisesDto,
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    return this.workoutsService.logExercisesBulk(id, dto, req.user.userId);
   }
 }

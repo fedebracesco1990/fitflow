@@ -35,4 +35,10 @@ export class ExerciseLog {
 
   @Column({ type: 'text', nullable: true })
   notes: string | null;
+
+  @Column({ type: 'int', nullable: true })
+  rir: number | null; // Reps In Reserve (0-5)
+
+  @Column({ type: 'decimal', precision: 3, scale: 1, nullable: true })
+  rpe: number | null; // Rate of Perceived Exertion (1-10)
 }
