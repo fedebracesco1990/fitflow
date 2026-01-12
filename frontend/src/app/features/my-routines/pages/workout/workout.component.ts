@@ -1,6 +1,9 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { WorkoutsService, UserRoutinesService } from '../../../../core/services';
 import {
   UserRoutine,
@@ -15,14 +18,21 @@ interface ExerciseGroup {
   sets: ExerciseLog[];
 }
 
+interface SetChange {
+  logId: string;
+  reps: number;
+  weight: number;
+  completed: boolean;
+}
+
 @Component({
   selector: 'fit-flow-workout',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './workout.component.html',
   styleUrl: './workout.component.scss',
 })
-export class WorkoutComponent implements OnInit {
+export class WorkoutComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly workoutsService = inject(WorkoutsService);
@@ -35,6 +45,15 @@ export class WorkoutComponent implements OnInit {
   error = signal<string | null>(null);
 
   difficultyLabels = DifficultyLabels;
+
+  // Auto-save state
+  private saveSubject = new Subject<SetChange>();
+  private saveSubscription?: Subscription;
+  savingSetIds = signal<Set<string>>(new Set());
+  savedSetIds = signal<Set<string>>(new Set());
+
+  // Weight step for +/- buttons
+  readonly weightStep = 2.5;
 
   // Computed: agrupa exercise logs por ejercicio
   exerciseGroups = computed<ExerciseGroup[]>(() => {
@@ -75,6 +94,134 @@ export class WorkoutComponent implements OnInit {
     if (userRoutineId) {
       this.loadUserRoutine(userRoutineId);
     }
+    this.setupAutoSave();
+  }
+
+  ngOnDestroy(): void {
+    this.saveSubscription?.unsubscribe();
+  }
+
+  private setupAutoSave(): void {
+    this.saveSubscription = this.saveSubject
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+      )
+      .subscribe((change) => this.performSave(change));
+  }
+
+  private performSave(change: SetChange): void {
+    const w = this.workout();
+    if (!w) return;
+
+    this.addToSaving(change.logId);
+
+    this.workoutsService
+      .updateExerciseLog(w.id, change.logId, {
+        reps: change.reps,
+        weight: change.weight,
+        completed: change.completed,
+      })
+      .subscribe({
+        next: () => {
+          this.updateLocalExerciseLog(change);
+          this.removeFromSaving(change.logId);
+          this.markAsSaved(change.logId);
+        },
+        error: (err) => {
+          this.removeFromSaving(change.logId);
+          this.error.set(err.error?.message || 'Error al guardar');
+        },
+      });
+  }
+
+  private updateLocalExerciseLog(change: SetChange): void {
+    const w = this.workout();
+    if (!w) return;
+
+    const updatedLogs = w.exerciseLogs.map((log) =>
+      log.id === change.logId
+        ? { ...log, reps: change.reps, weight: change.weight, completed: change.completed }
+        : log
+    );
+
+    this.workout.set({ ...w, exerciseLogs: updatedLogs });
+  }
+
+  onSetChange(set: ExerciseLog, reps: number, weight: number): void {
+    this.updateLocalExerciseLog({
+      logId: set.id,
+      reps,
+      weight,
+      completed: set.completed,
+    });
+
+    this.saveSubject.next({
+      logId: set.id,
+      reps,
+      weight,
+      completed: set.completed,
+    });
+  }
+
+  toggleSetCompleted(set: ExerciseLog, reps: number, weight: number): void {
+    const w = this.workout();
+    if (!w) return;
+
+    const newCompleted = !set.completed;
+    this.addToSaving(set.id);
+
+    this.workoutsService
+      .updateExerciseLog(w.id, set.id, {
+        reps,
+        weight,
+        completed: newCompleted,
+      })
+      .subscribe({
+        next: () => {
+          this.removeFromSaving(set.id);
+          this.refreshWorkout();
+        },
+        error: (err) => {
+          this.removeFromSaving(set.id);
+          this.error.set(err.error?.message || 'Error al actualizar');
+        },
+      });
+  }
+
+  adjustWeight(currentWeight: number, delta: number): number {
+    return Math.max(0, currentWeight + delta);
+  }
+
+  isSaving(setId: string): boolean {
+    return this.savingSetIds().has(setId);
+  }
+
+  isSaved(setId: string): boolean {
+    return this.savedSetIds().has(setId);
+  }
+
+  private addToSaving(setId: string): void {
+    this.savingSetIds.update((ids) => new Set([...ids, setId]));
+  }
+
+  private removeFromSaving(setId: string): void {
+    this.savingSetIds.update((ids) => {
+      const newIds = new Set(ids);
+      newIds.delete(setId);
+      return newIds;
+    });
+  }
+
+  private markAsSaved(setId: string): void {
+    this.savedSetIds.update((ids) => new Set([...ids, setId]));
+    setTimeout(() => {
+      this.savedSetIds.update((ids) => {
+        const newIds = new Set(ids);
+        newIds.delete(setId);
+        return newIds;
+      });
+    }, 2000);
   }
 
   loadUserRoutine(id: string): void {
@@ -121,29 +268,6 @@ export class WorkoutComponent implements OnInit {
     return this.userRoutine()?.routine?.exercises || [];
   }
 
-  logSet(exerciseLog: ExerciseLog, reps: number, weight: number): void {
-    const w = this.workout();
-    if (!w) return;
-
-    this.workoutsService
-      .logExercise(w.id, {
-        routineExerciseId: exerciseLog.routineExerciseId,
-        setNumber: exerciseLog.setNumber,
-        reps,
-        weight,
-        completed: true,
-      })
-      .subscribe({
-        next: () => {
-          // Refresh workout data
-          this.refreshWorkout();
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Error al registrar serie');
-        },
-      });
-  }
-
   nextExercise(): void {
     const max = this.exerciseGroups().length - 1;
     if (this.currentExerciseIndex() < max) {
@@ -165,12 +289,16 @@ export class WorkoutComponent implements OnInit {
     const nextSetNumber = group.sets.length + 1;
     const lastSet = group.sets[group.sets.length - 1];
 
+    const reps = Number(lastSet?.reps ?? group.routineExercise.reps ?? 10);
+    const rawWeight = lastSet?.weight || group.routineExercise.suggestedWeight || 0;
+    const weight = Number(rawWeight) || 0;
+
     this.workoutsService
       .logExercise(w.id, {
         routineExerciseId: group.routineExercise.id,
         setNumber: nextSetNumber,
-        reps: lastSet?.reps || group.routineExercise.reps,
-        weight: lastSet?.weight || group.routineExercise.suggestedWeight || 0,
+        reps,
+        weight,
         completed: false,
       })
       .subscribe({

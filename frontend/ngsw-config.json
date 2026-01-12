@@ -37,6 +37,16 @@
       }
     },
     {
+      "name": "workouts-api",
+      "urls": ["/api/workouts/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 100,
+        "maxAge": "1h",
+        "timeout": "5s"
+      }
+    },
+    {
       "name": "exercises-api",
       "urls": ["/api/exercises/**"],
       "cacheConfig": {

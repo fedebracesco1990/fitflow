@@ -838,7 +838,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-46 | API de Rutinas del Usuario                  | ✅ COMPLETO  | GET /user-routines/today con historial de última sesión                 |
 | FITFLOW-47 | Visualización de Rutina del Día (Socio)     | ✅ COMPLETO  | TodayRoutine page, week navigation, workout flow, add/remove sets       |
 | FITFLOW-48 | API de Registro de Progreso                 | ✅ COMPLETO  | RIR/RPE fields, bulk endpoint, validaciones                             |
-| FITFLOW-49 | Registro de Progreso en Rutina              | ⬜ PENDIENTE |                                                                         |
+| FITFLOW-49 | Registro de Progreso en Rutina              | ✅ COMPLETO  | Auto-save, +/- buttons, peso sugerido, feedback visual                  |
 | FITFLOW-50 | Detección de Personal Records               | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-51 | Notificación y Visualización de PR          | ⬜ PENDIENTE |                                                                         |
 

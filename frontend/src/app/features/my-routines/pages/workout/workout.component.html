@@ -65,38 +65,91 @@
 
             <div class="sets-list">
               @for (set of group.sets; track set.id; let i = $index) {
-                <div class="set-row" [class.completed]="set.completed">
-                  <span class="set-number">Serie {{ i + 1 }}</span>
+                <div
+                  class="set-row"
+                  [class.completed]="set.completed"
+                  [class.saving]="isSaving(set.id)"
+                  [class.saved]="isSaved(set.id)"
+                >
+                  <div class="set-header">
+                    <span class="set-number">Serie {{ i + 1 }}</span>
+                    <div class="set-status">
+                      @if (isSaving(set.id)) {
+                        <span class="status-saving">⏳</span>
+                      } @else if (isSaved(set.id)) {
+                        <span class="status-saved">✓</span>
+                      }
+                    </div>
+                  </div>
+                  @if (group.routineExercise.suggestedWeight) {
+                    <div class="previous-weight">
+                      💡 Peso sugerido: {{ group.routineExercise.suggestedWeight }} kg
+                    </div>
+                  }
                   <div class="set-inputs">
                     <div class="input-group">
-                      <label>Reps</label>
+                      <span class="input-label">Reps</span>
                       <input
                         type="number"
                         #repsInput
-                        [value]="set.reps"
+                        [ngModel]="set.reps"
+                        (ngModelChange)="onSetChange(set, $event, +weightInput.value)"
                         min="1"
                         max="100"
                         [disabled]="set.completed"
                       />
                     </div>
-                    <div class="input-group">
-                      <label>Peso (kg)</label>
-                      <input
-                        type="number"
-                        #weightInput
-                        [value]="set.weight || group.routineExercise.suggestedWeight || 0"
-                        min="0"
-                        step="0.5"
-                        [disabled]="set.completed"
-                      />
+                    <div class="input-group weight-group">
+                      <span class="input-label">Peso (kg)</span>
+                      <div class="weight-controls">
+                        <button
+                          type="button"
+                          class="weight-btn"
+                          (click)="
+                            weightInput.value = adjustWeight(
+                              +weightInput.value,
+                              -weightStep
+                            ).toString();
+                            onSetChange(set, +repsInput.value, +weightInput.value)
+                          "
+                          [disabled]="set.completed"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          #weightInput
+                          [ngModel]="set.weight || group.routineExercise.suggestedWeight || 0"
+                          (ngModelChange)="onSetChange(set, +repsInput.value, $event)"
+                          min="0"
+                          step="0.5"
+                          [disabled]="set.completed"
+                        />
+                        <button
+                          type="button"
+                          class="weight-btn"
+                          (click)="
+                            weightInput.value = adjustWeight(
+                              +weightInput.value,
+                              weightStep
+                            ).toString();
+                            onSetChange(set, +repsInput.value, +weightInput.value)
+                          "
+                          [disabled]="set.completed"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      class="btn btn-primary btn-sm"
-                      (click)="logSet(set, +repsInput.value, +weightInput.value)"
-                      [disabled]="set.completed"
-                    >
-                      {{ set.completed ? '✓' : '✓' }}
-                    </button>
+                    <label class="checkbox-group">
+                      <input
+                        type="checkbox"
+                        [checked]="set.completed"
+                        (change)="toggleSetCompleted(set, +repsInput.value, +weightInput.value)"
+                        [disabled]="isSaving(set.id)"
+                      />
+                      <span class="checkmark">{{ set.completed ? '✓' : '' }}</span>
+                    </label>
                   </div>
                 </div>
               }
