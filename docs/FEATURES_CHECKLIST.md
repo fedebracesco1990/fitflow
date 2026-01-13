@@ -353,7 +353,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Tipo:** Backend
 
-**Descripción:** Como desarrollador backend, necesito validar el acceso segÃºn el estado de pago al escanear QR.
+**Descripción:** Como desarrollador backend, necesito validar el acceso según el estado de pago al escanear QR.
 
 **Criterios de Aceptación:**
 
@@ -771,7 +771,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-50] Detección de Personal Records ✅
+### [FITFLOW-50] Detección de Personal Records
 
 **Tipo:** Backend
 
@@ -779,23 +779,15 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [x] Trigger/servicio que detecta nuevo PR al guardar log
-- [x] Tabla PersonalRecords con: userId, exerciseId, peso, reps, fecha
-- [x] Actualización automática del PR si se supera
-- [x] GET /api/users/:userId/personal-records
-- [x] Generación de notificación de logro
-
-**Implementación:**
-
-- Entity `PersonalRecord` con maxWeight, maxWeightReps, maxVolume, maxVolumeReps
-- `PersonalRecordsService.checkAndUpdatePR()` detecta PRs de peso y volumen
-- Hook en `WorkoutsService.logExercise()` y `logExercisesBulk()`
-- Endpoints: GET /personal-records/me, GET /personal-records/users/:userId
-- Notificación push automática al romper un PR
+- [ ] Trigger/servicio que detecta nuevo PR al guardar log
+- [ ] Tabla PersonalRecords con: userId, exerciseId, peso, reps, fecha
+- [ ] Actualización automática del PR si se supera
+- [ ] GET /api/users/:userId/personal-records
+- [ ] Generación de notificación de logro
 
 ---
 
-### [FITFLOW-51] Notificación y Visualización de Personal Records
+### [FITFLOW-51] Notificación y Visualización de Personal Records ✅
 
 **Tipo:** Frontend
 
@@ -810,11 +802,193 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 - [x] Insignias/badges por cantidad de PRs
 
 **Implementación (2026-01-13):**
+
 - `PrCelebrationModalComponent` con canvas-confetti integrado globalmente en MainLayout
 - `PersonalRecordsState` (NGXS) para gestión de estado
 - `MyRecordsComponent` en `/profile/records` con lista de PRs y badges
 - Sistema de insignias: Novato (5), Dedicado (10), Veterano (25), Élite (50), Leyenda (100)
 - Backend modificado para retornar `prResult` en respuesta de exercise log
+
+---
+
+## Fase de Optimización y Escala
+
+### [FITFLOW-52] API de Estadísticas y Progreso
+
+**Tipo:** Backend
+
+**Descripción:** Como desarrollador backend, necesito endpoints para generar estadísticas de progreso
+
+**Criterios de Aceptación:**
+
+- [ ] GET /api/users/:userId/progress/:exerciseId (evolución de un ejercicio)
+- [ ] GET /api/users/:userId/volume (volumen total por período)
+- [ ] GET /api/users/:userId/stats/monthly (comparativa mensual)
+- [ ] Cálculo de estancamientos (sin progreso X semanas)
+- [ ] Datos para gráficos de líneas/barras
+
+---
+
+### [FITFLOW-53] Gráficos de Evolución de Progreso
+
+**Tipo:** Frontend
+
+**Descripción:** Como socio, quiero visualizar gráficamente mi evolución en los ejercicios
+
+**Criterios de Aceptación:**
+
+- [ ] Página "Mi Progreso"
+- [ ] Selector de ejercicio
+- [ ] Gráfico de línea: peso vs fecha (Chart.js)
+- [ ] Gráfico de volumen total mensual
+- [ ] Comparativa mes actual vs anterior
+- [ ] Indicadores de estancamiento
+- [ ] Exportación a imagen/PDF
+
+---
+
+### [FITFLOW-54] Historial de Rutinas por Usuario
+
+**Tipo:** Backend
+
+**Descripción:** Como desarrollador backend, necesito mantener historial de rutinas previas
+
+**Criterios de Aceptación:**
+
+- [ ] Marca de fecha_fin cuando se asigna nueva rutina
+- [ ] GET /api/users/:userId/routines/history
+- [ ] Información de duración de cada rutina
+- [ ] Acceso a rutinas archivadas
+
+---
+
+### [FITFLOW-55] Historial de Rutinas
+
+**Tipo:** Frontend
+
+**Descripción:** Como socio/entrenador, quiero ver el historial de rutinas previas
+
+**Criterios de Aceptación:**
+
+- [ ] Timeline de rutinas anteriores
+- [ ] Vista detallada de rutina archivada
+- [ ] Indicador de duración y progreso logrado
+
+---
+
+### [FITFLOW-56] Configuración de PWA con Service Workers
+
+**Tipo:** Frontend
+
+**Descripción:** Como desarrollador frontend, necesito convertir la aplicación en una PWA funcional
+
+**Criterios de Aceptación:**
+
+- [ ] Configuración de @angular/pwa
+- [ ] Manifest.json con iconos y configuración
+- [ ] Service Worker para caching de assets
+- [ ] Estrategias de cache (Network First, Cache First)
+- [ ] Precaching de rutas principales
+- [ ] Funcionalidad offline para rutinas y progreso
+- [ ] Prompt de instalación de PWA
+
+---
+
+### [FITFLOW-57] Sistema de Sincronización Offline
+
+**Tipo:** Frontend
+
+**Descripción:** Como usuario, quiero que mis datos se sincronicen automáticamente cuando recupere conexión
+
+**Criterios de Aceptación:**
+
+- [ ] IndexedDB para almacenamiento local
+- [ ] Cola de sincronización para operaciones offline
+- [ ] Detección de conectividad (online/offline)
+- [ ] Sincronización automática al recuperar conexión
+- [ ] Indicador visual de estado de sincronización
+- [ ] Manejo de conflictos de datos
+
+---
+
+### [FITFLOW-58] WebSocket Server para Tiempo Real
+
+**Tipo:** Backend
+
+**Descripción:** Como desarrollador backend, necesito configurar WebSockets para comunicación en tiempo real
+
+**Criterios de Aceptación:**
+
+- [ ] Gateway de WebSockets en NestJS
+- [ ] Autenticación de conexiones WS con JWT
+- [ ] Rooms por usuario/trainer
+- [ ] Eventos: routine.updated, progress.logged, notification.new
+- [ ] Manejo de desconexiones
+
+---
+
+### [FITFLOW-59] Cliente WebSocket y Sincronización en Tiempo Real
+
+**Tipo:** Frontend
+
+**Descripción:** Como usuario, quiero ver actualizaciones en tiempo real sin refrescar la página
+
+**Criterios de Aceptación:**
+
+- [ ] Servicio de WebSocket en Angular
+- [ ] Conexión automática al autenticar
+- [ ] Escucha de eventos del servidor
+- [ ] Actualización de UI reactiva (RxJS)
+- [ ] Reconexión automática si se pierde conexión
+
+---
+
+### [FITFLOW-60] Testing de Rendimiento y Optimización
+
+**Tipo:** DevOps / Frontend
+
+**Descripción:** Como equipo, necesitamos asegurar que la aplicación cumpla con los requisitos de rendimiento
+
+**Criterios de Aceptación:**
+
+- [ ] Lighthouse audit score >90
+- [ ] Lazy loading de módulos implementado
+- [ ] Optimización de imágenes (WebP, lazy loading)
+- [ ] Bundle size analysis y optimización
+- [ ] Tiempo de carga inicial <3s
+- [ ] Tests de carga con herramientas (JMeter/Artillery)
+
+---
+
+### [FITFLOW-61] API de Dashboard Unificado
+
+**Tipo:** Backend
+
+**Descripción:** Como desarrollador backend, necesito consolidar todas las métricas en un dashboard unificado
+
+**Criterios de Aceptación:**
+
+- [ ] GET /api/dashboard (datos según rol)
+- [ ] KPIs financieros: ingresos, morosos, proyección
+- [ ] KPIs operativos: asistencias del día, usuarios activos
+- [ ] KPIs de entrenamientos: rutinas activas, PRs del mes
+- [ ] Datos para gráficos de distribución y tendencias
+
+---
+
+### [FITFLOW-62] Dashboard Principal por Rol
+
+**Tipo:** Frontend
+
+**Descripción:** Como usuario, quiero ver un dashboard personalizado según mi rol al ingresar
+
+**Criterios de Aceptación:**
+
+- [ ] Dashboard Admin: métricas financieras, asistencias, alertas
+- [ ] Dashboard Entrenador: mis alumnos, rutinas, próximas sesiones
+- [ ] Dashboard Socio: mi rutina, mi progreso, próximo pago
+- [ ] Widgets interactivos y navegables
+- [ ] Diseño responsive y moderno
 
 ---
 
@@ -864,6 +1038,17 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-49 | Registro de Progreso en Rutina              | ✅ COMPLETO  | Auto-save, +/- buttons, peso sugerido, feedback visual                  |
 | FITFLOW-50 | Detección de Personal Records               | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-51 | Notificación y Visualización de PR          | ✅ COMPLETO  | Modal celebración, página Mis Récords, badges por hitos                 |
+| FITFLOW-52 | API de Estadísticas y Progreso              | ⬜ PENDIENTE | Endpoints evolución ejercicios, volumen, mensual                        |
+| FITFLOW-53 | Gráficos de Evolución de Progreso           | ⬜ PENDIENTE | Charts.js, comparativas, exportación                                    |
+| FITFLOW-54 | Historial de Rutinas por Usuario (BE)       | ⬜ PENDIENTE | Archivo de rutinas, duración                                            |
+| FITFLOW-55 | Historial de Rutinas (FE)                   | ⬜ PENDIENTE | Timeline, vista detallada                                               |
+| FITFLOW-56 | Configuración PWA / Service Workers         | ⬜ PENDIENTE | Manifest, SW caching, offline basics                                    |
+| FITFLOW-57 | Sistema de Sincronización Offline           | ⬜ PENDIENTE | IndexedDB, sync queue, conectividad                                     |
+| FITFLOW-58 | WebSocket Server                            | ⬜ PENDIENTE | Gateway NestJS, events, auth                                            |
+| FITFLOW-59 | Cliente WebSocket y Sincronización Realtime | ⬜ PENDIENTE | RxJS, conexión auto, actualización UI                                   |
+| FITFLOW-60 | Testing Rendimiento y Optimización          | ⬜ PENDIENTE | Lighthouse >90, lazy loading, bundle size                               |
+| FITFLOW-61 | API Dashboard Unificado                     | ⬜ PENDIENTE | KPIs consolidados por rol                                               |
+| FITFLOW-62 | Dashboard Principal por Rol                 | ⬜ PENDIENTE | Widgets interactivos, personalización                                   |
 
 ---
 
@@ -910,97 +1095,57 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ## Resumen
 
-### Tareas Requeridas (FITFLOW-10 a FITFLOW-39)
+### Estado General del Proyecto
 
-- ✅ **Completadas:** 38
+- **FITFLOW-10 a FITFLOW-39 (Core):** 29 ✅ / 1 ⚠️
+- **FITFLOW-40 a FITFLOW-51 (Features):** 11 ✅ / 1 ⬜
+- **FITFLOW-52 a FITFLOW-62 (Scale):** 0 ✅ / 11 ⬜
 
-### Tareas Nuevas (FITFLOW-40 a FITFLOW-51)
+### Total
 
-- COMPLETO: 8 (FITFLOW-40 a FITFLOW-47)
-- PENDIENTE: 4 (FITFLOW-48 a FITFLOW-51)
-- Total: 12 tareas
-
-### Tareas Secundarias
-
-- COMPLETO: 15
+- ✅ **Completadas:** 40 + 15 secundarias = 55
+- ⬜ **Pendientes:** 12
+- ⚠️ **Parciales:** 1
 
 ---
 
 ## Próximos Pasos Recomendados
 
-### Prioridad Alta
+### Prioridad Crítica (User Experience & Stability)
 
-1. **FITFLOW-21**: Integrar servicio de email real (SendGrid, Nodemailer, etc.)
-2. ~~**FITFLOW-31 a FITFLOW-33**: Sistema de QR y Control de Acceso~~ ✅ COMPLETADO
-   - ~~Implementar generación de QR~~ ✅ FITFLOW-30 completado
-   - ~~Crear página Mi QR en frontend~~ ✅ FITFLOW-31 completado
-   - ~~Crear lector de QR para staff~~ ✅ FITFLOW-33 completado
-   - ~~Validar acceso según estado de pago~~ ✅ FITFLOW-32 completado
+1. **FITFLOW-56 y 57 (Offline First):** Implementar PWA robusta y sincronización. Fundamental para gimnasios con mala conexión.
+2. **FITFLOW-50 (Backend PRs):** Cerrar el ciclo de detección de récords para que la UI (ya lista en FITFLOW-51) tenga datos reales.
 
-### Prioridad Media
+### Prioridad Alta (Engagement)
 
-3. ~~**FITFLOW-34 a FITFLOW-35**: Historial de Asistencia~~ ✅ COMPLETADO
-
-   - ~~APIs de consulta de asistencia~~ ✅ FITFLOW-34 completado
-   - ~~Dashboard personal de asistencias~~ ✅ FITFLOW-35 completado
-
-4. ~~**FITFLOW-36 a FITFLOW-37**: Sistema de Notificaciones Push~~ ✅ COMPLETADO
-   - ~~Integración con Firebase Cloud Messaging~~ ✅ FITFLOW-36 completado
-   - ~~Notificaciones push en frontend~~ ✅ FITFLOW-37 completado
-
-### Prioridad Media-Baja
-
-5. ~~**FITFLOW-38**: Cron Jobs de Notificaciones Automáticas~~ ✅ COMPLETADO
-
-   - ~~Recordatorios de vencimientos~~ ✅
-   - ~~Alertas de baja asistencia~~ ✅
-
-6. **FITFLOW-40 a FITFLOW-42**: Biblioteca de Ejercicios y Constructor Visual de Rutinas
-7. **FITFLOW-43 a FITFLOW-45**: Sistema de Plantillas y Asignación de Rutinas
-8. **FITFLOW-46 a FITFLOW-51**: Visualización, Progreso y Personal Records
+3. **FITFLOW-52 y 53 (Progreso):** Darle valor a los datos que ya se están recolectando mostrando gráficos de evolución.
+4. **FITFLOW-61 y 62 (Dashboards):** Mejorar la primera impresión al entrar a la app con datos relevantes.
 
 ---
 
 ## Sprints Sugeridos
 
-### Sprint 6 - Sistema de QR y Control de Acceso (2 semanas)
+### Sprint 12 - Cierre de Personal Records y Estadísticas (2 semanas)
 
-- FITFLOW-30: Generación de Códigos QR
-- FITFLOW-31: Visualización de QR Personal
-- FITFLOW-32: API Validación de Acceso
-- FITFLOW-33: Lector de QR
+- FITFLOW-50: Detección de Personal Records (Backend)
+- FITFLOW-52: API de Estadísticas y Progreso
+- FITFLOW-53: Gráficos de Evolución de Progreso
 
-### Sprint 7 - Historial de Asistencia (1 semana)
+### Sprint 13 - Offline First & PWA (2 semanas)
 
-- FITFLOW-34: API de Historial de Asistencia
-- FITFLOW-35: Visualización Historial
+- FITFLOW-56: Configuración de PWA con Service Workers
+- FITFLOW-57: Sistema de Sincronización Offline
+- FITFLOW-54: Historial de Rutinas por Usuario (Backend)
+- FITFLOW-55: Historial de Rutinas (Frontend)
 
-### Sprint 8 - Sistema de Notificaciones (2 semanas) ✅ COMPLETO
+### Sprint 14 - Tiempo Real y Dashboards (2 semanas)
 
-- ~~FITFLOW-36: Integración Firebase~~ ✅
-- ~~FITFLOW-37: Notificaciones Push Frontend~~ ✅
-- ~~FITFLOW-38: Cron Jobs Automáticos~~ ✅
+- FITFLOW-58: WebSocket Server para Tiempo Real
+- FITFLOW-59: Cliente WebSocket
+- FITFLOW-61: API de Dashboard Unificado
+- FITFLOW-62: Dashboard Principal por Rol
 
-### Sprint 9 - Biblioteca de Ejercicios y Rutinas (3 semanas)
+### Sprint 15 - Optimización Final (1 semana)
 
-- FITFLOW-40: Biblioteca de Ejercicios para Entrenador
-- FITFLOW-41: API Completa de Rutinas
-- FITFLOW-42: Constructor Visual de Rutinas (Drag & Drop)
-
-### Sprint 10 - Plantillas y Asignación (2 semanas)
-
-- FITFLOW-43: Sistema de Plantillas de Rutinas
-- FITFLOW-44: Gestión de Plantillas de Rutinas
-- FITFLOW-45: Asignación de Rutinas a Usuarios
-
-### Sprint 11 - Visualización y Progreso del Usuario (2 semanas)
-
-- FITFLOW-46: API de Rutinas del Usuario
-- FITFLOW-47: Visualización de Rutina del Día (Socio)
-- FITFLOW-48: API de Registro de Progreso
-
-### Sprint 12 - Sistema de Personal Records (2 semanas)
-
-- FITFLOW-49: Registro de Progreso en Rutina
-- FITFLOW-50: Detección de Personal Records
-- FITFLOW-51: Notificación y Visualización de Personal Records
+- FITFLOW-60: Testing de Rendimiento y Optimización
+- FITFLOW-21: Finalizar servicio de email (Deuda técnica pendiente)
