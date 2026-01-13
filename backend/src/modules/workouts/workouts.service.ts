@@ -211,18 +211,46 @@ export class WorkoutsService {
     logId: string,
     dto: UpdateExerciseLogDto,
     userId: string
-  ): Promise<ExerciseLog> {
-    await this.findOne(workoutId, userId); // Verifica permisos
+  ): Promise<{ log: ExerciseLog; prResult?: { isNewPR: boolean; type: string; exerciseName?: string } }> {
+    const workoutLog = await this.findOne(workoutId, userId);
 
     const exerciseLog = await this.exerciseLogRepository.findOne({
       where: { id: logId, workoutLogId: workoutId },
+      relations: ['routineExercise'],
     });
     if (!exerciseLog) {
       throw new NotFoundException('Log de ejercicio no encontrado');
     }
 
     Object.assign(exerciseLog, dto);
-    return await this.exerciseLogRepository.save(exerciseLog);
+    const savedLog = await this.exerciseLogRepository.save(exerciseLog);
+
+    let prResult: { isNewPR: boolean; type: string; exerciseName?: string } | undefined;
+
+    if (dto.completed && dto.weight && dto.reps && dto.reps > 0) {
+      const result = await this.personalRecordsService.checkAndUpdatePR(
+        userId,
+        exerciseLog.routineExercise.exerciseId,
+        dto.weight,
+        dto.reps
+      );
+
+      if (result.isNewPR) {
+        prResult = {
+          isNewPR: true,
+          type: result.type || 'weight',
+          exerciseName: result.exerciseName,
+        };
+
+        await this.notificationsService.sendToUser(
+          userId,
+          'Nuevo Récord Personal',
+          `Nuevo PR en ${result.exerciseName}: ${dto.weight}kg x ${dto.reps} reps`
+        );
+      }
+    }
+
+    return { log: savedLog, prResult };
   }
 
   async getExerciseLogs(workoutId: string, userId: string): Promise<ExerciseLog[]> {

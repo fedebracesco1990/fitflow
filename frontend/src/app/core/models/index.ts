@@ -9,3 +9,4 @@ export * from './exercise.model';
 export * from './routine.model';
 export * from './workout.model';
 export * from './dashboard.model';
+export * from './personal-record.model';

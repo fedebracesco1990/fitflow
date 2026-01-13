@@ -16,3 +16,4 @@ export * from './page-title.strategy';
 export * from './dashboard.service';
 export * from './attendance.service';
 export * from './push-notifications.service';
+export * from './personal-records.service';

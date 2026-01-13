@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Store } from '@ngxs/store';
 import { WorkoutsService, UserRoutinesService } from '../../../../core/services';
+import { TriggerCelebration } from '../../../../core/store';
 import {
   UserRoutine,
   WorkoutLog,
@@ -37,6 +39,7 @@ export class WorkoutComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly workoutsService = inject(WorkoutsService);
   private readonly userRoutinesService = inject(UserRoutinesService);
+  private readonly store = inject(Store);
 
   userRoutine = signal<UserRoutine | null>(null);
   workout = signal<WorkoutLog | null>(null);
@@ -178,9 +181,20 @@ export class WorkoutComponent implements OnInit, OnDestroy {
         completed: newCompleted,
       })
       .subscribe({
-        next: () => {
+        next: (response) => {
           this.removeFromSaving(set.id);
           this.refreshWorkout();
+
+          if (response.prResult?.isNewPR && response.prResult.exerciseName) {
+            this.store.dispatch(
+              new TriggerCelebration({
+                exerciseName: response.prResult.exerciseName,
+                weight,
+                reps,
+                type: response.prResult.type as 'weight' | 'volume' | 'both',
+              })
+            );
+          }
         },
         error: (err) => {
           this.removeFromSaving(set.id);

@@ -12,3 +12,4 @@ export * from './notification-bell/notification-bell.component';
 export * from './notification-center/notification-center.component';
 export * from './notification-prompt/notification-prompt.component';
 export * from './view-toggle/view-toggle.component';
+export * from './pr-celebration-modal/pr-celebration-modal.component';

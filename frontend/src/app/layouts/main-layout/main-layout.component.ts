@@ -9,6 +9,7 @@ import {
   NotificationBellComponent,
   NotificationCenterComponent,
   NotificationPromptComponent,
+  PrCelebrationModalComponent,
 } from '../../shared/components';
 
 @Component({
@@ -21,6 +22,7 @@ import {
     NotificationBellComponent,
     NotificationCenterComponent,
     NotificationPromptComponent,
+    PrCelebrationModalComponent,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',

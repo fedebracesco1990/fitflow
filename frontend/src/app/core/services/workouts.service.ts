@@ -8,8 +8,14 @@ import {
   ExerciseLog,
   LogExerciseDto,
   UpdateExerciseLogDto,
+  CheckPrResult,
 } from '../models';
 import { PaginatedResponse } from '../models/api-response.model';
+
+export interface UpdateExerciseLogResponse {
+  log: ExerciseLog;
+  prResult?: CheckPrResult;
+}
 
 export interface WorkoutsPaginationParams {
   page?: number;
@@ -67,8 +73,8 @@ export class WorkoutsService {
     workoutId: string,
     logId: string,
     data: UpdateExerciseLogDto
-  ): Observable<ExerciseLog> {
-    return this.api.patch<ExerciseLog>(`${this.endpoint}/${workoutId}/exercises/${logId}`, data);
+  ): Observable<UpdateExerciseLogResponse> {
+    return this.api.patch<UpdateExerciseLogResponse>(`${this.endpoint}/${workoutId}/exercises/${logId}`, data);
   }
 
   deleteExerciseLog(workoutId: string, logId: string): Observable<void> {

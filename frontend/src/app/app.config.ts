@@ -56,10 +56,16 @@ import {
   LayoutGrid,
   List,
   PlayCircle,
+  Medal,
+  Award,
+  Trophy,
+  Crown,
+  Flame,
+  PartyPopper,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
-import { AuthState, UserState, NotificationsState, CheckSession } from './core/store';
+import { AuthState, UserState, NotificationsState, PersonalRecordsState, CheckSession } from './core/store';
 import { authInterceptor, errorInterceptor } from './core/interceptors';
 import { PageTitleStrategy } from './core/services';
 import { environment } from '../environments/environment';
@@ -89,7 +95,7 @@ export const appConfig: ApplicationConfig = {
       registrationStrategy: 'registerWhenStable:30000',
     }),
     provideStore(
-      [AuthState, UserState, NotificationsState],
+      [AuthState, UserState, NotificationsState, PersonalRecordsState],
       withNgxsStoragePlugin({
         keys: ['auth.user', 'auth.isAuthenticated', 'user.profile', 'notifications.notifications'],
       }),
@@ -144,6 +150,12 @@ export const appConfig: ApplicationConfig = {
         LayoutGrid,
         List,
         PlayCircle,
+        Medal,
+        Award,
+        Trophy,
+        Crown,
+        Flame,
+        PartyPopper,
       })
     ),
   ],

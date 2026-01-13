@@ -39,6 +39,12 @@ export const PROFILE_ROUTES: Routes = [
             (m) => m.MyAttendanceComponent
           ),
       },
+      {
+        path: 'records',
+        title: 'Mis Récords',
+        loadComponent: () =>
+          import('./pages/my-records/my-records.component').then((m) => m.MyRecordsComponent),
+      },
     ],
   },
 ];

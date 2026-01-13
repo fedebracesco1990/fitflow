@@ -803,11 +803,18 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Modal de celebración al lograr PR
-- [ ] Animación de confetti/stars
-- [ ] Sección "Mis Récords" en perfil
-- [ ] Listado de todos los PRs con fecha
-- [ ] Insignias/badges por cantidad de PRs
+- [x] Modal de celebración al lograr PR
+- [x] Animación de confetti/stars
+- [x] Sección "Mis Récords" en perfil
+- [x] Listado de todos los PRs con fecha
+- [x] Insignias/badges por cantidad de PRs
+
+**Implementación (2026-01-13):**
+- `PrCelebrationModalComponent` con canvas-confetti integrado globalmente en MainLayout
+- `PersonalRecordsState` (NGXS) para gestión de estado
+- `MyRecordsComponent` en `/profile/records` con lista de PRs y badges
+- Sistema de insignias: Novato (5), Dedicado (10), Veterano (25), Élite (50), Leyenda (100)
+- Backend modificado para retornar `prResult` en respuesta de exercise log
 
 ---
 
@@ -856,7 +863,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-48 | API de Registro de Progreso                 | ✅ COMPLETO  | RIR/RPE fields, bulk endpoint, validaciones                             |
 | FITFLOW-49 | Registro de Progreso en Rutina              | ✅ COMPLETO  | Auto-save, +/- buttons, peso sugerido, feedback visual                  |
 | FITFLOW-50 | Detección de Personal Records               | ⬜ PENDIENTE |                                                                         |
-| FITFLOW-51 | Notificación y Visualización de PR          | ⬜ PENDIENTE |                                                                         |
+| FITFLOW-51 | Notificación y Visualización de PR          | ✅ COMPLETO  | Modal celebración, página Mis Récords, badges por hitos                 |
 
 ---
 
