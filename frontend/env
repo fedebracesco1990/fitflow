@@ -1,0 +1,10 @@
+# Frontend Environment Variables
+# These variables are used during build time to generate environment.prod.ts
+# Run: npm run config before building for production
+
+# API URL - Backend endpoint
+# For production, set to your backend URL or use relative path
+API_URL=/api
+
+# Node environment
+NODE_ENV=production
