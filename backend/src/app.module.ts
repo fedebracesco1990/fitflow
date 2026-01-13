@@ -31,6 +31,7 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { PersonalRecordsModule } from './modules/personal-records/personal-records.module';
+import { StatsModule } from './modules/stats/stats.module';
 
 @Module({
   imports: [
@@ -101,6 +102,7 @@ import { PersonalRecordsModule } from './modules/personal-records/personal-recor
     NotificationsModule,
     SchedulerModule,
     PersonalRecordsModule,
+    StatsModule,
     SeederModule,
   ],
   controllers: [AppController],

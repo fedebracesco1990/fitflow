@@ -813,7 +813,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ## Fase de Optimización y Escala
 
-### [FITFLOW-52] API de Estadísticas y Progreso
+### [FITFLOW-52] API de Estadísticas y Progreso ✅
 
 **Tipo:** Backend
 
@@ -821,11 +821,20 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] GET /api/users/:userId/progress/:exerciseId (evolución de un ejercicio)
-- [ ] GET /api/users/:userId/volume (volumen total por período)
-- [ ] GET /api/users/:userId/stats/monthly (comparativa mensual)
-- [ ] Cálculo de estancamientos (sin progreso X semanas)
-- [ ] Datos para gráficos de líneas/barras
+- [x] GET /api/stats/me/progress/:exerciseId (evolución de un ejercicio)
+- [x] GET /api/stats/me/volume (volumen total por período)
+- [x] GET /api/stats/me/monthly (comparativa mensual)
+- [x] Cálculo de estancamientos (sin progreso X semanas)
+- [x] Datos para gráficos de líneas/barras
+
+**Implementación (2026-01-13):**
+
+- Nuevo módulo `stats/` con StatsController, StatsService
+- 6 endpoints: 3 /me (usuario autenticado) + 3 /users/:userId (Admin/Trainer)
+- DTOs tipados: ExerciseProgressDto, VolumeStatsDto, MonthlyComparisonDto
+- Detección de estancamiento: compara últimas 3 semanas sin incremento de peso
+- Volumen por grupo muscular con porcentajes
+- Comparativa mensual incluye PRs del período
 
 ---
 
@@ -1038,7 +1047,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-49 | Registro de Progreso en Rutina              | ✅ COMPLETO  | Auto-save, +/- buttons, peso sugerido, feedback visual                  |
 | FITFLOW-50 | Detección de Personal Records               | ⬜ PENDIENTE |                                                                         |
 | FITFLOW-51 | Notificación y Visualización de PR          | ✅ COMPLETO  | Modal celebración, página Mis Récords, badges por hitos                 |
-| FITFLOW-52 | API de Estadísticas y Progreso              | ⬜ PENDIENTE | Endpoints evolución ejercicios, volumen, mensual                        |
+| FITFLOW-52 | API de Estadísticas y Progreso              | ✅ COMPLETO  | Módulo stats/, 6 endpoints, detección estancamiento, volumen por grupo  |
 | FITFLOW-53 | Gráficos de Evolución de Progreso           | ⬜ PENDIENTE | Charts.js, comparativas, exportación                                    |
 | FITFLOW-54 | Historial de Rutinas por Usuario (BE)       | ⬜ PENDIENTE | Archivo de rutinas, duración                                            |
 | FITFLOW-55 | Historial de Rutinas (FE)                   | ⬜ PENDIENTE | Timeline, vista detallada                                               |
@@ -1099,12 +1108,12 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 - **FITFLOW-10 a FITFLOW-39 (Core):** 29 ✅ / 1 ⚠️
 - **FITFLOW-40 a FITFLOW-51 (Features):** 11 ✅ / 1 ⬜
-- **FITFLOW-52 a FITFLOW-62 (Scale):** 0 ✅ / 11 ⬜
+- **FITFLOW-52 a FITFLOW-62 (Scale):** 1 ✅ / 10 ⬜
 
 ### Total
 
-- ✅ **Completadas:** 40 + 15 secundarias = 55
-- ⬜ **Pendientes:** 12
+- ✅ **Completadas:** 41 + 15 secundarias = 56
+- ⬜ **Pendientes:** 11
 - ⚠️ **Parciales:** 1
 
 ---
