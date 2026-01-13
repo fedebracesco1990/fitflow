@@ -17,3 +17,4 @@ export * from './dashboard.service';
 export * from './attendance.service';
 export * from './push-notifications.service';
 export * from './personal-records.service';
+export * from './stats.service';

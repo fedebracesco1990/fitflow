@@ -103,19 +103,22 @@ frontend/src/app/
 │   ├── guards/          # AuthGuard, RoleGuard
 │   ├── interceptors/    # AuthInterceptor
 │   ├── models/          # Interfaces y tipos
-│   ├── services/        # ApiService, AuthService, etc.
+│   ├── services/        # ApiService, AuthService, StatsService, etc.
 │   └── store/           # NGXS States y Actions
 ├── features/
 │   ├── auth/            # Login, Register, Password Reset
 │   ├── dashboard/       # Home
 │   ├── membership-types/# CRUD Tipos de Membresía
 │   ├── payments/        # CRUD Pagos
-│   └── profile/         # Ver/Editar Perfil
+│   ├── profile/         # Ver/Editar Perfil
+│   ├── progress/        # Mi Progreso (gráficos de evolución)
+│   └── reports/         # Centro de Reportes
 ├── layouts/
 │   ├── auth-layout/     # Layout para auth (sin nav)
 │   └── main-layout/     # Layout principal (con nav)
 └── shared/
-    └── components/      # Card, Button, Alert, etc.
+    ├── components/      # Card, Button, Alert, etc.
+    └── charts/          # Gráficos reutilizables (Chart.js)
 ```
 
 ---

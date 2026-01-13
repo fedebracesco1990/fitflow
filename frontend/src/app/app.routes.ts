@@ -106,6 +106,12 @@ export const routes: Routes = [
       import('./features/my-routines/my-routines.routes').then((m) => m.MY_ROUTINES_ROUTES),
   },
   {
+    path: 'my-progress',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/progress/progress.routes').then((m) => m.PROGRESS_ROUTES),
+  },
+  {
     path: 'reports',
     canActivate: [authGuard, roleGuard],
     data: { roles: [Role.ADMIN] },
