@@ -838,7 +838,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-53] Gráficos de Evolución de Progreso
+### [FITFLOW-53] Gráficos de Evolución de Progreso ✅
 
 **Tipo:** Frontend
 
@@ -846,17 +846,27 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Página "Mi Progreso"
-- [ ] Selector de ejercicio
-- [ ] Gráfico de línea: peso vs fecha (Chart.js)
-- [ ] Gráfico de volumen total mensual
-- [ ] Comparativa mes actual vs anterior
-- [ ] Indicadores de estancamiento
+- [x] Página "Mi Progreso"
+- [x] Selector de ejercicio
+- [x] Gráfico de línea: peso vs fecha (Chart.js)
+- [x] Gráfico de volumen total mensual
+- [x] Comparativa mes actual vs anterior
+- [x] Indicadores de estancamiento
 - [ ] Exportación a imagen/PDF
+
+**Implementación (2026-01-13):**
+
+- Página `/profile/progress` con `MyProgressComponent`
+- Componentes: `ExerciseProgressChartComponent`, `VolumeChartComponent`, `MuscleGroupChartComponent`
+- `PeriodFilterComponent` para selección de rango de fechas
+- `ExerciseSelectorComponent` para filtrar por ejercicio
+- `MonthlyComparisonCardComponent` con comparativa mensual
+- Integración con StatsService (endpoints de FITFLOW-52)
+- Gráficos con Chart.js via ng2-charts
 
 ---
 
-### [FITFLOW-54] Historial de Rutinas por Usuario
+### [FITFLOW-54] Historial de Rutinas por Usuario ✅
 
 **Tipo:** Backend
 
@@ -864,10 +874,17 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Marca de fecha_fin cuando se asigna nueva rutina
-- [ ] GET /api/users/:userId/routines/history
-- [ ] Información de duración de cada rutina
-- [ ] Acceso a rutinas archivadas
+- [x] Marca de fecha_fin cuando se asigna nueva rutina
+- [x] GET /api/users/:userId/routines/history
+- [x] Información de duración de cada rutina
+- [x] Acceso a rutinas archivadas
+
+**Implementación (2026-01-13):**
+
+- `deactivate()` ahora setea `endDate` automáticamente
+- `assign()` desactiva rutina anterior del mismo día antes de asignar nueva
+- Endpoints: GET /user-routines/my-history, GET /user-routines/users/:userId/history
+- Response incluye: routineName, startDate, endDate, durationDays, workoutsCompleted
 
 ---
 

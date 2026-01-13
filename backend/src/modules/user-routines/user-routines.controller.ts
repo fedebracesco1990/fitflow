@@ -45,6 +45,17 @@ export class UserRoutinesController {
     return this.userRoutinesService.getTodayRoutine(req.user.userId);
   }
 
+  @Get('my-history')
+  getMyHistory(@Request() req: { user: AuthenticatedUser }) {
+    return this.userRoutinesService.getMyHistory(req.user.userId);
+  }
+
+  @Get('users/:userId/history')
+  @Roles(Role.ADMIN, Role.TRAINER)
+  getHistory(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.userRoutinesService.getHistory(userId);
+  }
+
   @Get('user/:userId')
   @Roles(Role.ADMIN, Role.TRAINER)
   findByUser(@Param('userId', ParseUUIDPipe) userId: string) {

@@ -13,6 +13,8 @@ import {
   BulkAssignResult,
   TodayRoutineResponse,
   ExerciseWithHistory,
+  RoutineHistoryResponseDto,
+  RoutineHistoryItemDto,
 } from './dto';
 import { DayOfWeek } from '../../common/enums/day-of-week.enum';
 import { WorkoutStatus } from '../../common/enums/workout-status.enum';
@@ -54,8 +56,8 @@ export class UserRoutinesService {
       throw new NotFoundException(`Rutina con ID "${dto.routineId}" no encontrada`);
     }
 
-    // Verificar que no exista la misma asignación
-    const existing = await this.userRoutineRepository.findOne({
+    // Verificar que no exista la misma asignación exacta
+    const existingSame = await this.userRoutineRepository.findOne({
       where: {
         userId: dto.userId,
         routineId: dto.routineId,
@@ -63,8 +65,23 @@ export class UserRoutinesService {
         isActive: true,
       },
     });
-    if (existing) {
+    if (existingSame) {
       throw new ConflictException('Esta rutina ya está asignada a este usuario en este día');
+    }
+
+    // Desactivar rutina anterior del mismo día (si existe una diferente)
+    const existingOnDay = await this.userRoutineRepository.findOne({
+      where: {
+        userId: dto.userId,
+        dayOfWeek: dto.dayOfWeek,
+        isActive: true,
+      },
+    });
+    if (existingOnDay) {
+      await this.deactivate(existingOnDay.id);
+      this.logger.log(
+        `Desactivada rutina anterior ${existingOnDay.id} para usuario ${dto.userId} en ${dto.dayOfWeek}`
+      );
     }
 
     const userRoutine = this.userRoutineRepository.create({
@@ -144,6 +161,7 @@ export class UserRoutinesService {
   async deactivate(id: string): Promise<UserRoutine> {
     const userRoutine = await this.findOne(id);
     userRoutine.isActive = false;
+    userRoutine.endDate = new Date();
     return await this.userRoutineRepository.save(userRoutine);
   }
 
@@ -325,5 +343,53 @@ export class UserRoutinesService {
       dayOfWeek: currentDayOfWeek,
       hasHistory: lastWorkout !== null,
     };
+  }
+
+  async getHistory(userId: string): Promise<RoutineHistoryResponseDto> {
+    const inactiveRoutines = await this.userRoutineRepository.find({
+      where: { userId, isActive: false },
+      relations: ['routine'],
+      order: { endDate: 'DESC' },
+    });
+
+    const historyItems: RoutineHistoryItemDto[] = [];
+
+    for (const ur of inactiveRoutines) {
+      const workoutsCount = await this.workoutLogRepository.count({
+        where: {
+          userRoutineId: ur.id,
+          status: WorkoutStatus.COMPLETED,
+        },
+      });
+
+      let durationDays: number | null = null;
+      if (ur.endDate && ur.startDate) {
+        const start = new Date(ur.startDate);
+        const end = new Date(ur.endDate);
+        durationDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      }
+
+      historyItems.push({
+        id: ur.id,
+        routineId: ur.routineId,
+        routineName: ur.routine?.name || 'Rutina eliminada',
+        routineDescription: ur.routine?.description || null,
+        dayOfWeek: ur.dayOfWeek,
+        startDate: new Date(ur.startDate).toISOString().split('T')[0],
+        endDate: ur.endDate ? new Date(ur.endDate).toISOString().split('T')[0] : null,
+        durationDays,
+        workoutsCompleted: workoutsCount,
+      });
+    }
+
+    return {
+      userId,
+      totalRoutines: historyItems.length,
+      history: historyItems,
+    };
+  }
+
+  async getMyHistory(userId: string): Promise<RoutineHistoryResponseDto> {
+    return this.getHistory(userId);
   }
 }

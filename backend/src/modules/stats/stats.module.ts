@@ -8,9 +8,7 @@ import { Exercise } from '../exercises/entities/exercise.entity';
 import { PersonalRecord } from '../personal-records/entities/personal-record.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([ExerciseLog, WorkoutLog, Exercise, PersonalRecord]),
-  ],
+  imports: [TypeOrmModule.forFeature([ExerciseLog, WorkoutLog, Exercise, PersonalRecord])],
   controllers: [StatsController],
   providers: [StatsService],
   exports: [StatsService],

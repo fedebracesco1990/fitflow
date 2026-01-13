@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-  ParseUUIDPipe,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, ParseUUIDPipe, Request, UseGuards } from '@nestjs/common';
 import { StatsService } from './stats.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -35,15 +27,8 @@ export class StatsController {
   }
 
   @Get('me/volume')
-  getMyVolumeStats(
-    @Query() query: StatsQueryDto,
-    @Request() req: { user: AuthenticatedUser }
-  ) {
-    return this.statsService.getVolumeStats(
-      req.user.userId,
-      query.startDate,
-      query.endDate
-    );
+  getMyVolumeStats(@Query() query: StatsQueryDto, @Request() req: { user: AuthenticatedUser }) {
+    return this.statsService.getVolumeStats(req.user.userId, query.startDate, query.endDate);
   }
 
   @Get('me/monthly')

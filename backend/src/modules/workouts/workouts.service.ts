@@ -211,8 +211,11 @@ export class WorkoutsService {
     logId: string,
     dto: UpdateExerciseLogDto,
     userId: string
-  ): Promise<{ log: ExerciseLog; prResult?: { isNewPR: boolean; type: string; exerciseName?: string } }> {
-    const workoutLog = await this.findOne(workoutId, userId);
+  ): Promise<{
+    log: ExerciseLog;
+    prResult?: { isNewPR: boolean; type: string; exerciseName?: string };
+  }> {
+    await this.findOne(workoutId, userId);
 
     const exerciseLog = await this.exerciseLogRepository.findOne({
       where: { id: logId, workoutLogId: workoutId },

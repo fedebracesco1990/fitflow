@@ -176,10 +176,7 @@ export class StatsService {
     return { currentMonth, previousMonth, changes };
   }
 
-  private getDateRange(
-    startDate?: string,
-    endDate?: string
-  ): { start: Date; end: Date } {
+  private getDateRange(startDate?: string, endDate?: string): { start: Date; end: Date } {
     const end = endDate ? new Date(endDate) : new Date();
     const start = startDate
       ? new Date(startDate)
