@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WorkoutLog } from './entities/workout-log.entity';
@@ -14,6 +20,8 @@ import {
 } from './dto';
 import { WorkoutStatus } from '../../common/enums/workout-status.enum';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { PersonalRecordsService } from '../personal-records/personal-records.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class WorkoutsService {
@@ -25,7 +33,11 @@ export class WorkoutsService {
     @InjectRepository(UserRoutine)
     private readonly userRoutineRepository: Repository<UserRoutine>,
     @InjectRepository(RoutineExercise)
-    private readonly routineExerciseRepository: Repository<RoutineExercise>
+    private readonly routineExerciseRepository: Repository<RoutineExercise>,
+    @Inject(forwardRef(() => PersonalRecordsService))
+    private readonly personalRecordsService: PersonalRecordsService,
+    @Inject(forwardRef(() => NotificationsService))
+    private readonly notificationsService: NotificationsService
   ) {}
 
   async create(dto: CreateWorkoutDto, userId: string): Promise<WorkoutLog> {
@@ -183,7 +195,15 @@ export class WorkoutsService {
       rpe: dto.rpe ?? null,
     });
 
-    return await this.exerciseLogRepository.save(exerciseLog);
+    const savedLog = await this.exerciseLogRepository.save(exerciseLog);
+
+    // Check for personal record
+    if (dto.weight && dto.reps > 0) {
+      const userId = workoutLog.userRoutine.userId;
+      await this.checkAndNotifyPR(userId, routineExercise.exerciseId, dto.weight, dto.reps);
+    }
+
+    return savedLog;
   }
 
   async updateExerciseLog(
@@ -265,6 +285,48 @@ export class WorkoutsService {
       })
     );
 
-    return await this.exerciseLogRepository.save(exerciseLogs);
+    const savedLogs = await this.exerciseLogRepository.save(exerciseLogs);
+
+    // Check for personal records in bulk
+    const ownerUserId = workoutLog.userRoutine.userId;
+    const routineExerciseMap = new Map(routineExercises.map((re) => [re.id, re.exerciseId]));
+
+    for (const item of dto.exercises) {
+      if (item.weight && item.reps > 0) {
+        const exerciseId = routineExerciseMap.get(item.routineExerciseId);
+        if (exerciseId) {
+          await this.checkAndNotifyPR(ownerUserId, exerciseId, item.weight, item.reps);
+        }
+      }
+    }
+
+    return savedLogs;
+  }
+
+  private async checkAndNotifyPR(
+    userId: string,
+    exerciseId: string,
+    weight: number,
+    reps: number
+  ): Promise<void> {
+    const prResult = await this.personalRecordsService.checkAndUpdatePR(
+      userId,
+      exerciseId,
+      weight,
+      reps
+    );
+
+    if (prResult.isNewPR && prResult.exerciseName) {
+      let message = '';
+      if (prResult.type === 'both') {
+        message = `Nuevo PR en ${prResult.exerciseName}: ${weight}kg x ${reps} reps (peso y volumen)`;
+      } else if (prResult.type === 'weight') {
+        message = `Nuevo PR de peso en ${prResult.exerciseName}: ${weight}kg`;
+      } else {
+        message = `Nuevo PR de volumen en ${prResult.exerciseName}: ${weight}kg x ${reps} reps`;
+      }
+
+      await this.notificationsService.sendToUser(userId, 'Nuevo Récord Personal', message);
+    }
   }
 }

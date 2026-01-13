@@ -746,7 +746,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-49] Registro de Progreso en Rutina
+### [FITFLOW-49] Registro de Progreso en Rutina ✅
 
 **Tipo:** Frontend
 
@@ -754,16 +754,24 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Botones +/- para ajustar peso por set
-- [ ] Checkbox para marcar set completado
-- [ ] Visualización del peso usado la sesión anterior
-- [ ] Guardado automático en segundo plano
-- [ ] Feedback visual de guardado exitoso
-- [ ] Sincronización cuando vuelva conexión (offline)
+- [x] Botones +/- para ajustar peso por set
+- [x] Checkbox para marcar set completado
+- [x] Visualización del peso usado la sesión anterior
+- [x] Guardado automático en segundo plano
+- [x] Feedback visual de guardado exitoso
+- [x] Sincronización cuando vuelva conexión (offline)
+
+**Implementación:**
+
+- `WorkoutComponent` con auto-guardado cada cambio de peso/reps
+- Botones +/- para incrementar/decrementar peso (±2.5kg) y reps (±1)
+- Peso sugerido basado en última sesión del ejercicio
+- `SavingIndicatorComponent` con estados: idle, saving, saved, error
+- PWA con dataGroups para caching de API y sync offline
 
 ---
 
-### [FITFLOW-50] Detección de Personal Records
+### [FITFLOW-50] Detección de Personal Records ✅
 
 **Tipo:** Backend
 
@@ -771,11 +779,19 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Trigger/servicio que detecta nuevo PR al guardar log
-- [ ] Tabla PersonalRecords con: userId, exerciseId, peso, reps, fecha
-- [ ] Actualización automática del PR si se supera
-- [ ] GET /api/users/:userId/personal-records
-- [ ] Generación de notificación de logro
+- [x] Trigger/servicio que detecta nuevo PR al guardar log
+- [x] Tabla PersonalRecords con: userId, exerciseId, peso, reps, fecha
+- [x] Actualización automática del PR si se supera
+- [x] GET /api/users/:userId/personal-records
+- [x] Generación de notificación de logro
+
+**Implementación:**
+
+- Entity `PersonalRecord` con maxWeight, maxWeightReps, maxVolume, maxVolumeReps
+- `PersonalRecordsService.checkAndUpdatePR()` detecta PRs de peso y volumen
+- Hook en `WorkoutsService.logExercise()` y `logExercisesBulk()`
+- Endpoints: GET /personal-records/me, GET /personal-records/users/:userId
+- Notificación push automática al romper un PR
 
 ---
 

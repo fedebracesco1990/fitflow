@@ -30,6 +30,7 @@ import { validationSchema } from './config/validation.schema';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
+import { PersonalRecordsModule } from './modules/personal-records/personal-records.module';
 
 @Module({
   imports: [
@@ -99,6 +100,7 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
     AttendanceModule,
     NotificationsModule,
     SchedulerModule,
+    PersonalRecordsModule,
     SeederModule,
   ],
   controllers: [AppController],
