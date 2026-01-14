@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage, Messaging } from 'firebase/messaging';
 import { environment } from '../../../environments/environment';
@@ -20,6 +21,7 @@ export interface PushNotification {
   providedIn: 'root',
 })
 export class PushNotificationsService {
+  private readonly http = inject(HttpClient);
   private readonly apiService = inject(ApiService);
   private readonly storage = inject(StorageService);
   private messaging: Messaging | null = null;
@@ -84,27 +86,24 @@ export class PushNotificationsService {
   }
 
   private async registerTokenInBackend(token: string): Promise<void> {
-    if (!this.storage.hasTokens()) {
+    const accessToken = this.storage.getAccessToken();
+
+    if (!accessToken) {
       return;
     }
 
-    // Small delay to ensure auth tokens are fully propagated
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    });
 
-    if (!this.storage.hasTokens()) {
-      return;
-    }
-
-    try {
-      await this.apiService
-        .post('notifications/register-token', {
-          token,
-          platform: 'web',
-        })
-        .toPromise();
-    } catch {
-      // Silently handle errors - push notification registration is not critical
-    }
+    await this.http
+      .post(
+        `${environment.apiUrl}/notifications/register-token`,
+        { token, platform: 'web' },
+        { headers }
+      )
+      .toPromise();
   }
 
   async unregisterToken(token: string): Promise<void> {

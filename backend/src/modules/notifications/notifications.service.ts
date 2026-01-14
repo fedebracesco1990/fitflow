@@ -140,7 +140,63 @@ export class NotificationsService implements OnModuleInit {
     return this.sendToUser(userId, template.title, template.body);
   }
 
-  async sendNotification(dto: SendNotificationDto): Promise<{ success: boolean; sent: number }> {
+  async sendToAll(
+    title: string,
+    body: string,
+    excludeUserId?: string
+  ): Promise<{ success: boolean; sent: number }> {
+    if (!this.firebaseInitialized) {
+      this.logger.warn('Firebase not initialized. Broadcast notification not sent.');
+      return { success: false, sent: 0 };
+    }
+
+    let allTokens = await this.deviceTokenRepository.find();
+
+    if (excludeUserId) {
+      allTokens = allTokens.filter((t) => t.userId !== excludeUserId);
+      this.logger.log(`Excluded sender (${excludeUserId}) from broadcast`);
+    }
+
+    if (allTokens.length === 0) {
+      this.logger.log('No device tokens found for broadcast');
+      return { success: true, sent: 0 };
+    }
+
+    this.logger.log(`Starting broadcast notification to ${allTokens.length} devices`);
+    let sent = 0;
+
+    for (const deviceToken of allTokens) {
+      try {
+        await admin.messaging().send({
+          token: deviceToken.token,
+          notification: { title, body },
+        });
+        sent++;
+      } catch (error: unknown) {
+        const firebaseError = error as { code?: string };
+        this.logger.error(`Failed to send broadcast to token: ${deviceToken.token}`, error);
+        if (
+          firebaseError.code === 'messaging/invalid-registration-token' ||
+          firebaseError.code === 'messaging/registration-token-not-registered'
+        ) {
+          await this.deviceTokenRepository.delete({ token: deviceToken.token });
+          this.logger.log(`Removed invalid token: ${deviceToken.token}`);
+        }
+      }
+    }
+
+    this.logger.log(`Broadcast notification sent to ${sent}/${allTokens.length} devices`);
+    return { success: true, sent };
+  }
+
+  async sendNotification(
+    dto: SendNotificationDto,
+    senderId?: string
+  ): Promise<{ success: boolean; sent: number }> {
+    if (dto.broadcast && dto.title && dto.body) {
+      return this.sendToAll(dto.title, dto.body, senderId);
+    }
+
     if (dto.templateType && dto.userId) {
       return this.sendByTemplate(dto.userId, dto.templateType);
     }
@@ -150,7 +206,7 @@ export class NotificationsService implements OnModuleInit {
     }
 
     throw new BadRequestException(
-      'Provide either (userId + templateType) or (userId + title + body)'
+      'Provide either (broadcast + title + body), (userId + templateType), or (userId + title + body)'
     );
   }
 

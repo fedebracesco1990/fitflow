@@ -124,6 +124,15 @@ export const routes: Routes = [
     loadChildren: () => import('./features/users/users.routes').then((m) => m.usersRoutes),
   },
   {
+    path: 'notifications-admin',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.ADMIN] },
+    loadChildren: () =>
+      import('./features/notifications-admin/notifications-admin.routes').then(
+        (m) => m.NOTIFICATIONS_ADMIN_ROUTES
+      ),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

@@ -62,7 +62,8 @@ export class MainLayoutComponent implements OnInit {
         { label: 'Directorio', icon: 'users', route: '/users' },
         { label: 'Membresías', icon: 'id-card', route: '/memberships' },
         { label: 'Tipos', icon: 'tags', route: '/membership-types' },
-        { label: 'Pagos', icon: 'credit-card', route: '/payments' }
+        { label: 'Pagos', icon: 'credit-card', route: '/payments' },
+        { label: 'Notificaciones', icon: 'bell', route: '/notifications-admin' }
       );
     }
 

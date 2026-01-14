@@ -16,6 +16,16 @@ import { LucideAngularModule } from 'lucide-angular';
   standalone: true,
   imports: [CommonModule, LucideAngularModule, DatePipe],
   template: `
+    @if (isOpen()) {
+      <div
+        class="backdrop"
+        (click)="closePanel.emit()"
+        (keydown.escape)="closePanel.emit()"
+        role="button"
+        tabindex="-1"
+        aria-label="Cerrar notificaciones"
+      ></div>
+    }
     <div class="notification-center" [class.open]="isOpen()">
       <div class="header">
         <h3>Notificaciones</h3>
@@ -71,6 +81,12 @@ import { LucideAngularModule } from 'lucide-angular';
     </div>
   `,
   styles: `
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+    }
+
     .notification-center {
       position: absolute;
       top: 100%;

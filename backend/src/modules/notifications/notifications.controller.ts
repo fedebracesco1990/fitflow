@@ -22,8 +22,11 @@ export class NotificationsController {
 
   @Post('send')
   @Roles(Role.ADMIN)
-  async sendNotification(@Body() dto: SendNotificationDto) {
-    return this.notificationsService.sendNotification(dto);
+  async sendNotification(
+    @CurrentUser('userId') senderId: string,
+    @Body() dto: SendNotificationDto
+  ) {
+    return this.notificationsService.sendNotification(dto, senderId);
   }
 
   @Get('templates')

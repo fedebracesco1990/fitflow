@@ -21,6 +21,21 @@ $transition-speed: 0.2s;
   margin-left: $sidebar-collapsed-width;
 }
 
+.desktop-header {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.desktop-header-spacer {
+  flex: 1;
+}
+
 .mobile-header {
   display: none;
   align-items: center;
@@ -110,6 +125,10 @@ $transition-speed: 0.2s;
 
   .main-layout.sidebar-collapsed .main-content-wrapper {
     margin-left: 0;
+  }
+
+  .desktop-header {
+    display: none;
   }
 
   .mobile-header {

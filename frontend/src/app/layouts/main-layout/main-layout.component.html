@@ -12,6 +12,20 @@
 
   <!-- Main Content Area -->
   <div class="main-content-wrapper">
+    <!-- Desktop Header -->
+    <header class="desktop-header">
+      <div class="desktop-header-spacer"></div>
+      <div class="header-actions">
+        <div class="notification-wrapper">
+          <fit-flow-notification-bell (bellClick)="toggleNotificationCenter()" />
+          <fit-flow-notification-center
+            [isOpen]="notificationCenterOpen()"
+            (closePanel)="closeNotificationCenter()"
+          />
+        </div>
+      </div>
+    </header>
+
     <!-- Mobile Header -->
     <header class="mobile-header">
       <button class="hamburger-btn" (click)="toggleMobileMenu()">

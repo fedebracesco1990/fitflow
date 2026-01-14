@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { NotificationType } from '../entities';
 
 export class SendNotificationDto {
@@ -19,4 +19,8 @@ export class SendNotificationDto {
   @IsNotEmpty()
   @IsOptional()
   body?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  broadcast?: boolean;
 }

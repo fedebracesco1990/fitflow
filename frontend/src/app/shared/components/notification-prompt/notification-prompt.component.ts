@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngxs/store';
 import { PushNotificationsService } from '../../../core/services';
@@ -22,8 +22,8 @@ import { LucideAngularModule } from 'lucide-angular';
           </p>
           <div class="actions">
             <button class="btn-secondary" (click)="onDismiss()">Ahora no</button>
-            <button class="btn-primary" (click)="onEnable()" [disabled]="isLoading">
-              @if (isLoading) {
+            <button class="btn-primary" (click)="onEnable()" [disabled]="isLoading()">
+              @if (isLoading()) {
                 <span>Activando...</span>
               } @else {
                 <span>Activar</span>
@@ -153,23 +153,30 @@ export class NotificationPromptComponent {
   isVisible = input<boolean>(false);
   dismissed = output<void>();
 
-  isLoading = false;
+  isLoading = signal(false);
 
   async onEnable(): Promise<void> {
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     try {
       const permission = await this.pushService.requestPermission();
       this.store.dispatch(new SetPermissionStatus(permission));
 
       if (permission === 'granted') {
-        const token = await this.pushService.getAndRegisterToken();
-        if (token) {
-          this.store.dispatch(new SetFcmToken(token));
+        try {
+          const token = await this.pushService.getAndRegisterToken();
+          if (token) {
+            this.store.dispatch(new SetFcmToken(token));
+          }
+        } catch (error) {
+          console.error(
+            '[NotificationPrompt] Failed to register token, will retry on next login:',
+            error
+          );
         }
       }
     } finally {
-      this.isLoading = false;
+      this.isLoading.set(false);
       this.dismissed.emit();
     }
   }
