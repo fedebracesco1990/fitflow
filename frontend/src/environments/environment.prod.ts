@@ -2,7 +2,7 @@
 // Do not edit manually
 
 export const environment = {
-  production: true,
+  production: false,
   apiUrl: 'https://fitflow-production-f7cf.up.railway.app/api',
   firebase: {
     apiKey: 'AIzaSyDYKyJU2Yz-BmrBLtZsp5GIXJ0a-ux61AI',
@@ -12,7 +12,6 @@ export const environment = {
     messagingSenderId: '763474285236',
     appId: '1:763474285236:web:60e2f6b65218cf0697bde1',
     measurementId: 'G-Y46Y78NQJF',
-    vapidKey:
-      'BDfO_-B-rwzcD7Jxg8vdqzCoGt197ocX5YyfxwAczugWuvVsHnSW6Ec8Cxl1liGp-zLByPlEJEVj9prVTR1FlDg',
+    vapidKey: '',
   },
 };
