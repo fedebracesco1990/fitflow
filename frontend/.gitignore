@@ -8,7 +8,7 @@
 /bazel-out
 
 # Auto-generated environment file
-# /src/environments/environment.prod.ts
+/src/environments/environment.prod.ts
 
 # Node
 /node_modules
