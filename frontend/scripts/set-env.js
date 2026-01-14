@@ -41,4 +41,7 @@ export const environment = {
 const targetPath = path.join(__dirname, '../src/environments/environment.prod.ts');
 
 fs.writeFileSync(targetPath, envContent);
-console.log(`✅ environment.prod.ts generated with API_URL=${apiUrl}`);
+console.log(`✅ environment.prod.ts generated with:`);
+console.log(`   - production: ${production}`);
+console.log(`   - apiUrl: ${apiUrl}`);
+console.log(`   - vapidKey: ${firebaseConfig.vapidKey ? '✓ SET' : '✗ EMPTY'}`);
