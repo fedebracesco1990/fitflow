@@ -62,10 +62,17 @@ import {
   Crown,
   Flame,
   PartyPopper,
+  Lock,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
-import { AuthState, UserState, NotificationsState, PersonalRecordsState, CheckSession } from './core/store';
+import {
+  AuthState,
+  UserState,
+  NotificationsState,
+  PersonalRecordsState,
+  CheckSession,
+} from './core/store';
 import { authInterceptor, errorInterceptor } from './core/interceptors';
 import { PageTitleStrategy } from './core/services';
 import { environment } from '../environments/environment';
@@ -156,6 +163,7 @@ export const appConfig: ApplicationConfig = {
         Crown,
         Flame,
         PartyPopper,
+        Lock,
       })
     ),
   ],
