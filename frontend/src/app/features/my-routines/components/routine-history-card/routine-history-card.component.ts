@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { RoutineHistoryItem, DayOfWeekLabels } from '../../../../core/models';
+import { WorkoutLog, WorkoutStatus, WorkoutStatusLabels } from '../../../../core/models';
 import { formatDateShort } from '../../../../core/utils/date.utils';
 import { CardComponent, BadgeComponent } from '../../../../shared';
 
@@ -12,40 +12,30 @@ import { CardComponent, BadgeComponent } from '../../../../shared';
   template: `
     <fit-flow-card padding="md" class="history-card">
       <div class="card-header">
-        <h3 class="routine-name">{{ item().routineName }}</h3>
-        <fit-flow-badge variant="neutral">
-          {{ dayLabels[item().dayOfWeek] }}
+        <h3 class="routine-name">{{ item().userRoutine?.routine?.name || 'Rutina' }}</h3>
+        <fit-flow-badge [variant]="getStatusVariant(item().status)">
+          {{ statusLabels[item().status] }}
         </fit-flow-badge>
       </div>
 
-      @if (item().routineDescription) {
-        <p class="routine-description">{{ item().routineDescription }}</p>
+      @if (item().userRoutine?.routine?.description) {
+        <p class="routine-description">{{ item().userRoutine.routine.description }}</p>
       }
 
       <div class="stats-grid">
         <div class="stat">
           <lucide-icon name="calendar" [size]="18"></lucide-icon>
           <div class="stat-content">
-            <span class="stat-value">{{ formatDateShort(item().startDate) }}</span>
-            <span class="stat-label">Inicio</span>
+            <span class="stat-value">{{ formatDateShort(item().date) }}</span>
+            <span class="stat-label">Fecha</span>
           </div>
         </div>
 
-        @if (item().endDate) {
-          <div class="stat">
-            <lucide-icon name="calendar-x" [size]="18"></lucide-icon>
-            <div class="stat-content">
-              <span class="stat-value">{{ formatDateShort(item().endDate!) }}</span>
-              <span class="stat-label">Fin</span>
-            </div>
-          </div>
-        }
-
-        @if (item().durationDays !== null) {
+        @if (item().duration) {
           <div class="stat">
             <lucide-icon name="clock" [size]="18"></lucide-icon>
             <div class="stat-content">
-              <span class="stat-value">{{ item().durationDays }} días</span>
+              <span class="stat-value">{{ item().duration }} min</span>
               <span class="stat-label">Duración</span>
             </div>
           </div>
@@ -54,8 +44,8 @@ import { CardComponent, BadgeComponent } from '../../../../shared';
         <div class="stat highlight">
           <lucide-icon name="dumbbell" [size]="18"></lucide-icon>
           <div class="stat-content">
-            <span class="stat-value">{{ item().workoutsCompleted }}</span>
-            <span class="stat-label">Entrenamientos</span>
+            <span class="stat-value">{{ item().exerciseLogs?.length || 0 }}</span>
+            <span class="stat-label">Ejercicios</span>
           </div>
         </div>
       </div>
@@ -129,8 +119,21 @@ import { CardComponent, BadgeComponent } from '../../../../shared';
   `,
 })
 export class RoutineHistoryCardComponent {
-  item = input.required<RoutineHistoryItem>();
+  item = input.required<WorkoutLog>();
 
-  readonly dayLabels = DayOfWeekLabels;
+  readonly statusLabels = WorkoutStatusLabels;
   readonly formatDateShort = formatDateShort;
+
+  getStatusVariant(status: WorkoutStatus): 'primary' | 'success' | 'warning' | 'error' | 'neutral' {
+    switch (status) {
+      case WorkoutStatus.COMPLETED:
+        return 'success';
+      case WorkoutStatus.IN_PROGRESS:
+        return 'primary';
+      case WorkoutStatus.SKIPPED:
+        return 'error';
+      default:
+        return 'neutral';
+    }
+  }
 }
