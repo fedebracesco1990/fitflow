@@ -911,7 +911,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-56] Configuración de PWA con Service Workers
+### [FITFLOW-56] Configuración de PWA con Service Workers ✅
 
 **Tipo:** Frontend
 
@@ -919,13 +919,23 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Configuración de @angular/pwa
-- [ ] Manifest.json con iconos y configuración
-- [ ] Service Worker para caching de assets
-- [ ] Estrategias de cache (Network First, Cache First)
-- [ ] Precaching de rutas principales
-- [ ] Funcionalidad offline para rutinas y progreso
-- [ ] Prompt de instalación de PWA
+- [x] Configuración de @angular/pwa
+- [x] Manifest.json con iconos y configuración
+- [x] Service Worker para caching de assets
+- [x] Estrategias de cache (Network First, Cache First)
+- [x] Precaching de rutas principales
+- [x] Funcionalidad offline para rutinas y progreso
+- [x] Prompt de instalación de PWA
+
+**Implementación (2026-01-15):**
+
+- `PwaService` con SwUpdate para detección de actualizaciones y `beforeinstallprompt` para instalación
+- `PwaUpdatePromptComponent` - Modal para notificar nueva versión disponible
+- `PwaInstallPromptComponent` - Modal de instalación con lista de beneficios (después de 2+ visitas)
+- `manifest.webmanifest` completado con theme_color (#3b82f6), background_color (#f5f7fa), description
+- Meta tags PWA en index.html: theme-color, apple-mobile-web-app-capable, apple-touch-icon
+- `ngsw-config.json` expandido con dataGroups: routines-api, stats-api, personal-records-api
+- Estrategias: freshness (5s timeout) para datos dinámicos, performance (1d) para ejercicios
 
 ---
 

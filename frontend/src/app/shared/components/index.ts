@@ -13,3 +13,5 @@ export * from './notification-center/notification-center.component';
 export * from './notification-prompt/notification-prompt.component';
 export * from './view-toggle/view-toggle.component';
 export * from './pr-celebration-modal/pr-celebration-modal.component';
+export * from './pwa-update-prompt/pwa-update-prompt.component';
+export * from './pwa-install-prompt/pwa-install-prompt.component';

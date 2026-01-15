@@ -49,6 +49,20 @@
       (dismissed)="dismissNotificationPrompt()"
     />
 
+    <!-- PWA Update Prompt -->
+    <fit-flow-pwa-update-prompt
+      [isVisible]="pwaService.updateAvailable()"
+      (updateNow)="handlePwaUpdate()"
+      (dismissed)="handlePwaUpdateDismiss()"
+    />
+
+    <!-- PWA Install Prompt -->
+    <fit-flow-pwa-install-prompt
+      [isVisible]="pwaService.shouldShowInstallPrompt()"
+      (install)="handlePwaInstall()"
+      (dismissed)="handlePwaInstallDismiss()"
+    />
+
     <!-- PR Celebration Modal -->
     <fit-flow-pr-celebration-modal />
 

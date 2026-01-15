@@ -54,6 +54,36 @@
         "maxSize": 200,
         "maxAge": "1d"
       }
+    },
+    {
+      "name": "routines-api",
+      "urls": ["/api/routines/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "1h",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "stats-api",
+      "urls": ["/api/stats/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 100,
+        "maxAge": "30m",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "personal-records-api",
+      "urls": ["/api/personal-records/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "1h",
+        "timeout": "5s"
+      }
     }
   ]
 }

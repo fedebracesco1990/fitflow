@@ -1,10 +1,15 @@
 {
-  "name": "FitFlow",
+  "name": "FitFlow - Sistema de Gestión de Gimnasio",
   "short_name": "FitFlow",
+  "description": "Gestiona tu entrenamiento, rutinas y progreso en el gimnasio",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "scope": "./",
   "start_url": "./",
+  "theme_color": "#3b82f6",
+  "background_color": "#f5f7fa",
   "gcm_sender_id": "103953800507",
+  "categories": ["fitness", "health", "sports"],
   "icons": [
     {
       "src": "icons/icon-72x72.png",

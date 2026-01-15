@@ -10,7 +10,10 @@ import {
   NotificationCenterComponent,
   NotificationPromptComponent,
   PrCelebrationModalComponent,
+  PwaUpdatePromptComponent,
+  PwaInstallPromptComponent,
 } from '../../shared/components';
+import { PwaService } from '../../core/services';
 
 @Component({
   selector: 'fit-flow-main-layout',
@@ -23,6 +26,8 @@ import {
     NotificationCenterComponent,
     NotificationPromptComponent,
     PrCelebrationModalComponent,
+    PwaUpdatePromptComponent,
+    PwaInstallPromptComponent,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
@@ -31,6 +36,7 @@ export class MainLayoutComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly router = inject(Router);
   private readonly actions$ = inject(Actions);
+  readonly pwaService = inject(PwaService);
 
   readonly user = this.store.selectSignal(AuthState.user);
   readonly isAdmin = this.store.selectSignal(AuthState.isAdmin);
@@ -113,6 +119,25 @@ export class MainLayoutComponent implements OnInit {
 
   dismissNotificationPrompt(): void {
     this.showNotificationPrompt.set(false);
+  }
+
+  async handlePwaInstall(): Promise<void> {
+    const installed = await this.pwaService.promptInstall();
+    if (!installed) {
+      this.pwaService.dismissInstallPrompt();
+    }
+  }
+
+  handlePwaInstallDismiss(): void {
+    this.pwaService.dismissInstallPrompt();
+  }
+
+  handlePwaUpdate(): void {
+    this.pwaService.applyUpdate();
+  }
+
+  handlePwaUpdateDismiss(): void {
+    this.pwaService.dismissUpdate();
   }
 
   logout(): void {
