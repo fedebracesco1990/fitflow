@@ -13,7 +13,7 @@ import {
   PwaUpdatePromptComponent,
   PwaInstallPromptComponent,
 } from '../../shared/components';
-import { PwaService } from '../../core/services';
+import { PwaService, PushNotificationsService } from '../../core/services';
 
 @Component({
   selector: 'fit-flow-main-layout',
@@ -37,6 +37,7 @@ export class MainLayoutComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly actions$ = inject(Actions);
   readonly pwaService = inject(PwaService);
+  private readonly pushService = inject(PushNotificationsService);
 
   readonly user = this.store.selectSignal(AuthState.user);
   readonly isAdmin = this.store.selectSignal(AuthState.isAdmin);
@@ -91,7 +92,16 @@ export class MainLayoutComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-      if (this.permissionStatus() === 'default') {
+      const support = this.pushService.checkSupport();
+      const status = this.permissionStatus();
+
+      // Debug log for iOS testing
+      console.log('[Notifications] Support check:', support);
+      console.log('[Notifications] Permission status:', status);
+
+      // Show prompt if: permission is default OR iOS needs PWA installation
+      if (status === 'default' || support.requiresPWA) {
+        console.log('[Notifications] Showing prompt');
         this.showNotificationPrompt.set(true);
       }
     }, 3000);
