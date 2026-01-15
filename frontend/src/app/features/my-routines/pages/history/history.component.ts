@@ -2,8 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { UserRoutinesService } from '../../../../core/services';
-import { RoutineHistoryItem } from '../../../../core/models';
+import { WorkoutsService } from '../../../../core/services';
+import { WorkoutLog, WorkoutStatus } from '../../../../core/models';
 import { RoutineHistoryCardComponent } from '../../components/routine-history-card/routine-history-card.component';
 import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../../../../shared';
 
@@ -43,17 +43,17 @@ import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../
           </div>
         </fit-flow-card>
       } @else {
-        @if (totalRoutines() > 0) {
+        @if (totalWorkouts() > 0) {
           <section class="stats-section">
             <fit-flow-card padding="md">
               <div class="stats-row">
                 <div class="stat">
-                  <span class="stat-value">{{ totalRoutines() }}</span>
-                  <span class="stat-label">Rutinas Completadas</span>
+                  <span class="stat-value">{{ totalWorkouts() }}</span>
+                  <span class="stat-label">Sesiones Totales</span>
                 </div>
                 <div class="stat">
-                  <span class="stat-value">{{ totalWorkouts() }}</span>
-                  <span class="stat-label">Entrenamientos Totales</span>
+                  <span class="stat-value">{{ completedWorkouts() }}</span>
+                  <span class="stat-label">Completadas</span>
                 </div>
               </div>
             </fit-flow-card>
@@ -203,14 +203,13 @@ import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../
   `,
 })
 export class RoutineHistoryComponent implements OnInit {
-  private readonly userRoutinesService = inject(UserRoutinesService);
+  private readonly workoutsService = inject(WorkoutsService);
 
-  history = signal<RoutineHistoryItem[]>([]);
-  totalRoutines = signal(0);
+  history = signal<WorkoutLog[]>([]);
+  totalWorkouts = signal(0);
+  completedWorkouts = signal(0);
   loading = signal(true);
   error = signal<string | null>(null);
-
-  totalWorkouts = signal(0);
 
   ngOnInit(): void {
     this.loadHistory();
@@ -220,12 +219,12 @@ export class RoutineHistoryComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    this.userRoutinesService.getMyHistory().subscribe({
+    this.workoutsService.getMyHistory({ limit: 50 }).subscribe({
       next: (response) => {
-        this.history.set(response.history);
-        this.totalRoutines.set(response.totalRoutines);
-        this.totalWorkouts.set(
-          response.history.reduce((sum, item) => sum + item.workoutsCompleted, 0)
+        this.history.set(response.data);
+        this.totalWorkouts.set(response.meta.total);
+        this.completedWorkouts.set(
+          response.data.filter((w) => w.status === WorkoutStatus.COMPLETED).length
         );
         this.loading.set(false);
       },
