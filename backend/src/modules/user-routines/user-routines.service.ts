@@ -189,7 +189,7 @@ export class UserRoutinesService {
           continue;
         }
 
-        const existing = await this.userRoutineRepository.findOne({
+        const existingSame = await this.userRoutineRepository.findOne({
           where: {
             userId: assignment.userId,
             routineId: dto.routineId,
@@ -197,9 +197,24 @@ export class UserRoutinesService {
             isActive: true,
           },
         });
-        if (existing) {
+        if (existingSame) {
           errors.push(`Rutina ya asignada a ${user.name} el ${assignment.dayOfWeek}`);
           continue;
+        }
+
+        // Desactivar rutina anterior del mismo día (si existe una diferente)
+        const existingOnDay = await this.userRoutineRepository.findOne({
+          where: {
+            userId: assignment.userId,
+            dayOfWeek: assignment.dayOfWeek,
+            isActive: true,
+          },
+        });
+        if (existingOnDay) {
+          await this.deactivate(existingOnDay.id);
+          this.logger.log(
+            `Bulk: Desactivada rutina anterior ${existingOnDay.id} para usuario ${assignment.userId} en ${assignment.dayOfWeek}`
+          );
         }
 
         const userRoutine = this.userRoutineRepository.create({

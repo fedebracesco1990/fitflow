@@ -888,7 +888,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-55] Historial de Rutinas
+### [FITFLOW-55] Historial de Rutinas ✅
 
 **Tipo:** Frontend
 
@@ -896,9 +896,18 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Timeline de rutinas anteriores
-- [ ] Vista detallada de rutina archivada
-- [ ] Indicador de duración y progreso logrado
+- [x] Timeline de rutinas anteriores
+- [x] Vista detallada de rutina archivada
+- [x] Indicador de duración y progreso logrado
+
+**Implementación:**
+
+- Grid de cards responsive en `/my-routines/history`
+- Stats: rutinas completadas, entrenamientos totales
+- Cada card muestra: nombre, día, fechas, duración, workouts completados
+- Navegación desde "Mi Semana" con link "Ver Historial"
+- Componentes: `RoutineHistoryComponent`, `RoutineHistoryCardComponent`
+- Service: `getMyHistory()` en `UserRoutinesService`
 
 ---
 
@@ -1067,7 +1076,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-52 | API de Estadísticas y Progreso              | ✅ COMPLETO  | Módulo stats/, 6 endpoints, detección estancamiento, volumen por grupo  |
 | FITFLOW-53 | Gráficos de Evolución de Progreso           | ⬜ PENDIENTE | Charts.js, comparativas, exportación                                    |
 | FITFLOW-54 | Historial de Rutinas por Usuario (BE)       | ⬜ PENDIENTE | Archivo de rutinas, duración                                            |
-| FITFLOW-55 | Historial de Rutinas (FE)                   | ⬜ PENDIENTE | Timeline, vista detallada                                               |
+| FITFLOW-55 | Historial de Rutinas (FE)                   | ✅ COMPLETO  | Grid de cards, stats, navegación desde Mi Semana                        |
 | FITFLOW-56 | Configuración PWA / Service Workers         | ⬜ PENDIENTE | Manifest, SW caching, offline basics                                    |
 | FITFLOW-57 | Sistema de Sincronización Offline           | ⬜ PENDIENTE | IndexedDB, sync queue, conectividad                                     |
 | FITFLOW-58 | WebSocket Server                            | ⬜ PENDIENTE | Gateway NestJS, events, auth                                            |

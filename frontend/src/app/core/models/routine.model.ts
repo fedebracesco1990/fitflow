@@ -207,3 +207,21 @@ export interface TodayRoutineResponse {
   dayOfWeek: DayOfWeek;
   hasHistory: boolean;
 }
+
+export interface RoutineHistoryItem {
+  id: string;
+  routineId: string;
+  routineName: string;
+  routineDescription: string | null;
+  dayOfWeek: DayOfWeek;
+  startDate: string;
+  endDate: string | null;
+  durationDays: number | null;
+  workoutsCompleted: number;
+}
+
+export interface RoutineHistoryResponse {
+  userId: string;
+  totalRoutines: number;
+  history: RoutineHistoryItem[];
+}

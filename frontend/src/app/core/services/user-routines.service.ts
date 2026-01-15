@@ -8,6 +8,7 @@ import {
   BulkAssignRoutineDto,
   BulkAssignResult,
   TodayRoutineResponse,
+  RoutineHistoryResponse,
 } from '../models';
 
 @Injectable({
@@ -47,5 +48,9 @@ export class UserRoutinesService {
 
   delete(id: string): Observable<void> {
     return this.api.delete<void>(`${this.endpoint}/${id}`);
+  }
+
+  getMyHistory(): Observable<RoutineHistoryResponse> {
+    return this.api.get<RoutineHistoryResponse>(`${this.endpoint}/my-history`);
   }
 }

@@ -16,3 +16,15 @@ export function getCurrentDayOfWeek(): DayOfWeek {
   ];
   return days[dayIndex];
 }
+
+/**
+ * Formats a date string to localized short format (e.g., "15 ene 2026")
+ */
+export function formatDateShort(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('es-UY', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}

@@ -23,6 +23,12 @@ export const MY_ROUTINES_ROUTES: Routes = [
         title: 'Mi Semana',
       },
       {
+        path: 'history',
+        loadComponent: () =>
+          import('./pages/history/history.component').then((m) => m.RoutineHistoryComponent),
+        title: 'Historial de Rutinas',
+      },
+      {
         path: ':id/start',
         loadComponent: () =>
           import('./pages/workout/workout.component').then((m) => m.WorkoutComponent),
