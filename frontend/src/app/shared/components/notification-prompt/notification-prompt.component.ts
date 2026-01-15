@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngxs/store';
 import { PushNotificationsService } from '../../../core/services';
@@ -13,23 +13,31 @@ import { LucideAngularModule } from 'lucide-angular';
     @if (isVisible()) {
       <div class="prompt-overlay" role="dialog" aria-modal="true">
         <div class="prompt-card">
-          <div class="icon-wrapper">
-            <lucide-icon name="bell" [size]="32"></lucide-icon>
+          <div class="icon-wrapper" [class.warning]="requiresPWA()">
+            <lucide-icon [name]="requiresPWA() ? 'smartphone' : 'bell'" [size]="32"></lucide-icon>
           </div>
-          <h3>Activa las notificaciones</h3>
-          <p>
-            Recibe alertas sobre vencimientos de membresía, recordatorios de entrenamiento y más.
-          </p>
-          <div class="actions">
-            <button class="btn-secondary" (click)="onDismiss()">Ahora no</button>
-            <button class="btn-primary" (click)="onEnable()" [disabled]="isLoading()">
-              @if (isLoading()) {
-                <span>Activando...</span>
-              } @else {
-                <span>Activar</span>
-              }
-            </button>
-          </div>
+          @if (requiresPWA()) {
+            <h3>Instala la app primero</h3>
+            <p>{{ supportMessage() }}</p>
+            <div class="actions">
+              <button class="btn-primary" (click)="onDismiss()">Entendido</button>
+            </div>
+          } @else {
+            <h3>Activa las notificaciones</h3>
+            <p>
+              Recibe alertas sobre vencimientos de membresía, recordatorios de entrenamiento y más.
+            </p>
+            <div class="actions">
+              <button class="btn-secondary" (click)="onDismiss()">Ahora no</button>
+              <button class="btn-primary" (click)="onEnable()" [disabled]="isLoading()">
+                @if (isLoading()) {
+                  <span>Activando...</span>
+                } @else {
+                  <span>Activar</span>
+                }
+              </button>
+            </div>
+          }
         </div>
       </div>
     }
@@ -87,6 +95,11 @@ import { LucideAngularModule } from 'lucide-angular';
       background: #eff6ff;
       border-radius: 50%;
       color: #3b82f6;
+
+      &.warning {
+        background: #fef3c7;
+        color: #d97706;
+      }
     }
 
     h3 {
@@ -146,7 +159,7 @@ import { LucideAngularModule } from 'lucide-angular';
     }
   `,
 })
-export class NotificationPromptComponent {
+export class NotificationPromptComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly pushService = inject(PushNotificationsService);
 
@@ -154,6 +167,14 @@ export class NotificationPromptComponent {
   dismissed = output<void>();
 
   isLoading = signal(false);
+  requiresPWA = signal(false);
+  supportMessage = signal('');
+
+  ngOnInit(): void {
+    const support = this.pushService.checkSupport();
+    this.requiresPWA.set(support.requiresPWA);
+    this.supportMessage.set(support.message || '');
+  }
 
   async onEnable(): Promise<void> {
     this.isLoading.set(true);

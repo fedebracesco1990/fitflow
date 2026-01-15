@@ -8,6 +8,14 @@ import { StorageService } from './storage.service';
 
 export type NotificationPermissionStatus = 'default' | 'granted' | 'denied';
 
+export interface PushNotificationSupport {
+  isSupported: boolean;
+  isIOS: boolean;
+  isPWA: boolean;
+  requiresPWA: boolean;
+  message?: string;
+}
+
 export interface PushNotification {
   id: string;
   title: string;
@@ -46,6 +54,42 @@ export class PushNotificationsService {
       return 'denied';
     }
     return Notification.permission as NotificationPermissionStatus;
+  }
+
+  checkSupport(): PushNotificationSupport {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isPWA =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+    const isSupported = 'Notification' in window && 'serviceWorker' in navigator;
+
+    if (isIOS && !isPWA) {
+      return {
+        isSupported: false,
+        isIOS: true,
+        isPWA: false,
+        requiresPWA: true,
+        message:
+          'Para recibir notificaciones en iPhone, primero instala la app: Safari → Compartir → Añadir a pantalla de inicio',
+      };
+    }
+
+    if (!isSupported) {
+      return {
+        isSupported: false,
+        isIOS,
+        isPWA,
+        requiresPWA: false,
+        message: 'Tu navegador no soporta notificaciones push',
+      };
+    }
+
+    return {
+      isSupported: true,
+      isIOS,
+      isPWA,
+      requiresPWA: false,
+    };
   }
 
   async requestPermission(): Promise<NotificationPermissionStatus> {
