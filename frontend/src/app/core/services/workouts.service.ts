@@ -74,7 +74,10 @@ export class WorkoutsService {
     logId: string,
     data: UpdateExerciseLogDto
   ): Observable<UpdateExerciseLogResponse> {
-    return this.api.patch<UpdateExerciseLogResponse>(`${this.endpoint}/${workoutId}/exercises/${logId}`, data);
+    return this.api.patch<UpdateExerciseLogResponse>(
+      `${this.endpoint}/${workoutId}/exercises/${logId}`,
+      data
+    );
   }
 
   deleteExerciseLog(workoutId: string, logId: string): Observable<void> {

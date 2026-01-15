@@ -12,8 +12,10 @@ import {
   PrCelebrationModalComponent,
   PwaUpdatePromptComponent,
   PwaInstallPromptComponent,
+  OfflineBannerComponent,
+  SyncStatusComponent,
 } from '../../shared/components';
-import { PwaService } from '../../core/services';
+import { PwaService, SyncManagerService } from '../../core/services';
 
 @Component({
   selector: 'fit-flow-main-layout',
@@ -28,6 +30,8 @@ import { PwaService } from '../../core/services';
     PrCelebrationModalComponent,
     PwaUpdatePromptComponent,
     PwaInstallPromptComponent,
+    OfflineBannerComponent,
+    SyncStatusComponent,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
@@ -37,6 +41,7 @@ export class MainLayoutComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly actions$ = inject(Actions);
   readonly pwaService = inject(PwaService);
+  private readonly syncManager = inject(SyncManagerService);
 
   readonly user = this.store.selectSignal(AuthState.user);
   readonly isAdmin = this.store.selectSignal(AuthState.isAdmin);

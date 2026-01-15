@@ -3,11 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RoutinesService } from '../../../../core/services';
-import {
-  Routine,
-  TemplateCategory,
-  TemplateCategoryLabels,
-} from '../../../../core/models';
+import { Routine, TemplateCategory, TemplateCategoryLabels } from '../../../../core/models';
 import { CardComponent } from '../../../../shared';
 import { TemplateCardComponent } from '../../components/template-card/template-card.component';
 import { TemplatePreviewDialogComponent } from '../../components/template-preview-dialog/template-preview-dialog.component';

@@ -939,7 +939,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-57] Sistema de Sincronización Offline
+### [FITFLOW-57] Sistema de Sincronización Offline ✅
 
 **Tipo:** Frontend
 
@@ -947,12 +947,27 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] IndexedDB para almacenamiento local
-- [ ] Cola de sincronización para operaciones offline
-- [ ] Detección de conectividad (online/offline)
-- [ ] Sincronización automática al recuperar conexión
-- [ ] Indicador visual de estado de sincronización
-- [ ] Manejo de conflictos de datos
+- [x] IndexedDB para almacenamiento local
+- [x] Cola de sincronización para operaciones offline
+- [x] Detección de conectividad (online/offline)
+- [x] Sincronización automática al recuperar conexión
+- [x] Indicador visual de estado de sincronización
+- [x] Manejo de conflictos de datos
+
+**Implementación:**
+
+| Componente | Archivo | Propósito |
+|------------|---------|-----------|
+| OfflineDbService | `core/services/offline-db.service.ts` | Wrapper Dexie.js con 6 tablas IndexedDB |
+| SyncQueueService | `core/services/sync-queue.service.ts` | Cola FIFO de operaciones pendientes |
+| SyncManagerService | `core/services/sync-manager.service.ts` | Auto-sync al restaurar conexión |
+| OfflineWorkoutsService | `core/services/offline-workouts.service.ts` | API offline-first para workouts |
+| OfflineBannerComponent | `shared/components/offline-banner/` | Banner "Sin conexión" |
+| SyncStatusComponent | `shared/components/sync-status/` | Indicador de sync en header |
+
+**Dependencias:** Dexie.js ^4.x
+
+**Documentación:** `docs/technical/sincronizacion-offline.md`
 
 ---
 
@@ -1088,7 +1103,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-54 | Historial de Rutinas por Usuario (BE)       | ⬜ PENDIENTE | Archivo de rutinas, duración                                            |
 | FITFLOW-55 | Historial de Rutinas (FE)                   | ✅ COMPLETO  | Grid de cards, stats, navegación desde Mi Semana                        |
 | FITFLOW-56 | Configuración PWA / Service Workers         | ⬜ PENDIENTE | Manifest, SW caching, offline basics                                    |
-| FITFLOW-57 | Sistema de Sincronización Offline           | ⬜ PENDIENTE | IndexedDB, sync queue, conectividad                                     |
+| FITFLOW-57 | Sistema de Sincronización Offline           | ✅ COMPLETO  | Dexie.js, IndexedDB, sync queue, auto-sync, UI indicators               |
 | FITFLOW-58 | WebSocket Server                            | ⬜ PENDIENTE | Gateway NestJS, events, auth                                            |
 | FITFLOW-59 | Cliente WebSocket y Sincronización Realtime | ⬜ PENDIENTE | RxJS, conexión auto, actualización UI                                   |
 | FITFLOW-60 | Testing Rendimiento y Optimización          | ⬜ PENDIENTE | Lighthouse >90, lazy loading, bundle size                               |
@@ -1144,12 +1159,12 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 - **FITFLOW-10 a FITFLOW-39 (Core):** 29 ✅ / 1 ⚠️
 - **FITFLOW-40 a FITFLOW-51 (Features):** 11 ✅ / 1 ⬜
-- **FITFLOW-52 a FITFLOW-62 (Scale):** 1 ✅ / 10 ⬜
+- **FITFLOW-52 a FITFLOW-62 (Scale):** 2 ✅ / 9 ⬜
 
 ### Total
 
-- ✅ **Completadas:** 41 + 15 secundarias = 56
-- ⬜ **Pendientes:** 11
+- ✅ **Completadas:** 42 + 15 secundarias = 57
+- ⬜ **Pendientes:** 10
 - ⚠️ **Parciales:** 1
 
 ---

@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Store } from '@ngxs/store';
-import { WorkoutsService, UserRoutinesService } from '../../../../core/services';
+import { OfflineWorkoutsService, UserRoutinesService } from '../../../../core/services';
 import { TriggerCelebration } from '../../../../core/store';
 import {
   UserRoutine,
@@ -37,7 +37,7 @@ interface SetChange {
 export class WorkoutComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly workoutsService = inject(WorkoutsService);
+  private readonly workoutsService = inject(OfflineWorkoutsService);
   private readonly userRoutinesService = inject(UserRoutinesService);
   private readonly store = inject(Store);
 

@@ -55,9 +55,7 @@ const MUSCLE_GROUP_BORDERS = [
     `,
   ],
 })
-export class MuscleGroupChartComponent
-  implements AfterViewInit, OnChanges, OnDestroy
-{
+export class MuscleGroupChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() data: MuscleGroupVolume[] = [];
 
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
@@ -128,14 +126,8 @@ export class MuscleGroupChartComponent
 
     this.chart.data.labels = this.data.map((d) => d.muscleGroupName);
     this.chart.data.datasets[0].data = this.data.map((d) => d.volume);
-    this.chart.data.datasets[0].backgroundColor = MUSCLE_GROUP_COLORS.slice(
-      0,
-      this.data.length
-    );
-    this.chart.data.datasets[0].borderColor = MUSCLE_GROUP_BORDERS.slice(
-      0,
-      this.data.length
-    );
+    this.chart.data.datasets[0].backgroundColor = MUSCLE_GROUP_COLORS.slice(0, this.data.length);
+    this.chart.data.datasets[0].borderColor = MUSCLE_GROUP_BORDERS.slice(0, this.data.length);
     this.chart.update();
   }
 }

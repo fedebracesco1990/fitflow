@@ -10,12 +10,16 @@
     (logoutClick)="logout()"
   ></fit-flow-sidebar>
 
+  <!-- Offline Banner -->
+  <fit-flow-offline-banner />
+
   <!-- Main Content Area -->
   <div class="main-content-wrapper">
     <!-- Desktop Header -->
     <header class="desktop-header">
       <div class="desktop-header-spacer"></div>
       <div class="header-actions">
+        <fit-flow-sync-status />
         <div class="notification-wrapper">
           <fit-flow-notification-bell (bellClick)="toggleNotificationCenter()" />
           <fit-flow-notification-center
@@ -33,6 +37,7 @@
       </button>
       <span class="mobile-logo">FitFlow</span>
       <div class="header-actions">
+        <fit-flow-sync-status />
         <div class="notification-wrapper">
           <fit-flow-notification-bell (bellClick)="toggleNotificationCenter()" />
           <fit-flow-notification-center

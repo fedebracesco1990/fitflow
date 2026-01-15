@@ -1,10 +1,7 @@
 import { Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  TemplateCategory,
-  TemplateCategoryLabels,
-} from '../../../../core/models';
+import { TemplateCategory, TemplateCategoryLabels } from '../../../../core/models';
 import { ButtonComponent } from '../../../../shared';
 
 @Component({

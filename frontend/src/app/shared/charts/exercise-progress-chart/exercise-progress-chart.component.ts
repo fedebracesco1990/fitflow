@@ -33,9 +33,7 @@ Chart.register(...registerables);
     `,
   ],
 })
-export class ExerciseProgressChartComponent
-  implements AfterViewInit, OnChanges, OnDestroy
-{
+export class ExerciseProgressChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() dataPoints: ExerciseProgressPoint[] = [];
   @Input() exerciseName = '';
   @Input() showVolume = true;

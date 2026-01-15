@@ -3,17 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { LucideAngularModule } from 'lucide-angular';
-import {
-  PersonalRecordsState,
-  LoadPersonalRecords,
-} from '../../../../core/store';
+import { PersonalRecordsState, LoadPersonalRecords } from '../../../../core/store';
 import { PrCardComponent } from '../../components/pr-card/pr-card.component';
 import { PrBadgeComponent } from '../../components/pr-badge/pr-badge.component';
-import {
-  CardComponent,
-  LoadingSpinnerComponent,
-  EmptyStateComponent,
-} from '../../../../shared';
+import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-my-records',
@@ -61,7 +54,11 @@ import {
               </div>
               @if (highestBadge()) {
                 <div class="stat">
-                  <lucide-icon [name]="highestBadge()!.icon" [size]="24" class="badge-icon"></lucide-icon>
+                  <lucide-icon
+                    [name]="highestBadge()!.icon"
+                    [size]="24"
+                    class="badge-icon"
+                  ></lucide-icon>
                   <span class="stat-label">{{ highestBadge()!.label }}</span>
                 </div>
               }

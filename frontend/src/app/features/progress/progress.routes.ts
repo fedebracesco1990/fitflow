@@ -10,9 +10,7 @@ export const PROGRESS_ROUTES: Routes = [
         path: '',
         title: 'Mi Progreso',
         loadComponent: () =>
-          import('./pages/my-progress/my-progress.component').then(
-            (m) => m.MyProgressComponent
-          ),
+          import('./pages/my-progress/my-progress.component').then((m) => m.MyProgressComponent),
       },
     ],
   },

@@ -52,7 +52,9 @@ import { PersonalRecord } from '../../../../core/models';
       border-radius: 12px;
       padding: 20px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition:
+        transform 0.2s,
+        box-shadow 0.2s;
 
       &:hover {
         transform: translateY(-2px);

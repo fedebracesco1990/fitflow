@@ -12,17 +12,16 @@ import {
   Exercise,
   StatsQuery,
 } from '../../../../core/models';
-import {
-  CardComponent,
-  LoadingSpinnerComponent,
-  AlertComponent,
-} from '../../../../shared';
+import { CardComponent, LoadingSpinnerComponent, AlertComponent } from '../../../../shared';
 import {
   ExerciseProgressChartComponent,
   VolumeChartComponent,
   MuscleGroupChartComponent,
 } from '../../../../shared/charts';
-import { PeriodFilterComponent, PeriodRange } from '../../components/period-filter/period-filter.component';
+import {
+  PeriodFilterComponent,
+  PeriodRange,
+} from '../../components/period-filter/period-filter.component';
 import { ExerciseSelectorComponent } from '../../components/exercise-selector/exercise-selector.component';
 import { MonthlyComparisonCardComponent } from '../../components/monthly-comparison-card/monthly-comparison-card.component';
 
@@ -126,11 +125,15 @@ import { MonthlyComparisonCardComponent } from '../../components/monthly-compari
                   <div class="exercise-summary">
                     <div class="summary-item">
                       <span class="label">Peso inicial</span>
-                      <span class="value">{{ exerciseProgress()!.summary.startWeight ?? '-' }} kg</span>
+                      <span class="value"
+                        >{{ exerciseProgress()!.summary.startWeight ?? '-' }} kg</span
+                      >
                     </div>
                     <div class="summary-item">
                       <span class="label">Peso actual</span>
-                      <span class="value">{{ exerciseProgress()!.summary.currentWeight ?? '-' }} kg</span>
+                      <span class="value"
+                        >{{ exerciseProgress()!.summary.currentWeight ?? '-' }} kg</span
+                      >
                     </div>
                     <div class="summary-item">
                       <span class="label">Cambio</span>

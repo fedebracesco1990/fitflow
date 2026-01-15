@@ -19,3 +19,7 @@ export * from './push-notifications.service';
 export * from './personal-records.service';
 export * from './stats.service';
 export * from './pwa.service';
+export * from './offline-db.service';
+export * from './sync-queue.service';
+export * from './sync-manager.service';
+export * from './offline-workouts.service';

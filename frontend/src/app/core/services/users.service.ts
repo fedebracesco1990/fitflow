@@ -24,7 +24,8 @@ export class UsersService {
     let httpParams = new HttpParams();
     if (params?.search) httpParams = httpParams.set('search', params.search);
     if (params?.role) httpParams = httpParams.set('role', params.role);
-    if (params?.membershipStatus) httpParams = httpParams.set('membershipStatus', params.membershipStatus);
+    if (params?.membershipStatus)
+      httpParams = httpParams.set('membershipStatus', params.membershipStatus);
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
 

@@ -15,3 +15,5 @@ export * from './view-toggle/view-toggle.component';
 export * from './pr-celebration-modal/pr-celebration-modal.component';
 export * from './pwa-update-prompt/pwa-update-prompt.component';
 export * from './pwa-install-prompt/pwa-install-prompt.component';
+export * from './offline-banner/offline-banner.component';
+export * from './sync-status/sync-status.component';

@@ -49,7 +49,9 @@
                   <button class="btn btn-sm btn-primary" (click)="openAssignDialog(routine)">
                     👥 Asignar
                   </button>
-                  <a [routerLink]="['/routines', routine.id, 'builder']" class="btn btn-sm btn-outline"
+                  <a
+                    [routerLink]="['/routines', routine.id, 'builder']"
+                    class="btn btn-sm btn-outline"
                     >🎨 Builder</a
                   >
                   <a [routerLink]="['/routines', routine.id, 'edit']" class="btn btn-sm btn-outline"

@@ -430,8 +430,126 @@ graph TD
 FitFlow está configurado como Progressive Web App (PWA), permitiendo:
 
 - **Instalación** en dispositivos móviles y desktop
-- **Modo offline** para funcionalidad básica
+- **Modo offline** para funcionalidad completa de entrenamientos
 - **Actualizaciones automáticas** del Service Worker
+- **Sincronización automática** al recuperar conexión
+
+---
+
+## Sistema de Sincronización Offline
+
+FitFlow implementa un sistema robusto de sincronización offline que permite a los usuarios completar entrenamientos sin conexión.
+
+### Arquitectura Offline
+
+```mermaid
+graph TB
+    subgraph UI["UI Layer"]
+        Components[Components]
+        OfflineBanner[Offline Banner]
+        SyncStatus[Sync Status]
+    end
+
+    subgraph Services["Service Layer"]
+        OfflineWorkouts[OfflineWorkoutsService]
+        SyncManager[SyncManagerService]
+        SyncQueue[SyncQueueService]
+    end
+
+    subgraph Storage["Storage Layer"]
+        OfflineDb[OfflineDbService]
+        Dexie[Dexie.js]
+        IndexedDB[(IndexedDB)]
+    end
+
+    subgraph Network["Network Layer"]
+        NetworkService[NetworkService]
+        API[Backend API]
+    end
+
+    Components --> OfflineWorkouts
+    OfflineBanner --> NetworkService
+    SyncStatus --> SyncQueue
+    OfflineWorkouts --> SyncQueue
+    OfflineWorkouts --> OfflineDb
+    SyncManager --> SyncQueue
+    SyncManager --> NetworkService
+    SyncManager --> API
+    SyncQueue --> OfflineDb
+    OfflineDb --> Dexie
+    Dexie --> IndexedDB
+```
+
+### Componentes del Sistema
+
+| Componente | Propósito |
+|------------|-----------|
+| `OfflineDbService` | Wrapper de Dexie.js para IndexedDB con 6 tablas |
+| `SyncQueueService` | Cola FIFO de operaciones pendientes |
+| `SyncManagerService` | Orquestador de sincronización automática |
+| `OfflineWorkoutsService` | Wrapper offline-first para WorkoutsService |
+| `OfflineBannerComponent` | Indicador visual de modo offline |
+| `SyncStatusComponent` | Estado de sincronización con contador |
+
+### Esquema IndexedDB
+
+```
+FitFlowOfflineDb/
+├── syncQueue          # Operaciones pendientes de sincronización
+├── cachedRoutines     # Rutinas del día cacheadas
+├── cachedUserRoutines # Rutinas de la semana
+├── cachedWorkouts     # Entrenamientos (online y offline)
+├── cachedExerciseLogs # Logs de ejercicios
+└── idMappings         # Mapeo tempId -> serverId
+```
+
+### Flujo de Sincronización
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant C as Component
+    participant O as OfflineWorkoutsService
+    participant Q as SyncQueue
+    participant DB as IndexedDB
+    participant S as SyncManager
+    participant API as Backend
+
+    Note over U,API: Usuario offline
+    U->>C: Registra set
+    C->>O: updateExerciseLog()
+    O->>DB: Guardar en cache
+    O->>Q: Encolar operación
+    O-->>C: Respuesta inmediata
+
+    Note over U,API: Conexión restaurada
+    S->>Q: Obtener pendientes
+    loop Cada operación
+        S->>API: Ejecutar request
+        API-->>S: Respuesta
+        S->>DB: Guardar mapeo ID
+        S->>Q: Marcar completada
+    end
+    S-->>C: Sync completo
+```
+
+### Tipos de Operaciones Soportadas
+
+| Operación | Método | Endpoint |
+|-----------|--------|----------|
+| `CREATE_WORKOUT` | POST | `/workouts` |
+| `START_WORKOUT` | PATCH | `/workouts/:id/start` |
+| `COMPLETE_WORKOUT` | PATCH | `/workouts/:id/complete` |
+| `LOG_EXERCISE` | POST | `/workouts/:id/exercises` |
+| `UPDATE_EXERCISE_LOG` | PATCH | `/workouts/:id/exercises/:logId` |
+| `DELETE_EXERCISE_LOG` | DELETE | `/workouts/:id/exercises/:logId` |
+
+### Manejo de Conflictos
+
+- **Estrategia:** Last-Write-Wins basado en timestamp
+- **IDs temporales:** Formato `temp_{timestamp}_{random}` para operaciones offline
+- **Mapeo de IDs:** Se mantiene relación tempId → serverId post-sync
+- **Reintentos:** Máximo 3 reintentos con backoff exponencial
 
 ### Archivos de Configuración
 

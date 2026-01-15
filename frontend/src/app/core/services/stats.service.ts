@@ -1,12 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import {
-  ExerciseProgress,
-  VolumeStats,
-  MonthlyComparison,
-  StatsQuery,
-} from '../models';
+import { ExerciseProgress, VolumeStats, MonthlyComparison, StatsQuery } from '../models';
 
 @Injectable({
   providedIn: 'root',
@@ -15,18 +10,12 @@ export class StatsService {
   private readonly api = inject(ApiService);
   private readonly endpoint = 'stats';
 
-  getMyExerciseProgress(
-    exerciseId: string,
-    query?: StatsQuery
-  ): Observable<ExerciseProgress> {
+  getMyExerciseProgress(exerciseId: string, query?: StatsQuery): Observable<ExerciseProgress> {
     const params: Record<string, string> = {};
     if (query?.startDate) params['startDate'] = query.startDate;
     if (query?.endDate) params['endDate'] = query.endDate;
 
-    return this.api.get<ExerciseProgress>(
-      `${this.endpoint}/me/progress/${exerciseId}`,
-      params
-    );
+    return this.api.get<ExerciseProgress>(`${this.endpoint}/me/progress/${exerciseId}`, params);
   }
 
   getMyVolumeStats(query?: StatsQuery): Observable<VolumeStats> {
@@ -61,15 +50,10 @@ export class StatsService {
     if (query?.startDate) params['startDate'] = query.startDate;
     if (query?.endDate) params['endDate'] = query.endDate;
 
-    return this.api.get<VolumeStats>(
-      `${this.endpoint}/users/${userId}/volume`,
-      params
-    );
+    return this.api.get<VolumeStats>(`${this.endpoint}/users/${userId}/volume`, params);
   }
 
   getUserMonthlyComparison(userId: string): Observable<MonthlyComparison> {
-    return this.api.get<MonthlyComparison>(
-      `${this.endpoint}/users/${userId}/monthly`
-    );
+    return this.api.get<MonthlyComparison>(`${this.endpoint}/users/${userId}/monthly`);
   }
 }

@@ -79,135 +79,137 @@ import { DayExercise } from '../day-column/day-column.component';
       </div>
     </div>
   `,
-  styles: [`
-    .exercise-item {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 0.5rem;
-      padding: 0.75rem;
-      margin-bottom: 0.5rem;
-      transition: all 0.2s ease;
-    }
+  styles: [
+    `
+      .exercise-item {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+      }
 
-    .exercise-item:hover {
-      border-color: #d1d5db;
-    }
+      .exercise-item:hover {
+        border-color: #d1d5db;
+      }
 
-    .exercise-item.is-new {
-      border-color: #667eea;
-      background: rgba(102, 126, 234, 0.05);
-    }
+      .exercise-item.is-new {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+      }
 
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.75rem;
-    }
+      .item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+      }
 
-    .exercise-info {
-      display: flex;
-      align-items: center;
-      gap: 0.625rem;
-      flex: 1;
-      min-width: 0;
-    }
+      .exercise-info {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        flex: 1;
+        min-width: 0;
+      }
 
-    .exercise-thumb {
-      width: 36px;
-      height: 36px;
-      border-radius: 0.375rem;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
+      .exercise-thumb {
+        width: 36px;
+        height: 36px;
+        border-radius: 0.375rem;
+        object-fit: cover;
+        flex-shrink: 0;
+      }
 
-    .exercise-thumb.placeholder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      font-weight: 600;
-      font-size: 0.875rem;
-    }
+      .exercise-thumb.placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
 
-    .exercise-details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.125rem;
-      min-width: 0;
-    }
+      .exercise-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        min-width: 0;
+      }
 
-    .exercise-name {
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: #1f2937;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+      .exercise-name {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: #1f2937;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-    .exercise-muscle {
-      font-size: 0.6875rem;
-      color: #6b7280;
-    }
+      .exercise-muscle {
+        font-size: 0.6875rem;
+        color: #6b7280;
+      }
 
-    .btn-remove {
-      width: 24px;
-      height: 24px;
-      border: none;
-      background: transparent;
-      color: #9ca3af;
-      cursor: pointer;
-      border-radius: 0.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      flex-shrink: 0;
-    }
+      .btn-remove {
+        width: 24px;
+        height: 24px;
+        border: none;
+        background: transparent;
+        color: #9ca3af;
+        cursor: pointer;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+      }
 
-    .btn-remove:hover {
-      background: #fee2e2;
-      color: #dc2626;
-    }
+      .btn-remove:hover {
+        background: #fee2e2;
+        color: #dc2626;
+      }
 
-    .config-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.5rem;
-    }
+      .config-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+      }
 
-    .config-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
+      .config-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
 
-    .config-item label {
-      font-size: 0.6875rem;
-      color: #6b7280;
-      font-weight: 500;
-    }
+      .config-item label {
+        font-size: 0.6875rem;
+        color: #6b7280;
+        font-weight: 500;
+      }
 
-    .config-item input {
-      width: 100%;
-      padding: 0.375rem 0.5rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 0.25rem;
-      font-size: 0.8125rem;
-      background: #ffffff;
-    }
+      .config-item input {
+        width: 100%;
+        padding: 0.375rem 0.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.25rem;
+        font-size: 0.8125rem;
+        background: #ffffff;
+      }
 
-    .config-item input:focus {
-      outline: none;
-      border-color: #667eea;
-    }
+      .config-item input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
 
-    .config-item input::placeholder {
-      color: #d1d5db;
-    }
-  `],
+      .config-item input::placeholder {
+        color: #d1d5db;
+      }
+    `,
+  ],
 })
 export class RoutineExerciseItemComponent {
   @Input() exercise!: DayExercise;

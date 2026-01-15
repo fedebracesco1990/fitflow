@@ -141,10 +141,7 @@ export class RoutineBuilderComponent implements OnInit {
   }
 
   getTotalExercises(): number {
-    return Object.values(this.dayExercises()).reduce(
-      (total, dayExs) => total + dayExs.length,
-      0
-    );
+    return Object.values(this.dayExercises()).reduce((total, dayExs) => total + dayExs.length, 0);
   }
 
   async onSave(): Promise<void> {
@@ -160,21 +157,21 @@ export class RoutineBuilderComponent implements OnInit {
       let routine: Routine;
 
       if (this.isEditMode() && this.routineId) {
-        routine = await this.routinesService
+        routine = (await this.routinesService
           .update(this.routineId, {
             name: this.routineName(),
             description: this.routineDescription() || undefined,
             difficulty: this.routineDifficulty(),
           })
-          .toPromise() as Routine;
+          .toPromise()) as Routine;
       } else {
-        routine = await this.routinesService
+        routine = (await this.routinesService
           .create({
             name: this.routineName(),
             description: this.routineDescription() || undefined,
             difficulty: this.routineDifficulty(),
           })
-          .toPromise() as Routine;
+          .toPromise()) as Routine;
         this.routineId = routine.id;
         this.isEditMode.set(true);
       }
@@ -230,7 +227,10 @@ export class RoutineBuilderComponent implements OnInit {
     this.saveAsTemplateDialogOpen.set(true);
   }
 
-  async onSaveAsTemplateConfirmed(data: { category: TemplateCategory; name?: string }): Promise<void> {
+  async onSaveAsTemplateConfirmed(data: {
+    category: TemplateCategory;
+    name?: string;
+  }): Promise<void> {
     if (!this.routineId) return;
 
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -254,17 +254,19 @@ export class RoutineBuilderComponent implements OnInit {
 
       await this.syncExercises(this.routineId);
 
-      this.routinesService.saveAsTemplate(this.routineId, { category: data.category, name: data.name }).subscribe({
-        next: () => {
-          this.savingAsTemplate.set(false);
-          this.saveAsTemplateDialogOpen.set(false);
-          this.router.navigate(['/routines/templates']);
-        },
-        error: (err) => {
-          this.savingAsTemplate.set(false);
-          this.error.set(err.error?.message || 'Error al guardar como plantilla');
-        },
-      });
+      this.routinesService
+        .saveAsTemplate(this.routineId, { category: data.category, name: data.name })
+        .subscribe({
+          next: () => {
+            this.savingAsTemplate.set(false);
+            this.saveAsTemplateDialogOpen.set(false);
+            this.router.navigate(['/routines/templates']);
+          },
+          error: (err) => {
+            this.savingAsTemplate.set(false);
+            this.error.set(err.error?.message || 'Error al guardar como plantilla');
+          },
+        });
     } catch (err: unknown) {
       const error = err as { error?: { message?: string } };
       this.savingAsTemplate.set(false);

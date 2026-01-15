@@ -22,13 +22,13 @@ import confetti from 'canvas-confetti';
       >
         <div class="modal-content" role="document">
           <canvas #confettiCanvas class="confetti-canvas"></canvas>
-          
+
           <div class="celebration-icon">
             <lucide-icon name="party-popper" [size]="64"></lucide-icon>
           </div>
-          
+
           <h2 id="pr-celebration-title" class="title">Nuevo Récord Personal</h2>
-          
+
           <div class="pr-details">
             <p class="exercise-name">{{ celebrationData()?.exerciseName }}</p>
             <div class="stats">
@@ -38,10 +38,8 @@ import confetti from 'canvas-confetti';
             </div>
             <span class="pr-type">{{ getPrTypeLabel() }}</span>
           </div>
-          
-          <button class="dismiss-btn" (click)="dismiss()">
-            Continuar
-          </button>
+
+          <button class="dismiss-btn" (click)="dismiss()">Continuar</button>
         </div>
       </div>
     }
@@ -59,8 +57,12 @@ import confetti from 'canvas-confetti';
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     .modal-content {
@@ -77,11 +79,11 @@ import confetti from 'canvas-confetti';
     }
 
     @keyframes scaleIn {
-      from { 
+      from {
         opacity: 0;
         transform: scale(0.8);
       }
-      to { 
+      to {
         opacity: 1;
         transform: scale(1);
       }
@@ -109,8 +111,12 @@ import confetti from 'canvas-confetti';
     }
 
     @keyframes bounce {
-      from { transform: translateY(0); }
-      to { transform: translateY(-8px); }
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(-8px);
+      }
     }
 
     .title {
@@ -182,7 +188,9 @@ import confetti from 'canvas-confetti';
       border: none;
       border-radius: 12px;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition:
+        transform 0.2s,
+        box-shadow 0.2s;
 
       &:hover {
         transform: translateY(-2px);
