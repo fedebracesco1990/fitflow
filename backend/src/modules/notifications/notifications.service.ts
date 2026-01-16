@@ -29,6 +29,35 @@ export class NotificationsService implements OnModuleInit {
     this.initializeFirebase();
   }
 
+  private buildMessagePayload(
+    token: string,
+    title: string,
+    body: string,
+    type: 'direct' | 'broadcast'
+  ): admin.messaging.Message {
+    return {
+      token,
+      notification: { title, body },
+      data: {
+        title,
+        body,
+        type,
+        timestamp: Date.now().toString(),
+      },
+    };
+  }
+
+  private async handleInvalidToken(token: string, error: unknown): Promise<void> {
+    const firebaseError = error as { code?: string };
+    if (
+      firebaseError.code === 'messaging/invalid-registration-token' ||
+      firebaseError.code === 'messaging/registration-token-not-registered'
+    ) {
+      await this.deviceTokenRepository.delete({ token });
+      this.logger.log(`Removed invalid token: ${token}`);
+    }
+  }
+
   private initializeFirebase() {
     const projectId = this.configService.get<string>('firebase.projectId');
     const clientEmail = this.configService.get<string>('firebase.clientEmail');
@@ -104,27 +133,12 @@ export class NotificationsService implements OnModuleInit {
 
     for (const token of tokenStrings) {
       try {
-        await admin.messaging().send({
-          token,
-          notification: { title, body },
-          data: {
-            title,
-            body,
-            type: 'direct',
-            timestamp: Date.now().toString(),
-          },
-        });
+        const message = this.buildMessagePayload(token, title, body, 'direct');
+        await admin.messaging().send(message);
         sent++;
       } catch (error: unknown) {
-        const firebaseError = error as { code?: string };
         this.logger.error(`Failed to send notification to token: ${token}`, error);
-        if (
-          firebaseError.code === 'messaging/invalid-registration-token' ||
-          firebaseError.code === 'messaging/registration-token-not-registered'
-        ) {
-          await this.deviceTokenRepository.delete({ token });
-          this.logger.log(`Removed invalid token: ${token}`);
-        }
+        await this.handleInvalidToken(token, error);
       }
     }
 
@@ -173,27 +187,12 @@ export class NotificationsService implements OnModuleInit {
 
     for (const deviceToken of allTokens) {
       try {
-        await admin.messaging().send({
-          token: deviceToken.token,
-          notification: { title, body },
-          data: {
-            title,
-            body,
-            type: 'broadcast',
-            timestamp: Date.now().toString(),
-          },
-        });
+        const message = this.buildMessagePayload(deviceToken.token, title, body, 'broadcast');
+        await admin.messaging().send(message);
         sent++;
       } catch (error: unknown) {
-        const firebaseError = error as { code?: string };
         this.logger.error(`Failed to send broadcast to token: ${deviceToken.token}`, error);
-        if (
-          firebaseError.code === 'messaging/invalid-registration-token' ||
-          firebaseError.code === 'messaging/registration-token-not-registered'
-        ) {
-          await this.deviceTokenRepository.delete({ token: deviceToken.token });
-          this.logger.log(`Removed invalid token: ${deviceToken.token}`);
-        }
+        await this.handleInvalidToken(deviceToken.token, error);
       }
     }
 

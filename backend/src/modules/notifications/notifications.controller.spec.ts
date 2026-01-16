@@ -67,6 +67,7 @@ describe('NotificationsController', () => {
 
   describe('sendNotification', () => {
     it('should send notification with template', async () => {
+      const senderId = 'admin-123';
       const dto = {
         userId: 'user-123',
         templateType: NotificationType.MEMBERSHIP_EXPIRING,
@@ -75,13 +76,14 @@ describe('NotificationsController', () => {
 
       mockNotificationsService.sendNotification.mockResolvedValue(expectedResult);
 
-      const result = await controller.sendNotification(dto);
+      const result = await controller.sendNotification(senderId, dto);
 
       expect(result).toEqual(expectedResult);
-      expect(mockNotificationsService.sendNotification).toHaveBeenCalledWith(dto);
+      expect(mockNotificationsService.sendNotification).toHaveBeenCalledWith(dto, senderId);
     });
 
     it('should send custom notification', async () => {
+      const senderId = 'admin-123';
       const dto = {
         userId: 'user-123',
         title: 'Test Title',
@@ -91,9 +93,10 @@ describe('NotificationsController', () => {
 
       mockNotificationsService.sendNotification.mockResolvedValue(expectedResult);
 
-      const result = await controller.sendNotification(dto);
+      const result = await controller.sendNotification(senderId, dto);
 
       expect(result).toEqual(expectedResult);
+      expect(mockNotificationsService.sendNotification).toHaveBeenCalledWith(dto, senderId);
     });
   });
 
