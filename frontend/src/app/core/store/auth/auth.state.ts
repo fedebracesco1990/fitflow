@@ -4,6 +4,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
+import { WebSocketService } from '../../services/websocket.service';
 import { AuthenticatedUser, Role } from '../../models';
 import {
   Login,
@@ -50,6 +51,7 @@ const defaults: AuthStateModel = {
 export class AuthState {
   private readonly authService = inject(AuthService);
   private readonly storage = inject(StorageService);
+  private readonly websocket = inject(WebSocketService);
 
   // Selectors
   @Selector()
@@ -201,6 +203,7 @@ export class AuthState {
     });
 
     ctx.dispatch(new InitializeNotifications());
+    this.websocket.connect();
   }
 
   @Action(CheckSessionFailure)
@@ -263,6 +266,7 @@ export class AuthState {
 
   @Action(LogoutSuccess)
   logoutSuccess(ctx: StateContext<AuthStateModel>) {
+    this.websocket.disconnect();
     this.storage.clearTokens();
     ctx.dispatch(new ResetUserState());
     ctx.setState(defaults);

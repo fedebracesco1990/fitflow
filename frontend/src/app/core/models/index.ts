@@ -12,3 +12,4 @@ export * from './dashboard.model';
 export * from './personal-record.model';
 export * from './stats.model';
 export * from './offline.model';
+export * from './websocket.model';

@@ -23,3 +23,4 @@ export * from './offline-db.service';
 export * from './sync-queue.service';
 export * from './sync-manager.service';
 export * from './offline-workouts.service';
+export * from './websocket.service';

@@ -996,7 +996,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-59] Cliente WebSocket y Sincronización en Tiempo Real
+### [FITFLOW-59] Cliente WebSocket y Sincronización en Tiempo Real ✅
 
 **Tipo:** Frontend
 
@@ -1004,11 +1004,31 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Servicio de WebSocket en Angular
-- [ ] Conexión automática al autenticar
-- [ ] Escucha de eventos del servidor
-- [ ] Actualización de UI reactiva (RxJS)
-- [ ] Reconexión automática si se pierde conexión
+- [x] Servicio de WebSocket en Angular
+- [x] Conexión automática al autenticar
+- [x] Escucha de eventos del servidor
+- [x] Actualización de UI reactiva (RxJS)
+- [x] Reconexión automática si se pierde conexión
+
+**Implementación:**
+
+| Componente       | Ubicación                            | Descripción                                                 |
+| ---------------- | ------------------------------------ | ----------------------------------------------------------- |
+| WebSocketService | `core/services/websocket.service.ts` | Singleton con signals + subjects tipados                    |
+| WebSocket Models | `core/models/websocket.model.ts`     | Tipos de eventos y ConnectionState                          |
+| Auth Integration | `core/store/auth/auth.state.ts`      | Connect en CheckSessionSuccess, disconnect en LogoutSuccess |
+
+**Características:**
+
+- Connection state via Angular Signals: `connectionState`, `isConnected`
+- Event subjects tipados: `routineUpdated$`, `progressLogged$`, `notificationNew$`
+- Integración automática con NotificationsState (dispatch AddNotification)
+- Reconexión automática via Socket.IO (5 intentos, backoff exponencial)
+- JWT auth en handshake (`auth.token`)
+
+**Dependencias:** socket.io-client ^4.x
+
+**Documentación:** `docs/technical/websocket-tiempo-real.md` (sección Cliente Angular)
 
 ---
 

@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
+  wsUrl: 'http://localhost:3000',
   firebase: {
     apiKey: 'AIzaSyDYKyJU2Yz-BmrBLtZsp5GIXJ0a-ux61AI',
     authDomain: 'fitflow-84667.firebaseapp.com',

@@ -37,6 +37,7 @@ core/
 │   ├── page-title.strategy.ts
 │   ├── storage.service.ts
 │   ├── user.service.ts
+│   ├── websocket.service.ts    # WebSocket real-time
 │   └── index.ts
 ├── store/
 │   ├── auth/
