@@ -17,6 +17,7 @@ import {
 } from './dto';
 import { Role } from '../../common/enums/role.enum';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { RealtimeService } from '../websocket/realtime.service';
 
 @Injectable()
 export class RoutinesService {
@@ -26,7 +27,8 @@ export class RoutinesService {
     @InjectRepository(RoutineExercise)
     private readonly routineExerciseRepository: Repository<RoutineExercise>,
     @InjectRepository(Exercise)
-    private readonly exerciseRepository: Repository<Exercise>
+    private readonly exerciseRepository: Repository<Exercise>,
+    private readonly realtimeService: RealtimeService
   ) {}
 
   async create(createDto: CreateRoutineDto, userId: string): Promise<Routine> {
@@ -97,7 +99,11 @@ export class RoutinesService {
     }
 
     Object.assign(routine, updateDto);
-    return await this.routineRepository.save(routine);
+    const savedRoutine = await this.routineRepository.save(routine);
+
+    this.notifyRoutineUpdated(savedRoutine, userId);
+
+    return savedRoutine;
   }
 
   async remove(id: string): Promise<void> {
@@ -205,5 +211,16 @@ export class RoutinesService {
     }
 
     await this.routineExerciseRepository.remove(routineExercise);
+  }
+
+  private notifyRoutineUpdated(routine: Routine, updatedBy: string): void {
+    if (!routine.createdById) return;
+
+    this.realtimeService.notifyRoutineUpdate(routine.createdById, {
+      routineId: routine.id,
+      routineName: routine.name,
+      updatedBy,
+      updatedAt: new Date(),
+    });
   }
 }
