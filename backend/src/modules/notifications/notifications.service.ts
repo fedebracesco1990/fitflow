@@ -107,6 +107,12 @@ export class NotificationsService implements OnModuleInit {
         await admin.messaging().send({
           token,
           notification: { title, body },
+          data: {
+            title,
+            body,
+            type: 'direct',
+            timestamp: Date.now().toString(),
+          },
         });
         sent++;
       } catch (error: unknown) {
@@ -170,6 +176,12 @@ export class NotificationsService implements OnModuleInit {
         await admin.messaging().send({
           token: deviceToken.token,
           notification: { title, body },
+          data: {
+            title,
+            body,
+            type: 'broadcast',
+            timestamp: Date.now().toString(),
+          },
         });
         sent++;
       } catch (error: unknown) {
