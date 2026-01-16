@@ -312,9 +312,31 @@ await fetch('/api/notifications/send', {
 
 ---
 
+## Estructura del Mensaje FCM
+
+Cada notificación enviada incluye tanto `notification` como `data` payload:
+
+```typescript
+{
+  token: "device-fcm-token",
+  notification: { title, body },  // Para notificación del sistema
+  data: {
+    title,                        // Para uso en frontend
+    body,
+    type: "direct" | "broadcast", // Tipo de notificación
+    timestamp: "1705363200000"    // Unix timestamp
+  }
+}
+```
+
+**Importante:** El `data` payload es necesario para que el frontend pueda capturar las notificaciones en foreground vía `onMessage()` de Firebase.
+
+---
+
 ## Notas
 
 - Los tokens inválidos o expirados se eliminan automáticamente al fallar el envío
 - Un usuario puede tener múltiples tokens (multi-dispositivo)
 - Firebase debe estar configurado para que las notificaciones funcionen
 - Si Firebase no está configurado, los endpoints funcionan pero no envían notificaciones reales
+- El `data` payload permite que las notificaciones aparezcan en el UI de la app cuando está en foreground
