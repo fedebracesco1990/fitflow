@@ -32,6 +32,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { PersonalRecordsModule } from './modules/personal-records/personal-records.module';
 import { StatsModule } from './modules/stats/stats.module';
+import { WebSocketModule } from './modules/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -103,6 +104,7 @@ import { StatsModule } from './modules/stats/stats.module';
     SchedulerModule,
     PersonalRecordsModule,
     StatsModule,
+    WebSocketModule,
     SeederModule,
   ],
   controllers: [AppController],

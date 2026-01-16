@@ -22,6 +22,7 @@ import { WorkoutStatus } from '../../common/enums/workout-status.enum';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import { PersonalRecordsService } from '../personal-records/personal-records.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { RealtimeService } from '../websocket/realtime.service';
 
 @Injectable()
 export class WorkoutsService {
@@ -37,7 +38,8 @@ export class WorkoutsService {
     @Inject(forwardRef(() => PersonalRecordsService))
     private readonly personalRecordsService: PersonalRecordsService,
     @Inject(forwardRef(() => NotificationsService))
-    private readonly notificationsService: NotificationsService
+    private readonly notificationsService: NotificationsService,
+    private readonly realtimeService: RealtimeService
   ) {}
 
   async create(dto: CreateWorkoutDto, userId: string): Promise<WorkoutLog> {
@@ -165,7 +167,11 @@ export class WorkoutsService {
     if (duration) {
       workoutLog.duration = duration;
     }
-    return await this.workoutLogRepository.save(workoutLog);
+    const savedWorkout = await this.workoutLogRepository.save(workoutLog);
+
+    this.notifyProgressLogged(workoutLog);
+
+    return savedWorkout;
   }
 
   // Logs de ejercicios
@@ -359,5 +365,18 @@ export class WorkoutsService {
 
       await this.notificationsService.sendToUser(userId, 'Nuevo Récord Personal', message);
     }
+  }
+
+  private notifyProgressLogged(workoutLog: WorkoutLog): void {
+    const trainerId = workoutLog.userRoutine?.routine?.createdById;
+    if (!trainerId) return;
+
+    this.realtimeService.notifyProgressLogged(trainerId, {
+      workoutLogId: workoutLog.id,
+      userId: workoutLog.userRoutine.userId,
+      userName: workoutLog.userRoutine.user?.name || undefined,
+      routineName: workoutLog.userRoutine.routine?.name || 'Rutina',
+      timestamp: new Date(),
+    });
   }
 }

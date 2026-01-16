@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
 import { DeviceToken, NotificationTemplate, NotificationType } from './entities';
 import { RegisterTokenDto, SendNotificationDto, CreateTemplateDto, UpdateTemplateDto } from './dto';
+import { RealtimeService } from '../websocket/realtime.service';
 
 @Injectable()
 export class NotificationsService implements OnModuleInit {
@@ -22,7 +23,8 @@ export class NotificationsService implements OnModuleInit {
     private readonly deviceTokenRepository: Repository<DeviceToken>,
     @InjectRepository(NotificationTemplate)
     private readonly templateRepository: Repository<NotificationTemplate>,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly realtimeService: RealtimeService
   ) {}
 
   onModuleInit() {
@@ -141,6 +143,12 @@ export class NotificationsService implements OnModuleInit {
         await this.handleInvalidToken(token, error);
       }
     }
+
+    this.realtimeService.notifyNewNotification(userId, {
+      title,
+      body,
+      timestamp: new Date(),
+    });
 
     return { success: true, sent };
   }

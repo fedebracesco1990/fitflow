@@ -956,14 +956,14 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Implementación:**
 
-| Componente | Archivo | Propósito |
-|------------|---------|-----------|
-| OfflineDbService | `core/services/offline-db.service.ts` | Wrapper Dexie.js con 6 tablas IndexedDB |
-| SyncQueueService | `core/services/sync-queue.service.ts` | Cola FIFO de operaciones pendientes |
-| SyncManagerService | `core/services/sync-manager.service.ts` | Auto-sync al restaurar conexión |
-| OfflineWorkoutsService | `core/services/offline-workouts.service.ts` | API offline-first para workouts |
-| OfflineBannerComponent | `shared/components/offline-banner/` | Banner "Sin conexión" |
-| SyncStatusComponent | `shared/components/sync-status/` | Indicador de sync en header |
+| Componente             | Archivo                                     | Propósito                               |
+| ---------------------- | ------------------------------------------- | --------------------------------------- |
+| OfflineDbService       | `core/services/offline-db.service.ts`       | Wrapper Dexie.js con 6 tablas IndexedDB |
+| SyncQueueService       | `core/services/sync-queue.service.ts`       | Cola FIFO de operaciones pendientes     |
+| SyncManagerService     | `core/services/sync-manager.service.ts`     | Auto-sync al restaurar conexión         |
+| OfflineWorkoutsService | `core/services/offline-workouts.service.ts` | API offline-first para workouts         |
+| OfflineBannerComponent | `shared/components/offline-banner/`         | Banner "Sin conexión"                   |
+| SyncStatusComponent    | `shared/components/sync-status/`            | Indicador de sync en header             |
 
 **Dependencias:** Dexie.js ^4.x
 
@@ -971,7 +971,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-58] WebSocket Server para Tiempo Real
+### [FITFLOW-58] WebSocket Server para Tiempo Real ✅
 
 **Tipo:** Backend
 
@@ -979,11 +979,20 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Gateway de WebSockets en NestJS
-- [ ] Autenticación de conexiones WS con JWT
-- [ ] Rooms por usuario/trainer
-- [ ] Eventos: routine.updated, progress.logged, notification.new
-- [ ] Manejo de desconexiones
+- [x] Gateway de WebSockets en NestJS
+- [x] Autenticación de conexiones WS con JWT
+- [x] Rooms por usuario/trainer
+- [x] Eventos: routine.updated, progress.logged, notification.new
+- [x] Manejo de desconexiones
+
+**Implementación:**
+
+- `src/modules/websocket/` - Nuevo módulo WebSocket
+- `EventsGateway` con namespace `/events` y CORS configurado
+- `WsJwtGuard` para autenticación JWT en handshake
+- `RealtimeService` con métodos tipados para emisión de eventos
+- Rooms: `user:{userId}`, `trainer:{trainerId}`, `admin`
+- Integración con RoutinesService, WorkoutsService, NotificationsService
 
 ---
 
@@ -1104,7 +1113,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-55 | Historial de Rutinas (FE)                   | ✅ COMPLETO  | Grid de cards, stats, navegación desde Mi Semana                        |
 | FITFLOW-56 | Configuración PWA / Service Workers         | ⬜ PENDIENTE | Manifest, SW caching, offline basics                                    |
 | FITFLOW-57 | Sistema de Sincronización Offline           | ✅ COMPLETO  | Dexie.js, IndexedDB, sync queue, auto-sync, UI indicators               |
-| FITFLOW-58 | WebSocket Server                            | ⬜ PENDIENTE | Gateway NestJS, events, auth                                            |
+| FITFLOW-58 | WebSocket Server                            | ✅ COMPLETO  | Gateway NestJS, events, auth, RealtimeService                           |
 | FITFLOW-59 | Cliente WebSocket y Sincronización Realtime | ⬜ PENDIENTE | RxJS, conexión auto, actualización UI                                   |
 | FITFLOW-60 | Testing Rendimiento y Optimización          | ⬜ PENDIENTE | Lighthouse >90, lazy loading, bundle size                               |
 | FITFLOW-61 | API Dashboard Unificado                     | ⬜ PENDIENTE | KPIs consolidados por rol                                               |
