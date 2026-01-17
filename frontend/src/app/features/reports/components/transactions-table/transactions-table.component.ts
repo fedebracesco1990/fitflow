@@ -1,11 +1,11 @@
 import { Component, Input, signal, computed } from '@angular/core';
-import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { TransactionItem } from '../../models';
 
 @Component({
   selector: 'fit-flow-transactions-table',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, DatePipe],
+  imports: [CommonModule, DatePipe],
   templateUrl: './transactions-table.component.html',
   styleUrl: './transactions-table.component.scss',
 })

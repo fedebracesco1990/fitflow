@@ -1,12 +1,11 @@
 import { Component, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CardComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-month-year-filter',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './month-year-filter.component.html',
   styleUrl: './month-year-filter.component.scss',
 })

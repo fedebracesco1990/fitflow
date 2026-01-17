@@ -1,6 +1,5 @@
 import { Component, Input, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { MemberAnalysis } from '../../models';
 import { BadgeComponent } from '../../../../shared';
 import {
@@ -11,13 +10,7 @@ import {
 @Component({
   selector: 'fit-flow-member-analysis-table',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    BadgeComponent,
-    MembershipStatusBadgePipe,
-    MembershipStatusLabelPipe,
-  ],
+  imports: [CommonModule, BadgeComponent, MembershipStatusBadgePipe, MembershipStatusLabelPipe],
   templateUrl: './member-analysis-table.component.html',
   styleUrl: './member-analysis-table.component.scss',
 })

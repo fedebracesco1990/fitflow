@@ -44,7 +44,7 @@ import { CardComponent, BadgeComponent } from '../../../../shared';
         <div class="stat highlight">
           <lucide-icon name="dumbbell" [size]="18"></lucide-icon>
           <div class="stat-content">
-            <span class="stat-value">{{ item().exerciseLogs?.length || 0 }}</span>
+            <span class="stat-value">{{ item().exerciseLogs.length || 0 }}</span>
             <span class="stat-label">Ejercicios</span>
           </div>
         </div>
