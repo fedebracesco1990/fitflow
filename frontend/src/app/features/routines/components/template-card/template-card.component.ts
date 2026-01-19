@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   Routine,
@@ -13,6 +13,7 @@ import { BadgeComponent, CardComponent } from '../../../../shared';
   selector: 'fit-flow-template-card',
   standalone: true,
   imports: [CommonModule, BadgeComponent, CardComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './template-card.component.html',
   styleUrl: './template-card.component.scss',
 })

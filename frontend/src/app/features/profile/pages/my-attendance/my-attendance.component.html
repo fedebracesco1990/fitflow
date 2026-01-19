@@ -30,8 +30,15 @@
     <section class="calendar-section">
       <fit-flow-card>
         <h2 class="section-title">Calendario de Asistencia</h2>
-        <fit-flow-attendance-calendar [attendanceDates]="attendanceDates()">
-        </fit-flow-attendance-calendar>
+        @defer (on viewport) {
+          <fit-flow-attendance-calendar [attendanceDates]="attendanceDates()">
+          </fit-flow-attendance-calendar>
+        } @placeholder {
+          <div class="calendar-placeholder">
+            <fit-flow-loading-spinner></fit-flow-loading-spinner>
+            <p>Cargando calendario...</p>
+          </div>
+        }
       </fit-flow-card>
     </section>
 

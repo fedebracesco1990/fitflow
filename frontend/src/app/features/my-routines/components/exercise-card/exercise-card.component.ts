@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ExerciseWithHistory } from '../../../../core/models';
 
@@ -6,6 +6,7 @@ import { ExerciseWithHistory } from '../../../../core/models';
   selector: 'fit-flow-exercise-card',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './exercise-card.component.html',
   styleUrl: './exercise-card.component.scss',
 })

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Exercise, Difficulty, DifficultyLabels, EquipmentLabels } from '../../../../core/models';
 import { BadgeComponent } from '../../../../shared';
@@ -7,6 +7,7 @@ import { BadgeComponent } from '../../../../shared';
   selector: 'fit-flow-exercise-card',
   standalone: true,
   imports: [CommonModule, BadgeComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <article
       class="exercise-card"
