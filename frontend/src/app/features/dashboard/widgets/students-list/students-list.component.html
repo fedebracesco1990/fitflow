@@ -1,0 +1,38 @@
+<section class="students-list-section">
+  <h2>{{ title() }}</h2>
+  <fit-flow-card padding="md">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <p>Cargando alumnos...</p>
+      </div>
+    } @else if (students().length === 0) {
+      <div class="empty-state">
+        <lucide-icon name="users" [size]="48"></lucide-icon>
+        <p>No tienes alumnos asignados aún</p>
+      </div>
+    } @else {
+      <ul class="students-list">
+        @for (student of students(); track student.userId) {
+          <li class="student-item">
+            <div class="student-avatar">
+              <lucide-icon name="user" [size]="20"></lucide-icon>
+            </div>
+            <div class="student-info">
+              <span class="student-name">{{ student.userName }}</span>
+              <span class="student-meta">
+                {{ student.rutinasAsignadas }} rutina(s) · {{ formatLastActivity(student.ultimaActividad) }}
+              </span>
+            </div>
+            <div class="student-status">
+              @if (student.tieneRutinaActiva) {
+                <fit-flow-badge variant="success">Activo</fit-flow-badge>
+              } @else {
+                <fit-flow-badge variant="warning">Inactivo</fit-flow-badge>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </fit-flow-card>
+</section>

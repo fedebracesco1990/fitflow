@@ -1,25 +1,29 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { Store } from '@ngxs/store';
-import { RouterLink } from '@angular/router';
 import { AuthState, UserState, LoadProfile } from '../../../../core/store';
-import { DashboardService, NetworkService, UsersService } from '../../../../core/services';
-import { AlertComponent, ButtonComponent, CardComponent } from '../../../../shared';
-import { Role, DashboardStats } from '../../../../core/models';
-import { LucideAngularModule } from 'lucide-angular';
-import { ActivityLiveComponent } from '../../components/activity-live/activity-live.component';
-import { RecentPaymentsComponent } from '../../components/recent-payments/recent-payments.component';
+import { DashboardService, NetworkService } from '../../../../core/services';
+import { AlertComponent, CardComponent } from '../../../../shared';
+import {
+  Role,
+  AdminDashboard,
+  TrainerDashboard,
+  UnifiedDashboard,
+  isAdminDashboard,
+  isTrainerDashboard,
+} from '../../../../core/models';
+import { AdminDashboardComponent } from '../../components/admin-dashboard/admin-dashboard.component';
+import { TrainerDashboardComponent } from '../../components/trainer-dashboard/trainer-dashboard.component';
+import { UserDashboardComponent } from '../../components/user-dashboard/user-dashboard.component';
 
 @Component({
   selector: 'fit-flow-home',
   standalone: true,
   imports: [
     AlertComponent,
-    ButtonComponent,
     CardComponent,
-    RouterLink,
-    LucideAngularModule,
-    ActivityLiveComponent,
-    RecentPaymentsComponent,
+    AdminDashboardComponent,
+    TrainerDashboardComponent,
+    UserDashboardComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -27,24 +31,20 @@ import { RecentPaymentsComponent } from '../../components/recent-payments/recent
 export class HomeComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly dashboardService = inject(DashboardService);
-  private readonly usersService = inject(UsersService);
   readonly network = inject(NetworkService);
 
-  // Dashboard stats
-  readonly dashboardStats = signal<DashboardStats | null>(null);
-  readonly isLoadingStats = signal(false);
-  readonly isExporting = signal(false);
+  readonly isLoading = signal(false);
+  readonly adminData = signal<AdminDashboard | null>(null);
+  readonly trainerData = signal<TrainerDashboard | null>(null);
 
   readonly user = this.store.selectSignal(AuthState.user);
   readonly profile = this.store.selectSignal(UserState.profile);
   readonly userRole = this.store.selectSignal(AuthState.userRole);
 
-  // Role checks
   readonly isAdmin = this.store.selectSignal(AuthState.isAdmin);
   readonly isTrainer = this.store.selectSignal(AuthState.isTrainer);
   readonly isUser = computed(() => this.userRole() === Role.USER);
 
-  // Computed properties for template
   readonly welcomeName = computed(() => this.profile()?.name || this.user()?.email || 'Usuario');
 
   readonly roleLabel = computed(() => {
@@ -62,41 +62,24 @@ export class HomeComponent implements OnInit {
     if (!this.profile()) {
       this.store.dispatch(new LoadProfile());
     }
-    if (this.isAdmin()) {
-      this.loadDashboardStats();
+    if (this.isAdmin() || this.isTrainer()) {
+      this.loadUnifiedDashboard();
     }
   }
 
-  private loadDashboardStats(): void {
-    this.isLoadingStats.set(true);
-    this.dashboardService.getStats().subscribe({
-      next: (data) => {
-        this.dashboardStats.set(data);
-        this.isLoadingStats.set(false);
+  private loadUnifiedDashboard(): void {
+    this.isLoading.set(true);
+    this.dashboardService.getUnifiedDashboard().subscribe({
+      next: (data: UnifiedDashboard) => {
+        if (isAdminDashboard(data)) {
+          this.adminData.set(data);
+        } else if (isTrainerDashboard(data)) {
+          this.trainerData.set(data);
+        }
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoadingStats.set(false);
-      },
-    });
-  }
-
-  exportMembers(): void {
-    this.isExporting.set(true);
-    this.usersService.exportMembers().subscribe({
-      next: (blob) => {
-        // Crear URL del blob y descargar automáticamente
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `miembros-fitflow-${new Date().toISOString().split('T')[0]}.xlsx`;
-        link.click();
-        // Limpiar URL
-        window.URL.revokeObjectURL(url);
-        this.isExporting.set(false);
-      },
-      error: () => {
-        this.isExporting.set(false);
-        // TODO: Mostrar mensaje de error al usuario
+        this.isLoading.set(false);
       },
     });
   }

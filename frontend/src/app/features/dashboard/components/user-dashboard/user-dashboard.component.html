@@ -1,0 +1,97 @@
+<section class="dashboard-section">
+  <h2>💪 Mi Progreso</h2>
+  <div class="stats-grid">
+    <fit-flow-stat-card
+      title="Entrenamientos"
+      [value]="monthlyStats()?.currentMonth?.totalWorkouts ?? 0"
+      label="Este mes"
+      icon="dumbbell"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="Volumen Total"
+      [value]="(monthlyStats()?.currentMonth?.totalVolume ?? 0) + ' kg'"
+      label="Este mes"
+      icon="weight"
+      variant="success"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="Ejercicios"
+      [value]="monthlyStats()?.currentMonth?.uniqueExercises ?? 0"
+      label="Diferentes"
+      icon="list-checks"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="Récords"
+      [value]="monthlyStats()?.currentMonth?.personalRecords ?? 0"
+      label="Este mes"
+      icon="trophy"
+      variant="warning"
+      [isLoading]="isLoading()"
+    />
+  </div>
+</section>
+
+<section class="dashboard-section">
+  <h2>📋 Mi Membresía</h2>
+  <fit-flow-card padding="md" class="membership-card">
+    @if (membershipStatus()) {
+      <div class="membership-info">
+        <div class="membership-status">
+          <span class="status-badge active">Activa</span>
+          <p class="membership-type">{{ membershipStatus()?.membershipType?.name }}</p>
+        </div>
+        <div class="membership-details">
+          <p><strong>Vencimiento:</strong> {{ membershipStatus()?.endDate | date:'dd/MM/yyyy' }}</p>
+          <p>
+            <strong>Días restantes:</strong>
+            @if (daysUntilExpiration() !== null) {
+              <span [class.warning]="daysUntilExpiration()! <= 7">{{ daysUntilExpiration() }} días</span>
+            }
+          </p>
+        </div>
+      </div>
+    } @else {
+      <div class="membership-empty">
+        <lucide-icon name="alert-circle" [size]="32"></lucide-icon>
+        <p>No tienes una membresía activa</p>
+        <small>Contacta a administración para activar tu membresía</small>
+      </div>
+    }
+  </fit-flow-card>
+</section>
+
+<section class="dashboard-section">
+  <h2>🎯 Rutina de Hoy</h2>
+  <fit-flow-card padding="md" class="routine-card">
+    @if (isLoading()) {
+      <div class="routine-loading">
+        <p>Cargando rutina...</p>
+      </div>
+    } @else if (todayRoutine()) {
+      <div class="routine-preview">
+        <div class="routine-header">
+          <h3>{{ todayRoutine()?.routine?.name }}</h3>
+          <span class="exercise-count">{{ todayRoutine()?.exercises?.length ?? 0 }} ejercicios</span>
+        </div>
+        <a routerLink="/my-routines/today" class="start-workout-btn">
+          <lucide-icon name="play" [size]="20"></lucide-icon>
+          Comenzar Entrenamiento
+        </a>
+      </div>
+    } @else {
+      <div class="routine-empty">
+        <lucide-icon name="calendar-x" [size]="32"></lucide-icon>
+        <p>No tienes rutina asignada para hoy</p>
+        <small>Revisa tu semana completa</small>
+        <a routerLink="/my-routines" class="view-week-link">Ver Mi Semana</a>
+      </div>
+    }
+  </fit-flow-card>
+</section>
+
+<section class="dashboard-section">
+  <fit-flow-quick-actions [actions]="quickActions" />
+</section>

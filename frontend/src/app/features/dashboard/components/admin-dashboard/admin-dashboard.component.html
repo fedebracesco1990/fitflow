@@ -1,0 +1,71 @@
+<section class="dashboard-section">
+  <div class="section-header">
+    <h2>📊 Resumen del Gimnasio</h2>
+    <button class="export-btn" (click)="exportMembers()" [disabled]="isExporting()">
+      @if (isExporting()) {
+        Exportando...
+      } @else {
+        Exportar Miembros
+      }
+    </button>
+  </div>
+  <div class="stats-grid">
+    <fit-flow-stat-card
+      title="Miembros Activos"
+      [value]="data().miembrosActivos"
+      label="Con membresía vigente"
+      icon="users"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="Expiran Pronto"
+      [value]="data().expiranPronto"
+      label="Próximos 7 días"
+      icon="clock"
+      variant="warning"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="Morosos"
+      [value]="data().morosos"
+      label="Pagos pendientes"
+      icon="alert-triangle"
+      variant="danger"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="Ingresos del Mes"
+      [value]="'$' + data().ingresosMes"
+      label="Este mes"
+      icon="dollar-sign"
+      variant="success"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="Asistencias Hoy"
+      [value]="data().asistenciasHoy"
+      label="Check-ins"
+      icon="calendar-check"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="Rutinas Activas"
+      [value]="data().rutinasActivas"
+      label="Asignadas"
+      icon="clipboard-check"
+      [isLoading]="isLoading()"
+    />
+  </div>
+</section>
+
+<section class="dashboard-section">
+  <fit-flow-activity-live [limit]="25" [refreshInterval]="30000" />
+</section>
+
+<section class="dashboard-section">
+  <fit-flow-recent-payments />
+</section>
+
+<section class="dashboard-section">
+  <fit-flow-quick-actions [actions]="quickActions" />
+</section>

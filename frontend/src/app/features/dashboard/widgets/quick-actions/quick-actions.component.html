@@ -1,0 +1,13 @@
+<section class="quick-actions-section">
+  <h2>{{ title() }}</h2>
+  <div class="actions-grid">
+    @for (action of actions(); track action.route) {
+      <a [routerLink]="action.route">
+        <fit-flow-button [variant]="action.variant ?? 'secondary'" [fullWidth]="true">
+          <lucide-icon [name]="action.icon" [size]="20"></lucide-icon>
+          <span>{{ action.label }}</span>
+        </fit-flow-button>
+      </a>
+    }
+  </div>
+</section>

@@ -1103,15 +1103,38 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Tipo:** Frontend
 
+**Estado:** ✅ COMPLETO
+
 **Descripción:** Como usuario, quiero ver un dashboard personalizado según mi rol al ingresar
 
 **Criterios de Aceptación:**
 
-- [ ] Dashboard Admin: métricas financieras, asistencias, alertas
-- [ ] Dashboard Entrenador: mis alumnos, rutinas, próximas sesiones
-- [ ] Dashboard Socio: mi rutina, mi progreso, próximo pago
-- [ ] Widgets interactivos y navegables
-- [ ] Diseño responsive y moderno
+- [x] Dashboard Admin: métricas financieras, asistencias, alertas
+- [x] Dashboard Entrenador: mis alumnos, rutinas, próximas sesiones
+- [x] Dashboard Socio: mi rutina, mi progreso, próximo pago
+- [x] Widgets interactivos y navegables
+- [x] Diseño responsive y moderno
+
+**Implementación:**
+
+| Componente | Ubicación | Descripción |
+| ---------- | --------- | ----------- |
+| AdminDashboardComponent | `dashboard/components/admin-dashboard/` | KPIs financieros + ActivityLive + RecentPayments |
+| TrainerDashboardComponent | `dashboard/components/trainer-dashboard/` | KPIs alumnos + students-list widget |
+| UserDashboardComponent | `dashboard/components/user-dashboard/` | Stats + membresía + rutina del día |
+| StatCardWidget | `dashboard/widgets/stat-card/` | Card KPI con variantes (success/warning/danger) |
+| QuickActionsWidget | `dashboard/widgets/quick-actions/` | Acciones rápidas por rol |
+| StudentsListWidget | `dashboard/widgets/students-list/` | Lista de alumnos del trainer |
+
+**Características:**
+
+- Arquitectura widget-based con componentes modulares reutilizables
+- HomeComponent simplificado como orquestador (307→37 líneas HTML)
+- Admin/Trainer: Datos desde `GET /dashboard` (FITFLOW-61 API)
+- User: Composición via forkJoin de StatsService + UserRoutinesService
+- Interfaces tipadas: `AdminDashboard`, `TrainerDashboard`, `UnifiedDashboard`
+
+**Documentación:** `docs/technical/dashboard-por-rol.md`
 
 ---
 
@@ -1170,8 +1193,8 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-58 | WebSocket Server                            | ✅ COMPLETO  | Gateway NestJS, events, auth, RealtimeService                           |
 | FITFLOW-59 | Cliente WebSocket y Sincronización Realtime | ⬜ PENDIENTE | RxJS, conexión auto, actualización UI                                   |
 | FITFLOW-60 | Testing Rendimiento y Optimización          | ✅ COMPLETO  | PreloadAllModules, OnPush, @defer, Lighthouse CI, Artillery             |
-| FITFLOW-61 | API Dashboard Unificado                     | ⬜ PENDIENTE | KPIs consolidados por rol                                               |
-| FITFLOW-62 | Dashboard Principal por Rol                 | ⬜ PENDIENTE | Widgets interactivos, personalización                                   |
+| FITFLOW-61 | API Dashboard Unificado                     | ✅ COMPLETO  | GET /dashboard polimórfico, Admin + Trainer DTOs                        |
+| FITFLOW-62 | Dashboard Principal por Rol                 | ✅ COMPLETO  | Widget-based architecture, 3 dashboards por rol                         |
 
 ---
 

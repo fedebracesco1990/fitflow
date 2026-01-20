@@ -1,0 +1,168 @@
+.dashboard-section {
+  margin-bottom: 2rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.membership-card {
+  .membership-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .membership-status {
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      border-radius: 9999px;
+
+      &.active {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+      }
+    }
+
+    .membership-type {
+      margin-top: 0.5rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  }
+
+  .membership-details {
+    p {
+      margin: 0.25rem 0;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+
+      .warning {
+        color: #eab308;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .membership-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    color: var(--text-muted);
+
+    lucide-icon {
+      margin-bottom: 0.5rem;
+      opacity: 0.5;
+    }
+
+    p {
+      margin: 0;
+      font-weight: 500;
+    }
+
+    small {
+      margin-top: 0.25rem;
+    }
+  }
+}
+
+.routine-card {
+  .routine-loading {
+    text-align: center;
+    padding: 1rem;
+    color: var(--text-muted);
+  }
+
+  .routine-preview {
+    .routine-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+
+      h3 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .exercise-count {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+    }
+
+    .start-workout-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: white;
+      background: var(--primary);
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: var(--primary-dark);
+      }
+    }
+  }
+
+  .routine-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    color: var(--text-muted);
+
+    lucide-icon {
+      margin-bottom: 0.5rem;
+      opacity: 0.5;
+    }
+
+    p {
+      margin: 0;
+      font-weight: 500;
+    }
+
+    small {
+      margin-top: 0.25rem;
+    }
+
+    .view-week-link {
+      margin-top: 1rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

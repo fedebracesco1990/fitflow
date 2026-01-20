@@ -1,0 +1,18 @@
+<fit-flow-card padding="md" class="stat-card">
+  <div class="stat-icon" [class]="variant()">
+    @if (icon()) {
+      <lucide-icon [name]="icon()" [size]="28"></lucide-icon>
+    }
+  </div>
+  <div class="stat-content">
+    <h3>{{ title() }}</h3>
+    @if (isLoading()) {
+      <p class="stat-value">--</p>
+    } @else {
+      <p class="stat-value">{{ value() }}</p>
+    }
+    @if (label()) {
+      <span class="stat-label">{{ label() }}</span>
+    }
+  </div>
+</fit-flow-card>

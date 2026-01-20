@@ -1,0 +1,50 @@
+<section class="dashboard-section">
+  <h2>🏋️ Panel de Entrenador</h2>
+  <div class="stats-grid">
+    <fit-flow-stat-card
+      title="Total Alumnos"
+      [value]="data().totalAlumnos"
+      label="Asignados"
+      icon="users"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="Alumnos Activos"
+      [value]="data().alumnosActivos"
+      label="Con rutina activa"
+      icon="user-check"
+      variant="success"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="Mis Rutinas"
+      [value]="data().rutinasActivasCreadas"
+      label="Activas"
+      icon="clipboard-list"
+      [isLoading]="isLoading()"
+    />
+    <fit-flow-stat-card
+      title="PRs del Mes"
+      [value]="data().prsAlumnosMes"
+      label="De mis alumnos"
+      icon="trophy"
+      variant="warning"
+      [isLoading]="isLoading()"
+    />
+  </div>
+</section>
+
+<section class="dashboard-section">
+  <fit-flow-students-list
+    [students]="data().alumnosRecientes"
+    [isLoading]="isLoading()"
+  />
+</section>
+
+<section class="dashboard-section">
+  <fit-flow-activity-live [limit]="15" [refreshInterval]="30000" />
+</section>
+
+<section class="dashboard-section">
+  <fit-flow-quick-actions [actions]="quickActions" />
+</section>
