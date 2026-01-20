@@ -1067,15 +1067,35 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Tipo:** Backend
 
+**Estado:** ✅ COMPLETO
+
 **Descripción:** Como desarrollador backend, necesito consolidar todas las métricas en un dashboard unificado
 
 **Criterios de Aceptación:**
 
-- [ ] GET /api/dashboard (datos según rol)
-- [ ] KPIs financieros: ingresos, morosos, proyección
-- [ ] KPIs operativos: asistencias del día, usuarios activos
-- [ ] KPIs de entrenamientos: rutinas activas, PRs del mes
-- [ ] Datos para gráficos de distribución y tendencias
+- [x] GET /api/dashboard (datos según rol)
+- [x] KPIs financieros: ingresos, morosos, proyección
+- [x] KPIs operativos: asistencias del día, usuarios activos
+- [x] KPIs de entrenamientos: rutinas activas, PRs del mes
+- [x] Datos para gráficos de distribución y tendencias
+
+**Implementación:**
+
+| Componente | Ubicación | Descripción |
+| ---------- | --------- | ----------- |
+| UnifiedDashboardDto | `dashboard/dto/unified-dashboard.dto.ts` | Union type Admin \| Trainer |
+| AdminDashboardDto | `dashboard/dto/admin-dashboard.dto.ts` | KPIs financieros + operativos + gráficos |
+| TrainerDashboardDto | `dashboard/dto/trainer-dashboard.dto.ts` | KPIs de alumnos y entrenamientos |
+| getUnifiedDashboard() | `dashboard/dashboard.service.ts` | Dispatcher por rol |
+| GET /dashboard | `dashboard/dashboard.controller.ts` | Endpoint con @Roles(ADMIN, TRAINER) |
+
+**Características:**
+
+- Endpoint polimórfico que retorna datos según rol del usuario autenticado
+- Admin: ingresosMes, ingresosHoy, morosos, proyeccionMes, asistenciasHoy, miembrosActivos, expiranPronto, rutinasActivas, prsDelMes, gráficos
+- Trainer: totalAlumnos, alumnosActivos, rutinasActivasCreadas, prsAlumnosMes, alumnosRecientes
+
+**Documentación:** `docs/technical/unified-dashboard-api.md`
 
 ---
 

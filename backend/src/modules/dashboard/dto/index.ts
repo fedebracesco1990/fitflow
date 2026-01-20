@@ -8,3 +8,7 @@ export * from './financial-report-filters.dto';
 export * from './behavior-report.dto';
 export * from './behavior-report-filters.dto';
 export * from './dashboard-stats.dto';
+export * from './admin-dashboard.dto';
+export * from './trainer-dashboard.dto';
+export * from './trainer-student-summary.dto';
+export * from './unified-dashboard.dto';

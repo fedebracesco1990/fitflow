@@ -4,10 +4,9 @@ import { Repository } from 'typeorm';
 import { Payment } from '../payments/entities/payment.entity';
 import { Membership, MembershipStatus } from '../memberships/entities/membership.entity';
 import { UserRoutine } from '../user-routines/entities/user-routine.entity';
-
-interface RawRevenueResult {
-  total: string;
-}
+import { Routine } from '../routines/entities/routine.entity';
+import { PersonalRecord } from '../personal-records/entities/personal-record.entity';
+import { Role } from '../../common/enums/role.enum';
 
 interface RawPaymentMethodResult {
   method: string;
@@ -35,6 +34,10 @@ import {
   TransactionItemDto,
   BehaviorReportDto,
   MemberAnalysisDto,
+  AdminDashboardDto,
+  TrainerDashboardDto,
+  TrainerStudentSummaryDto,
+  UnifiedDashboardDto,
 } from './dto';
 import * as ExcelJS from 'exceljs';
 import { AccessLog } from '../access/entities/access-log.entity';
@@ -66,7 +69,11 @@ export class DashboardService {
     @InjectRepository(UserRoutine)
     private readonly userRoutineRepository: Repository<UserRoutine>,
     @InjectRepository(AccessLog)
-    private readonly accessLogRepository: Repository<AccessLog>
+    private readonly accessLogRepository: Repository<AccessLog>,
+    @InjectRepository(Routine)
+    private readonly routineRepository: Repository<Routine>,
+    @InjectRepository(PersonalRecord)
+    private readonly personalRecordRepository: Repository<PersonalRecord>
   ) {}
 
   async getFinancialDashboard(): Promise<FinancialDashboardDto> {
@@ -633,5 +640,211 @@ export class DashboardService {
       .leftJoinAndSelect('membership.user', 'user')
       .where('membership.status = :status', { status })
       .getMany();
+  }
+
+  async getUnifiedDashboard(userId: string, role: Role): Promise<UnifiedDashboardDto> {
+    if (role === Role.ADMIN) {
+      return this.getAdminDashboard();
+    }
+    return this.getTrainerDashboard(userId);
+  }
+
+  async getAdminDashboard(): Promise<AdminDashboardDto> {
+    const today = new Date();
+    const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    const [
+      ingresosMes,
+      ingresosHoy,
+      debtors,
+      miembrosActivos,
+      expiringMemberships,
+      rutinasActivas,
+      prsDelMes,
+      asistenciasHoy,
+      ingresosMensuales,
+      distribucionMetodosPago,
+    ] = await Promise.all([
+      this.getCurrentMonthRevenue(currentMonthStart, currentMonthEnd),
+      this.getTodayRevenue(today),
+      this.getDebtors(today),
+      this.getTotalActiveMembers(),
+      this.getExpiringMemberships(today),
+      this.getActiveRoutinesCount(),
+      this.getPRsThisMonth(currentMonthStart, currentMonthEnd),
+      this.getTodayAttendance(today),
+      this.getMonthlyRevenue(6),
+      this.getPaymentMethodDistribution(currentMonthStart, currentMonthEnd),
+    ]);
+
+    const daysInMonth = currentMonthEnd.getDate();
+    const currentDay = today.getDate();
+    const proyeccionMes = currentDay > 0 ? Math.round((ingresosMes / currentDay) * daysInMonth) : 0;
+
+    return {
+      role: 'admin',
+      ingresosMes,
+      ingresosHoy,
+      morosos: debtors.length,
+      proyeccionMes,
+      asistenciasHoy,
+      miembrosActivos,
+      expiranPronto: expiringMemberships.length,
+      rutinasActivas,
+      prsDelMes,
+      ingresosMensuales,
+      distribucionMetodosPago,
+    };
+  }
+
+  async getTrainerDashboard(trainerId: string): Promise<TrainerDashboardDto> {
+    const today = new Date();
+    const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    const [trainerStudents, rutinasActivasCreadas, prsAlumnosMes] = await Promise.all([
+      this.getTrainerStudents(trainerId),
+      this.getTrainerActiveRoutinesCount(trainerId),
+      this.getTrainerStudentsPRsThisMonth(trainerId, currentMonthStart, currentMonthEnd),
+    ]);
+
+    const alumnosActivos = trainerStudents.filter((s) => s.tieneRutinaActiva).length;
+
+    return {
+      role: 'trainer',
+      totalAlumnos: trainerStudents.length,
+      alumnosActivos,
+      rutinasActivasCreadas,
+      prsAlumnosMes,
+      alumnosRecientes: trainerStudents.slice(0, 10),
+    };
+  }
+
+  private async getPRsThisMonth(startDate: Date, endDate: Date): Promise<number> {
+    const count = await this.personalRecordRepository
+      .createQueryBuilder('pr')
+      .where(
+        '(pr.maxWeightAchievedAt BETWEEN :start AND :end OR pr.maxVolumeAchievedAt BETWEEN :start AND :end)',
+        { start: startDate, end: endDate }
+      )
+      .getCount();
+    return count;
+  }
+
+  private async getTodayAttendance(today: Date): Promise<number> {
+    const todayStr = today.toISOString().split('T')[0];
+    const count = await this.accessLogRepository
+      .createQueryBuilder('log')
+      .where('DATE(log.createdAt) = :today', { today: todayStr })
+      .andWhere('log.granted = :granted', { granted: true })
+      .getCount();
+    return count;
+  }
+
+  private async getTrainerStudents(trainerId: string): Promise<TrainerStudentSummaryDto[]> {
+    const routinesCreatedByTrainer = await this.routineRepository
+      .createQueryBuilder('routine')
+      .select('routine.id')
+      .where('routine.createdById = :trainerId', { trainerId })
+      .getMany();
+
+    if (routinesCreatedByTrainer.length === 0) {
+      return [];
+    }
+
+    const routineIds = routinesCreatedByTrainer.map((r) => r.id);
+
+    const userRoutines = await this.userRoutineRepository
+      .createQueryBuilder('ur')
+      .leftJoinAndSelect('ur.user', 'user')
+      .leftJoinAndSelect('ur.routine', 'routine')
+      .where('ur.routineId IN (:...routineIds)', { routineIds })
+      .orderBy('ur.createdAt', 'DESC')
+      .getMany();
+
+    const studentMap = new Map<string, TrainerStudentSummaryDto>();
+
+    for (const ur of userRoutines) {
+      const userId = ur.userId;
+      if (!studentMap.has(userId)) {
+        studentMap.set(userId, {
+          userId,
+          userName: ur.user.name,
+          userEmail: ur.user.email,
+          rutinasAsignadas: 0,
+          ultimaActividad: null,
+          tieneRutinaActiva: false,
+        });
+      }
+
+      const student = studentMap.get(userId)!;
+      student.rutinasAsignadas++;
+
+      if (ur.isActive) {
+        student.tieneRutinaActiva = true;
+      }
+
+      if (!student.ultimaActividad || ur.createdAt > student.ultimaActividad) {
+        student.ultimaActividad = ur.createdAt;
+      }
+    }
+
+    return Array.from(studentMap.values()).sort((a, b) => {
+      if (!a.ultimaActividad) return 1;
+      if (!b.ultimaActividad) return -1;
+      return b.ultimaActividad.getTime() - a.ultimaActividad.getTime();
+    });
+  }
+
+  private async getTrainerActiveRoutinesCount(trainerId: string): Promise<number> {
+    const count = await this.routineRepository
+      .createQueryBuilder('routine')
+      .where('routine.createdById = :trainerId', { trainerId })
+      .andWhere('routine.isActive = :isActive', { isActive: true })
+      .andWhere('routine.isTemplate = :isTemplate', { isTemplate: false })
+      .getCount();
+    return count;
+  }
+
+  private async getTrainerStudentsPRsThisMonth(
+    trainerId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<number> {
+    const routinesCreatedByTrainer = await this.routineRepository
+      .createQueryBuilder('routine')
+      .select('routine.id')
+      .where('routine.createdById = :trainerId', { trainerId })
+      .getMany();
+
+    if (routinesCreatedByTrainer.length === 0) {
+      return 0;
+    }
+
+    const routineIds = routinesCreatedByTrainer.map((r) => r.id);
+
+    const userRoutines = await this.userRoutineRepository
+      .createQueryBuilder('ur')
+      .select('DISTINCT ur.userId', 'userId')
+      .where('ur.routineId IN (:...routineIds)', { routineIds })
+      .getRawMany<{ userId: string }>();
+
+    if (userRoutines.length === 0) {
+      return 0;
+    }
+
+    const userIds = userRoutines.map((ur) => ur.userId);
+
+    const count = await this.personalRecordRepository
+      .createQueryBuilder('pr')
+      .where('pr.userId IN (:...userIds)', { userIds })
+      .andWhere(
+        '(pr.maxWeightAchievedAt BETWEEN :start AND :end OR pr.maxVolumeAchievedAt BETWEEN :start AND :end)',
+        { start: startDate, end: endDate }
+      )
+      .getCount();
+
+    return count;
   }
 }
