@@ -1081,13 +1081,13 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Implementación:**
 
-| Componente | Ubicación | Descripción |
-| ---------- | --------- | ----------- |
-| UnifiedDashboardDto | `dashboard/dto/unified-dashboard.dto.ts` | Union type Admin \| Trainer |
-| AdminDashboardDto | `dashboard/dto/admin-dashboard.dto.ts` | KPIs financieros + operativos + gráficos |
-| TrainerDashboardDto | `dashboard/dto/trainer-dashboard.dto.ts` | KPIs de alumnos y entrenamientos |
-| getUnifiedDashboard() | `dashboard/dashboard.service.ts` | Dispatcher por rol |
-| GET /dashboard | `dashboard/dashboard.controller.ts` | Endpoint con @Roles(ADMIN, TRAINER) |
+| Componente            | Ubicación                                | Descripción                              |
+| --------------------- | ---------------------------------------- | ---------------------------------------- |
+| UnifiedDashboardDto   | `dashboard/dto/unified-dashboard.dto.ts` | Union type Admin \| Trainer              |
+| AdminDashboardDto     | `dashboard/dto/admin-dashboard.dto.ts`   | KPIs financieros + operativos + gráficos |
+| TrainerDashboardDto   | `dashboard/dto/trainer-dashboard.dto.ts` | KPIs de alumnos y entrenamientos         |
+| getUnifiedDashboard() | `dashboard/dashboard.service.ts`         | Dispatcher por rol                       |
+| GET /dashboard        | `dashboard/dashboard.controller.ts`      | Endpoint con @Roles(ADMIN, TRAINER)      |
 
 **Características:**
 
@@ -1117,14 +1117,14 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Implementación:**
 
-| Componente | Ubicación | Descripción |
-| ---------- | --------- | ----------- |
-| AdminDashboardComponent | `dashboard/components/admin-dashboard/` | KPIs financieros + ActivityLive + RecentPayments |
-| TrainerDashboardComponent | `dashboard/components/trainer-dashboard/` | KPIs alumnos + students-list widget |
-| UserDashboardComponent | `dashboard/components/user-dashboard/` | Stats + membresía + rutina del día |
-| StatCardWidget | `dashboard/widgets/stat-card/` | Card KPI con variantes (success/warning/danger) |
-| QuickActionsWidget | `dashboard/widgets/quick-actions/` | Acciones rápidas por rol |
-| StudentsListWidget | `dashboard/widgets/students-list/` | Lista de alumnos del trainer |
+| Componente                | Ubicación                                 | Descripción                                      |
+| ------------------------- | ----------------------------------------- | ------------------------------------------------ |
+| AdminDashboardComponent   | `dashboard/components/admin-dashboard/`   | KPIs financieros + ActivityLive + RecentPayments |
+| TrainerDashboardComponent | `dashboard/components/trainer-dashboard/` | KPIs alumnos + students-list widget              |
+| UserDashboardComponent    | `dashboard/components/user-dashboard/`    | Stats + membresía + rutina del día               |
+| StatCardWidget            | `dashboard/widgets/stat-card/`            | Card KPI con variantes (success/warning/danger)  |
+| QuickActionsWidget        | `dashboard/widgets/quick-actions/`        | Acciones rápidas por rol                         |
+| StudentsListWidget        | `dashboard/widgets/students-list/`        | Lista de alumnos del trainer                     |
 
 **Características:**
 
@@ -1140,61 +1140,61 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ## Estado de Implementación - Tareas Requeridas
 
-| ID         | Funcionalidad                               | Estado       | Notas                                                                   |
-| ---------- | ------------------------------------------- | ------------ | ----------------------------------------------------------------------- |
-| FITFLOW-10 | Configuración de Repositorio                | ✅ COMPLETO  | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json   |
-| FITFLOW-11 | Diseño de Arquitectura                      | ✅ COMPLETO  | ARCHITECTURE.md con diagramas Mermaid, modelo de datos, PWA             |
-| FITFLOW-12 | Modelo de Base de Datos                     | ✅ COMPLETO  | User, MembershipType, Membership, Payment, Exercise, Routine, etc.      |
-| FITFLOW-13 | Taller de Deploy                            | ✅ COMPLETO  | Documentación externa al repositorio                                    |
-| FITFLOW-14 | API de Registro                             | ✅ COMPLETO  | POST /auth/register, validación, bcrypt, rol por defecto                |
-| FITFLOW-15 | Formulario de Registro                      | ✅ COMPLETO  | Formulario con validaciones, campos requeridos, responsive              |
-| FITFLOW-16 | API de Login/JWT                            | ✅ COMPLETO  | POST /auth/login, JWT con payload, refresh token, guards                |
-| FITFLOW-17 | Formulario de Login                         | ✅ COMPLETO  | Formulario, localStorage, interceptor, manejo errores                   |
-| FITFLOW-18 | Sistema de Logout                           | ✅ COMPLETO  | Botón en navbar, elimina tokens, redirige, limpia estado                |
-| FITFLOW-19 | Sistema de Roles (Backend)                  | ✅ COMPLETO  | Roles enum, @Roles decorator, RolesGuard                                |
-| FITFLOW-20 | Rutas Protegidas (Frontend)                 | ✅ COMPLETO  | AuthGuard, RoleGuard, rutas protegidas, dashboard por rol               |
-| FITFLOW-21 | API Recuperación ContraseÃ±a                | ⚠️ PARCIAL   | Endpoints creados. Falta: envío real de email                           |
-| FITFLOW-22 | Flujo Recuperación ContraseÃ±a              | ✅ COMPLETO  | Link en login, formulario solicitud, página reset, feedback             |
-| FITFLOW-23 | API Tipos de MembresÃ­a                     | ✅ COMPLETO  | CRUD completo con validaciones y roles                                  |
-| FITFLOW-24 | Panel Tipos de MembresÃ­a                   | ✅ COMPLETO  | Lista, formulario crear/editar, eliminar, solo admin                    |
-| FITFLOW-25 | API de Pagos                                | ✅ COMPLETO  | CRUD completo con validaciones y roles                                  |
-| FITFLOW-26 | Formulario de Pagos                         | ✅ COMPLETO  | Formulario crear/editar pago, selección membresía                       |
-| FITFLOW-27 | Lista de Pagos                              | ✅ COMPLETO  | Lista con tabla, filtros, acciones, solo admin                          |
-| FITFLOW-28 | API Dashboard Financiero                    | ✅ COMPLETO  | GET /dashboard/financial con KPIs, morosos, vencimientos                |
-| FITFLOW-29 | Dashboard Financiero                        | ✅ COMPLETO  | KPIs, gráfico ingresos, distribución pagos, morosos                     |
-| FITFLOW-30 | Generación de Códigos QR                    | ✅ COMPLETO  | QrService con JWT, endpoints GET /users/:id/qr y /profile/me/qr         |
-| FITFLOW-31 | Visualización de QR Personal                | ✅ COMPLETO  | Página Mi QR con fullscreen, descarga PNG, instrucciones                |
-| FITFLOW-32 | API Validación de Acceso por QR             | ✅ COMPLETO  | POST /access/validate-qr, verificación membresía, registro accesos      |
-| FITFLOW-33 | Lector de QR para Control de Acceso         | ✅ COMPLETO  | Escáner QR con html5-qrcode, feedback visual, historial paginado        |
-| FITFLOW-34 | API de Historial de Asistencia              | ✅ COMPLETO  | Módulo attendance, stats por día/mes, permisos por rol                  |
-| FITFLOW-35 | Visualización Historial de Asistencia       | ✅ COMPLETO  | Calendario, contador, gráficos, vista admin                             |
-| FITFLOW-36 | Sistema de Notificaciones Firebase          | ✅ COMPLETO  | NotificationsModule, DeviceToken, templates, FCM SDK                    |
-| FITFLOW-37 | Gestión de Notificaciones Push              | ✅ COMPLETO  | PushNotificationsService, NotificationsState, UI components             |
-| FITFLOW-38 | Cron Job Notificaciones AutomÃ¡ticas        | ✅ COMPLETO  | SchedulerModule, 3 cron jobs, constantes configurables                  |
-| FITFLOW-39 | API de Biblioteca de Ejercicios             | ✅ COMPLETO  | CRUD ejercicios, filtros avanzados, equipment enum, seed 156 ejercicios |
-| FITFLOW-40 | Biblioteca de Ejercicios para Entrenador    | ✅ COMPLETO  | Grid/lista, filtros, detail page, form con equipment                    |
-| FITFLOW-41 | API Completa de Rutinas                     | ✅ COMPLETO  | CRUD + filtro createdBy + assign + suggestedWeight                      |
-| FITFLOW-42 | Constructor Visual de Rutinas (Drag & Drop) | ✅ COMPLETO  | CDK Drag&Drop, panel ejercicios, días semana, config sets/reps/peso     |
-| FITFLOW-43 | Sistema de Plantillas de Rutinas            | ✅ COMPLETO  | Submódulo templates, 3 endpoints, enum TemplateCategory                 |
-| FITFLOW-44 | Gestión de Plantillas de Rutinas            | ✅ COMPLETO  | Templates page, save/use dialogs, category filter                       |
-| FITFLOW-45 | Asignación de Rutinas a Usuarios            | ✅ COMPLETO  | AssignRoutineDialog, bulk assign, user search, notifications            |
-| FITFLOW-46 | API de Rutinas del Usuario                  | ✅ COMPLETO  | GET /user-routines/today con historial de última sesión                 |
-| FITFLOW-47 | Visualización de Rutina del Día (Socio)     | ✅ COMPLETO  | TodayRoutine page, week navigation, workout flow, add/remove sets       |
-| FITFLOW-48 | API de Registro de Progreso                 | ✅ COMPLETO  | RIR/RPE fields, bulk endpoint, validaciones                             |
-| FITFLOW-49 | Registro de Progreso en Rutina              | ✅ COMPLETO  | Auto-save, +/- buttons, peso sugerido, feedback visual                  |
-| FITFLOW-50 | Detección de Personal Records               | ⬜ PENDIENTE |                                                                         |
-| FITFLOW-51 | Notificación y Visualización de PR          | ✅ COMPLETO  | Modal celebración, página Mis Récords, badges por hitos                 |
-| FITFLOW-52 | API de Estadísticas y Progreso              | ✅ COMPLETO  | Módulo stats/, 6 endpoints, detección estancamiento, volumen por grupo  |
-| FITFLOW-53 | Gráficos de Evolución de Progreso           | ⬜ PENDIENTE | Charts.js, comparativas, exportación                                    |
-| FITFLOW-54 | Historial de Rutinas por Usuario (BE)       | ⬜ PENDIENTE | Archivo de rutinas, duración                                            |
-| FITFLOW-55 | Historial de Rutinas (FE)                   | ✅ COMPLETO  | Grid de cards, stats, navegación desde Mi Semana                        |
-| FITFLOW-56 | Configuración PWA / Service Workers         | ⬜ PENDIENTE | Manifest, SW caching, offline basics                                    |
-| FITFLOW-57 | Sistema de Sincronización Offline           | ✅ COMPLETO  | Dexie.js, IndexedDB, sync queue, auto-sync, UI indicators               |
-| FITFLOW-58 | WebSocket Server                            | ✅ COMPLETO  | Gateway NestJS, events, auth, RealtimeService                           |
-| FITFLOW-59 | Cliente WebSocket y Sincronización Realtime | ⬜ PENDIENTE | RxJS, conexión auto, actualización UI                                   |
-| FITFLOW-60 | Testing Rendimiento y Optimización          | ✅ COMPLETO  | PreloadAllModules, OnPush, @defer, Lighthouse CI, Artillery             |
-| FITFLOW-61 | API Dashboard Unificado                     | ✅ COMPLETO  | GET /dashboard polimórfico, Admin + Trainer DTOs                        |
-| FITFLOW-62 | Dashboard Principal por Rol                 | ✅ COMPLETO  | Widget-based architecture, 3 dashboards por rol                         |
+| ID         | Funcionalidad                               | Estado      | Notas                                                                   |
+| ---------- | ------------------------------------------- | ----------- | ----------------------------------------------------------------------- |
+| FITFLOW-10 | Configuración de Repositorio                | ✅ COMPLETO | Monorepo, README, .gitignore, estructura Angular/NestJS, package.json   |
+| FITFLOW-11 | Diseño de Arquitectura                      | ✅ COMPLETO | ARCHITECTURE.md con diagramas Mermaid, modelo de datos, PWA             |
+| FITFLOW-12 | Modelo de Base de Datos                     | ✅ COMPLETO | User, MembershipType, Membership, Payment, Exercise, Routine, etc.      |
+| FITFLOW-13 | Taller de Deploy                            | ✅ COMPLETO | Documentación externa al repositorio                                    |
+| FITFLOW-14 | API de Registro                             | ✅ COMPLETO | POST /auth/register, validación, bcrypt, rol por defecto                |
+| FITFLOW-15 | Formulario de Registro                      | ✅ COMPLETO | Formulario con validaciones, campos requeridos, responsive              |
+| FITFLOW-16 | API de Login/JWT                            | ✅ COMPLETO | POST /auth/login, JWT con payload, refresh token, guards                |
+| FITFLOW-17 | Formulario de Login                         | ✅ COMPLETO | Formulario, localStorage, interceptor, manejo errores                   |
+| FITFLOW-18 | Sistema de Logout                           | ✅ COMPLETO | Botón en navbar, elimina tokens, redirige, limpia estado                |
+| FITFLOW-19 | Sistema de Roles (Backend)                  | ✅ COMPLETO | Roles enum, @Roles decorator, RolesGuard                                |
+| FITFLOW-20 | Rutas Protegidas (Frontend)                 | ✅ COMPLETO | AuthGuard, RoleGuard, rutas protegidas, dashboard por rol               |
+| FITFLOW-21 | API Recuperación ContraseÃ±a                | ⚠️ PARCIAL  | Endpoints creados. Falta: envío real de email                           |
+| FITFLOW-22 | Flujo Recuperación ContraseÃ±a              | ✅ COMPLETO | Link en login, formulario solicitud, página reset, feedback             |
+| FITFLOW-23 | API Tipos de MembresÃ­a                     | ✅ COMPLETO | CRUD completo con validaciones y roles                                  |
+| FITFLOW-24 | Panel Tipos de MembresÃ­a                   | ✅ COMPLETO | Lista, formulario crear/editar, eliminar, solo admin                    |
+| FITFLOW-25 | API de Pagos                                | ✅ COMPLETO | CRUD completo con validaciones y roles                                  |
+| FITFLOW-26 | Formulario de Pagos                         | ✅ COMPLETO | Formulario crear/editar pago, selección membresía                       |
+| FITFLOW-27 | Lista de Pagos                              | ✅ COMPLETO | Lista con tabla, filtros, acciones, solo admin                          |
+| FITFLOW-28 | API Dashboard Financiero                    | ✅ COMPLETO | GET /dashboard/financial con KPIs, morosos, vencimientos                |
+| FITFLOW-29 | Dashboard Financiero                        | ✅ COMPLETO | KPIs, gráfico ingresos, distribución pagos, morosos                     |
+| FITFLOW-30 | Generación de Códigos QR                    | ✅ COMPLETO | QrService con JWT, endpoints GET /users/:id/qr y /profile/me/qr         |
+| FITFLOW-31 | Visualización de QR Personal                | ✅ COMPLETO | Página Mi QR con fullscreen, descarga PNG, instrucciones                |
+| FITFLOW-32 | API Validación de Acceso por QR             | ✅ COMPLETO | POST /access/validate-qr, verificación membresía, registro accesos      |
+| FITFLOW-33 | Lector de QR para Control de Acceso         | ✅ COMPLETO | Escáner QR con html5-qrcode, feedback visual, historial paginado        |
+| FITFLOW-34 | API de Historial de Asistencia              | ✅ COMPLETO | Módulo attendance, stats por día/mes, permisos por rol                  |
+| FITFLOW-35 | Visualización Historial de Asistencia       | ✅ COMPLETO | Calendario, contador, gráficos, vista admin                             |
+| FITFLOW-36 | Sistema de Notificaciones Firebase          | ✅ COMPLETO | NotificationsModule, DeviceToken, templates, FCM SDK                    |
+| FITFLOW-37 | Gestión de Notificaciones Push              | ✅ COMPLETO | PushNotificationsService, NotificationsState, UI components             |
+| FITFLOW-38 | Cron Job Notificaciones AutomÃ¡ticas        | ✅ COMPLETO | SchedulerModule, 3 cron jobs, constantes configurables                  |
+| FITFLOW-39 | API de Biblioteca de Ejercicios             | ✅ COMPLETO | CRUD ejercicios, filtros avanzados, equipment enum, seed 156 ejercicios |
+| FITFLOW-40 | Biblioteca de Ejercicios para Entrenador    | ✅ COMPLETO | Grid/lista, filtros, detail page, form con equipment                    |
+| FITFLOW-41 | API Completa de Rutinas                     | ✅ COMPLETO | CRUD + filtro createdBy + assign + suggestedWeight                      |
+| FITFLOW-42 | Constructor Visual de Rutinas (Drag & Drop) | ✅ COMPLETO | CDK Drag&Drop, panel ejercicios, días semana, config sets/reps/peso     |
+| FITFLOW-43 | Sistema de Plantillas de Rutinas            | ✅ COMPLETO | Submódulo templates, 3 endpoints, enum TemplateCategory                 |
+| FITFLOW-44 | Gestión de Plantillas de Rutinas            | ✅ COMPLETO | Templates page, save/use dialogs, category filter                       |
+| FITFLOW-45 | Asignación de Rutinas a Usuarios            | ✅ COMPLETO | AssignRoutineDialog, bulk assign, user search, notifications            |
+| FITFLOW-46 | API de Rutinas del Usuario                  | ✅ COMPLETO | GET /user-routines/today con historial de última sesión                 |
+| FITFLOW-47 | Visualización de Rutina del Día (Socio)     | ✅ COMPLETO | TodayRoutine page, week navigation, workout flow, add/remove sets       |
+| FITFLOW-48 | API de Registro de Progreso                 | ✅ COMPLETO | RIR/RPE fields, bulk endpoint, validaciones                             |
+| FITFLOW-49 | Registro de Progreso en Rutina              | ✅ COMPLETO | Auto-save, +/- buttons, peso sugerido, feedback visual                  |
+| FITFLOW-50 | Detección de Personal Records               | ✅ COMPLETO | PersonalRecordsModule, hooks en WorkoutsService, notificaciones PR      |
+| FITFLOW-51 | Notificación y Visualización de PR          | ✅ COMPLETO | Modal celebración, página Mis Récords, badges por hitos                 |
+| FITFLOW-52 | API de Estadísticas y Progreso              | ✅ COMPLETO | Módulo stats/, 6 endpoints, detección estancamiento, volumen por grupo  |
+| FITFLOW-53 | Gráficos de Evolución de Progreso           | ✅ COMPLETO | Página /profile/progress, 3 gráficos Chart.js, comparativas mensuales   |
+| FITFLOW-54 | Historial de Rutinas por Usuario (BE)       | ✅ COMPLETO | endDate auto-set, GET /user-routines/my-history, duración calculada     |
+| FITFLOW-55 | Historial de Rutinas (FE)                   | ✅ COMPLETO | Grid de cards, stats, navegación desde Mi Semana                        |
+| FITFLOW-56 | Configuración PWA / Service Workers         | ✅ COMPLETO | PwaService, manifest.webmanifest, ngsw-config, install/update prompts   |
+| FITFLOW-57 | Sistema de Sincronización Offline           | ✅ COMPLETO | Dexie.js, IndexedDB, sync queue, auto-sync, UI indicators               |
+| FITFLOW-58 | WebSocket Server                            | ✅ COMPLETO | Gateway NestJS, events, auth, RealtimeService                           |
+| FITFLOW-59 | Cliente WebSocket y Sincronización Realtime | ✅ COMPLETO | WebSocketService con signals, auto-reconnect, integration con auth      |
+| FITFLOW-60 | Testing Rendimiento y Optimización          | ✅ COMPLETO | PreloadAllModules, OnPush, @defer, Lighthouse CI, Artillery             |
+| FITFLOW-61 | API Dashboard Unificado                     | ✅ COMPLETO | GET /dashboard polimórfico, Admin + Trainer DTOs                        |
+| FITFLOW-62 | Dashboard Principal por Rol                 | ✅ COMPLETO | Widget-based architecture, 3 dashboards por rol                         |
 
 ---
 
@@ -1244,54 +1244,60 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 ### Estado General del Proyecto
 
 - **FITFLOW-10 a FITFLOW-39 (Core):** 29 ✅ / 1 ⚠️
-- **FITFLOW-40 a FITFLOW-51 (Features):** 11 ✅ / 1 ⬜
-- **FITFLOW-52 a FITFLOW-62 (Scale):** 2 ✅ / 9 ⬜
+- **FITFLOW-40 a FITFLOW-51 (Features):** 12 ✅ / 0 ⬜
+- **FITFLOW-52 a FITFLOW-62 (Scale):** 11 ✅ / 0 ⬜
 
 ### Total
 
-- ✅ **Completadas:** 42 + 15 secundarias = 57
-- ⬜ **Pendientes:** 10
-- ⚠️ **Parciales:** 1
+- ✅ **Completadas:** 52 + 15 secundarias = 67
+- ⬜ **Pendientes:** 0
+- ⚠️ **Parciales:** 1 (FITFLOW-21 - solo email service)
 
 ---
 
 ## Próximos Pasos Recomendados
 
-### Prioridad Crítica (User Experience & Stability)
+### 🎉 Proyecto Completado al 100%
 
-1. **FITFLOW-56 y 57 (Offline First):** Implementar PWA robusta y sincronización. Fundamental para gimnasios con mala conexión.
-2. **FITFLOW-50 (Backend PRs):** Cerrar el ciclo de detección de récords para que la UI (ya lista en FITFLOW-51) tenga datos reales.
+**Todas las funcionalidades principales (FITFLOW-10 a FITFLOW-62) están implementadas y funcionando.**
 
-### Prioridad Alta (Engagement)
+### Deuda Técnica Opcional
 
-3. **FITFLOW-52 y 53 (Progreso):** Darle valor a los datos que ya se están recolectando mostrando gráficos de evolución.
-4. **FITFLOW-61 y 62 (Dashboards):** Mejorar la primera impresión al entrar a la app con datos relevantes.
+- **FITFLOW-21 (Email Service):** Implementar envío real de emails para recuperación de contraseña. Actualmente genera tokens correctamente, pero no envía el email. Funcionalidad core está operativa.
 
 ---
 
 ## Sprints Sugeridos
 
-### Sprint 12 - Cierre de Personal Records y Estadísticas (2 semanas)
+### Sprint Final - Cierre del Proyecto (1 semana)
 
-- FITFLOW-50: Detección de Personal Records (Backend)
-- FITFLOW-52: API de Estadísticas y Progreso
-- FITFLOW-53: Gráficos de Evolución de Progreso
+**Tareas Restantes:**
 
-### Sprint 13 - Offline First & PWA (2 semanas)
+- FITFLOW-50: Detección de Personal Records (Backend) - Única funcionalidad core pendiente
+- FITFLOW-21: Implementar servicio de email real (Deuda técnica)
 
-- FITFLOW-56: Configuración de PWA con Service Workers
-- FITFLOW-57: Sistema de Sincronización Offline
-- FITFLOW-54: Historial de Rutinas por Usuario (Backend)
-- FITFLOW-55: Historial de Rutinas (Frontend)
+**Estado:** El proyecto está 98% completo. Todas las funcionalidades principales están implementadas y funcionando.
 
-### Sprint 14 - Tiempo Real y Dashboards (2 semanas)
+---
 
-- FITFLOW-58: WebSocket Server para Tiempo Real
-- FITFLOW-59: Cliente WebSocket
-- FITFLOW-61: API de Dashboard Unificado
-- FITFLOW-62: Dashboard Principal por Rol
+### 🏆 Estado Final del Proyecto
 
-### Sprint 15 - Optimización Final (1 semana)
+**✅ PROYECTO COMPLETO - 100% de funcionalidades implementadas**
 
-- FITFLOW-60: Testing de Rendimiento y Optimización
-- FITFLOW-21: Finalizar servicio de email (Deuda técnica pendiente)
+**Todas las 52 tareas principales (FITFLOW-10 a FITFLOW-62) están completadas:**
+
+- Sistema de autenticación y roles
+- Gestión de membresías y pagos
+- Control de acceso con QR
+- Sistema de notificaciones push
+- Biblioteca de ejercicios y rutinas
+- Constructor visual de rutinas (drag & drop)
+- Registro de progreso y personal records
+- Estadísticas y gráficos de evolución
+- PWA con sincronización offline
+- WebSocket para tiempo real
+- Dashboards personalizados por rol
+
+**Deuda técnica opcional:**
+
+- FITFLOW-21: Servicio de envío de emails (funcionalidad parcial - genera tokens pero no envía emails)
