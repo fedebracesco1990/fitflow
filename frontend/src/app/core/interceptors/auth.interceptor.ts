@@ -5,13 +5,14 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, switchMap, throwError, filter, take, BehaviorSubject } from 'rxjs';
 import { Store } from '@ngxs/store';
 import { StorageService } from '../services/storage.service';
 import { AuthService } from '../services/auth.service';
 import { RefreshTokenFailure } from '../store/auth/auth.actions';
 
 let isRefreshing = false;
+const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -21,7 +22,6 @@ export const authInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const store = inject(Store);
 
-  // Skip auth header for public endpoints
   const publicEndpoints = ['/login', '/register', '/forgot-password', '/reset-password'];
   const isPublicEndpoint = publicEndpoints.some((endpoint) => req.url.includes(endpoint));
 
@@ -29,7 +29,6 @@ export const authInterceptor: HttpInterceptorFn = (
     return next(req);
   }
 
-  // Add token to request
   const token = storage.getAccessToken();
   let authReq = req;
 
@@ -43,10 +42,10 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Handle 401 errors - try to refresh token
       if (error.status === 401 && !isPublicEndpoint && !req.url.includes('/auth/refresh')) {
         if (!isRefreshing) {
           isRefreshing = true;
+          refreshTokenSubject.next(null);
           const refreshToken = storage.getRefreshToken();
 
           if (refreshToken) {
@@ -54,8 +53,8 @@ export const authInterceptor: HttpInterceptorFn = (
               switchMap((tokens) => {
                 isRefreshing = false;
                 storage.setTokens(tokens.accessToken, tokens.refreshToken);
+                refreshTokenSubject.next(tokens.accessToken);
 
-                // Retry the original request with new token
                 const retryReq = req.clone({
                   setHeaders: {
                     Authorization: `Bearer ${tokens.accessToken}`,
@@ -65,14 +64,30 @@ export const authInterceptor: HttpInterceptorFn = (
               }),
               catchError((refreshError) => {
                 isRefreshing = false;
+                refreshTokenSubject.next(null);
                 store.dispatch(new RefreshTokenFailure());
                 return throwError(() => refreshError);
               })
             );
+          } else {
+            isRefreshing = false;
+            store.dispatch(new RefreshTokenFailure());
+            return throwError(() => error);
           }
+        } else {
+          return refreshTokenSubject.pipe(
+            filter((token) => token !== null),
+            take(1),
+            switchMap((token) => {
+              const retryReq = req.clone({
+                setHeaders: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              return next(retryReq);
+            })
+          );
         }
-
-        store.dispatch(new RefreshTokenFailure());
       }
 
       return throwError(() => error);

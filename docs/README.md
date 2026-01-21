@@ -62,6 +62,15 @@ fitflow/
 | [FRONTEND_CORE.md](./FRONTEND_CORE.md)               | Documentación del módulo Core          |
 | [AI_DEVELOPMENT_GUIDE.md](./AI_DEVELOPMENT_GUIDE.md) | Guía para desarrollo asistido por IA   |
 
+### Documentación Técnica
+
+| Documento                                                   | Descripción                              |
+| ----------------------------------------------------------- | ---------------------------------------- |
+| [Session Management](./technical/session-management.md)     | Sistema de gestión de sesiones con JWT   |
+| [PWA & Service Workers](./technical/pwa-service-workers.md) | Configuración PWA y offline              |
+| [WebSocket Real-time](./technical/websocket-tiempo-real.md) | Sistema de notificaciones en tiempo real |
+| [Offline Sync](./technical/sincronizacion-offline.md)       | Sincronización de datos offline          |
+
 ## Comandos Principales
 
 ```bash

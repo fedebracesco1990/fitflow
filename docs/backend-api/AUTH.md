@@ -87,15 +87,31 @@ Renueva los tokens de acceso usando el refresh token.
 Authorization: Bearer <refresh_token>
 ```
 
+**Request Body:**
+
+```json
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
+}
+```
+
 **Response (200):**
 
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
-  "user": { ... }
+  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
 }
 ```
+
+**Configuración de Tokens:**
+
+| Token Type    | Duración | Descripción                                     |
+| ------------- | -------- | ----------------------------------------------- |
+| Access Token  | 45 min   | Token de acceso para requests autenticados      |
+| Refresh Token | 7 días   | Token para renovar access token automáticamente |
+
+> **Nota:** El frontend renueva automáticamente el access token 5 minutos antes de su expiración mediante `TokenRefreshService`.
 
 ---
 

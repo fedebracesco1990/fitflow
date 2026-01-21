@@ -1,10 +1,12 @@
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { State, Action, StateContext, Selector } from '@ngxs/store';
 import { tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 import { WebSocketService } from '../../services/websocket.service';
+import { TokenRefreshService } from '../../services/token-refresh.service';
 import { AuthenticatedUser, Role } from '../../models';
 import {
   Login,
@@ -52,6 +54,8 @@ export class AuthState {
   private readonly authService = inject(AuthService);
   private readonly storage = inject(StorageService);
   private readonly websocket = inject(WebSocketService);
+  private readonly tokenRefreshService = inject(TokenRefreshService);
+  private readonly router = inject(Router);
 
   // Selectors
   @Selector()
@@ -114,6 +118,11 @@ export class AuthState {
 
   @Action(LoginSuccess)
   loginSuccess(ctx: StateContext<AuthStateModel>, action: LoginSuccess) {
+    const accessToken = this.storage.getAccessToken();
+    if (accessToken) {
+      this.tokenRefreshService.startRefreshTimer(accessToken);
+    }
+
     ctx.patchState({
       user: action.payload.user,
       isAuthenticated: true,
@@ -152,6 +161,11 @@ export class AuthState {
 
   @Action(RegisterSuccess)
   registerSuccess(ctx: StateContext<AuthStateModel>, action: RegisterSuccess) {
+    const accessToken = this.storage.getAccessToken();
+    if (accessToken) {
+      this.tokenRefreshService.startRefreshTimer(accessToken);
+    }
+
     ctx.patchState({
       user: action.payload.user,
       isAuthenticated: true,
@@ -194,6 +208,11 @@ export class AuthState {
 
   @Action(CheckSessionSuccess)
   checkSessionSuccess(ctx: StateContext<AuthStateModel>, action: CheckSessionSuccess) {
+    const accessToken = this.storage.getAccessToken();
+    if (accessToken) {
+      this.tokenRefreshService.startRefreshTimer(accessToken);
+    }
+
     ctx.patchState({
       user: action.payload,
       isAuthenticated: true,
@@ -240,10 +259,12 @@ export class AuthState {
   @Action(RefreshTokenSuccess)
   refreshTokenSuccess(ctx: StateContext<AuthStateModel>, action: RefreshTokenSuccess) {
     this.storage.setTokens(action.payload.accessToken, action.payload.refreshToken);
+    this.tokenRefreshService.startRefreshTimer(action.payload.accessToken);
   }
 
   @Action(RefreshTokenFailure)
   refreshTokenFailure(ctx: StateContext<AuthStateModel>) {
+    this.tokenRefreshService.stopRefreshTimer();
     this.storage.clearTokens();
     ctx.patchState({
       user: null,
@@ -251,6 +272,7 @@ export class AuthState {
       isInitialized: true,
       error: null,
     });
+    this.router.navigate(['/login']);
   }
 
   @Action(Logout)
@@ -266,6 +288,7 @@ export class AuthState {
 
   @Action(LogoutSuccess)
   logoutSuccess(ctx: StateContext<AuthStateModel>) {
+    this.tokenRefreshService.stopRefreshTimer();
     this.websocket.disconnect();
     this.storage.clearTokens();
     ctx.dispatch(new ResetUserState());
