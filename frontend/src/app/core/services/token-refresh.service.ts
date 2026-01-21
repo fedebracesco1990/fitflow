@@ -31,9 +31,25 @@ export class TokenRefreshService implements OnDestroy {
   }
 
   /**
+   * Checks if a token is completely expired (past its expiration time).
+   * @param token - JWT token to check
+   * @returns true if expired, false otherwise
+   */
+  isTokenExpired(token: string): boolean {
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      const expirationTime = decoded.exp * 1000;
+      return Date.now() >= expirationTime;
+    } catch {
+      return true; // Invalid token is considered expired
+    }
+  }
+
+  /**
    * Starts a timer to automatically refresh the access token before it expires.
    * The timer is set to trigger 5 minutes before the token's expiration time.
-   * If the token is already expired or about to expire, triggers an immediate refresh.
+   * If the token is within the buffer window but not expired, triggers an immediate refresh.
+   * If the token is completely expired, does NOT attempt refresh (let CheckSession handle it).
    *
    * @param accessToken - The JWT access token to decode and schedule refresh for
    */
@@ -43,8 +59,14 @@ export class TokenRefreshService implements OnDestroy {
     try {
       const decoded = jwtDecode<JwtPayload>(accessToken);
       const expirationTime = decoded.exp * 1000;
+      const now = Date.now();
+
+      if (now >= expirationTime) {
+        return;
+      }
+
       const refreshTime = expirationTime - this.REFRESH_BUFFER_MS;
-      const delay = refreshTime - Date.now();
+      const delay = refreshTime - now;
 
       if (delay > 0) {
         this.refreshTimer = setTimeout(() => {

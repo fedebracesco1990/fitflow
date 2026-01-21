@@ -93,10 +93,8 @@ export class AuthService {
 
   async refreshTokens(userId: string, refreshToken: string): Promise<TokensResponse> {
     const user = await this.usersService.getUserIfRefreshTokenMatches(refreshToken, userId);
-
     const tokens = await this.getTokens(user);
     await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
-
     return tokens;
   }
 

@@ -22,7 +22,13 @@ export const authInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const store = inject(Store);
 
-  const publicEndpoints = ['/login', '/register', '/forgot-password', '/reset-password'];
+  const publicEndpoints = [
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/reset-password',
+    '/refresh',
+  ];
   const isPublicEndpoint = publicEndpoints.some((endpoint) => req.url.includes(endpoint));
 
   if (isPublicEndpoint) {

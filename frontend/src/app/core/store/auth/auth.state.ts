@@ -193,6 +193,12 @@ export class AuthState {
       return of(null);
     }
 
+    const refreshToken = this.storage.getRefreshToken();
+    if (refreshToken && this.tokenRefreshService.isTokenExpired(refreshToken)) {
+      ctx.dispatch(new CheckSessionFailure());
+      return of(null);
+    }
+
     ctx.patchState({ isLoading: true });
 
     return this.authService.checkSession().pipe(
@@ -240,7 +246,13 @@ export class AuthState {
   @Action(RefreshToken)
   refreshToken(ctx: StateContext<AuthStateModel>) {
     const refreshToken = this.storage.getRefreshToken();
+
     if (!refreshToken) {
+      ctx.dispatch(new RefreshTokenFailure());
+      return of(null);
+    }
+
+    if (this.tokenRefreshService.isTokenExpired(refreshToken)) {
       ctx.dispatch(new RefreshTokenFailure());
       return of(null);
     }
