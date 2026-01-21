@@ -9,7 +9,7 @@ import { catchError, switchMap, throwError, filter, take, BehaviorSubject } from
 import { Store } from '@ngxs/store';
 import { StorageService } from '../services/storage.service';
 import { AuthService } from '../services/auth.service';
-import { RefreshTokenFailure } from '../store/auth/auth.actions';
+import { RefreshTokenFailure, RefreshTokenSuccess } from '../store/auth/auth.actions';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
@@ -52,7 +52,9 @@ export const authInterceptor: HttpInterceptorFn = (
             return authService.refreshToken(refreshToken).pipe(
               switchMap((tokens) => {
                 isRefreshing = false;
-                storage.setTokens(tokens.accessToken, tokens.refreshToken);
+                // Despachar RefreshTokenSuccess para sincronizar con AuthState
+                // Esto guarda los tokens Y reinicia el timer de refresh proactivo
+                store.dispatch(new RefreshTokenSuccess(tokens));
                 refreshTokenSubject.next(tokens.accessToken);
 
                 const retryReq = req.clone({
