@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import {
@@ -10,12 +11,14 @@ import {
   ResetPasswordRequest,
 } from '../models';
 import { ForgotPasswordResponse, MessageResponse } from '../models/api-response.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly api = inject(ApiService);
+  private readonly http = inject(HttpClient);
   private readonly endpoint = 'auth';
 
   login(credentials: LoginRequest): Observable<TokensResponse> {
@@ -27,7 +30,15 @@ export class AuthService {
   }
 
   refreshToken(refreshToken: string): Observable<TokensResponse> {
-    return this.api.post<TokensResponse>(`${this.endpoint}/refresh`, { refreshToken });
+    return this.http.post<TokensResponse>(
+      `${environment.apiUrl}/${this.endpoint}/refresh`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      }
+    );
   }
 
   checkSession(): Observable<SessionResponse> {
