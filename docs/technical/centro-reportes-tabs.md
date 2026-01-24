@@ -486,10 +486,104 @@ Los siguientes componentes se mantuvieron por precaución (podrían usarse en ot
 1. **Cache de reportes**: Implementar cache para evitar requests repetidas
 2. **Filtros avanzados**: Agregar más opciones de filtrado
 3. **Gráficos**: Agregar visualizaciones gráficas de datos
-4. **Exportación Excel**: Agregar opción de exportar a Excel con formato
+4. ~~**Exportación Excel**: Agregar opción de exportar a Excel con formato~~ ✅ Implementado en FITFLOW-64
 5. **Streaming CSV**: Para datasets grandes, implementar streaming
 6. **Comparación de períodos**: Permitir comparar dos períodos
 7. **Reportes programados**: Enviar reportes por email automáticamente
+
+---
+
+## Exportación PDF/Excel (FITFLOW-64)
+
+### Descripción
+
+Nueva funcionalidad que permite exportar reportes en formatos PDF y Excel utilizando los endpoints del módulo Reports del backend (FITFLOW-63).
+
+### Componentes Agregados
+
+```
+ReportsComponent (Contenedor Principal)
+├── Header
+│   ├── Botón "Exportar CSV" (existente)
+│   └── Botón "Exportar Reporte" (NUEVO)
+├── ExportReportDialogComponent (NUEVO)
+│   ├── Selector de tipo (Financiero, Asistencia, Usuarios)
+│   ├── Selector de formato (PDF, Excel)
+│   └── Rango de fechas opcional
+├── ReportHistoryComponent (NUEVO)
+│   └── Tabla de reportes generados (localStorage)
+└── Tab Content (existente)
+```
+
+### Nuevos Servicios
+
+**ReportExportService**
+
+```typescript
+exportReport(request: ExportReportRequest): Observable<Blob>
+downloadBlob(blob: Blob, request: ExportReportRequest): void
+```
+
+**ReportHistoryService**
+
+```typescript
+readonly history: Signal<ReportHistoryItem[]>
+addToHistory(request: ExportReportRequest): void
+clearHistory(): void
+```
+
+### Endpoints Backend Utilizados
+
+| Endpoint                   | Descripción           | Formatos   |
+| -------------------------- | --------------------- | ---------- |
+| `POST /reports/financial`  | Reporte financiero    | PDF, Excel |
+| `POST /reports/attendance` | Reporte de asistencia | PDF, Excel |
+| `POST /reports/users`      | Reporte de usuarios   | PDF, Excel |
+
+**Request Body:**
+
+```typescript
+{
+  format: 'pdf' | 'excel';
+  startDate?: string; // ISO date
+  endDate?: string;   // ISO date
+}
+```
+
+**Response:** Binary Buffer con `Content-Disposition: attachment`
+
+### Flujo de Exportación PDF/Excel
+
+1. Usuario hace clic en "Exportar Reporte"
+2. Se abre `ExportReportDialogComponent`
+3. Usuario selecciona tipo, formato y fechas opcionales
+4. `ReportExportService.exportReport()` hace POST al backend
+5. Backend genera archivo con pdfmake (PDF) o exceljs (Excel)
+6. Frontend recibe Blob y dispara descarga automática
+7. Se guarda registro en `ReportHistoryService` (localStorage)
+
+### Archivos Creados
+
+**Modelos:**
+
+- `frontend/src/app/features/reports/models/report-export.model.ts`
+
+**Servicios:**
+
+- `frontend/src/app/features/reports/services/report-export.service.ts`
+- `frontend/src/app/features/reports/services/report-history.service.ts`
+
+**Componentes:**
+
+- `frontend/src/app/features/reports/components/export-report-dialog/`
+- `frontend/src/app/features/reports/components/report-history/`
+
+### Historial de Reportes
+
+- Almacenado en `localStorage` con key `fitflow_report_history`
+- Máximo 10 items
+- Permite regenerar reportes anteriores
+- Muestra: tipo, formato, fechas, fecha de generación
 
 ### Extensibilidad
 

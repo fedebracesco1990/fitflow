@@ -146,7 +146,7 @@ Esta pestaña te muestra información sobre cómo los miembros utilizan el gimna
 
 ## Exportación de Datos
 
-### ¿Cómo exportar?
+### Exportación CSV (Rápida)
 
 1. Asegúrate de estar en la pestaña que deseas exportar (Financiero o Uso y Comportamiento)
 2. Configura los filtros según tus necesidades
@@ -154,6 +154,43 @@ Esta pestaña te muestra información sobre cómo los miembros utilizan el gimna
 4. El archivo se descargará automáticamente con el nombre:
    - `reporte-financiero-YYYY-MM-DD.csv` para datos financieros
    - `reporte-comportamiento-YYYY-MM-DD.csv` para datos de comportamiento
+
+### Exportación PDF/Excel (Avanzada) ✨ NUEVO
+
+Para exportar reportes con formato profesional en PDF o Excel:
+
+1. Haz clic en el botón **"📥 Exportar Reporte"** en la esquina superior derecha
+2. Se abrirá un diálogo con las siguientes opciones:
+
+**Tipos de Reporte:**
+
+- 💰 **Financiero**: Pagos, ingresos totales y métodos de pago
+- 📊 **Asistencia**: Registros de asistencia por día y mes
+- 👥 **Usuarios**: Lista de usuarios con membresías y estados
+
+**Formatos:**
+
+- 📄 **PDF**: Documento con formato profesional, ideal para imprimir
+- 📊 **Excel**: Hoja de cálculo editable, ideal para análisis
+
+**Rango de Fechas (Opcional):**
+
+- Selecciona fecha de inicio y fin para filtrar los datos
+- Si no seleccionas fechas, se incluirán todos los registros
+
+3. Haz clic en **"Descargar"**
+4. El archivo se descargará automáticamente
+
+### Historial de Reportes
+
+Debajo de las pestañas encontrarás una sección **"Reportes Generados"** que muestra:
+
+- Los últimos 10 reportes que has exportado
+- Tipo, formato y fechas de cada reporte
+- Botón para **regenerar** cualquier reporte anterior
+- Opción para **limpiar** el historial
+
+> **Tip:** El historial se guarda en tu navegador. Si cambias de navegador o dispositivo, no verás el historial anterior.
 
 ### ¿Qué incluye el CSV?
 
@@ -335,5 +372,12 @@ Si tienes problemas o preguntas adicionales:
 
 ---
 
-**Última actualización:** 19 de Diciembre, 2024
-**Versión:** 1.0
+**Última actualización:** 23 de Enero, 2026
+**Versión:** 1.1
+
+### Historial de Cambios
+
+| Versión | Fecha      | Cambios                                     |
+| ------- | ---------- | ------------------------------------------- |
+| 1.1     | 2026-01-23 | Agregada exportación PDF/Excel (FITFLOW-64) |
+| 1.0     | 2024-12-19 | Versión inicial con tabs y CSV              |

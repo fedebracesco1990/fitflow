@@ -1116,7 +1116,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-64] Generación y Exportación de Reportes
+### [FITFLOW-64] Generación y Exportación de Reportes ✅ COMPLETO
 
 **Tipo:** Frontend
 
@@ -1124,12 +1124,20 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Página "Reportes" con opciones de tipo
-- [ ] Selector de rango de fechas
-- [ ] Selector de formato (PDF/Excel)
+- [x] Página "Reportes" con opciones de tipo
+- [x] Selector de rango de fechas
+- [x] Selector de formato (PDF/Excel)
 - [ ] Preview del reporte antes de exportar
-- [ ] Descarga automática del archivo
-- [ ] Historial de reportes generados
+- [x] Descarga automática del archivo
+- [x] Historial de reportes generados
+
+**Implementación:**
+
+- **Modal Export:** `ExportReportDialogComponent` con selector de tipo (Financiero, Asistencia, Usuarios), formato (PDF/Excel), y rango de fechas opcional
+- **Servicios:** `ReportExportService` para llamar POST /reports/\*, `ReportHistoryService` para localStorage
+- **Historial:** `ReportHistoryComponent` con tabla de últimos 10 reportes y opción de regenerar
+- **Integración:** Botón "Exportar Reporte" en header de ReportsComponent junto a CSV existente
+- **Backend:** Usa endpoints de FITFLOW-63 (pdfmake + exceljs)
 
 ---
 
@@ -1369,7 +1377,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-61 | API Dashboard Unificado                     | ✅ COMPLETO  | GET /dashboard polimórfico, Admin + Trainer DTOs                        |
 | FITFLOW-62 | Dashboard Principal por Rol                 | ✅ COMPLETO  | Widget-based architecture, 3 dashboards por rol                         |
 | FITFLOW-63 | API de Reportes Exportables                 | ✅ COMPLETO  | POST /reports/{financial,attendance,users}, pdfmake + exceljs           |
-| FITFLOW-64 | Generación y Exportación de Reportes        | ⬜ PENDIENTE | UI Reportes, filtros y descarga                                         |
+| FITFLOW-64 | Generación y Exportación de Reportes        | ✅ COMPLETO  | Modal export PDF/Excel, historial localStorage, 3 tipos de reporte      |
 | FITFLOW-65 | API de Comunicación Trainer-Usuario         | ⬜ PENDIENTE | Mensajería, WS events, unread count                                     |
 | FITFLOW-66 | Chat Trainer-Usuario                        | ⬜ PENDIENTE | UI Chat, realtime, imágenes                                             |
 | FITFLOW-67 | Panel Notificaciones Personalizadas         | ⬜ PENDIENTE | Envío manual a grupos de usuarios                                       |

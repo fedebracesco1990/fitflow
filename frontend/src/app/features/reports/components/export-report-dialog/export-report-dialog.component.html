@@ -1,0 +1,164 @@
+@if (isOpen()) {
+  <div
+    class="dialog-backdrop"
+    (click)="onBackdropClick($event)"
+    (keydown.escape)="onClose()"
+    tabindex="-1"
+  >
+    <div class="dialog" role="dialog" aria-modal="true">
+      <div class="dialog-header">
+        <h3>Exportar Reporte</h3>
+        <button class="close-btn" (click)="onClose()" aria-label="Cerrar">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="dialog-body">
+        @if (error()) {
+          <fit-flow-alert [message]="error()!" type="error"></fit-flow-alert>
+        }
+
+        <div class="form-section">
+          <label class="section-label">Tipo de Reporte</label>
+          <div class="type-cards">
+            @for (type of reportTypes; track type) {
+              <button
+                class="type-card"
+                [class.selected]="selectedType() === type"
+                (click)="onTypeChange(type)"
+              >
+                <span class="type-icon">
+                  @switch (type) {
+                    @case ('financial') {
+                      💰
+                    }
+                    @case ('attendance') {
+                      📊
+                    }
+                    @case ('users') {
+                      👥
+                    }
+                  }
+                </span>
+                <span class="type-name">{{ typeLabels[type] }}</span>
+                <span class="type-desc">{{ typeDescriptions[type] }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label class="section-label">Formato</label>
+          <div class="format-options">
+            @for (format of reportFormats; track format) {
+              <label class="format-option">
+                <input
+                  type="radio"
+                  name="format"
+                  [value]="format"
+                  [checked]="selectedFormat() === format"
+                  (change)="onFormatChange(format)"
+                />
+                <span class="format-label">
+                  @if (format === 'pdf') {
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                  } @else {
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="3" y1="9" x2="21" y2="9"></line>
+                      <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                  }
+                  {{ formatLabels[format] }}
+                </span>
+              </label>
+            }
+          </div>
+        </div>
+
+        @if (showDateRange) {
+          <div class="form-section">
+            <label class="section-label">Rango de Fechas (Opcional)</label>
+            <div class="date-range">
+              <div class="date-field">
+                <label for="startDate">Desde</label>
+                <input
+                  type="date"
+                  id="startDate"
+                  [value]="startDate()"
+                  (input)="onStartDateChange($any($event.target).value)"
+                />
+              </div>
+              <div class="date-field">
+                <label for="endDate">Hasta</label>
+                <input
+                  type="date"
+                  id="endDate"
+                  [value]="endDate()"
+                  (input)="onEndDateChange($any($event.target).value)"
+                />
+              </div>
+            </div>
+            <p class="date-hint">Si no seleccionas fechas, se incluirán todos los registros</p>
+          </div>
+        }
+      </div>
+
+      <div class="dialog-footer">
+        <fit-flow-button variant="outline" (click)="onClose()" [disabled]="isExporting()">
+          Cancelar
+        </fit-flow-button>
+        <fit-flow-button variant="primary" (click)="onExport()" [disabled]="isExporting()">
+          @if (isExporting()) {
+            <span class="loading-text">Generando...</span>
+          } @else {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Descargar
+          }
+        </fit-flow-button>
+      </div>
+    </div>
+  </div>
+}

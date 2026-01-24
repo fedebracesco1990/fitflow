@@ -5,6 +5,8 @@ import { BehaviorReportService } from '../../services/behavior-report.service';
 import { ButtonComponent, AlertComponent } from '../../../../shared';
 import { FinancialTabComponent } from '../../components/financial-tab/financial-tab.component';
 import { BehaviorTabComponent } from '../../components/behavior-tab/behavior-tab.component';
+import { ExportReportDialogComponent } from '../../components/export-report-dialog/export-report-dialog.component';
+import { ReportHistoryComponent } from '../../components/report-history/report-history.component';
 
 type TabType = 'financial' | 'behavior';
 
@@ -17,6 +19,8 @@ type TabType = 'financial' | 'behavior';
     ButtonComponent,
     FinancialTabComponent,
     BehaviorTabComponent,
+    ExportReportDialogComponent,
+    ReportHistoryComponent,
   ],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss',
@@ -31,6 +35,19 @@ export class ReportsComponent {
   readonly activeTab = signal<TabType>('financial');
   readonly isExporting = signal(false);
   readonly exportError = signal<string | null>(null);
+  readonly isExportDialogOpen = signal(false);
+
+  openExportDialog(): void {
+    this.isExportDialogOpen.set(true);
+  }
+
+  closeExportDialog(): void {
+    this.isExportDialogOpen.set(false);
+  }
+
+  onReportExported(): void {
+    this.isExportDialogOpen.set(false);
+  }
 
   setActiveTab(tab: TabType): void {
     this.activeTab.set(tab);
