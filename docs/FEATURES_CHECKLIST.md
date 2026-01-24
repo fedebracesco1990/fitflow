@@ -1087,7 +1087,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ## Fase Final: Reportes, Comunicación y Lanzamiento
 
-### [FITFLOW-63] API de Reportes Exportables
+### [FITFLOW-63] API de Reportes Exportables ✅
 
 **Tipo:** Backend
 
@@ -1095,12 +1095,24 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] POST /api/reports/financial (genera PDF/Excel)
-- [ ] POST /api/reports/attendance
-- [ ] POST /api/reports/users
-- [ ] Parámetros: formato, rango de fechas, filtros
-- [ ] Generación con librerías (pdfmake, exceljs)
-- [ ] Envío por email opcional
+- [x] POST /api/reports/financial (genera PDF/Excel)
+- [x] POST /api/reports/attendance
+- [x] POST /api/reports/users
+- [x] Parámetros: formato, rango de fechas, filtros
+- [x] Generación con librerías (pdfmake, exceljs)
+- [ ] Envío por email opcional (deferred to phase 2)
+
+**Implementación:**
+
+- **Módulo:** `src/modules/reports/`
+- **Endpoints:**
+  - `POST /reports/financial` - Reporte financiero (pagos, totales, métodos de pago)
+  - `POST /reports/attendance` - Reporte de asistencia (por día, mensual, usuarios únicos)
+  - `POST /reports/users` - Reporte de usuarios (membresías, estados, distribución)
+- **Formatos:** PDF (pdfmake) y Excel (exceljs) con hojas múltiples y estilos
+- **Request body:** `{ format: "pdf"|"excel", startDate?, endDate?, filters? }`
+- **Arquitectura:** Generators separados (ExcelReportGenerator, PdfReportGenerator) con interface común
+- **Utilities:** Shared date formatting y translation constants
 
 ---
 
@@ -1356,7 +1368,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-60 | Testing Rendimiento y Optimización          | ✅ COMPLETO  | PreloadAllModules, OnPush, @defer, Lighthouse CI, Artillery             |
 | FITFLOW-61 | API Dashboard Unificado                     | ✅ COMPLETO  | GET /dashboard polimórfico, Admin + Trainer DTOs                        |
 | FITFLOW-62 | Dashboard Principal por Rol                 | ✅ COMPLETO  | Widget-based architecture, 3 dashboards por rol                         |
-| FITFLOW-63 | API de Reportes Exportables                 | ⬜ PENDIENTE | Endpoints para PDF/Excel                                                |
+| FITFLOW-63 | API de Reportes Exportables                 | ✅ COMPLETO  | POST /reports/{financial,attendance,users}, pdfmake + exceljs           |
 | FITFLOW-64 | Generación y Exportación de Reportes        | ⬜ PENDIENTE | UI Reportes, filtros y descarga                                         |
 | FITFLOW-65 | API de Comunicación Trainer-Usuario         | ⬜ PENDIENTE | Mensajería, WS events, unread count                                     |
 | FITFLOW-66 | Chat Trainer-Usuario                        | ⬜ PENDIENTE | UI Chat, realtime, imágenes                                             |
@@ -1418,7 +1430,7 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 ### Estado General del Proyecto
 
 - **FITFLOW-10 a FITFLOW-62 (Core & Features):** 52 ✅ / 1 ⚠️
-- **FITFLOW-63 a FITFLOW-75 (Final Phase):** 0 ✅ / 13 ⬜
+- **FITFLOW-63 a FITFLOW-75 (Final Phase):** 1 ✅ / 12 ⬜
 
 ### Total
 
