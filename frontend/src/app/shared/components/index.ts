@@ -17,3 +17,4 @@ export * from './pwa-update-prompt/pwa-update-prompt.component';
 export * from './pwa-install-prompt/pwa-install-prompt.component';
 export * from './offline-banner/offline-banner.component';
 export * from './sync-status/sync-status.component';
+export * from './user-selector/user-selector.component';

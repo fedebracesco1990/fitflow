@@ -1,0 +1,50 @@
+<div class="message-editor" [class.disabled]="disabled()">
+  <div class="editor-section">
+    <div class="form-group">
+      <label for="notif-title">Título</label>
+      <input
+        id="notif-title"
+        type="text"
+        [ngModel]="title()"
+        (ngModelChange)="onTitleChange($event)"
+        placeholder="Ej: 🎉 Promoción especial"
+        [disabled]="disabled()"
+        maxlength="100"
+      />
+      <span class="char-count">{{ title().length }}/100</span>
+    </div>
+
+    <div class="form-group">
+      <label for="notif-body">Mensaje</label>
+      <textarea
+        id="notif-body"
+        [ngModel]="body()"
+        (ngModelChange)="onBodyChange($event)"
+        placeholder="Escribe el mensaje de la notificación..."
+        rows="4"
+        [disabled]="disabled()"
+        maxlength="500"
+      ></textarea>
+      <span class="char-count">{{ body().length }}/500</span>
+    </div>
+  </div>
+
+  @if (showPreview() && hasContent()) {
+    <div class="preview-section">
+      <div class="preview-header">
+        <lucide-icon name="eye" [size]="16"></lucide-icon>
+        <span>Vista Previa</span>
+      </div>
+      <div class="preview-card">
+        <div class="preview-icon">
+          <lucide-icon name="bell" [size]="20"></lucide-icon>
+        </div>
+        <div class="preview-content">
+          <strong class="preview-title">{{ title() }}</strong>
+          <p class="preview-body">{{ body() }}</p>
+          <span class="preview-time">Ahora</span>
+        </div>
+      </div>
+    </div>
+  }
+</div>

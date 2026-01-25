@@ -1,0 +1,66 @@
+<div class="user-selector" [class.disabled]="disabled()">
+  <div class="selector-header">
+    <span class="selected-count">{{ selectedCount() }} usuario(s) seleccionado(s)</span>
+    @if (selectedCount() > 0) {
+      <button type="button" class="clear-btn" (click)="clearSelection()">
+        <lucide-icon name="x" [size]="14"></lucide-icon>
+        Limpiar
+      </button>
+    }
+  </div>
+
+  <div class="search-box">
+    <lucide-icon name="search" [size]="16"></lucide-icon>
+    <input
+      type="text"
+      placeholder="Buscar por nombre o email..."
+      [ngModel]="searchQuery()"
+      (ngModelChange)="searchQuery.set($event)"
+      [disabled]="disabled()"
+    />
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <lucide-icon name="loader-2" [size]="20" class="spin"></lucide-icon>
+      <span>Cargando usuarios...</span>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <lucide-icon name="alert-circle" [size]="20"></lucide-icon>
+      <span>{{ error() }}</span>
+    </div>
+  } @else if (filteredUsers().length === 0) {
+    <div class="empty-state">
+      <lucide-icon name="users" [size]="24"></lucide-icon>
+      <span>No se encontraron usuarios</span>
+    </div>
+  } @else {
+    <div class="users-list">
+      <div class="select-all" (click)="selectAll()" [class.disabled]="disabled()">
+        <input
+          type="checkbox"
+          [checked]="allFilteredSelected()"
+          [indeterminate]="someFilteredSelected()"
+          [disabled]="disabled()"
+        />
+        <span>Seleccionar todos ({{ filteredUsers().length }})</span>
+      </div>
+
+      @for (user of filteredUsers(); track user.id) {
+        <div
+          class="user-item"
+          [class.selected]="user.selected"
+          [class.disabled]="disabled()"
+          (click)="toggleUser(user)"
+        >
+          <input type="checkbox" [checked]="user.selected" [disabled]="disabled()" />
+          <div class="user-info">
+            <span class="user-name">{{ user.name }}</span>
+            <span class="user-email">{{ user.email }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

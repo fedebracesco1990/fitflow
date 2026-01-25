@@ -1,0 +1,85 @@
+<div class="page-container">
+  <header class="page-header">
+    <h1>Enviar Notificaciones</h1>
+    <p>Envía notificaciones push a los usuarios del gimnasio</p>
+  </header>
+
+  <div class="content-grid">
+    <div class="send-section">
+      <div class="card">
+        <div class="card-header">
+          <lucide-icon name="bell" [size]="24"></lucide-icon>
+          <h2>Nueva Notificación</h2>
+        </div>
+
+        <div class="mode-toggle">
+          <button
+            type="button"
+            [class.active]="sendMode() === 'broadcast'"
+            (click)="setSendMode('broadcast')"
+          >
+            <lucide-icon name="users" [size]="16"></lucide-icon>
+            Todos
+          </button>
+          <button
+            type="button"
+            [class.active]="sendMode() === 'selected'"
+            (click)="setSendMode('selected')"
+          >
+            <lucide-icon name="user-check" [size]="16"></lucide-icon>
+            Seleccionar
+          </button>
+        </div>
+
+        @if (sendMode() === 'selected') {
+          <div class="section">
+            <label class="section-label">Destinatarios</label>
+            <fit-flow-user-selector
+              [disabled]="isSending()"
+              (selectionChange)="onUsersSelected($event)"
+            />
+          </div>
+        }
+
+        <div class="section">
+          <label class="section-label">Mensaje</label>
+          <fit-flow-message-editor
+            [disabled]="isSending()"
+            (contentChange)="onContentChange($event)"
+          />
+        </div>
+
+        @if (result()) {
+          <div class="result" [class.success]="result()!.success" [class.error]="!result()!.success">
+            @if (result()!.success) {
+              <lucide-icon name="check-circle" [size]="18"></lucide-icon>
+              <span>Notificación enviada a {{ result()!.sent }} dispositivo(s)</span>
+            } @else {
+              <lucide-icon name="alert-triangle" [size]="18"></lucide-icon>
+              <span>Error al enviar la notificación</span>
+            }
+          </div>
+        }
+
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="!canSend() || isSending()"
+          (click)="send()"
+        >
+          @if (isSending()) {
+            <lucide-icon name="loader-2" [size]="18" class="spin"></lucide-icon>
+            <span>Enviando...</span>
+          } @else {
+            <lucide-icon name="send" [size]="18"></lucide-icon>
+            <span>{{ getSendButtonText() }}</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <div class="history-section">
+      <fit-flow-notification-history />
+    </div>
+  </div>
+</div>

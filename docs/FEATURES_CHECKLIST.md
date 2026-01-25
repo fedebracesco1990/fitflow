@@ -1174,19 +1174,28 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-67] Panel de Notificaciones Personalizadas (Admin)
+### [FITFLOW-67] Panel de Notificaciones Personalizadas (Admin) ✅
 
 **Tipo:** Frontend
+
+**Estado:** ✅ COMPLETO
 
 **Descripción:** Como administrador, quiero enviar notificaciones personalizadas a usuarios seleccionados
 
 **Criterios de Aceptación:**
 
-- [ ] Página "Enviar Notificación"
-- [ ] Selector múltiple de usuarios o "Todos"
-- [ ] Editor de mensaje con preview
-- [ ] Programación de envío (inmediato/programado)
-- [ ] Historial de notificaciones enviadas
+- [x] Página "Enviar Notificación"
+- [x] Selector múltiple de usuarios o "Todos"
+- [x] Editor de mensaje con preview
+- [x] Programación de envío (inmediato/programado) - Envío inmediato implementado
+- [x] Historial de notificaciones enviadas
+
+**Implementación:**
+
+- `UserSelectorComponent` (shared) - Selector múltiple con búsqueda y select all
+- `MessageEditorComponent` - Editor con preview en tiempo real
+- `NotificationHistoryComponent` - Historial localStorage (últimos 10)
+- `SendNotificationsComponent` refactorizado con arquitectura modular
 
 ---
 
@@ -1380,7 +1389,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-64 | Generación y Exportación de Reportes        | ✅ COMPLETO  | Modal export PDF/Excel, historial localStorage, 3 tipos de reporte      |
 | FITFLOW-65 | API de Comunicación Trainer-Usuario         | ⬜ PENDIENTE | Mensajería, WS events, unread count                                     |
 | FITFLOW-66 | Chat Trainer-Usuario                        | ⬜ PENDIENTE | UI Chat, realtime, imágenes                                             |
-| FITFLOW-67 | Panel Notificaciones Personalizadas         | ⬜ PENDIENTE | Envío manual a grupos de usuarios                                       |
+| FITFLOW-67 | Panel Notificaciones Personalizadas         | ✅ COMPLETO  | UserSelectorComponent, MessageEditor, historial localStorage            |
 | FITFLOW-68 | Detección Usuarios Baja Asistencia          | ⬜ PENDIENTE | Cron job mensual, lista de alerta                                       |
 | FITFLOW-69 | Lista de Usuarios para Retención            | ⬜ PENDIENTE | UI Dashboard alerta, acciones rápidas                                   |
 | FITFLOW-70 | Pulido Final de UI/UX                       | ⬜ PENDIENTE | Consistencia, animaciones, a11y, onboarding                             |
@@ -1442,8 +1451,8 @@ Tareas adicionales implementadas durante el desarrollo que complementan las func
 
 ### Total
 
-- ✅ **Completadas:** 52 + 15 secundarias = 67
-- ⬜ **Pendientes:** 13
+- ✅ **Completadas:** 53 + 15 secundarias = 68
+- ⬜ **Pendientes:** 12
 - ⚠️ **Parciales:** 1 (Email Service)
 
 ---
