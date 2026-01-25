@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { User } from '../models';
+import { User, LowAttendanceResponse, LowAttendanceQueryParams } from '../models';
 import { PaginatedResponse } from '../models/api-response.model';
 
 export interface SearchUsersParams {
@@ -34,5 +34,16 @@ export class UsersService {
 
   exportMembers(): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/users/export`, { responseType: 'blob' });
+  }
+
+  getLowAttendanceUsers(params?: LowAttendanceQueryParams): Observable<LowAttendanceResponse> {
+    let httpParams = new HttpParams();
+    if (params?.month) httpParams = httpParams.set('month', params.month.toString());
+    if (params?.year) httpParams = httpParams.set('year', params.year.toString());
+    if (params?.minVisits) httpParams = httpParams.set('minVisits', params.minVisits.toString());
+
+    return this.http.get<LowAttendanceResponse>(`${this.baseUrl}/users/low-attendance`, {
+      params: httpParams,
+    });
   }
 }

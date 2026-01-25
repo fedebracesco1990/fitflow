@@ -2,9 +2,13 @@ import { Component, input, inject, signal } from '@angular/core';
 import { AdminDashboard } from '../../../../core/models';
 import { UsersService } from '../../../../core/services';
 import { StatCardComponent } from '../../widgets/stat-card/stat-card.component';
-import { QuickActionsComponent, QuickAction } from '../../widgets/quick-actions/quick-actions.component';
+import {
+  QuickActionsComponent,
+  QuickAction,
+} from '../../widgets/quick-actions/quick-actions.component';
 import { ActivityLiveComponent } from '../activity-live/activity-live.component';
 import { RecentPaymentsComponent } from '../recent-payments/recent-payments.component';
+import { RetentionAlertWidgetComponent } from '../../widgets/retention-alert/retention-alert-widget.component';
 
 @Component({
   selector: 'fit-flow-admin-dashboard',
@@ -14,6 +18,7 @@ import { RecentPaymentsComponent } from '../recent-payments/recent-payments.comp
     QuickActionsComponent,
     ActivityLiveComponent,
     RecentPaymentsComponent,
+    RetentionAlertWidgetComponent,
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss',

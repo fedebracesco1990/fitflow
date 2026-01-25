@@ -1222,7 +1222,9 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-69] Lista de Usuarios para Retención
+### [FITFLOW-69] Lista de Usuarios para Retención ✅
+
+**Estado:** ✅ COMPLETO
 
 **Tipo:** Frontend
 
@@ -1230,11 +1232,19 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Sección "Alerta de Retención" en dashboard
-- [ ] Tabla con usuarios de baja asistencia
-- [ ] Indicador de última asistencia
-- [ ] Botones de acción rápida: llamar, enviar mensaje
-- [ ] Marcar como "contactado"
+- [x] Sección "Alerta de Retención" en dashboard
+- [x] Tabla con usuarios de baja asistencia
+- [x] Indicador de última asistencia
+- [x] Botones de acción rápida: enviar mensaje
+- [x] Marcar como "contactado"
+
+**Implementación (2026-01-25):**
+
+- `RetentionAlertWidgetComponent` - Widget colapsable en dashboard admin
+- `LowAttendanceUser` interface en `core/models/low-attendance.model.ts`
+- `UsersService.getLowAttendanceUsers()` - Consume endpoint backend
+- Estado "contactado" persistido en localStorage por mes/año
+- Integración con sistema de notificaciones (FITFLOW-67)
 
 ---
 

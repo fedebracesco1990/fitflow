@@ -1,0 +1,106 @@
+<fit-flow-card padding="none" class="retention-widget">
+  <div class="widget-header" (click)="toggleExpanded()">
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon name="user-x" [size]="20"></lucide-icon>
+      </div>
+      <div class="header-info">
+        <h3>🚨 Alerta de Retención</h3>
+        <span class="header-subtitle">
+          @if (loading()) {
+            Cargando...
+          } @else if (error()) {
+            Error al cargar
+          } @else {
+            {{ pendingCount() }} pendientes de {{ totalCount() }} usuarios
+          }
+        </span>
+      </div>
+    </div>
+    <button class="expand-btn" [class.expanded]="expanded()">
+      <lucide-icon name="chevron-down" [size]="20"></lucide-icon>
+    </button>
+  </div>
+
+  @if (expanded()) {
+    <div class="widget-content">
+      @if (loading()) {
+        <div class="loading-state">
+          <lucide-icon name="loader-2" [size]="24" class="spin"></lucide-icon>
+          <span>Cargando usuarios...</span>
+        </div>
+      } @else if (error()) {
+        <div class="error-state">
+          <lucide-icon name="alert-circle" [size]="24"></lucide-icon>
+          <span>{{ error() }}</span>
+        </div>
+      } @else if (users().length === 0) {
+        <div class="empty-state">
+          <lucide-icon name="check-circle" [size]="32"></lucide-icon>
+          <span>¡Excelente! No hay usuarios con baja asistencia</span>
+        </div>
+      } @else {
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Visitas</th>
+                <th>Última asistencia</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of usersWithStatus(); track user.id) {
+                <tr [class.contacted]="user.contacted">
+                  <td>
+                    <div class="user-info">
+                      <span class="user-name">{{ user.name }}</span>
+                      <span class="user-email">{{ user.email }}</span>
+                    </div>
+                  </td>
+                  <td class="visits-cell">
+                    <fit-flow-badge variant="error" size="sm">
+                      {{ user.visitCount }} visitas
+                    </fit-flow-badge>
+                  </td>
+                  <td class="date-cell">
+                    {{ formatLastAttendance(user.lastAttendanceDate) }}
+                  </td>
+                  <td>
+                    @if (user.contacted) {
+                      <fit-flow-badge variant="success" size="sm">Contactado</fit-flow-badge>
+                    } @else {
+                      <fit-flow-badge variant="warning" size="sm">Pendiente</fit-flow-badge>
+                    }
+                  </td>
+                  <td class="actions-cell">
+                    <button
+                      class="action-btn message-btn"
+                      (click)="sendMessage(user)"
+                      title="Enviar mensaje"
+                    >
+                      <lucide-icon name="message-circle" [size]="16"></lucide-icon>
+                    </button>
+                    <button
+                      class="action-btn contact-btn"
+                      [class.active]="user.contacted"
+                      (click)="toggleContacted(user.id)"
+                      [title]="user.contacted ? 'Marcar como pendiente' : 'Marcar como contactado'"
+                    >
+                      <lucide-icon
+                        [name]="user.contacted ? 'check-circle' : 'circle'"
+                        [size]="16"
+                      ></lucide-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</fit-flow-card>
