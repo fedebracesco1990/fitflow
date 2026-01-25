@@ -23,6 +23,23 @@ interface RawMonthlyResult {
   daysWithAttendance: string;
 }
 
+interface RawLowAttendanceResult {
+  userId: string;
+  visitCount: string;
+  lastAttendanceDate: string | null;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+}
+
+export interface LowAttendanceUserData {
+  userId: string;
+  name: string;
+  email: string;
+  visitCount: number;
+  lastAttendanceDate: Date | null;
+}
+
 @Injectable()
 export class AttendanceService {
   constructor(
@@ -226,5 +243,54 @@ export class AttendanceService {
       .getRawMany<{ userId: string; visitCount: string }>();
 
     return results.map((r) => r.userId);
+  }
+
+  async findUsersWithLowAttendanceDetails(
+    minVisits: number = 8,
+    month?: number,
+    year?: number
+  ): Promise<LowAttendanceUserData[]> {
+    const now = new Date();
+    const targetMonth = month ?? now.getMonth();
+    const targetYear = year ?? now.getFullYear();
+
+    const startDate = new Date(targetYear, targetMonth - 1, 1);
+    const endDate = new Date(targetYear, targetMonth, 0, 23, 59, 59);
+
+    const usersWithAttendance = await this.accessLogRepository
+      .createQueryBuilder('log')
+      .select('log.userId', 'userId')
+      .addSelect('COUNT(*)', 'visitCount')
+      .addSelect('MAX(log.createdAt)', 'lastAttendanceDate')
+      .innerJoin('log.user', 'user')
+      .addSelect('user.id', 'user_id')
+      .addSelect('user.name', 'user_name')
+      .addSelect('user.email', 'user_email')
+      .where('log.granted = :granted', { granted: true })
+      .andWhere('user.isActive = :isActive', { isActive: true })
+      .andWhere('user.role = :role', { role: 'user' })
+      .andWhere('log.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy('log.userId')
+      .addGroupBy('user.id')
+      .addGroupBy('user.name')
+      .addGroupBy('user.email')
+      .having('COUNT(*) < :minVisits', { minVisits })
+      .getRawMany<RawLowAttendanceResult>();
+
+    return usersWithAttendance.map((row) => ({
+      userId: row.userId,
+      name: row.user_name,
+      email: row.user_email,
+      visitCount: parseInt(row.visitCount, 10),
+      lastAttendanceDate: row.lastAttendanceDate ? new Date(row.lastAttendanceDate) : null,
+    }));
+  }
+
+  async getLastAttendanceDate(userId: string): Promise<Date | null> {
+    const lastLog = await this.accessLogRepository.findOne({
+      where: { userId, granted: true },
+      order: { createdAt: 'DESC' },
+    });
+    return lastLog?.createdAt ?? null;
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { AccessLog } from './entities/access-log.entity';
@@ -33,6 +33,7 @@ export class AccessService {
     private readonly accessLogRepository: Repository<AccessLog>,
     private readonly qrService: QrService,
     private readonly membershipsService: MembershipsService,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService
   ) {}
 

@@ -22,6 +22,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { SearchUsersDto } from './dto/search-users.dto';
+import { LowAttendanceQueryDto, LowAttendanceResponseDto } from './dto/low-attendance-user.dto';
 import { QrService } from '../qr/qr.service';
 
 @Controller('users')
@@ -81,6 +82,15 @@ export class UsersController {
       'Content-Disposition': 'attachment; filename="miembros-fitflow.xlsx"',
     });
     res.send(excelBuffer);
+  }
+
+  @Get('low-attendance')
+  @Roles(Role.ADMIN, Role.TRAINER)
+  @HttpCode(HttpStatus.OK)
+  async getLowAttendanceUsers(
+    @Query() query: LowAttendanceQueryDto
+  ): Promise<LowAttendanceResponseDto> {
+    return await this.usersService.findLowAttendanceUsers(query.month, query.year, query.minVisits);
   }
 
   @Get(':id')

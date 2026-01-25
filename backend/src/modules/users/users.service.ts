@@ -18,6 +18,9 @@ import { PaginatedResponse } from '../../common/interfaces/paginated-response.in
 import * as bcrypt from 'bcrypt';
 import * as ExcelJS from 'exceljs';
 import { SearchUsersDto } from './dto/search-users.dto';
+import { AttendanceService, LowAttendanceUserData } from '../attendance/attendance.service';
+import { LowAttendanceResponseDto } from './dto/low-attendance-user.dto';
+import { MembershipStatus } from '../memberships/entities/membership.entity';
 
 interface RawUserMembershipResult {
   user_id: string;
@@ -43,7 +46,8 @@ interface UserMembershipData {
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private readonly usersRepository: Repository<User>
+    private readonly usersRepository: Repository<User>,
+    private readonly attendanceService: AttendanceService
   ) {}
 
   // ==================== CREAR USUARIOS ====================
@@ -514,5 +518,55 @@ export class UsersService {
     // Generar buffer
     const buffer = await workbook.xlsx.writeBuffer();
     return Buffer.from(buffer);
+  }
+
+  // ==================== LOW ATTENDANCE ====================
+
+  async findLowAttendanceUsers(
+    month?: number,
+    year?: number,
+    minVisits: number = 8
+  ): Promise<LowAttendanceResponseDto> {
+    const now = new Date();
+    const targetMonth = month ?? now.getMonth() + 1;
+    const targetYear = year ?? now.getFullYear();
+
+    const usersWithLowAttendance = await this.attendanceService.findUsersWithLowAttendanceDetails(
+      minVisits,
+      targetMonth,
+      targetYear
+    );
+
+    const usersWithMembership = await Promise.all(
+      usersWithLowAttendance.map(async (userData: LowAttendanceUserData) => {
+        const user = await this.usersRepository.findOne({
+          where: { id: userData.userId },
+          relations: ['memberships'],
+        });
+
+        const activeMembership = user?.memberships?.find(
+          (m) => m.status === MembershipStatus.ACTIVE || m.status === MembershipStatus.GRACE_PERIOD
+        );
+
+        return {
+          id: userData.userId,
+          name: userData.name,
+          email: userData.email,
+          visitCount: userData.visitCount,
+          lastAttendanceDate: userData.lastAttendanceDate,
+          membershipStatus: activeMembership?.status ?? null,
+        };
+      })
+    );
+
+    return {
+      users: usersWithMembership,
+      meta: {
+        total: usersWithMembership.length,
+        month: targetMonth,
+        year: targetYear,
+        minVisitsThreshold: minVisits,
+      },
+    };
   }
 }

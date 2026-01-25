@@ -111,17 +111,21 @@ export class SchedulerService {
   }
 
   @Cron('0 9 * * 1', {
-    name: 'checkLowAttendance',
+    name: 'checkWeeklyLowAttendance',
     timeZone: 'America/Montevideo',
   })
-  async handleLowAttendance(): Promise<void> {
-    this.logger.log(`[CRON] Starting low attendance check (<${MIN_MONTHLY_VISITS} visits/month)`);
+  async handleWeeklyLowAttendanceCheck(): Promise<void> {
+    this.logger.log(
+      `[CRON] Starting weekly low attendance check (<${MIN_MONTHLY_VISITS} visits/month)`
+    );
 
     try {
       const usersWithLowAttendance =
         await this.attendanceService.findUsersWithLowAttendance(MIN_MONTHLY_VISITS);
 
-      this.logger.log(`[CRON] Found ${usersWithLowAttendance.length} users with low attendance`);
+      this.logger.log(
+        `[CRON] Weekly check: Found ${usersWithLowAttendance.length} users with low attendance`
+      );
 
       let sent = 0;
       for (const userId of usersWithLowAttendance) {
@@ -138,10 +142,61 @@ export class SchedulerService {
       }
 
       this.logger.log(
-        `[CRON] Low attendance check complete. Sent ${sent}/${usersWithLowAttendance.length} notifications`
+        `[CRON] Weekly low attendance check complete. Sent ${sent}/${usersWithLowAttendance.length} notifications`
       );
     } catch (error) {
-      this.logger.error('[CRON] Error in low attendance check', error);
+      this.logger.error('[CRON] Error in weekly low attendance check', error);
+    }
+  }
+
+  @Cron('0 9 1 * *', {
+    name: 'checkMonthlyLowAttendance',
+    timeZone: 'America/Montevideo',
+  })
+  async handleMonthlyLowAttendanceCheck(): Promise<void> {
+    const now = new Date();
+    const previousMonth = now.getMonth() === 0 ? 12 : now.getMonth();
+    const previousYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+
+    this.logger.log(
+      `[CRON] Starting monthly low attendance check for ${previousMonth}/${previousYear} (<${MIN_MONTHLY_VISITS} visits)`
+    );
+
+    try {
+      const usersWithLowAttendance = await this.attendanceService.findUsersWithLowAttendanceDetails(
+        MIN_MONTHLY_VISITS,
+        previousMonth,
+        previousYear
+      );
+
+      this.logger.log(
+        `[CRON] Monthly check: Found ${usersWithLowAttendance.length} users with low attendance in ${previousMonth}/${previousYear}`
+      );
+
+      let sent = 0;
+      for (const user of usersWithLowAttendance) {
+        try {
+          await this.notificationsService.sendByTemplate(
+            user.userId,
+            NotificationType.LOW_ATTENDANCE
+          );
+          sent++;
+          this.logger.log(
+            `[CRON] Sent monthly low attendance notification to user ${user.userId} (${user.name}, ${user.visitCount} visits)`
+          );
+        } catch (error) {
+          this.logger.error(
+            `[CRON] Failed to send monthly low attendance notification to user ${user.userId}`,
+            error
+          );
+        }
+      }
+
+      this.logger.log(
+        `[CRON] Monthly low attendance check complete. Sent ${sent}/${usersWithLowAttendance.length} notifications`
+      );
+    } catch (error) {
+      this.logger.error('[CRON] Error in monthly low attendance check', error);
     }
   }
 

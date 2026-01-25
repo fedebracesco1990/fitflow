@@ -1174,7 +1174,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-67] Panel de Notificaciones Personalizadas (Admin) ✅
+### [FITFLOW-67] Panel de Notificaciones Personalizadas (Admin) ✅ \***\*(BUG A REVISAR - CUANDO SE MANDA NOTIFICACIÓN A UN USUARIO, LES LEGA A TODOS)\*\*\***
 
 **Tipo:** Frontend
 
@@ -1199,7 +1199,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 ---
 
-### [FITFLOW-68] Detección de Usuarios con Baja Asistencia
+### [FITFLOW-68] Detección de Usuarios con Baja Asistencia ✅
 
 **Tipo:** Backend
 
@@ -1207,10 +1207,18 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 
 **Criterios de Aceptación:**
 
-- [ ] Cron job mensual que identifica usuarios <8 asistencias
-- [ ] GET /api/users/low-attendance
-- [ ] Generación de lista para contacto manual
-- [ ] Opción de envío automático de notificación motivacional
+- [x] Cron job mensual que identifica usuarios <8 asistencias
+- [x] GET /api/users/low-attendance
+- [x] Generación de lista para contacto manual
+- [x] Opción de envío automático de notificación motivacional
+
+**Implementación (2026-01-25):**
+
+- `GET /users/low-attendance` - Endpoint con query params: month, year, minVisits
+- `handleMonthlyLowAttendanceCheck()` - Cron mensual (1ro de mes, 9am)
+- `handleWeeklyLowAttendanceCheck()` - Cron semanal para alertas tempranas
+- `findUsersWithLowAttendanceDetails()` - Retorna datos completos de usuario
+- Notificación automática `LOW_ATTENDANCE` vía Firebase + WebSocket
 
 ---
 
@@ -1390,7 +1398,7 @@ Backlog del Proyecto - Sistema de Gestión de Gimnasio
 | FITFLOW-65 | API de Comunicación Trainer-Usuario         | ⬜ PENDIENTE | Mensajería, WS events, unread count                                     |
 | FITFLOW-66 | Chat Trainer-Usuario                        | ⬜ PENDIENTE | UI Chat, realtime, imágenes                                             |
 | FITFLOW-67 | Panel Notificaciones Personalizadas         | ✅ COMPLETO  | UserSelectorComponent, MessageEditor, historial localStorage            |
-| FITFLOW-68 | Detección Usuarios Baja Asistencia          | ⬜ PENDIENTE | Cron job mensual, lista de alerta                                       |
+| FITFLOW-68 | Detección Usuarios Baja Asistencia          | ✅ COMPLETO  | GET /users/low-attendance, cron mensual + semanal, notificaciones auto  |
 | FITFLOW-69 | Lista de Usuarios para Retención            | ⬜ PENDIENTE | UI Dashboard alerta, acciones rápidas                                   |
 | FITFLOW-70 | Pulido Final de UI/UX                       | ⬜ PENDIENTE | Consistencia, animaciones, a11y, onboarding                             |
 | FITFLOW-71 | Testing de Integración E2E                  | ⬜ PENDIENTE | Cypress/Playwright suite                                                |

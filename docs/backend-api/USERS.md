@@ -8,16 +8,63 @@ Endpoints para gestión de usuarios y perfiles.
 
 ## Endpoints
 
-| Método | Ruta                         | Descripción           | Roles          |
-| ------ | ---------------------------- | --------------------- | -------------- |
-| POST   | `/users`                     | Crear usuario         | ADMIN          |
-| GET    | `/users`                     | Listar usuarios       | ADMIN, TRAINER |
-| GET    | `/users/:id`                 | Obtener usuario       | ADMIN, TRAINER |
-| PATCH  | `/users/:id`                 | Actualizar usuario    | ADMIN          |
-| DELETE | `/users/:id`                 | Eliminar usuario      | ADMIN          |
-| GET    | `/users/profile/me`          | Mi perfil             | Todos          |
-| PATCH  | `/users/profile/me`          | Actualizar mi perfil  | Todos          |
-| PATCH  | `/users/profile/me/password` | Cambiar mi contraseña | Todos          |
+| Método | Ruta                         | Descripción              | Roles          |
+| ------ | ---------------------------- | ------------------------ | -------------- |
+| POST   | `/users`                     | Crear usuario            | ADMIN          |
+| GET    | `/users`                     | Listar usuarios          | ADMIN, TRAINER |
+| GET    | `/users/low-attendance`      | Usuarios baja asistencia | ADMIN, TRAINER |
+| GET    | `/users/export`              | Exportar miembros        | ADMIN          |
+| GET    | `/users/:id`                 | Obtener usuario          | ADMIN, TRAINER |
+| PATCH  | `/users/:id`                 | Actualizar usuario       | ADMIN          |
+| DELETE | `/users/:id`                 | Eliminar usuario         | ADMIN          |
+| GET    | `/users/profile/me`          | Mi perfil                | Todos          |
+| PATCH  | `/users/profile/me`          | Actualizar mi perfil     | Todos          |
+| PATCH  | `/users/profile/me/password` | Cambiar mi contraseña    | Todos          |
+
+---
+
+## GET /users/low-attendance
+
+Obtiene usuarios con baja asistencia en un período específico.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+**Query Parameters:**
+
+| Parámetro | Tipo   | Default | Descripción              |
+| --------- | ------ | ------- | ------------------------ |
+| month     | number | actual  | Mes a consultar (1-12)   |
+| year      | number | actual  | Año a consultar          |
+| minVisits | number | 8       | Umbral mínimo de visitas |
+
+**Response (200):**
+
+```json
+{
+  "users": [
+    {
+      "id": "uuid",
+      "name": "Juan Pérez",
+      "email": "juan@example.com",
+      "visitCount": 3,
+      "lastAttendanceDate": "2026-01-15T10:30:00.000Z",
+      "membershipStatus": "active"
+    }
+  ],
+  "meta": {
+    "total": 5,
+    "month": 1,
+    "year": 2026,
+    "minVisitsThreshold": 8
+  }
+}
+```
+
+**Notas:**
+
+- Retorna usuarios con menos de `minVisits` asistencias en el mes especificado
+- `lastAttendanceDate` puede ser `null` si no hay registros
+- `membershipStatus` muestra el estado de membresía activa (`active`, `grace_period`, o `null`)
 
 ---
 
