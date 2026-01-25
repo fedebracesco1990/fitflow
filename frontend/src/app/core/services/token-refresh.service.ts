@@ -1,6 +1,7 @@
 import { Injectable, inject, OnDestroy } from '@angular/core';
 import { Store } from '@ngxs/store';
 import { jwtDecode } from 'jwt-decode';
+
 import { RefreshToken } from '../store/auth/auth.actions';
 
 interface JwtPayload {
