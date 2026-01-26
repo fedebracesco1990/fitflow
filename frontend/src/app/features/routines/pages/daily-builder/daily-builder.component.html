@@ -1,0 +1,209 @@
+<div class="daily-builder">
+  <nav class="breadcrumb">
+    <button class="back-btn" (click)="goBack()">‹</button>
+    <a routerLink="/training">Entrenamiento</a>
+    <span class="separator">›</span>
+    <a routerLink="/training" (click)="setRoutinesTab()">Rutinas</a>
+    <span class="separator">›</span>
+    <span class="current">Rutina Diaria</span>
+  </nav>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Cargando...</div>
+  } @else {
+    <div class="builder-layout">
+      <aside class="exercise-library">
+        <h3>Biblioteca de Ejercicios</h3>
+        <div class="library-search">
+          <input
+            type="text"
+            placeholder="Buscar"
+            [value]="exerciseSearch()"
+            (input)="onExerciseSearchChange($event)"
+          />
+        </div>
+        <div class="muscle-chips">
+          @for (group of muscleGroups; track group.value) {
+            <button
+              class="chip"
+              [class.active]="selectedMuscleGroup() === group.value"
+              (click)="selectMuscleGroup(group.value)"
+            >
+              {{ group.label }}
+            </button>
+          }
+        </div>
+        <div
+          class="exercise-list"
+          cdkDropList
+          id="exercise-panel"
+          [cdkDropListData]="filteredExercises()"
+          [cdkDropListConnectedTo]="['routine-exercises']"
+          [cdkDropListSortingDisabled]="true"
+        >
+          @for (exercise of filteredExercises(); track exercise.id) {
+            <div class="exercise-card" cdkDrag>
+              <div class="exercise-avatar">IMG</div>
+              <div class="exercise-details">
+                <span class="exercise-name">{{ exercise.name }}</span>
+                <span class="exercise-muscle">{{ exercise.muscleGroup?.name || 'General' }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </aside>
+
+      <main class="builder-main">
+        <section class="form-section">
+          <header class="form-header">
+            <h2>{{ isEditMode() ? 'Editar' : 'Nueva' }} Rutina Diaria</h2>
+            <div class="header-actions">
+              <button class="btn btn-outline" (click)="saveDraft()" [disabled]="saving()">
+                Guardar Borrador
+              </button>
+              <button class="btn btn-primary" (click)="save()" [disabled]="saving()">
+                {{ saving() ? 'Guardando...' : 'Crear' }}
+              </button>
+            </div>
+          </header>
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label for="name">* Nombre</label>
+              <input
+                type="text"
+                id="name"
+                [value]="formData().name"
+                (input)="updateFormField('name', $any($event.target).value)"
+                placeholder="Ej: Core fuerza"
+              />
+            </div>
+            <div class="form-group flex-1">
+              <label for="muscleGroup">* Musculo/s</label>
+              <select id="muscleGroup">
+                <option value="">Entrenamiento de Fuerza</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="difficulty">* Dificultad</label>
+              <select
+                id="difficulty"
+                [value]="formData().difficulty"
+                (change)="updateFormField('difficulty', $any($event.target).value)"
+              >
+                @for (diff of difficultyOptions; track diff) {
+                  <option [value]="diff">{{ difficultyLabels[diff] }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group flex-1">
+              <label for="duration">* Tiempo Estimado</label>
+              <select
+                id="duration"
+                [value]="formData().estimatedDuration"
+                (change)="updateFormField('estimatedDuration', +$any($event.target).value)"
+              >
+                <option value="30">30 mins</option>
+                <option value="45">45 mins</option>
+                <option value="60">60 mins</option>
+                <option value="90">90 mins</option>
+                <option value="120">120 mins</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Descripcion</label>
+            <textarea
+              id="description"
+              rows="3"
+              [value]="formData().description"
+              (input)="updateFormField('description', $any($event.target).value)"
+              placeholder="Esto es una nota"
+            ></textarea>
+          </div>
+        </section>
+
+        <section class="exercises-section">
+          <div class="section-header">
+            <h3>Estructura Día</h3>
+            <span class="exercise-count">Ejercicios: {{ pendingExercises().length }}</span>
+          </div>
+
+          <div
+            class="exercises-drop-zone"
+            cdkDropList
+            id="routine-exercises"
+            [cdkDropListData]="pendingExercises()"
+            [cdkDropListConnectedTo]="['exercise-panel']"
+            (cdkDropListDropped)="onExerciseDropped($event)"
+          >
+            @for (item of pendingExercises(); track item.order; let i = $index) {
+              <div class="exercise-item" cdkDrag>
+                <div class="exercise-header">
+                  <span class="exercise-name">{{ item.exercise.name }}</span>
+                  <span class="exercise-muscle">{{
+                    item.exercise.muscleGroup?.name || 'Core'
+                  }}</span>
+                  <span class="difficulty-badge">Dificultad Baja</span>
+                </div>
+                <div class="exercise-config">
+                  <div class="config-field">
+                    <label>* Series</label>
+                    <input
+                      type="number"
+                      [value]="item.sets"
+                      (input)="updateExercise(i, 'sets', +$any($event.target).value)"
+                      min="1"
+                    />
+                  </div>
+                  <div class="config-field">
+                    <label>* Reps</label>
+                    <input
+                      type="number"
+                      [value]="item.reps"
+                      (input)="updateExercise(i, 'reps', +$any($event.target).value)"
+                      min="1"
+                    />
+                  </div>
+                  <div class="config-field">
+                    <label>* Peso (kg)</label>
+                    <input
+                      type="number"
+                      [value]="item.weight || 0"
+                      (input)="updateExerciseWeight(i, +$any($event.target).value)"
+                      min="0"
+                    />
+                  </div>
+                  <div class="config-field">
+                    <label>* Descanso (s)</label>
+                    <input
+                      type="number"
+                      [value]="item.restSeconds"
+                      (input)="updateExercise(i, 'restSeconds', +$any($event.target).value)"
+                      min="0"
+                    />
+                  </div>
+                  <button class="btn-remove" (click)="removeExercise(i)">🗑️</button>
+                  <div class="drag-handle" cdkDragHandle>⋮⋮</div>
+                </div>
+              </div>
+            }
+
+            <div class="drop-zone-placeholder">
+              <div class="add-icon">+</div>
+              <span>Agregar</span>
+              <span class="hint">Arrastra un ejercicio aquí para agregar</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  }
+</div>

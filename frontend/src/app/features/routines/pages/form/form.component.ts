@@ -144,9 +144,9 @@ export class RoutineFormComponent implements OnInit {
       next: (routine) => {
         if (!this.isEditMode()) {
           // Ir a editar para poder agregar ejercicios
-          this.router.navigate(['/routines', routine.id, 'edit']);
+          this.router.navigate(['/training/routines', routine.id, 'edit']);
         } else {
-          this.router.navigate(['/routines']);
+          this.router.navigate(['/training']);
         }
       },
       error: (err) => {
@@ -157,7 +157,7 @@ export class RoutineFormComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/routines']);
+    this.router.navigate(['/training']);
   }
 
   isExerciseInRoutine(exercise: Exercise): boolean {

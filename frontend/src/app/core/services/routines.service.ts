@@ -11,6 +11,9 @@ import {
   SaveAsTemplateDto,
   CreateFromTemplateDto,
   FilterTemplatesParams,
+  RoutineType,
+  ProgramRoutine,
+  AddRoutineToProgramDto,
 } from '../models';
 import { PaginatedResponse } from '../models/api-response.model';
 
@@ -18,6 +21,7 @@ export interface RoutinesPaginationParams {
   page?: number;
   limit?: number;
   includeInactive?: boolean;
+  type?: RoutineType;
 }
 
 @Injectable({
@@ -32,6 +36,7 @@ export class RoutinesService {
     if (params?.page) queryParams.set('page', params.page.toString());
     if (params?.limit) queryParams.set('limit', params.limit.toString());
     if (params?.includeInactive) queryParams.set('includeInactive', 'true');
+    if (params?.type) queryParams.set('type', params.type);
 
     const query = queryParams.toString();
     const url = query ? `${this.endpoint}?${query}` : this.endpoint;
@@ -94,5 +99,23 @@ export class RoutinesService {
 
   createFromTemplate(templateId: string, data?: CreateFromTemplateDto): Observable<Routine> {
     return this.api.post<Routine>(`${this.endpoint}/from-template/${templateId}`, data || {});
+  }
+
+  getProgramRoutines(programId: string): Observable<ProgramRoutine[]> {
+    return this.api.get<ProgramRoutine[]>(`${this.endpoint}/${programId}/daily-routines`);
+  }
+
+  addRoutineToProgram(programId: string, data: AddRoutineToProgramDto): Observable<ProgramRoutine> {
+    return this.api.post<ProgramRoutine>(`${this.endpoint}/${programId}/daily-routines`, data);
+  }
+
+  removeRoutineFromProgram(
+    programId: string,
+    routineId: string,
+    dayNumber: number
+  ): Observable<void> {
+    return this.api.delete<void>(
+      `${this.endpoint}/${programId}/daily-routines/${routineId}?dayNumber=${dayNumber}`
+    );
   }
 }

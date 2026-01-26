@@ -92,7 +92,7 @@ export class TemplatesListComponent implements OnInit {
       next: (newRoutine) => {
         this.creatingFromTemplate.set(false);
         this.previewDialogOpen.set(false);
-        this.router.navigate(['/routines', newRoutine.id, 'builder']);
+        this.router.navigate(['/training/routines', newRoutine.id, 'builder']);
       },
       error: (err) => {
         this.creatingFromTemplate.set(false);

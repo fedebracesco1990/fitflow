@@ -1,0 +1,226 @@
+<div class="weekly-builder">
+  <nav class="breadcrumb">
+    <button class="back-btn" (click)="goBack()">‹</button>
+    <a routerLink="/training">Entrenamiento</a>
+    <span class="separator">›</span>
+    <a routerLink="/training">Rutinas</a>
+    <span class="separator">›</span>
+    <span class="current">Programa Semanal</span>
+  </nav>
+
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Cargando...</div>
+  } @else {
+    <div class="builder-layout">
+      <aside class="routines-library">
+        <h3>Biblioteca de Rutinas Diarias</h3>
+        <div class="library-search">
+          <input
+            type="text"
+            placeholder="Buscar"
+            [value]="routineSearch()"
+            (input)="onRoutineSearchChange($event)"
+          />
+        </div>
+        <div class="filter-chips">
+          @for (filter of routineFilters; track filter.value) {
+            <button
+              class="chip"
+              [class.active]="selectedFilter() === filter.value"
+              (click)="selectFilter(filter.value)"
+            >
+              {{ filter.label }}
+            </button>
+          }
+        </div>
+        <div
+          class="routines-list"
+          cdkDropList
+          id="routines-library"
+          [cdkDropListData]="filteredRoutines()"
+          [cdkDropListConnectedTo]="['schedule-drop-zone']"
+          [cdkDropListSortingDisabled]="true"
+        >
+          @if (filteredRoutines().length === 0) {
+            <p class="empty">No hay rutinas diarias disponibles</p>
+          } @else {
+            @for (routine of filteredRoutines(); track routine.id) {
+              <div
+                class="routine-card"
+                cdkDrag
+                [class.selected]="selectedRoutine()?.id === routine.id"
+              >
+                <div class="routine-info">
+                  <span class="routine-name">{{ routine.name }}</span>
+                  <div class="routine-meta">
+                    <span class="meta-item">{{ routine.exercises?.length || 0 }} ejercicios</span>
+                    <span class="meta-item">{{ routine.estimatedDuration }} min</span>
+                  </div>
+                  <div class="routine-tags">
+                    <span class="tag">Pecho</span>
+                    <span class="tag">Hombros</span>
+                    <span class="tag">Triceps</span>
+                  </div>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </aside>
+
+      <main class="builder-main">
+        <section class="form-section">
+          <header class="form-header">
+            <h2>{{ isEditMode() ? 'Editar' : 'Nuevo' }} Programa Semanal</h2>
+            <div class="header-actions">
+              <button class="btn btn-outline" (click)="saveDraft()" [disabled]="saving()">
+                Guardar Borrador
+              </button>
+              <button class="btn btn-primary" (click)="save()" [disabled]="saving()">
+                {{ saving() ? 'Guardando...' : 'Crear' }}
+              </button>
+            </div>
+          </header>
+
+          <div class="form-group">
+            <label for="name">* Nombre</label>
+            <input
+              type="text"
+              id="name"
+              [value]="formData().name"
+              (input)="updateFormField('name', $any($event.target).value)"
+              placeholder="Ej: Core fuerza"
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="difficulty">* Dificultad</label>
+              <select
+                id="difficulty"
+                [value]="formData().difficulty"
+                (change)="updateFormField('difficulty', $any($event.target).value)"
+              >
+                @for (diff of difficultyOptions; track diff) {
+                  <option [value]="diff">{{ difficultyLabels[diff] }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group flex-1">
+              <label for="duration">* Duración</label>
+              <select
+                id="duration"
+                [value]="formData().durationWeeks"
+                (change)="updateFormField('durationWeeks', +$any($event.target).value)"
+              >
+                <option value="1">1 semana</option>
+                <option value="2">2 semanas</option>
+                <option value="4">4 semanas</option>
+                <option value="6">6 semanas</option>
+                <option value="8">8 semanas</option>
+                <option value="12">12 semanas</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Descripcion</label>
+            <textarea
+              id="description"
+              rows="2"
+              [value]="formData().description"
+              (input)="updateFormField('description', $any($event.target).value)"
+              placeholder="Principiante"
+            ></textarea>
+          </div>
+        </section>
+
+        <section class="schedule-section">
+          <h3>Estructura Semanal</h3>
+
+          <div class="days-list">
+            @for (
+              assignment of allDayAssignments();
+              track assignment.routineId + '-' + assignment.dayNumber
+            ) {
+              <div class="day-item-wrapper">
+                <div class="day-number-badge">{{ assignment.dayNumber }}</div>
+                <div
+                  class="day-card"
+                  [class.pending]="!assignment.isSaved"
+                  (click)="openRoutineDetail(assignment)"
+                >
+                  <div class="day-card-content">
+                    <div class="day-card-header">
+                      <span class="day-label">Día {{ assignment.dayNumber }}</span>
+                      <span class="difficulty-badge">{{
+                        difficultyLabels[assignment.routine.difficulty]
+                      }}</span>
+                      @if (!assignment.isSaved) {
+                        <span class="pending-badge">Pendiente</span>
+                      }
+                    </div>
+                    <div class="routine-name">{{ assignment.routine.name }}</div>
+                    <div class="day-meta">
+                      <span class="meta-item">
+                        <span class="meta-icon">🔥</span>
+                        {{ assignment.routine.exercises?.length || 0 }} ejercicios
+                      </span>
+                      <span class="meta-item">
+                        <span class="meta-icon">⏱</span>
+                        {{ assignment.routine.estimatedDuration }}-{{
+                          assignment.routine.estimatedDuration + 15
+                        }}
+                        min
+                      </span>
+                      <span class="meta-item meta-tags">
+                        <span class="meta-icon">🎯</span>
+                        Pecho, Hombros, Tríceps
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    class="remove-btn"
+                    (click)="
+                      $event.stopPropagation();
+                      assignment.isSaved
+                        ? removeRoutineFromDay(assignment.routineId, assignment.dayNumber)
+                        : removePendingAssignment(assignment.routineId, assignment.dayNumber)
+                    "
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div class="drag-handle">⋮⋮</div>
+              </div>
+            }
+
+            <div
+              class="drop-zone"
+              cdkDropList
+              id="schedule-drop-zone"
+              [cdkDropListData]="[]"
+              [cdkDropListConnectedTo]="['routines-library']"
+              (cdkDropListDropped)="onRoutineDropped($event)"
+            >
+              <div class="add-icon">+</div>
+              <span>Agregar</span>
+              <span class="hint">Arrastra una rutina aquí</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  }
+</div>
+
+<fit-flow-routine-detail-dialog
+  [isOpen]="dialogOpen()"
+  [data]="dialogData()"
+  (close)="closeDialog()"
+  (save)="onDialogSave($event)"
+></fit-flow-routine-detail-dialog>

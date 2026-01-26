@@ -178,7 +178,7 @@ export class RoutineBuilderComponent implements OnInit {
 
       await this.syncExercises(routine.id);
 
-      this.router.navigate(['/routines']);
+      this.router.navigate(['/training']);
     } catch (err: unknown) {
       const error = err as { error?: { message?: string } };
       this.error.set(error.error?.message || 'Error al guardar rutina');
@@ -216,7 +216,7 @@ export class RoutineBuilderComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/routines']);
+    this.router.navigate(['/training']);
   }
 
   onOpenSaveAsTemplateDialog(): void {
@@ -260,7 +260,7 @@ export class RoutineBuilderComponent implements OnInit {
           next: () => {
             this.savingAsTemplate.set(false);
             this.saveAsTemplateDialogOpen.set(false);
-            this.router.navigate(['/routines/templates']);
+            this.router.navigate(['/training/routines/templates']);
           },
           error: (err) => {
             this.savingAsTemplate.set(false);

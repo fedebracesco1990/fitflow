@@ -1,12 +1,24 @@
 <div class="routines-list">
-  <header class="page-header">
-    <h1>Rutinas</h1>
-    <div class="header-actions">
-      <a routerLink="/routines/templates" class="btn btn-outline">📋 Mis Plantillas</a>
-      <a routerLink="/routines/builder" class="btn btn-outline">🎨 Constructor Visual</a>
-      <a routerLink="/routines/new" class="btn btn-primary">+ Nueva Rutina</a>
+  <div class="filters-row">
+    <div class="search-input">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        placeholder="Buscar"
+        [value]="searchQuery()"
+        (input)="onSearchChange($event)"
+      />
     </div>
-  </header>
+
+    <div class="filter-group">
+      <label class="filter-label" for="type-filter">Tipo</label>
+      <select id="type-filter" class="filter-select" (change)="onTypeFilterChange($event)">
+        <option value="">Todos</option>
+        <option [value]="RoutineType.DAILY">Rutina Diaria</option>
+        <option [value]="RoutineType.WEEKLY">Programa Semanal</option>
+      </select>
+    </div>
+  </div>
 
   @if (successMessage()) {
     <div class="alert alert-success">{{ successMessage() }}</div>
@@ -21,7 +33,7 @@
   } @else if (routines().length === 0) {
     <div class="empty-state">
       <p>No hay rutinas creadas</p>
-      <a routerLink="/routines/new" class="btn btn-outline">Crear primera rutina</a>
+      <button class="btn btn-outline" (click)="openTypeModal()">Crear primera rutina</button>
     </div>
   } @else {
     <fit-flow-card>
@@ -30,15 +42,21 @@
           <thead>
             <tr>
               <th>Nombre</th>
+              <th>Tipo</th>
               <th>Dificultad</th>
               <th>Creada</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            @for (routine of routines(); track routine.id) {
+            @for (routine of displayedRoutines(); track routine.id) {
               <tr>
                 <td>{{ routine.name }}</td>
+                <td>
+                  <fit-flow-badge [variant]="getTypeBadgeVariant(routine.type)">
+                    {{ routineTypeLabels[routine.type] }}
+                  </fit-flow-badge>
+                </td>
                 <td>
                   <fit-flow-badge [variant]="getDifficultyBadgeVariant(routine.difficulty)">
                     {{ difficultyLabels[routine.difficulty] }}
@@ -46,19 +64,26 @@
                 </td>
                 <td>{{ routine.createdAt | date: 'd MMM, y' }}</td>
                 <td class="actions">
-                  <button class="btn btn-sm btn-primary" (click)="openAssignDialog(routine)">
-                    👥 Asignar
+                  <button class="btn-icon" title="Asignar" (click)="openAssignDialog(routine)">
+                    👥
                   </button>
                   <a
-                    [routerLink]="['/routines', routine.id, 'builder']"
-                    class="btn btn-sm btn-outline"
-                    >🎨 Builder</a
+                    [routerLink]="
+                      routine.type === RoutineType.DAILY
+                        ? ['/routines', routine.id, 'builder']
+                        : ['/routines', routine.id, 'builder']
+                    "
+                    class="btn-icon"
+                    title="Editar"
                   >
-                  <a [routerLink]="['/routines', routine.id, 'edit']" class="btn btn-sm btn-outline"
-                    >Editar</a
+                    ✏️
+                  </a>
+                  <button
+                    class="btn-icon btn-icon-danger"
+                    title="Eliminar"
+                    (click)="deleteRoutine(routine)"
                   >
-                  <button class="btn btn-sm btn-danger" (click)="deleteRoutine(routine)">
-                    Eliminar
+                    🗑️
                   </button>
                 </td>
               </tr>
@@ -67,6 +92,43 @@
         </table>
       </div>
     </fit-flow-card>
+
+    <div class="pagination-row">
+      <span class="pagination-info">
+        Mostrando {{ displayedRoutines().length }} de {{ totalRoutines() }} rutinas
+      </span>
+      @if (totalPages() > 1) {
+        <div class="pagination-controls">
+          <button
+            class="pagination-btn"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)"
+          >
+            Anterior
+          </button>
+          @for (page of visiblePages(); track page) {
+            @if (page === '...') {
+              <span class="pagination-ellipsis">...</span>
+            } @else {
+              <button
+                class="pagination-btn"
+                [class.active]="currentPage() === page"
+                (click)="goToPage(+page)"
+              >
+                {{ page }}
+              </button>
+            }
+          }
+          <button
+            class="pagination-btn"
+            [disabled]="currentPage() === totalPages()"
+            (click)="goToPage(currentPage() + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      }
+    </div>
   }
 </div>
 
@@ -79,3 +141,9 @@
     (cancelled)="onAssignCancelled()"
   />
 }
+
+<fit-flow-routine-type-select-dialog
+  [isOpen]="showTypeModal()"
+  (typeSelected)="onTypeSelected($event)"
+  (cancelled)="onTypeModalCancelled()"
+/>

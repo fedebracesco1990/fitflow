@@ -1,6 +1,16 @@
 import { Difficulty, Exercise } from './exercise.model';
 import { User } from './user.model';
 
+export enum RoutineType {
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+}
+
+export const RoutineTypeLabels: Record<RoutineType, string> = {
+  [RoutineType.DAILY]: 'Rutina Diaria',
+  [RoutineType.WEEKLY]: 'Programa Semanal',
+};
+
 export interface RoutineExercise {
   id: string;
   routineId: string;
@@ -24,9 +34,21 @@ export interface Routine {
   difficulty: Difficulty;
   estimatedDuration: number;
   isActive: boolean;
+  type: RoutineType;
   exercises: RoutineExercise[];
+  programRoutines?: ProgramRoutine[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ProgramRoutine {
+  id: string;
+  programId: string;
+  routineId: string;
+  routine: Routine;
+  dayNumber: number;
+  order: number;
+  createdAt: string;
 }
 
 export interface CreateRoutineDto {
@@ -34,6 +56,13 @@ export interface CreateRoutineDto {
   description?: string;
   difficulty?: Difficulty;
   estimatedDuration?: number;
+  type?: RoutineType;
+}
+
+export interface AddRoutineToProgramDto {
+  routineId: string;
+  dayNumber: number;
+  order?: number;
 }
 
 export type UpdateRoutineDto = Partial<CreateRoutineDto> & {

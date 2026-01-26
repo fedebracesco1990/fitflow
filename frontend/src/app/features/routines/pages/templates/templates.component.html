@@ -4,7 +4,7 @@
       <h1>Mis Plantillas</h1>
       <p class="subtitle">Plantillas de rutinas reutilizables</p>
     </div>
-    <a routerLink="/routines" class="btn btn-outline">← Volver a Rutinas</a>
+    <a routerLink="/training" class="btn btn-outline">← Volver a Rutinas</a>
   </header>
 
   @if (error()) {
@@ -42,7 +42,7 @@
             Aún no has guardado ninguna rutina como plantilla.
           }
         </p>
-        <a routerLink="/routines/builder" class="btn btn-primary">Crear nueva rutina</a>
+        <a routerLink="/training/routines/daily/new" class="btn btn-primary">Crear nueva rutina</a>
       </div>
     </fit-flow-card>
   } @else {

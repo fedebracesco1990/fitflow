@@ -1,38 +1,42 @@
 <div class="training-page">
-  <header class="page-header">
-    <div class="header-content">
-      <div>
-        <h1>Gestión de Entrenamiento</h1>
-        <p class="subtitle">Administra rutinas, ejercicios y clases grupales</p>
-      </div>
-    </div>
-  </header>
+  <nav class="breadcrumb">
+    <span>Entrenamiento</span>
+    <span class="separator">›</span>
+    <span class="current">{{ getTabLabel() }}</span>
+  </nav>
 
   <div class="training-content">
-    <div class="tabs-header">
-      <button
-        class="tab-button"
-        [class.active]="activeTab() === 'routines'"
-        (click)="setActiveTab('routines')"
-      >
-        Rutinas
-      </button>
-      @if (isAdmin()) {
+    <div class="tabs-row">
+      <div class="tabs-header">
         <button
           class="tab-button"
-          [class.active]="activeTab() === 'exercises'"
-          (click)="setActiveTab('exercises')"
+          [class.active]="activeTab() === 'routines'"
+          (click)="setActiveTab('routines')"
         >
-          Ejercicios
+          Rutinas
         </button>
-      }
-      <button
-        class="tab-button"
-        [class.active]="activeTab() === 'classes'"
-        (click)="setActiveTab('classes')"
-      >
-        Clases
-      </button>
+        @if (isAdmin()) {
+          <button
+            class="tab-button"
+            [class.active]="activeTab() === 'exercises'"
+            (click)="setActiveTab('exercises')"
+          >
+            Ejercicios
+          </button>
+        }
+        <button
+          class="tab-button"
+          [class.active]="activeTab() === 'classes'"
+          (click)="setActiveTab('classes')"
+        >
+          Clases
+        </button>
+      </div>
+
+      <div class="tabs-actions">
+        <a routerLink="/training/routines/templates" class="btn btn-outline"> 📄 Plantillas </a>
+        <button class="btn btn-primary" (click)="openNewRoutineModal()">⭐ Agregar Rutina</button>
+      </div>
     </div>
 
     <div class="tab-content">
@@ -57,3 +61,9 @@
     </div>
   </div>
 </div>
+
+<fit-flow-routine-type-select-dialog
+  [isOpen]="showTypeModal()"
+  (typeSelected)="onTypeSelected($event)"
+  (cancelled)="onTypeModalCancelled()"
+/>
