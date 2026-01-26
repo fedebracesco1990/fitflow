@@ -18,37 +18,79 @@ Este documento describe la arquitectura y funcionamiento del módulo `core` del 
 ```
 core/
 ├── guards/
-│   ├── auth.guard.ts       # Protege rutas autenticadas
-│   ├── guest.guard.ts      # Protege rutas públicas (login, register)
+│   ├── auth.guard.ts         # Protege rutas autenticadas
+│   ├── guest.guard.ts        # Protege rutas públicas (login, register)
 │   └── index.ts
 ├── interceptors/
-│   ├── auth.interceptor.ts # Maneja tokens JWT
-│   ├── error.interceptor.ts # Maneja errores HTTP
+│   ├── auth.interceptor.ts   # Maneja tokens JWT
+│   ├── error.interceptor.ts  # Maneja errores HTTP
 │   └── index.ts
 ├── models/
-│   ├── api-response.model.ts
-│   ├── auth.model.ts
-│   ├── user.model.ts
+│   ├── access-type.enum.ts   # Enum tipos de acceso
+│   ├── api-response.model.ts # Respuestas API genéricas
+│   ├── auth.model.ts         # Login, Register, Tokens
+│   ├── dashboard.model.ts    # Métricas del dashboard
+│   ├── exercise.model.ts     # Ejercicios
+│   ├── low-attendance.model.ts # Alertas de asistencia
+│   ├── membership-type.model.ts # Tipos de membresía
+│   ├── membership.model.ts   # Membresías
+│   ├── offline.model.ts      # Modelos para offline
+│   ├── payment.model.ts      # Pagos
+│   ├── personal-record.model.ts # Récords personales
+│   ├── routine.model.ts      # Rutinas y plantillas
+│   ├── stats.model.ts        # Estadísticas de progreso
+│   ├── user.model.ts         # Usuario y perfil
+│   ├── websocket.model.ts    # Eventos WebSocket
+│   ├── workout.model.ts      # Entrenamientos
 │   └── index.ts
 ├── services/
-│   ├── api.service.ts
-│   ├── auth.service.ts
-│   ├── network.service.ts
-│   ├── page-title.strategy.ts
-│   ├── storage.service.ts
-│   ├── user.service.ts
-│   ├── websocket.service.ts    # WebSocket real-time
+│   ├── api.service.ts        # HTTP client base
+│   ├── attendance.service.ts # Consulta de asistencia
+│   ├── auth.service.ts       # Login, logout, tokens
+│   ├── dashboard.service.ts  # Métricas del dashboard
+│   ├── exercises.service.ts  # CRUD ejercicios
+│   ├── membership-types.service.ts # CRUD tipos membresía
+│   ├── memberships.service.ts # CRUD membresías
+│   ├── muscle-groups.service.ts # CRUD grupos musculares
+│   ├── network.service.ts    # Detectar online/offline
+│   ├── offline-db.service.ts # IndexedDB con Dexie
+│   ├── offline-workouts.service.ts # Workouts offline
+│   ├── page-title.strategy.ts # Títulos de página
+│   ├── payments.service.ts   # CRUD pagos
+│   ├── personal-records.service.ts # Gestión de PRs
+│   ├── push-notifications.service.ts # Push con FCM
+│   ├── pwa.service.ts        # Service Worker, updates
+│   ├── routines.service.ts   # CRUD rutinas
+│   ├── stats.service.ts      # Estadísticas de progreso
+│   ├── storage.service.ts    # LocalStorage tokens
+│   ├── sync-manager.service.ts # Coordinador de sync
+│   ├── sync-queue.service.ts # Cola de operaciones offline
+│   ├── token-refresh.service.ts # Refresh automático
+│   ├── user-routines.service.ts # Asignación de rutinas
+│   ├── user.service.ts       # Perfil del usuario
+│   ├── users.service.ts      # CRUD usuarios (admin)
+│   ├── websocket.service.ts  # WebSocket real-time
+│   ├── workouts.service.ts   # CRUD entrenamientos
 │   └── index.ts
 ├── store/
-│   ├── auth/
+│   ├── auth/                 # Estado de autenticación
 │   │   ├── auth.actions.ts
 │   │   ├── auth.state.ts
 │   │   └── index.ts
-│   ├── user/
+│   ├── notifications/        # Estado de notificaciones
+│   │   ├── notifications.actions.ts
+│   │   ├── notifications.state.ts
+│   │   └── index.ts
+│   ├── personal-records/     # Estado de PRs
+│   │   ├── personal-records.actions.ts
+│   │   ├── personal-records.state.ts
+│   │   └── index.ts
+│   ├── user/                 # Estado del perfil
 │   │   ├── user.actions.ts
 │   │   ├── user.state.ts
 │   │   └── index.ts
 │   └── index.ts
+├── utils/                    # Utilidades compartidas
 └── index.ts
 ```
 

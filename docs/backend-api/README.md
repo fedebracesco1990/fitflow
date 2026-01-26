@@ -18,21 +18,27 @@ Authorization: Bearer <access_token>
 
 ## Controllers
 
-| Controller                                | Ruta Base           | Descripción                |
-| ----------------------------------------- | ------------------- | -------------------------- |
-| [Auth](./AUTH.md)                         | `/auth`             | Autenticación y sesiones   |
-| [Users](./USERS.md)                       | `/users`            | Gestión de usuarios        |
-| [Dashboard](./DASHBOARD.md)               | `/dashboard`        | Métricas y estadísticas    |
-| [Membership Types](./MEMBERSHIP_TYPES.md) | `/membership-types` | Tipos de membresía         |
-| [Memberships](./MEMBERSHIPS.md)           | `/memberships`      | Membresías de usuarios     |
-| [Payments](./PAYMENTS.md)                 | `/payments`         | Registro de pagos          |
-| [Muscle Groups](./MUSCLE_GROUPS.md)       | `/muscle-groups`    | Grupos musculares          |
-| [Exercises](./EXERCISES.md)               | `/exercises`        | Catálogo de ejercicios     |
-| [Routines](./ROUTINES.md)                 | `/routines`         | Rutinas de entrenamiento   |
-| [User Routines](./USER_ROUTINES.md)       | `/user-routines`    | Asignación de rutinas      |
-| [Workouts](./WORKOUTS.md)                 | `/workouts`         | Registro de entrenamientos |
-| [Personal Records](./PERSONAL_RECORDS.md) | `/personal-records` | Récords personales         |
-| [Notifications](./NOTIFICATIONS.md)       | `/notifications`    | Notificaciones push (FCM)  |
+| Controller                                | Ruta Base           | Descripción                 |
+| ----------------------------------------- | ------------------- | --------------------------- |
+| [Access](./ACCESS.md)                     | `/access`           | Control de acceso QR        |
+| [Attendance](./ATTENDANCE.md)             | `/attendance`       | Registro de asistencia      |
+| [Auth](./AUTH.md)                         | `/auth`             | Autenticación y sesiones    |
+| [Dashboard](./DASHBOARD.md)               | `/dashboard`        | Métricas y estadísticas     |
+| [Reports](./REPORTS.md)                   | `/reports`          | Reportes exportables        |
+| [Stats](./STATS.md)                       | `/stats`            | Estadísticas de progreso    |
+| [Users](./USERS.md)                       | `/users`            | Gestión de usuarios         |
+| [Membership Types](./MEMBERSHIP_TYPES.md) | `/membership-types` | Tipos de membresía          |
+| [Memberships](./MEMBERSHIPS.md)           | `/memberships`      | Membresías de usuarios      |
+| [Payments](./PAYMENTS.md)                 | `/payments`         | Registro de pagos           |
+| [Muscle Groups](./MUSCLE_GROUPS.md)       | `/muscle-groups`    | Grupos musculares           |
+| [Exercises](./EXERCISES.md)               | `/exercises`        | Catálogo de ejercicios      |
+| [Routines](./ROUTINES.md)                 | `/routines`         | Rutinas de entrenamiento    |
+| [User Routines](./USER_ROUTINES.md)       | `/user-routines`    | Asignación de rutinas       |
+| [Workouts](./WORKOUTS.md)                 | `/workouts`         | Registro de entrenamientos  |
+| [Personal Records](./PERSONAL_RECORDS.md) | `/personal-records` | Récords personales          |
+| [Notifications](./NOTIFICATIONS.md)       | `/notifications`    | Notificaciones push (FCM)   |
+| [QR](./QR.md)                             | `/qr`               | Generación/validación de QR |
+| [WebSocket](./WEBSOCKET.md)               | `/ws`               | Comunicación en tiempo real |
 
 ## Roles
 

@@ -28,39 +28,88 @@ frontend/src/app/
 │   ├── models/
 │   │   ├── api-response.model.ts
 │   │   ├── auth.model.ts
+│   │   ├── dashboard.model.ts
+│   │   ├── exercise.model.ts
+│   │   ├── low-attendance.model.ts
+│   │   ├── membership-type.model.ts
+│   │   ├── membership.model.ts
+│   │   ├── offline.model.ts
+│   │   ├── payment.model.ts
+│   │   ├── personal-record.model.ts
+│   │   ├── routine.model.ts
+│   │   ├── stats.model.ts
 │   │   ├── user.model.ts
+│   │   ├── websocket.model.ts
+│   │   ├── workout.model.ts
 │   │   └── index.ts
 │   ├── services/
 │   │   ├── api.service.ts
+│   │   ├── attendance.service.ts
 │   │   ├── auth.service.ts
+│   │   ├── dashboard.service.ts
+│   │   ├── exercises.service.ts
+│   │   ├── membership-types.service.ts
+│   │   ├── memberships.service.ts
+│   │   ├── muscle-groups.service.ts
 │   │   ├── network.service.ts
+│   │   ├── offline-db.service.ts
+│   │   ├── offline-workouts.service.ts
+│   │   ├── page-title.strategy.ts
+│   │   ├── payments.service.ts
+│   │   ├── personal-records.service.ts
+│   │   ├── push-notifications.service.ts
+│   │   ├── pwa.service.ts
+│   │   ├── routines.service.ts
+│   │   ├── stats.service.ts
 │   │   ├── storage.service.ts
+│   │   ├── sync-manager.service.ts
+│   │   ├── sync-queue.service.ts
+│   │   ├── token-refresh.service.ts
 │   │   ├── user.service.ts
+│   │   ├── user-routines.service.ts
+│   │   ├── users.service.ts
+│   │   ├── websocket.service.ts
+│   │   ├── workouts.service.ts
 │   │   └── index.ts
-│   └── store/
-│       ├── auth/
-│       │   ├── auth.actions.ts
-│       │   └── auth.state.ts
-│       ├── user/
-│       │   ├── user.actions.ts
-│       │   └── user.state.ts
-│       └── index.ts
+│   ├── store/
+│   │   ├── auth/
+│   │   │   ├── auth.actions.ts
+│   │   │   └── auth.state.ts
+│   │   ├── notifications/
+│   │   │   ├── notifications.actions.ts
+│   │   │   └── notifications.state.ts
+│   │   ├── personal-records/
+│   │   │   ├── personal-records.actions.ts
+│   │   │   └── personal-records.state.ts
+│   │   ├── user/
+│   │   │   ├── user.actions.ts
+│   │   │   └── user.state.ts
+│   │   └── index.ts
+│   └── utils/                 # Utilidades compartidas
 ├── features/              # Módulos de funcionalidad
+│   ├── access/            # Control de acceso QR
 │   ├── auth/              # Login, Register, Password Reset
-│   ├── dashboard/         # Home
-│   ├── profile/           # Ver/Editar Perfil
+│   ├── dashboard/         # Home con métricas y actividad
+│   ├── exercises/         # CRUD Ejercicios
 │   ├── membership-types/  # CRUD Tipos de Membresía
 │   ├── memberships/       # CRUD Membresías de usuarios
+│   ├── my-routines/       # Vista semanal + Workout (Usuario)
+│   ├── notifications-admin/ # Panel de notificaciones personalizadas
 │   ├── payments/          # CRUD Pagos
-│   ├── exercises/         # CRUD Ejercicios
+│   ├── profile/           # Ver/Editar Perfil
+│   ├── progress/          # Mi Progreso (gráficos de evolución)
+│   ├── reports/           # Centro de Reportes (exportables)
 │   ├── routines/          # CRUD Rutinas (Admin/Trainer)
-│   └── my-routines/       # Vista semanal + Workout (Usuario)
+│   ├── training/          # Gestión de entrenamiento
+│   └── users/             # Gestión de usuarios
 ├── layouts/               # Layouts de página
 │   ├── auth-layout/
 │   └── main-layout/
 └── shared/                # Componentes reutilizables
+    ├── charts/            # Gráficos reutilizables (Chart.js)
     ├── components/
     │   ├── alert/
+    │   ├── attendance-calendar/
     │   ├── avatar/
     │   ├── badge/
     │   ├── button/
@@ -68,9 +117,21 @@ frontend/src/app/
     │   ├── confirm-dialog/
     │   ├── empty-state/
     │   ├── loading-spinner/
+    │   ├── notification-bell/
+    │   ├── notification-center/
+    │   ├── notification-prompt/
+    │   ├── offline-banner/
+    │   ├── pr-celebration-modal/
+    │   ├── pwa-install-prompt/
+    │   ├── pwa-update-prompt/
+    │   ├── sync-status/
+    │   ├── tooltip/
+    │   ├── user-selector/
+    │   ├── view-toggle/
     │   └── index.ts
     ├── directives/
     ├── pipes/
+    ├── utils/
     └── index.ts
 ```
 
@@ -490,6 +551,8 @@ export class FeatureListComponent implements OnInit {
 
 ## Shared Components Disponibles
 
+### Componentes Base
+
 | Componente                | Selector                     | Descripción                             |
 | ------------------------- | ---------------------------- | --------------------------------------- |
 | `AlertComponent`          | `<fit-flow-alert>`           | Mensajes de error, éxito, warning, info |
@@ -500,6 +563,33 @@ export class FeatureListComponent implements OnInit {
 | `ConfirmDialogComponent`  | `<fit-flow-confirm-dialog>`  | Diálogo de confirmación modal           |
 | `EmptyStateComponent`     | `<fit-flow-empty-state>`     | Estado vacío con icono y mensaje        |
 | `LoadingSpinnerComponent` | `<fit-flow-loading-spinner>` | Spinner de carga                        |
+| `TooltipComponent`        | `<fit-flow-tooltip>`         | Tooltips informativos                   |
+| `UserSelectorComponent`   | `<fit-flow-user-selector>`   | Selector de usuarios                    |
+| `ViewToggleComponent`     | `<fit-flow-view-toggle>`     | Toggle para cambiar vistas              |
+
+### Componentes de Notificaciones
+
+| Componente                    | Selector                         | Descripción                             |
+| ----------------------------- | -------------------------------- | --------------------------------------- |
+| `NotificationBellComponent`   | `<fit-flow-notification-bell>`   | Campana con contador de notificaciones  |
+| `NotificationCenterComponent` | `<fit-flow-notification-center>` | Centro de notificaciones                |
+| `NotificationPromptComponent` | `<fit-flow-notification-prompt>` | Prompt para activar notificaciones push |
+
+### Componentes PWA y Offline
+
+| Componente                  | Selector                        | Descripción                           |
+| --------------------------- | ------------------------------- | ------------------------------------- |
+| `OfflineBannerComponent`    | `<fit-flow-offline-banner>`     | Banner indicador de modo offline      |
+| `SyncStatusComponent`       | `<fit-flow-sync-status>`        | Estado de sincronización con contador |
+| `PwaInstallPromptComponent` | `<fit-flow-pwa-install-prompt>` | Prompt para instalar PWA              |
+| `PwaUpdatePromptComponent`  | `<fit-flow-pwa-update-prompt>`  | Prompt para actualizar PWA            |
+
+### Componentes Especializados
+
+| Componente                    | Selector                          | Descripción                             |
+| ----------------------------- | --------------------------------- | --------------------------------------- |
+| `AttendanceCalendarComponent` | `<fit-flow-attendance-calendar>`  | Calendario de asistencia                |
+| `PrCelebrationModalComponent` | `<fit-flow-pr-celebration-modal>` | Modal de celebración de Personal Record |
 
 ### Uso de Shared Components
 

@@ -19,29 +19,49 @@ backend/src/
 ├── app.service.ts         # Servicio raíz
 ├── main.ts                # Entry point
 ├── modules/               # Módulos de dominio
+│   ├── access/            # Control de acceso QR
+│   ├── attendance/        # Registro de asistencia
 │   ├── auth/              # Módulo de autenticación
 │   │   ├── decorators/    # @CurrentUser, @Public, @Roles
 │   │   ├── dto/           # Login, Register, etc.
 │   │   ├── guards/        # JwtAuthGuard, JwtRefreshGuard, RolesGuard
 │   │   ├── interfaces/    # JwtPayload, etc.
-│   │   ├── strategies/    # JWT strategies
+│   │   ├── strategies/    # JwtStrategy, JwtRefreshStrategy
 │   │   ├── types/         # Tipos auxiliares
 │   │   ├── auth.controller.ts
 │   │   ├── auth.module.ts
 │   │   └── auth.service.ts
-│   └── users/             # Módulo de usuarios
-│       ├── dto/           # UpdateProfile, ChangePassword
-│       ├── entities/      # User entity
-│       ├── users.controller.ts
-│       ├── users.module.ts
-│       └── users.service.ts
+│   ├── dashboard/         # APIs de dashboard unificado
+│   ├── exercises/         # CRUD Ejercicios
+│   ├── membership-types/  # CRUD Tipos de Membresía
+│   ├── memberships/       # CRUD Membresías
+│   ├── muscle-groups/     # CRUD Grupos Musculares
+│   ├── notifications/     # Sistema de notificaciones push
+│   ├── payments/          # CRUD Pagos
+│   ├── personal-records/  # Detección y gestión de PRs
+│   ├── qr/                # Generación y validación de códigos QR
+│   ├── reports/           # Generación de reportes exportables
+│   ├── routines/          # CRUD Rutinas y plantillas
+│   ├── scheduler/         # Cron jobs y tareas programadas
+│   ├── stats/             # Estadísticas y métricas
+│   ├── user-routines/     # Asignación de rutinas a usuarios
+│   ├── users/             # CRUD Usuarios
+│   │   ├── dto/           # UpdateProfile, ChangePassword, CreateUser
+│   │   ├── entities/      # User entity
+│   │   ├── users.controller.ts
+│   │   ├── users.module.ts
+│   │   └── users.service.ts
+│   ├── websocket/         # Comunicación en tiempo real
+│   └── workouts/          # Registro de entrenamientos
 ├── common/                # Utilidades compartidas
-│   └── enums/             # Role, Difficulty, DayOfWeek, WorkoutStatus
-└── config/                # Configuración
-    ├── app.config.ts
-    ├── database.config.ts
-    ├── jwt.config.ts
-    └── validation.schema.ts
+│   └── enums/             # Role, Difficulty, DayOfWeek, WorkoutStatus, etc.
+├── config/                # Configuración
+│   ├── app.config.ts
+│   ├── database.config.ts
+│   ├── jwt.config.ts
+│   └── validation.schema.ts
+└── database/
+    └── seeders/           # SeederService (datos iniciales)
 ```
 
 ---

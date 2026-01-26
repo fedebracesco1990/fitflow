@@ -69,18 +69,30 @@ graph LR
         Guards[Guards]
         Store[NGXS Store]
         Interceptors[Interceptors]
+        Utils[Utils]
     end
 
     subgraph Features
-        Auth[Auth Module]
+        Auth[Auth]
         Dashboard[Dashboard]
         Profile[Profile]
         MembershipTypes[Membership Types]
+        Memberships[Memberships]
         Payments[Payments]
+        Exercises[Exercises]
+        Routines[Routines]
+        MyRoutines[My Routines]
+        Progress[Progress]
+        Reports[Reports]
+        Users[Users]
+        Access[Access/QR]
+        Training[Training]
+        NotificationsAdmin[Notifications Admin]
     end
 
     subgraph Shared
         Components[UI Components]
+        Charts[Charts]
         Directives[Directives]
         Pipes[Pipes]
     end
@@ -100,25 +112,37 @@ graph LR
 ```
 frontend/src/app/
 ├── core/
-│   ├── guards/          # AuthGuard, RoleGuard
-│   ├── interceptors/    # AuthInterceptor
-│   ├── models/          # Interfaces y tipos
-│   ├── services/        # ApiService, AuthService, StatsService, etc.
-│   └── store/           # NGXS States y Actions
+│   ├── guards/          # AuthGuard, GuestGuard
+│   ├── interceptors/    # AuthInterceptor, ErrorInterceptor
+│   ├── models/          # Interfaces y tipos (user, auth, routine, workout, etc.)
+│   ├── services/        # ApiService, AuthService, StatsService, OfflineService, etc.
+│   ├── store/           # NGXS States (auth, user, notifications, personal-records)
+│   └── utils/           # Utilidades compartidas
 ├── features/
+│   ├── access/          # Control de acceso QR
 │   ├── auth/            # Login, Register, Password Reset
-│   ├── dashboard/       # Home
+│   ├── dashboard/       # Home con métricas y actividad
+│   ├── exercises/       # CRUD Ejercicios
 │   ├── membership-types/# CRUD Tipos de Membresía
+│   ├── memberships/     # CRUD Membresías de usuarios
+│   ├── my-routines/     # Vista semanal + Workout (Usuario)
+│   ├── notifications-admin/ # Panel de notificaciones personalizadas
 │   ├── payments/        # CRUD Pagos
 │   ├── profile/         # Ver/Editar Perfil
 │   ├── progress/        # Mi Progreso (gráficos de evolución)
-│   └── reports/         # Centro de Reportes
+│   ├── reports/         # Centro de Reportes (exportables)
+│   ├── routines/        # CRUD Rutinas (Admin/Trainer)
+│   ├── training/        # Gestión de entrenamiento
+│   └── users/           # Gestión de usuarios
 ├── layouts/
 │   ├── auth-layout/     # Layout para auth (sin nav)
-│   └── main-layout/     # Layout principal (con nav)
+│   └── main-layout/     # Layout principal (con nav y sidebar)
 └── shared/
-    ├── components/      # Card, Button, Alert, etc.
-    └── charts/          # Gráficos reutilizables (Chart.js)
+    ├── charts/          # Gráficos reutilizables (Chart.js)
+    ├── components/      # UI Components (alert, avatar, badge, button, card, etc.)
+    ├── directives/      # Directivas personalizadas
+    ├── pipes/           # Pipes personalizados
+    └── utils/           # Utilidades compartidas
 ```
 
 ---
@@ -163,24 +187,34 @@ graph TB
 ```
 backend/src/
 ├── common/
-│   └── enums/           # Role, Difficulty, DayOfWeek, WorkoutStatus
+│   └── enums/           # Role, Difficulty, DayOfWeek, WorkoutStatus, etc.
 ├── config/              # Configuración (app, db, jwt)
 ├── database/
 │   └── seeders/         # SeederService (datos iniciales)
 ├── modules/
+│   ├── access/          # Control de acceso QR
+│   ├── attendance/      # Registro de asistencia
 │   ├── auth/            # Login, Register, JWT
-│   │   ├── decorators/  # @Roles, @Public
-│   │   ├── guards/      # JwtAuthGuard, RolesGuard
-│   │   ├── strategies/  # JwtStrategy
+│   │   ├── decorators/  # @Roles, @Public, @CurrentUser
+│   │   ├── guards/      # JwtAuthGuard, JwtRefreshGuard, RolesGuard
+│   │   ├── strategies/  # JwtStrategy, JwtRefreshStrategy
 │   │   └── types/       # AuthenticatedUser
-│   ├── users/           # CRUD Usuarios
+│   ├── dashboard/       # APIs de dashboard unificado
+│   ├── exercises/       # CRUD Ejercicios
 │   ├── membership-types/# CRUD Tipos Membresía
 │   ├── memberships/     # CRUD Membresías
-│   ├── payments/        # CRUD Pagos
 │   ├── muscle-groups/   # CRUD Grupos Musculares
-│   ├── exercises/       # CRUD Ejercicios
-│   ├── routines/        # CRUD Rutinas
+│   ├── notifications/   # Sistema de notificaciones push
+│   ├── payments/        # CRUD Pagos
+│   ├── personal-records/# Detección y gestión de PRs
+│   ├── qr/              # Generación y validación de códigos QR
+│   ├── reports/         # Generación de reportes exportables
+│   ├── routines/        # CRUD Rutinas y plantillas
+│   ├── scheduler/       # Cron jobs y tareas programadas
+│   ├── stats/           # Estadísticas y métricas
 │   ├── user-routines/   # Asignación de rutinas a usuarios
+│   ├── users/           # CRUD Usuarios
+│   ├── websocket/       # Comunicación en tiempo real
 │   └── workouts/        # Registro de entrenamientos
 └── main.ts
 ```
@@ -409,19 +443,27 @@ graph TD
 
 ### Matriz de Permisos
 
-| Recurso           | ADMIN | TRAINER | USER |
-| ----------------- | ----- | ------- | ---- |
-| Usuarios          | CRUD  | Read    | Self |
-| Tipos Membresía   | CRUD  | Read    | Read |
-| Membresías        | CRUD  | Read    | Self |
-| Pagos             | CRUD  | -       | Self |
-| Grupos Musculares | CRUD  | Read    | Read |
-| Ejercicios        | CRUD  | Read    | Read |
-| Rutinas           | CRUD  | CRUD    | Read |
-| Asignar Rutinas   | CRUD  | CRUD    | -    |
-| Mis Rutinas       | -     | -       | Read |
-| Entrenamientos    | All   | Read    | Self |
-| Perfil            | All   | Self    | Self |
+| Recurso            | ADMIN | TRAINER | USER |
+| ------------------ | ----- | ------- | ---- |
+| Usuarios           | CRUD  | Read    | Self |
+| Tipos Membresía    | CRUD  | Read    | Read |
+| Membresías         | CRUD  | Read    | Self |
+| Pagos              | CRUD  | -       | Self |
+| Grupos Musculares  | CRUD  | Read    | Read |
+| Ejercicios         | CRUD  | CRUD    | Read |
+| Rutinas            | CRUD  | CRUD    | Read |
+| Plantillas Rutinas | CRUD  | CRUD    | -    |
+| Asignar Rutinas    | CRUD  | CRUD    | -    |
+| Mis Rutinas        | -     | -       | Read |
+| Entrenamientos     | All   | Read    | Self |
+| Personal Records   | All   | Read    | Self |
+| Acceso QR          | CRUD  | Read    | Self |
+| Asistencia         | CRUD  | Read    | Self |
+| Notificaciones     | CRUD  | Send    | Read |
+| Reportes           | CRUD  | Read    | -    |
+| Dashboard          | Full  | Limited | Self |
+| Estadísticas       | Full  | Read    | Self |
+| Perfil             | All   | Self    | Self |
 
 ---
 
@@ -482,14 +524,14 @@ graph TB
 
 ### Componentes del Sistema
 
-| Componente | Propósito |
-|------------|-----------|
-| `OfflineDbService` | Wrapper de Dexie.js para IndexedDB con 6 tablas |
-| `SyncQueueService` | Cola FIFO de operaciones pendientes |
-| `SyncManagerService` | Orquestador de sincronización automática |
-| `OfflineWorkoutsService` | Wrapper offline-first para WorkoutsService |
-| `OfflineBannerComponent` | Indicador visual de modo offline |
-| `SyncStatusComponent` | Estado de sincronización con contador |
+| Componente               | Propósito                                       |
+| ------------------------ | ----------------------------------------------- |
+| `OfflineDbService`       | Wrapper de Dexie.js para IndexedDB con 6 tablas |
+| `SyncQueueService`       | Cola FIFO de operaciones pendientes             |
+| `SyncManagerService`     | Orquestador de sincronización automática        |
+| `OfflineWorkoutsService` | Wrapper offline-first para WorkoutsService      |
+| `OfflineBannerComponent` | Indicador visual de modo offline                |
+| `SyncStatusComponent`    | Estado de sincronización con contador           |
 
 ### Esquema IndexedDB
 
@@ -535,13 +577,13 @@ sequenceDiagram
 
 ### Tipos de Operaciones Soportadas
 
-| Operación | Método | Endpoint |
-|-----------|--------|----------|
-| `CREATE_WORKOUT` | POST | `/workouts` |
-| `START_WORKOUT` | PATCH | `/workouts/:id/start` |
-| `COMPLETE_WORKOUT` | PATCH | `/workouts/:id/complete` |
-| `LOG_EXERCISE` | POST | `/workouts/:id/exercises` |
-| `UPDATE_EXERCISE_LOG` | PATCH | `/workouts/:id/exercises/:logId` |
+| Operación             | Método | Endpoint                         |
+| --------------------- | ------ | -------------------------------- |
+| `CREATE_WORKOUT`      | POST   | `/workouts`                      |
+| `START_WORKOUT`       | PATCH  | `/workouts/:id/start`            |
+| `COMPLETE_WORKOUT`    | PATCH  | `/workouts/:id/complete`         |
+| `LOG_EXERCISE`        | POST   | `/workouts/:id/exercises`        |
+| `UPDATE_EXERCISE_LOG` | PATCH  | `/workouts/:id/exercises/:logId` |
 | `DELETE_EXERCISE_LOG` | DELETE | `/workouts/:id/exercises/:logId` |
 
 ### Manejo de Conflictos
