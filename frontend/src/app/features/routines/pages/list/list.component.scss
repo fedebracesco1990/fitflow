@@ -248,13 +248,23 @@
   transition: background-color 0.2s;
   text-decoration: none;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #f3f4f6;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 
   &-danger:hover {
     background: #fee2e2;
   }
+}
+
+.draft-badge {
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
 }
 
 .header-actions {

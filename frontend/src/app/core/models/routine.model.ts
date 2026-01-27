@@ -34,6 +34,7 @@ export interface Routine {
   difficulty: Difficulty;
   estimatedDuration: number;
   isActive: boolean;
+  isDraft: boolean;
   type: RoutineType;
   exercises: RoutineExercise[];
   programRoutines?: ProgramRoutine[];
@@ -57,6 +58,7 @@ export interface CreateRoutineDto {
   difficulty?: Difficulty;
   estimatedDuration?: number;
   type?: RoutineType;
+  isDraft?: boolean;
 }
 
 export interface AddRoutineToProgramDto {

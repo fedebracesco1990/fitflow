@@ -10,7 +10,7 @@ import {
   RoutineType,
   RoutineTypeLabels,
 } from '../../../../core/models';
-import { BadgeComponent, CardComponent } from '../../../../shared';
+import { BadgeComponent, CardComponent, ConfirmDialogComponent } from '../../../../shared';
 import { AssignRoutineDialogComponent } from '../../components/assign-routine-dialog/assign-routine-dialog.component';
 import { RoutineTypeSelectDialogComponent } from '../../components/routine-type-select-dialog/routine-type-select-dialog.component';
 
@@ -22,6 +22,7 @@ import { RoutineTypeSelectDialogComponent } from '../../components/routine-type-
     RouterLink,
     BadgeComponent,
     CardComponent,
+    ConfirmDialogComponent,
     AssignRoutineDialogComponent,
     RoutineTypeSelectDialogComponent,
   ],
@@ -39,6 +40,10 @@ export class RoutinesListComponent implements OnInit {
   assignDialogOpen = signal(false);
   selectedRoutineForAssign = signal<Routine | null>(null);
   showTypeModal = signal(false);
+
+  // Delete dialog state
+  showDeleteDialog = signal(false);
+  selectedRoutineForDelete = signal<Routine | null>(null);
 
   selectedTypeFilter = signal<RoutineType | null>(null);
   searchQuery = signal('');
@@ -117,18 +122,29 @@ export class RoutinesListComponent implements OnInit {
   }
 
   deleteRoutine(routine: Routine): void {
-    if (!confirm(`¿Estás seguro de eliminar la rutina "${routine.name}"?`)) {
-      return;
-    }
+    this.selectedRoutineForDelete.set(routine);
+    this.showDeleteDialog.set(true);
+  }
+
+  confirmDelete(): void {
+    const routine = this.selectedRoutineForDelete();
+    if (!routine) return;
 
     this.routinesService.delete(routine.id).subscribe({
       next: () => {
         this.routines.update((list) => list.filter((r) => r.id !== routine.id));
+        this.closeDeleteDialog();
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Error al eliminar rutina');
+        this.closeDeleteDialog();
       },
     });
+  }
+
+  closeDeleteDialog(): void {
+    this.showDeleteDialog.set(false);
+    this.selectedRoutineForDelete.set(null);
   }
 
   openAssignDialog(routine: Routine): void {

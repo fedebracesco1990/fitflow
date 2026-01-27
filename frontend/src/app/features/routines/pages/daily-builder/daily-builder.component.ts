@@ -188,6 +188,7 @@ export class DailyRoutineBuilderComponent implements OnInit {
       difficulty: form.difficulty,
       estimatedDuration: form.estimatedDuration,
       type: RoutineType.DAILY,
+      isDraft: false,
     };
 
     if (this.isEditMode() && this.routineId()) {
@@ -277,7 +278,46 @@ export class DailyRoutineBuilderComponent implements OnInit {
   }
 
   saveDraft(): void {
-    // TODO: Implement draft saving
-    console.log('Saving draft...');
+    const form = this.formData();
+    if (!form.name.trim()) {
+      this.error.set('El nombre es requerido para guardar borrador');
+      return;
+    }
+
+    this.saving.set(true);
+    this.error.set(null);
+
+    const dto: CreateRoutineDto = {
+      name: form.name,
+      description: form.description || undefined,
+      difficulty: form.difficulty,
+      estimatedDuration: form.estimatedDuration,
+      type: RoutineType.DAILY,
+      isDraft: true,
+    };
+
+    if (this.isEditMode() && this.routineId()) {
+      this.routinesService.update(this.routineId()!, dto).subscribe({
+        next: () => {
+          this.saveExercises();
+        },
+        error: (err) => {
+          this.error.set(err.error?.message || 'Error al guardar borrador');
+          this.saving.set(false);
+        },
+      });
+    } else {
+      this.routinesService.create(dto).subscribe({
+        next: (routine) => {
+          this.routineId.set(routine.id);
+          this.isEditMode.set(true);
+          this.saveExercises();
+        },
+        error: (err) => {
+          this.error.set(err.error?.message || 'Error al guardar borrador');
+          this.saving.set(false);
+        },
+      });
+    }
   }
 }

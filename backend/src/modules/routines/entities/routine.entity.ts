@@ -49,6 +49,9 @@ export class Routine {
   @Column({ type: 'boolean', default: false })
   isTemplate: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  isDraft: boolean;
+
   @Column({ type: 'enum', enum: TemplateCategory, nullable: true })
   templateCategory: TemplateCategory | null;
 

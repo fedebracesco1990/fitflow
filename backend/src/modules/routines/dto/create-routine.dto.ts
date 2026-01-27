@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsEnum, IsInt, Min, Max, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsInt,
+  Min,
+  Max,
+  MaxLength,
+  IsBoolean,
+} from 'class-validator';
 import { Difficulty } from '../../../common/enums/difficulty.enum';
 import { RoutineType } from '../../../common/enums/routine-type.enum';
 
@@ -24,4 +33,8 @@ export class CreateRoutineDto {
   @IsOptional()
   @IsEnum(RoutineType)
   type?: RoutineType;
+
+  @IsOptional()
+  @IsBoolean()
+  isDraft?: boolean;
 }

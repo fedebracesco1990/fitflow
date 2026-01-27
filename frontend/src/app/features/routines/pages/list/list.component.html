@@ -51,7 +51,12 @@
           <tbody>
             @for (routine of displayedRoutines(); track routine.id) {
               <tr>
-                <td>{{ routine.name }}</td>
+                <td>
+                  {{ routine.name }}
+                  @if (routine.isDraft) {
+                    <fit-flow-badge variant="warning" class="draft-badge">Borrador</fit-flow-badge>
+                  }
+                </td>
                 <td>
                   <fit-flow-badge [variant]="getTypeBadgeVariant(routine.type)">
                     {{ routineTypeLabels[routine.type] }}
@@ -64,14 +69,19 @@
                 </td>
                 <td>{{ routine.createdAt | date: 'd MMM, y' }}</td>
                 <td class="actions">
-                  <button class="btn-icon" title="Asignar" (click)="openAssignDialog(routine)">
+                  <button
+                    class="btn-icon"
+                    [title]="routine.isDraft ? 'No se puede asignar un borrador' : 'Asignar'"
+                    [disabled]="routine.isDraft"
+                    (click)="openAssignDialog(routine)"
+                  >
                     👥
                   </button>
                   <a
                     [routerLink]="
                       routine.type === RoutineType.DAILY
-                        ? ['/routines', routine.id, 'builder']
-                        : ['/routines', routine.id, 'builder']
+                        ? ['/training', 'routines', 'daily', routine.id, 'edit']
+                        : ['/training', 'routines', 'weekly', routine.id, 'edit']
                     "
                     class="btn-icon"
                     title="Editar"
@@ -147,3 +157,18 @@
   (typeSelected)="onTypeSelected($event)"
   (cancelled)="onTypeModalCancelled()"
 />
+
+<!-- Delete Confirmation Dialog -->
+<fit-flow-confirm-dialog
+  [isOpen]="showDeleteDialog()"
+  title="Eliminar Rutina"
+  [message]="
+    '¿Estás seguro de eliminar la rutina ' +
+    (selectedRoutineForDelete()?.name || '') +
+    '? Esta acción no se puede deshacer.'
+  "
+  confirmText="Eliminar"
+  variant="danger"
+  (confirmed)="confirmDelete()"
+  (cancelled)="closeDeleteDialog()"
+></fit-flow-confirm-dialog>
