@@ -471,41 +471,6 @@
   }
 }
 
-.btn {
-  padding: 0.625rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-.btn-primary {
-  background: #667eea;
-  color: white;
-  border: none;
-
-  &:hover:not(:disabled) {
-    background: #5a67d8;
-  }
-}
-
-.btn-outline {
-  background: transparent;
-  border: 1px solid #d1d5db;
-  color: #374151;
-
-  &:hover:not(:disabled) {
-    border-color: #667eea;
-    color: #667eea;
-  }
-}
-
 .alert-error {
   background: #fee2e2;
   color: #dc2626;

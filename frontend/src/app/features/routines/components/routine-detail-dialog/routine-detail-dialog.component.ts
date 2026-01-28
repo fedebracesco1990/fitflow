@@ -13,6 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Routine, DifficultyLabels } from '../../../../core/models';
+import { ButtonComponent } from '../../../../shared';
 
 export interface RoutineExerciseItem {
   id: string;
@@ -38,7 +39,7 @@ export interface RoutineDetailDialogData {
 @Component({
   selector: 'fit-flow-routine-detail-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent],
   templateUrl: './routine-detail-dialog.component.html',
   styleUrl: './routine-detail-dialog.component.scss',
 })

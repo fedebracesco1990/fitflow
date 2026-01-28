@@ -14,6 +14,7 @@ import {
   DifficultyLabels,
   RoutineExercise,
 } from '../../../../core/models';
+import { ButtonComponent } from '../../../../shared';
 
 interface ExerciseGroup {
   routineExercise: RoutineExercise;
@@ -30,7 +31,7 @@ interface SetChange {
 @Component({
   selector: 'fit-flow-workout',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent],
   templateUrl: './workout.component.html',
   styleUrl: './workout.component.scss',
 })

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CdkDropList, CdkDrag, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { RoutinesService } from '../../../../core/services';
+import { ButtonComponent } from '../../../../shared';
 import {
   RoutineType,
   Difficulty,
@@ -33,6 +34,7 @@ interface PendingDayAssignment {
     CdkDropList,
     CdkDrag,
     RoutineDetailDialogComponent,
+    ButtonComponent,
   ],
   templateUrl: './weekly-builder.component.html',
   styleUrl: './weekly-builder.component.scss',

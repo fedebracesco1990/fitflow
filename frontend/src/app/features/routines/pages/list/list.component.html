@@ -33,7 +33,9 @@
   } @else if (routines().length === 0) {
     <div class="empty-state">
       <p>No hay rutinas creadas</p>
-      <button class="btn btn-outline" (click)="openTypeModal()">Crear primera rutina</button>
+      <fit-flow-button variant="outline" (click)="openTypeModal()"
+        >Crear primera rutina</fit-flow-button
+      >
     </div>
   } @else {
     <fit-flow-card>

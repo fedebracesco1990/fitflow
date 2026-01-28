@@ -357,19 +357,9 @@
     justify-content: space-between;
     gap: 1rem;
 
-    .btn {
+    fit-flow-button {
       flex: 1;
     }
-  }
-}
-
-.btn-success {
-  background: #10b981;
-  color: white;
-  border: none;
-
-  &:hover {
-    background: #059669;
   }
 }
 

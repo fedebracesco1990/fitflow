@@ -7,12 +7,12 @@ import {
   DifficultyLabels,
   Difficulty,
 } from '../../../../core/models';
-import { BadgeComponent, CardComponent } from '../../../../shared';
+import { BadgeComponent, ButtonComponent, CardComponent } from '../../../../shared';
 
 @Component({
   selector: 'fit-flow-template-card',
   standalone: true,
-  imports: [CommonModule, BadgeComponent, CardComponent],
+  imports: [CommonModule, BadgeComponent, ButtonComponent, CardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './template-card.component.html',
   styleUrl: './template-card.component.scss',

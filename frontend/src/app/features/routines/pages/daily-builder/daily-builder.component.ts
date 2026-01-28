@@ -10,6 +10,7 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { RoutinesService, ExercisesService } from '../../../../core/services';
+import { ButtonComponent } from '../../../../shared';
 import {
   RoutineType,
   Difficulty,
@@ -30,7 +31,15 @@ interface PendingExercise {
 @Component({
   selector: 'fit-flow-daily-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CdkDropList, CdkDrag, CdkDragHandle],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    ButtonComponent,
+  ],
   templateUrl: './daily-builder.component.html',
   styleUrl: './daily-builder.component.scss',
 })

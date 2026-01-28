@@ -10,7 +10,12 @@ import {
   RoutineType,
   RoutineTypeLabels,
 } from '../../../../core/models';
-import { BadgeComponent, CardComponent, ConfirmDialogComponent } from '../../../../shared';
+import {
+  BadgeComponent,
+  ButtonComponent,
+  CardComponent,
+  ConfirmDialogComponent,
+} from '../../../../shared';
 import { AssignRoutineDialogComponent } from '../../components/assign-routine-dialog/assign-routine-dialog.component';
 import { RoutineTypeSelectDialogComponent } from '../../components/routine-type-select-dialog/routine-type-select-dialog.component';
 
@@ -21,6 +26,7 @@ import { RoutineTypeSelectDialogComponent } from '../../components/routine-type-
     CommonModule,
     RouterLink,
     BadgeComponent,
+    ButtonComponent,
     CardComponent,
     ConfirmDialogComponent,
     AssignRoutineDialogComponent,

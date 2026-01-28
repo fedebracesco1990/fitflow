@@ -62,12 +62,17 @@
           <header class="form-header">
             <h2>{{ isEditMode() ? 'Editar' : 'Nueva' }} Rutina Diaria</h2>
             <div class="header-actions">
-              <button class="btn btn-outline" (click)="saveDraft()" [disabled]="saving()">
+              <fit-flow-button variant="outline" (click)="saveDraft()" [disabled]="saving()">
                 Guardar Borrador
-              </button>
-              <button class="btn btn-primary" (click)="save()" [disabled]="saving()">
+              </fit-flow-button>
+              <fit-flow-button
+                variant="primary"
+                (click)="save()"
+                [disabled]="saving()"
+                [loading]="saving()"
+              >
                 {{ saving() ? 'Guardando...' : 'Crear' }}
-              </button>
+              </fit-flow-button>
             </div>
           </header>
           <div class="form-row">
