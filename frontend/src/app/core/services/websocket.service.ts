@@ -1,23 +1,19 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
-import { Store } from '@ngxs/store';
 import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
-import { AddNotification } from '../store/notifications/notifications.actions';
 import {
   ConnectionState,
   RoutineUpdatedEvent,
   ProgressLoggedEvent,
   NotificationEvent,
 } from '../models/websocket.model';
-import { PushNotification } from './push-notifications.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebSocketService {
-  private readonly store = inject(Store);
   private readonly storage = inject(StorageService);
 
   private socket: Socket | null = null;
@@ -114,16 +110,8 @@ export class WebSocketService {
     this.socket.on('notification.new', (data: NotificationEvent) => {
       console.log('[WebSocket] notification.new:', data);
       this._notificationNew.next(data);
-
-      const notification: PushNotification = {
-        id: data.notificationId || crypto.randomUUID(),
-        title: data.title,
-        body: data.body,
-        timestamp: new Date(data.timestamp),
-        read: false,
-        data: data.data as Record<string, string> | undefined,
-      };
-      this.store.dispatch(new AddNotification(notification));
+      // Note: Don't dispatch AddNotification here - FCM foreground listener handles it
+      // This event is only for real-time UI updates (e.g., sound, badge)
     });
   }
 }

@@ -9,6 +9,18 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
+  @Get('debug/tokens')
+  @Roles(Role.ADMIN)
+  async debugTokens() {
+    return this.notificationsService.debugTokens();
+  }
+
+  @Delete('debug/cleanup')
+  @Roles(Role.ADMIN)
+  async cleanupDuplicateTokens() {
+    return this.notificationsService.cleanupDuplicateTokens();
+  }
+
   @Post('register-token')
   async registerToken(@CurrentUser('userId') userId: string, @Body() dto: RegisterTokenDto) {
     return this.notificationsService.registerToken(userId, dto);
@@ -22,11 +34,8 @@ export class NotificationsController {
 
   @Post('send')
   @Roles(Role.ADMIN)
-  async sendNotification(
-    @CurrentUser('userId') senderId: string,
-    @Body() dto: SendNotificationDto
-  ) {
-    return this.notificationsService.sendNotification(dto, senderId);
+  async sendNotification(@Body() dto: SendNotificationDto) {
+    return this.notificationsService.sendNotification(dto);
   }
 
   @Get('templates')

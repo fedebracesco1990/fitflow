@@ -65,6 +65,46 @@
       </a>
     </fit-flow-card>
 
+    <fit-flow-card padding="md" class="notifications-section">
+      <div class="section-header">
+        <lucide-icon name="bell" [size]="24"></lucide-icon>
+        <h2>Notificaciones Push</h2>
+      </div>
+      @if (notificationsEnabled()) {
+        <div class="notification-status enabled">
+          <lucide-icon name="check-circle" [size]="20"></lucide-icon>
+          <span>Las notificaciones están activadas</span>
+        </div>
+        <p class="section-description">
+          Recibirás alertas sobre vencimientos, recordatorios y más.
+        </p>
+      } @else if (notificationsDenied()) {
+        <div class="notification-status denied">
+          <lucide-icon name="x-circle" [size]="20"></lucide-icon>
+          <span>Las notificaciones están bloqueadas</span>
+        </div>
+        <p class="section-description">
+          Para activarlas, haz clic en el ícono del candado en la barra de direcciones y permite las
+          notificaciones.
+        </p>
+      } @else {
+        <p class="section-description">
+          Recibe alertas sobre vencimientos de membresía, recordatorios de entrenamiento y más.
+        </p>
+        <fit-flow-button
+          variant="primary"
+          (click)="enableNotifications()"
+          [disabled]="isEnablingNotifications()"
+        >
+          @if (isEnablingNotifications()) {
+            Activando...
+          } @else {
+            Activar notificaciones
+          }
+        </fit-flow-button>
+      }
+    </fit-flow-card>
+
     <fit-flow-card padding="md" class="security-section">
       <h2>Seguridad</h2>
       <a routerLink="change-password">

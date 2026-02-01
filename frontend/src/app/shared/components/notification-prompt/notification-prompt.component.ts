@@ -2,7 +2,7 @@ import { Component, inject, input, output, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngxs/store';
 import { PushNotificationsService } from '../../../core/services';
-import { SetPermissionStatus, SetFcmToken } from '../../../core/store';
+import { SetPermissionStatus, SetFcmToken, AuthState } from '../../../core/store';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -188,6 +188,15 @@ export class NotificationPromptComponent implements OnInit {
           const token = await this.pushService.getAndRegisterToken();
           if (token) {
             this.store.dispatch(new SetFcmToken(token));
+            // Save user preference as 'enabled'
+            const user = this.store.selectSnapshot(AuthState.user);
+            if (user?.userId) {
+              localStorage.setItem(`notification_preference_${user.userId}`, 'enabled');
+              console.log(
+                '[NotificationPrompt] Saved preference as enabled for user:',
+                user.userId
+              );
+            }
           }
         } catch (error) {
           console.error(

@@ -88,12 +88,12 @@ export class NotificationsService implements OnModuleInit {
   }
 
   async registerToken(userId: string, dto: RegisterTokenDto): Promise<DeviceToken> {
-    const existing = await this.deviceTokenRepository.findOne({
-      where: { userId, token: dto.token },
-    });
-
-    if (existing) {
-      return existing;
+    // IMPORTANT: First, remove this token from ALL users (handles device switching between accounts)
+    const deletedFromOthers = await this.deviceTokenRepository.delete({ token: dto.token });
+    if (deletedFromOthers.affected && deletedFromOthers.affected > 0) {
+      this.logger.log(
+        `Removed token from ${deletedFromOthers.affected} other user(s) before registering`
+      );
     }
 
     const deviceToken = this.deviceTokenRepository.create({
@@ -102,6 +102,7 @@ export class NotificationsService implements OnModuleInit {
       platform: dto.platform,
     });
 
+    this.logger.log(`Registered ${dto.platform} token for user ${userId}`);
     return this.deviceTokenRepository.save(deviceToken);
   }
 
@@ -111,6 +112,46 @@ export class NotificationsService implements OnModuleInit {
 
   async getUserTokens(userId: string): Promise<DeviceToken[]> {
     return this.deviceTokenRepository.find({ where: { userId } });
+  }
+
+  async debugTokens(): Promise<{
+    totalTokens: number;
+    uniqueUsers: number;
+    tokens: Array<{ userId: string; platform: string; createdAt: Date }>;
+  }> {
+    const allTokens = await this.deviceTokenRepository.find();
+    const uniqueUsers = new Set(allTokens.map((t) => t.userId)).size;
+    return {
+      totalTokens: allTokens.length,
+      uniqueUsers,
+      tokens: allTokens.map((t) => ({
+        userId: t.userId,
+        platform: t.platform,
+        createdAt: t.createdAt,
+      })),
+    };
+  }
+
+  async cleanupDuplicateTokens(): Promise<{ deleted: number; remaining: number }> {
+    const allTokens = await this.deviceTokenRepository.find({ order: { createdAt: 'DESC' } });
+    const seenUserPlatform = new Set<string>();
+    const tokensToDelete: string[] = [];
+
+    for (const token of allTokens) {
+      const key = `${token.userId}-${token.platform}`;
+      if (seenUserPlatform.has(key)) {
+        tokensToDelete.push(token.id);
+      } else {
+        seenUserPlatform.add(key);
+      }
+    }
+
+    if (tokensToDelete.length > 0) {
+      await this.deviceTokenRepository.delete(tokensToDelete);
+      this.logger.log(`Cleaned up ${tokensToDelete.length} duplicate tokens`);
+    }
+
+    return { deleted: tokensToDelete.length, remaining: allTokens.length - tokensToDelete.length };
   }
 
   async sendToUser(
@@ -144,12 +185,8 @@ export class NotificationsService implements OnModuleInit {
       }
     }
 
-    this.realtimeService.notifyNewNotification(userId, {
-      title,
-      body,
-      timestamp: new Date(),
-    });
-
+    // Note: Don't send WebSocket notification - FCM handles it
+    // WebSocket was causing duplicate notifications
     return { success: true, sent };
   }
 
@@ -190,7 +227,10 @@ export class NotificationsService implements OnModuleInit {
       return { success: true, sent: 0 };
     }
 
-    this.logger.log(`Starting broadcast notification to ${allTokens.length} devices`);
+    const uniqueUsers = new Set(allTokens.map((t) => t.userId)).size;
+    this.logger.log(
+      `Starting broadcast notification to ${allTokens.length} tokens (${uniqueUsers} unique users)`
+    );
     let sent = 0;
 
     for (const deviceToken of allTokens) {
@@ -204,16 +244,16 @@ export class NotificationsService implements OnModuleInit {
       }
     }
 
-    this.logger.log(`Broadcast notification sent to ${sent}/${allTokens.length} devices`);
+    this.logger.log(
+      `Broadcast notification sent to ${sent}/${allTokens.length} tokens (${uniqueUsers} users)`
+    );
     return { success: true, sent };
   }
 
-  async sendNotification(
-    dto: SendNotificationDto,
-    senderId?: string
-  ): Promise<{ success: boolean; sent: number }> {
+  async sendNotification(dto: SendNotificationDto): Promise<{ success: boolean; sent: number }> {
     if (dto.broadcast && dto.title && dto.body) {
-      return this.sendToAll(dto.title, dto.body, senderId);
+      // Don't exclude sender - admin should receive broadcast too for testing
+      return this.sendToAll(dto.title, dto.body);
     }
 
     if (dto.templateType && dto.userId) {

@@ -95,18 +95,35 @@ export class MainLayoutComponent implements OnInit {
     return items;
   });
 
+  private getNotificationPreferenceKey(): string {
+    const userId = this.user()?.userId;
+    return userId ? `notification_preference_${userId}` : 'notification_preference_guest';
+  }
+
   ngOnInit(): void {
     setTimeout(() => {
       const support = this.pushService.checkSupport();
       const status = this.permissionStatus();
+      const userId = this.user()?.userId;
+      const preferenceKey = this.getNotificationPreferenceKey();
+      const userPreference = localStorage.getItem(preferenceKey);
 
-      // Debug log for iOS testing
       console.log('[Notifications] Support check:', support);
       console.log('[Notifications] Permission status:', status);
+      console.log('[Notifications] User preference:', userPreference);
 
-      // Show prompt if: permission is default OR iOS needs PWA installation
-      if (status === 'default' || support.requiresPWA) {
-        console.log('[Notifications] Showing prompt');
+      // Show prompt if:
+      // 1. Browser permission is 'default' (never asked) - show to ask permission
+      // 2. Browser permission is 'granted' but THIS user hasn't set their preference yet
+      // 3. User hasn't dismissed it for this account
+      const shouldShowPrompt =
+        (status === 'default' ||
+          support.requiresPWA ||
+          (status === 'granted' && !userPreference)) &&
+        userPreference !== 'dismissed';
+
+      if (shouldShowPrompt && userId) {
+        console.log('[Notifications] Showing prompt for user:', userId);
         this.showNotificationPrompt.set(true);
       }
     }, 3000);
@@ -133,6 +150,8 @@ export class MainLayoutComponent implements OnInit {
   }
 
   dismissNotificationPrompt(): void {
+    console.log('[Notifications] User dismissed prompt, saving to localStorage');
+    localStorage.setItem(this.getNotificationPreferenceKey(), 'dismissed');
     this.showNotificationPrompt.set(false);
   }
 

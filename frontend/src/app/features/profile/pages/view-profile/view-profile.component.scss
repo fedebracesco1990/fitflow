@@ -119,6 +119,50 @@
   }
 }
 
+.notifications-section {
+  margin-top: 1.5rem;
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: #3b82f6;
+
+    h2 {
+      margin: 0;
+      font-size: 1.125rem;
+      color: #1e293b;
+    }
+  }
+
+  .notification-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+
+    &.enabled {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    &.denied {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+  }
+
+  .section-description {
+    margin: 0 0 1rem;
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+}
+
 .security-section {
   margin-top: 1.5rem;
 

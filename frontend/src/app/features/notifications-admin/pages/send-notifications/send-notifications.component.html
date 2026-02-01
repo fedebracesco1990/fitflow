@@ -50,10 +50,14 @@
         </div>
 
         @if (result()) {
-          <div class="result" [class.success]="result()!.success" [class.error]="!result()!.success">
+          <div
+            class="result"
+            [class.success]="result()!.success"
+            [class.error]="!result()!.success"
+          >
             @if (result()!.success) {
               <lucide-icon name="check-circle" [size]="18"></lucide-icon>
-              <span>Notificación enviada a {{ result()!.sent }} dispositivo(s)</span>
+              <span>Notificación enviada a {{ result()!.sent }} usuario(s)</span>
             } @else {
               <lucide-icon name="alert-triangle" [size]="18"></lucide-icon>
               <span>Error al enviar la notificación</span>

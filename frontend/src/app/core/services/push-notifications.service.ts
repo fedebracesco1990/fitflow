@@ -133,6 +133,7 @@ export class PushNotificationsService {
     const accessToken = this.storage.getAccessToken();
 
     if (!accessToken) {
+      console.warn('[PushNotifications] No access token, cannot register FCM token');
       return;
     }
 
@@ -141,13 +142,18 @@ export class PushNotificationsService {
       'Content-Type': 'application/json',
     });
 
-    await this.http
-      .post(
-        `${environment.apiUrl}/notifications/register-token`,
-        { token, platform: 'web' },
-        { headers }
-      )
-      .toPromise();
+    try {
+      await this.http
+        .post(
+          `${environment.apiUrl}/notifications/register-token`,
+          { token, platform: 'web' },
+          { headers }
+        )
+        .toPromise();
+      console.log('[PushNotifications] FCM token registered in backend successfully');
+    } catch (error) {
+      console.error('[PushNotifications] Failed to register FCM token in backend:', error);
+    }
   }
 
   async unregisterToken(token: string): Promise<void> {
@@ -158,17 +164,32 @@ export class PushNotificationsService {
     }
   }
 
+  private foregroundListenerRegistered = false;
+
   onForegroundMessage(callback: (payload: PushNotification) => void): void {
     if (!this.messaging) {
+      console.warn(
+        '[PushNotifications] Cannot register foreground listener - messaging not initialized'
+      );
       return;
     }
 
+    if (this.foregroundListenerRegistered) {
+      console.log('[PushNotifications] Foreground listener already registered, skipping');
+      return;
+    }
+
+    this.foregroundListenerRegistered = true;
+    console.log('[PushNotifications] Registering foreground message listener');
     onMessage(this.messaging, (payload) => {
+      console.log('[PushNotifications] Foreground message received:', payload);
+      // Use server timestamp as ID to avoid duplicates from multiple sources
+      const serverTimestamp = payload.data?.['timestamp'] || Date.now().toString();
       const notification: PushNotification = {
-        id: crypto.randomUUID(),
+        id: `notif-${serverTimestamp}`,
         title: payload.notification?.title || 'FitFlow',
         body: payload.notification?.body || '',
-        timestamp: new Date(),
+        timestamp: new Date(parseInt(serverTimestamp)),
         read: false,
         data: payload.data as Record<string, string>,
       };
