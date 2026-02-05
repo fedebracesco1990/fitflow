@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsEnum, IsArray, ValidateNested, IsInt, IsUUID, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+  IsInt,
+  IsUUID,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { Difficulty } from '../../../common/enums/difficulty.enum';
 
