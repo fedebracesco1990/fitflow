@@ -2,9 +2,9 @@ import {
   Controller,
   Get,
   Post,
-  Body,
   Patch,
   Delete,
+  Body,
   Param,
   UseGuards,
   ParseUUIDPipe,
@@ -12,13 +12,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { WorkoutsService } from './workouts.service';
-import {
-  CreateWorkoutDto,
-  UpdateWorkoutDto,
-  LogExerciseDto,
-  UpdateExerciseLogDto,
-  BulkLogExercisesDto,
-} from './dto';
+import { UpdateWorkoutDto, UpdateExerciseLogDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { PaginationDto } from '../../common/dto';
@@ -28,14 +22,25 @@ import { PaginationDto } from '../../common/dto';
 export class WorkoutsController {
   constructor(private readonly workoutsService: WorkoutsService) {}
 
-  @Post()
-  create(@Body() dto: CreateWorkoutDto, @Request() req: { user: AuthenticatedUser }) {
-    return this.workoutsService.create(dto, req.user.userId);
+  @Post('start/:routineId')
+  startWorkout(
+    @Param('routineId', ParseUUIDPipe) routineId: string,
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    return this.workoutsService.startWorkout(routineId, req.user.userId);
   }
 
   @Get('my-history')
   findMyHistory(@Request() req: { user: AuthenticatedUser }, @Query() pagination: PaginationDto) {
     return this.workoutsService.findMyHistory(req.user.userId, pagination.page, pagination.limit);
+  }
+
+  @Get('last/:routineId')
+  getLastWorkout(
+    @Param('routineId', ParseUUIDPipe) routineId: string,
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    return this.workoutsService.getLastWorkoutForRoutine(routineId, req.user.userId);
   }
 
   @Get(':id')
@@ -52,14 +57,6 @@ export class WorkoutsController {
     return this.workoutsService.update(id, dto, req.user.userId);
   }
 
-  @Patch(':id/start')
-  startWorkout(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Request() req: { user: AuthenticatedUser }
-  ) {
-    return this.workoutsService.startWorkout(id, req.user.userId);
-  }
-
   @Patch(':id/complete')
   completeWorkout(
     @Param('id', ParseUUIDPipe) id: string,
@@ -67,16 +64,6 @@ export class WorkoutsController {
     @Request() req: { user: AuthenticatedUser }
   ) {
     return this.workoutsService.completeWorkout(id, req.user.userId, body.duration);
-  }
-
-  // Logs de ejercicios
-  @Post(':id/exercises')
-  logExercise(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: LogExerciseDto,
-    @Request() req: { user: AuthenticatedUser }
-  ) {
-    return this.workoutsService.logExercise(id, dto, req.user.userId);
   }
 
   @Get(':id/exercises')
@@ -104,14 +91,5 @@ export class WorkoutsController {
     @Request() req: { user: AuthenticatedUser }
   ) {
     return this.workoutsService.deleteExerciseLog(id, logId, req.user.userId);
-  }
-
-  @Post(':id/exercises/bulk')
-  logExercisesBulk(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: BulkLogExercisesDto,
-    @Request() req: { user: AuthenticatedUser }
-  ) {
-    return this.workoutsService.logExercisesBulk(id, dto, req.user.userId);
   }
 }

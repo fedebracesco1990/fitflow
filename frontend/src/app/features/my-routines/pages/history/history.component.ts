@@ -1,10 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { WorkoutsService } from '../../../../core/services';
-import { WorkoutLog, WorkoutStatus } from '../../../../core/models';
-import { RoutineHistoryCardComponent } from '../../components/routine-history-card/routine-history-card.component';
+import { WorkoutLog } from '../../../../core/models';
 import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../../../../shared';
 
 @Component({
@@ -14,7 +13,6 @@ import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../
     CommonModule,
     RouterLink,
     LucideAngularModule,
-    RoutineHistoryCardComponent,
     CardComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
@@ -22,9 +20,9 @@ import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../
   template: `
     <div class="history-page">
       <div class="page-header">
-        <a routerLink="/my-routines/week" class="back-link">
+        <a routerLink="/my-routines" class="back-link">
           <lucide-icon name="arrow-left" [size]="20"></lucide-icon>
-          Volver a Mi Semana
+          Volver a Rutinas
         </a>
         <h1>Historial de Rutinas</h1>
         <p class="subtitle">Rutinas que has completado anteriormente</p>
@@ -70,7 +68,16 @@ import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../
           } @else {
             <div class="history-grid">
               @for (item of history(); track item.id) {
-                <fit-flow-routine-history-card [item]="item" />
+                <div class="history-card">
+                  <div class="card-header">
+                    <h3>{{ getRoutineName(item) }}</h3>
+                    <span class="date">{{ formatDate(item.createdAt) }}</span>
+                  </div>
+                  <div class="card-stats">
+                    <span>⏱️ {{ formatTime(item.duration) }}</span>
+                    <span>✓ {{ getExerciseCount(item) }} ejercicios</span>
+                  </div>
+                </div>
               }
             </div>
           }
@@ -190,6 +197,40 @@ import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../
       gap: 16px;
     }
 
+    .history-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      .date {
+        font-size: 12px;
+        color: #64748b;
+      }
+    }
+
+    .card-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 14px;
+      color: #475569;
+    }
+
     @media (max-width: 640px) {
       .history-grid {
         grid-template-columns: 1fr;
@@ -207,7 +248,7 @@ export class RoutineHistoryComponent implements OnInit {
 
   history = signal<WorkoutLog[]>([]);
   totalWorkouts = signal(0);
-  completedWorkouts = signal(0);
+  completedWorkouts = computed(() => this.history().length);
   loading = signal(true);
   error = signal<string | null>(null);
 
@@ -223,9 +264,6 @@ export class RoutineHistoryComponent implements OnInit {
       next: (response) => {
         this.history.set(response.data);
         this.totalWorkouts.set(response.meta.total);
-        this.completedWorkouts.set(
-          response.data.filter((w) => w.status === WorkoutStatus.COMPLETED).length
-        );
         this.loading.set(false);
       },
       error: (err) => {
@@ -233,5 +271,34 @@ export class RoutineHistoryComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  formatTime(minutes: number | null): string {
+    if (!minutes) return '0:00';
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hrs > 0) {
+      return `${hrs}h ${mins}m`;
+    }
+    return `${mins}m`;
+  }
+
+  formatDate(isoDate: string): string {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString('es', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  getRoutineName(log: WorkoutLog): string {
+    return log.userProgramRoutine?.name || 'Rutina';
+  }
+
+  getExerciseCount(log: WorkoutLog): number {
+    return log.exerciseLogs?.length || 0;
   }
 }

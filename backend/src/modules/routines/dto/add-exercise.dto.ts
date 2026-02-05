@@ -1,4 +1,16 @@
-import { IsUUID, IsOptional, IsInt, Min, Max, IsString, IsNumber, IsEnum } from 'class-validator';
+import {
+  IsUUID,
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { DayOfWeek } from '../../../common/enums/day-of-week.enum';
 
 export class AddExerciseDto {
@@ -80,4 +92,11 @@ export class UpdateRoutineExerciseDto {
   @IsOptional()
   @IsEnum(DayOfWeek)
   dayOfWeek?: DayOfWeek;
+}
+
+export class ReplaceExercisesDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AddExerciseDto)
+  exercises: AddExerciseDto[];
 }

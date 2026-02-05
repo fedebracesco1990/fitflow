@@ -25,3 +25,6 @@ export * from './sync-manager.service';
 export * from './offline-workouts.service';
 export * from './websocket.service';
 export * from './notification-storage.service';
+export * from './workout-timer.service';
+export * from './workout-state.service';
+export * from './user-programs.service';

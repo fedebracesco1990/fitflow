@@ -9,8 +9,6 @@ import { AuthState } from '../store';
 import {
   WorkoutLog,
   ExerciseLog,
-  CreateWorkoutDto,
-  LogExerciseDto,
   UpdateExerciseLogDto,
   WorkoutStatus,
   SyncOperationType,
@@ -33,80 +31,11 @@ export class OfflineWorkoutsService {
     return user?.userId || 'anonymous';
   }
 
-  create(data: CreateWorkoutDto): Observable<WorkoutLog> {
-    if (this.networkService.isOnline()) {
-      return this.workoutsService
-        .create(data)
-        .pipe(tap((workout) => this.cacheWorkout(workout, false)));
-    }
-
-    return from(this.createOfflineWorkout(data));
-  }
-
-  private async createOfflineWorkout(data: CreateWorkoutDto): Promise<WorkoutLog> {
-    const tempId = this.generateTempId();
-    const now = new Date().toISOString();
-
-    const offlineWorkout: WorkoutLog = {
-      id: tempId,
-      userRoutineId: data.userRoutineId,
-      userRoutine: null as never,
-      date: data.date,
-      status: WorkoutStatus.PENDING,
-      duration: null,
-      notes: data.notes || null,
-      exerciseLogs: [],
-      createdAt: now,
-    };
-
-    await this.cacheWorkout(offlineWorkout, true, tempId);
-
-    await this.syncQueue.enqueue(
-      SyncOperationType.CREATE_WORKOUT,
-      'workouts',
-      'POST',
-      data,
-      tempId
-    );
-
-    return offlineWorkout;
-  }
-
-  start(id: string): Observable<WorkoutLog> {
-    if (this.networkService.isOnline()) {
-      return this.workoutsService
-        .start(id)
-        .pipe(tap((workout) => this.cacheWorkout(workout, false)));
-    }
-
-    return from(this.startOfflineWorkout(id));
-  }
-
-  private async startOfflineWorkout(id: string): Promise<WorkoutLog> {
-    const cached = await this.offlineDb.getCachedWorkout(id);
-    if (!cached) {
-      throw new Error('Workout not found in cache');
-    }
-
-    const updatedWorkout: WorkoutLog = {
-      ...cached.data,
-      status: WorkoutStatus.IN_PROGRESS,
-    };
-
-    await this.offlineDb.updateCachedWorkout(id, {
-      data: updatedWorkout,
-      cachedAt: Date.now(),
-    });
-
-    await this.syncQueue.enqueue(
-      SyncOperationType.START_WORKOUT,
-      `workouts/${id}/start`,
-      'PATCH',
-      {},
-      cached.tempId
-    );
-
-    return updatedWorkout;
+  startWorkout(routineId: string): Observable<WorkoutLog> {
+    // Solo funciona online - offline no soportado en nuevo modelo
+    return this.workoutsService
+      .startWorkout(routineId)
+      .pipe(tap((workout) => this.cacheWorkout(workout, false)));
   }
 
   complete(id: string, duration?: number): Observable<WorkoutLog> {
@@ -129,6 +58,7 @@ export class OfflineWorkoutsService {
       ...cached.data,
       status: WorkoutStatus.COMPLETED,
       duration: duration || null,
+      finishedAt: new Date().toISOString(),
     };
 
     await this.offlineDb.updateCachedWorkout(id, {
@@ -167,45 +97,6 @@ export class OfflineWorkoutsService {
         return cached.data;
       })
     );
-  }
-
-  logExercise(workoutId: string, data: LogExerciseDto): Observable<ExerciseLog> {
-    if (this.networkService.isOnline()) {
-      return this.workoutsService
-        .logExercise(workoutId, data)
-        .pipe(tap((log) => this.cacheExerciseLog(log, workoutId, false)));
-    }
-
-    return from(this.logExerciseOffline(workoutId, data));
-  }
-
-  private async logExerciseOffline(workoutId: string, data: LogExerciseDto): Promise<ExerciseLog> {
-    const tempId = this.generateTempId();
-
-    const offlineLog: ExerciseLog = {
-      id: tempId,
-      workoutLogId: workoutId,
-      routineExerciseId: data.routineExerciseId,
-      routineExercise: null as never,
-      setNumber: data.setNumber,
-      reps: data.reps,
-      weight: data.weight || null,
-      completed: data.completed || false,
-      notes: data.notes || null,
-    };
-
-    await this.cacheExerciseLog(offlineLog, workoutId, true, tempId);
-    await this.updateCachedWorkoutWithLog(workoutId, offlineLog);
-
-    await this.syncQueue.enqueue(
-      SyncOperationType.LOG_EXERCISE,
-      `workouts/${workoutId}/exercises`,
-      'POST',
-      data,
-      tempId
-    );
-
-    return offlineLog;
   }
 
   updateExerciseLog(
@@ -290,7 +181,7 @@ export class OfflineWorkoutsService {
     const cached: CachedWorkout = {
       id: workout.id,
       tempId,
-      userRoutineId: workout.userRoutineId,
+      userProgramRoutineId: workout.userProgramRoutineId,
       data: workout,
       cachedAt: Date.now(),
       userId: this.userId,
@@ -346,9 +237,5 @@ export class OfflineWorkoutsService {
       data: { ...cached.data, exerciseLogs: updatedLogs },
       cachedAt: Date.now(),
     });
-  }
-
-  private generateTempId(): string {
-    return `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 }

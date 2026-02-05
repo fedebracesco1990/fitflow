@@ -37,19 +37,8 @@ export interface Routine {
   isDraft: boolean;
   type: RoutineType;
   exercises: RoutineExercise[];
-  programRoutines?: ProgramRoutine[];
   createdAt: string;
   updatedAt: string;
-}
-
-export interface ProgramRoutine {
-  id: string;
-  programId: string;
-  routineId: string;
-  routine: Routine;
-  dayNumber: number;
-  order: number;
-  createdAt: string;
 }
 
 export interface CreateRoutineDto {
@@ -59,12 +48,6 @@ export interface CreateRoutineDto {
   estimatedDuration?: number;
   type?: RoutineType;
   isDraft?: boolean;
-}
-
-export interface AddRoutineToProgramDto {
-  routineId: string;
-  dayNumber: number;
-  order?: number;
 }
 
 export type UpdateRoutineDto = Partial<CreateRoutineDto> & {

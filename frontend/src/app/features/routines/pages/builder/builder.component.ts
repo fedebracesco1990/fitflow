@@ -13,6 +13,7 @@ import {
   RoutineExercise,
   TemplateCategory,
   BulkAssignResult,
+  RoutineType,
 } from '../../../../core/models';
 import { ExercisePanelComponent } from '../../components/exercise-panel/exercise-panel.component';
 import { DayColumnComponent, DayExercise } from '../../components/day-column/day-column.component';
@@ -75,6 +76,7 @@ export class RoutineBuilderComponent implements OnInit {
   dayLabels = DayOfWeekLabels;
   difficulties = Object.values(Difficulty);
   difficultyLabels = DifficultyLabels;
+  RoutineType = RoutineType;
 
   dayExercises = signal<DayExercisesMap>(createEmptyDayExercisesMap());
 

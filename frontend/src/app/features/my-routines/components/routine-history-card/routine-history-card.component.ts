@@ -12,21 +12,21 @@ import { CardComponent, BadgeComponent } from '../../../../shared';
   template: `
     <fit-flow-card padding="md" class="history-card">
       <div class="card-header">
-        <h3 class="routine-name">{{ item().userRoutine?.routine?.name || 'Rutina' }}</h3>
+        <h3 class="routine-name">{{ getRoutineName() }}</h3>
         <fit-flow-badge [variant]="getStatusVariant(item().status)">
           {{ statusLabels[item().status] }}
         </fit-flow-badge>
       </div>
 
-      @if (item().userRoutine?.routine?.description) {
-        <p class="routine-description">{{ item().userRoutine.routine.description }}</p>
+      @if (getRoutineDescription()) {
+        <p class="routine-description">{{ getRoutineDescription() }}</p>
       }
 
       <div class="stats-grid">
         <div class="stat">
           <lucide-icon name="calendar" [size]="18"></lucide-icon>
           <div class="stat-content">
-            <span class="stat-value">{{ formatDateShort(item().date) }}</span>
+            <span class="stat-value">{{ formatDateShort(item().startedAt) }}</span>
             <span class="stat-label">Fecha</span>
           </div>
         </div>
@@ -135,5 +135,15 @@ export class RoutineHistoryCardComponent {
       default:
         return 'neutral';
     }
+  }
+
+  getRoutineName(): string {
+    const workout = this.item();
+    return workout.userProgramRoutine?.name || 'Rutina';
+  }
+
+  getRoutineDescription(): string | null {
+    const workout = this.item();
+    return workout.userProgramRoutine?.description || null;
   }
 }

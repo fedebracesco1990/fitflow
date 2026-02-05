@@ -7,7 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ProgramRoutine } from './program-routine.entity';
+import { ProgramRoutine } from '../../programs/entities/program-routine.entity';
 import { Exercise } from '../../exercises/entities/exercise.entity';
 
 @Entity('program_routine_exercises')

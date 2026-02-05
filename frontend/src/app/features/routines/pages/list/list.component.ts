@@ -1,7 +1,9 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { RoutinesService } from '../../../../core/services';
+import { forkJoin } from 'rxjs';
+import { RoutinesService, UserProgramsService } from '../../../../core/services';
+import { Program } from '../../../../core/services/user-programs.service';
 import {
   Routine,
   DifficultyLabels,
@@ -10,6 +12,16 @@ import {
   RoutineType,
   RoutineTypeLabels,
 } from '../../../../core/models';
+
+interface ListItem {
+  id: string;
+  name: string;
+  type: 'routine' | 'program';
+  routineType?: RoutineType;
+  difficulty: Difficulty;
+  isDraft?: boolean;
+  createdAt: string;
+}
 import {
   BadgeComponent,
   ButtonComponent,
@@ -37,14 +49,17 @@ import { RoutineTypeSelectDialogComponent } from '../../components/routine-type-
 })
 export class RoutinesListComponent implements OnInit {
   private readonly routinesService = inject(RoutinesService);
+  private readonly programsService = inject(UserProgramsService);
 
   routines = signal<Routine[]>([]);
+  programs = signal<Program[]>([]);
+  listItems = signal<ListItem[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
   successMessage = signal<string | null>(null);
 
   assignDialogOpen = signal(false);
-  selectedRoutineForAssign = signal<Routine | null>(null);
+  selectedRoutineForAssign = signal<{ id: string; name: string; type: RoutineType } | null>(null);
   showTypeModal = signal(false);
 
   // Delete dialog state
@@ -60,22 +75,22 @@ export class RoutinesListComponent implements OnInit {
   routineTypeLabels = RoutineTypeLabels;
   RoutineType = RoutineType;
 
-  filteredRoutines = computed(() => {
+  filteredItems = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
-    let result = this.routines();
+    let result = this.listItems();
     if (query) {
       result = result.filter((r) => r.name.toLowerCase().includes(query));
     }
     return result;
   });
 
-  totalRoutines = computed(() => this.filteredRoutines().length);
+  totalItems = computed(() => this.filteredItems().length);
 
-  totalPages = computed(() => Math.ceil(this.totalRoutines() / this.pageSize) || 1);
+  totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize) || 1);
 
-  displayedRoutines = computed(() => {
+  displayedItems = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize;
-    return this.filteredRoutines().slice(start, start + this.pageSize);
+    return this.filteredItems().slice(start, start + this.pageSize);
   });
 
   visiblePages = computed(() => {
@@ -105,17 +120,88 @@ export class RoutinesListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    const type = this.selectedTypeFilter() ?? undefined;
-    this.routinesService.getAll({ includeInactive: true, limit: 100, type }).subscribe({
-      next: (response) => {
-        this.routines.set(response.data);
+    const typeFilter = this.selectedTypeFilter();
+
+    // Si filtra por WEEKLY, solo cargar programas
+    if (typeFilter === RoutineType.WEEKLY) {
+      this.programsService.getAll().subscribe({
+        next: (programs) => {
+          this.programs.set(programs);
+          this.routines.set([]);
+          this.buildListItems();
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.error.set(err.error?.message || 'Error al cargar programas');
+          this.loading.set(false);
+        },
+      });
+      return;
+    }
+
+    // Si filtra por DAILY, solo cargar rutinas diarias
+    if (typeFilter === RoutineType.DAILY) {
+      this.routinesService
+        .getAll({ includeInactive: true, limit: 100, type: RoutineType.DAILY })
+        .subscribe({
+          next: (response) => {
+            this.routines.set(response.data);
+            this.programs.set([]);
+            this.buildListItems();
+            this.loading.set(false);
+          },
+          error: (err) => {
+            this.error.set(err.error?.message || 'Error al cargar rutinas');
+            this.loading.set(false);
+          },
+        });
+      return;
+    }
+
+    // Sin filtro: cargar ambos
+    forkJoin({
+      routines: this.routinesService.getAll({
+        includeInactive: true,
+        limit: 100,
+        type: RoutineType.DAILY,
+      }),
+      programs: this.programsService.getAll(),
+    }).subscribe({
+      next: ({ routines, programs }) => {
+        this.routines.set(routines.data);
+        this.programs.set(programs);
+        this.buildListItems();
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Error al cargar rutinas');
+        this.error.set(err.error?.message || 'Error al cargar datos');
         this.loading.set(false);
       },
     });
+  }
+
+  private buildListItems(): void {
+    const routineItems: ListItem[] = this.routines().map((r) => ({
+      id: r.id,
+      name: r.name,
+      type: 'routine' as const,
+      routineType: r.type,
+      difficulty: r.difficulty,
+      isDraft: r.isDraft,
+      createdAt: r.createdAt,
+    }));
+
+    const programItems: ListItem[] = this.programs().map((p) => ({
+      id: p.id,
+      name: p.name,
+      type: 'program' as const,
+      routineType: RoutineType.WEEKLY,
+      difficulty: p.difficulty,
+      isDraft: false,
+      createdAt: p.createdAt,
+    }));
+
+    this.listItems.set([...routineItems, ...programItems]);
   }
 
   getDifficultyBadgeVariant(difficulty: Difficulty): 'success' | 'warning' | 'error' {
@@ -127,25 +213,34 @@ export class RoutinesListComponent implements OnInit {
     return variantMap[difficulty];
   }
 
-  deleteRoutine(routine: Routine): void {
-    this.selectedRoutineForDelete.set(routine);
+  deleteItem(item: ListItem): void {
+    this.selectedRoutineForDelete.set({ id: item.id, name: item.name } as Routine);
     this.showDeleteDialog.set(true);
   }
 
   confirmDelete(): void {
-    const routine = this.selectedRoutineForDelete();
-    if (!routine) return;
+    const item = this.selectedRoutineForDelete();
+    if (!item) return;
 
-    this.routinesService.delete(routine.id).subscribe({
-      next: () => {
-        this.routines.update((list) => list.filter((r) => r.id !== routine.id));
-        this.closeDeleteDialog();
-      },
-      error: (err) => {
-        this.error.set(err.error?.message || 'Error al eliminar rutina');
-        this.closeDeleteDialog();
-      },
-    });
+    // Buscar si es rutina o programa
+    const isProgram = this.programs().some((p) => p.id === item.id);
+
+    if (isProgram) {
+      // TODO: Implementar delete en programsService si es necesario
+      this.closeDeleteDialog();
+    } else {
+      this.routinesService.delete(item.id).subscribe({
+        next: () => {
+          this.routines.update((list) => list.filter((r) => r.id !== item.id));
+          this.buildListItems();
+          this.closeDeleteDialog();
+        },
+        error: (err) => {
+          this.error.set(err.error?.message || 'Error al eliminar rutina');
+          this.closeDeleteDialog();
+        },
+      });
+    }
   }
 
   closeDeleteDialog(): void {
@@ -153,9 +248,15 @@ export class RoutinesListComponent implements OnInit {
     this.selectedRoutineForDelete.set(null);
   }
 
-  openAssignDialog(routine: Routine): void {
-    this.selectedRoutineForAssign.set(routine);
-    this.assignDialogOpen.set(true);
+  openAssignDialog(item: ListItem): void {
+    if (item.type === 'program') {
+      this.selectedRoutineForAssign.set({
+        id: item.id,
+        name: item.name,
+        type: RoutineType.WEEKLY,
+      });
+      this.assignDialogOpen.set(true);
+    }
   }
 
   onAssignConfirmed(result: BulkAssignResult): void {
@@ -217,7 +318,16 @@ export class RoutinesListComponent implements OnInit {
     this.showTypeModal.set(false);
   }
 
-  getTypeBadgeVariant(type: RoutineType): 'primary' | 'neutral' {
+  getTypeBadgeVariant(type: RoutineType | undefined): 'primary' | 'neutral' {
     return type === RoutineType.DAILY ? 'primary' : 'neutral';
+  }
+
+  getEditLink(item: ListItem): string[] {
+    if (item.type === 'program') {
+      return ['/training', 'routines', 'weekly', item.id, 'edit'];
+    }
+    return item.routineType === RoutineType.DAILY
+      ? ['/training', 'routines', 'daily', item.id, 'edit']
+      : ['/training', 'routines', 'weekly', item.id, 'edit'];
   }
 }

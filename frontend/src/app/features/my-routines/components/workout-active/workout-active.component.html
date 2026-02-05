@@ -1,0 +1,74 @@
+<div class="workout-active">
+  <header class="workout-header">
+    <button type="button" class="back-btn" (click)="goBack()">←</button>
+    <div class="header-content">
+      <h1>{{ routineName() }}</h1>
+      <p>{{ routineDate() }}</p>
+    </div>
+    <div class="progress-badge">{{ progressText() }}</div>
+  </header>
+
+  @if (loading()) {
+    <div class="loading">Cargando...</div>
+  } @else {
+    <div class="timer-card">
+      <div class="timer-content">
+        <h2>Entrenamiento Activo</h2>
+        <p>Tiempo transcurrido: {{ formattedTime() }}</p>
+      </div>
+      <div class="timer-icon">⏱️</div>
+    </div>
+
+    <div class="exercises-list">
+      @for (exercise of exercises(); track exercise.id) {
+        <div class="exercise-card" [class]="getExerciseStatusClass(exercise)">
+          @if (isCurrentExercise(exercise)) {
+            <span class="current-badge">ACTUAL</span>
+          }
+
+          <div class="exercise-info">
+            <h3>{{ exercise.name }}</h3>
+            <p>3 series de 10 - 10kg</p>
+          </div>
+
+          <div class="exercise-actions">
+            @if (exercise.status === 'completed') {
+              <div class="check-icon">✓</div>
+              <button type="button" class="action-btn outline" (click)="onEditExercise(exercise)">
+                Editar
+              </button>
+            } @else if (exercise.status === 'skipped') {
+              <div class="skip-icon">⏭️</div>
+              <span class="skipped-label">Omitido</span>
+            } @else {
+              <button type="button" class="action-btn outline" (click)="onSkipExercise(exercise)">
+                Skip
+              </button>
+              <button type="button" class="action-btn primary" (click)="onEnterExercise(exercise)">
+                Entrar →
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="finish-section">
+      <fit-flow-button
+        variant="primary"
+        size="lg"
+        [disabled]="!allExercisesFinished()"
+        (click)="onFinishRoutine()"
+      >
+        Finalizar Rutina
+      </fit-flow-button>
+    </div>
+  }
+
+  <fit-flow-rest-timer
+    [isActive]="isResting()"
+    [duration]="restDuration()"
+    (completed)="onRestCompleted()"
+    (skipped)="onRestSkipped()"
+  />
+</div>

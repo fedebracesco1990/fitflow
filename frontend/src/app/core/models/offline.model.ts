@@ -1,4 +1,3 @@
-import { TodayRoutineResponse, UserRoutine, DayOfWeek } from './routine.model';
 import { WorkoutLog, ExerciseLog } from './workout.model';
 
 export enum SyncStatus {
@@ -33,26 +32,10 @@ export interface SyncOperation {
   error?: string;
 }
 
-export interface CachedRoutine {
-  id: string;
-  dayOfWeek: DayOfWeek;
-  data: TodayRoutineResponse;
-  cachedAt: number;
-  userId: string;
-}
-
-export interface CachedUserRoutine {
-  id: string;
-  dayOfWeek: DayOfWeek;
-  data: UserRoutine;
-  cachedAt: number;
-  userId: string;
-}
-
 export interface CachedWorkout {
   id: string;
   tempId?: string;
-  userRoutineId: string;
+  userProgramRoutineId: string;
   data: WorkoutLog;
   cachedAt: number;
   userId: string;

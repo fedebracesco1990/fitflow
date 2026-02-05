@@ -53,17 +53,13 @@
                 class="routine-card"
                 cdkDrag
                 [class.selected]="selectedRoutine()?.id === routine.id"
+                (click)="selectRoutine(routine)"
               >
                 <div class="routine-info">
                   <span class="routine-name">{{ routine.name }}</span>
                   <div class="routine-meta">
                     <span class="meta-item">{{ routine.exercises?.length || 0 }} ejercicios</span>
                     <span class="meta-item">{{ routine.estimatedDuration }} min</span>
-                  </div>
-                  <div class="routine-tags">
-                    <span class="tag">Pecho</span>
-                    <span class="tag">Hombros</span>
-                    <span class="tag">Triceps</span>
                   </div>
                 </div>
               </div>
@@ -75,10 +71,10 @@
       <main class="builder-main">
         <section class="form-section">
           <header class="form-header">
-            <h2>{{ isEditMode() ? 'Editar' : 'Nuevo' }} Programa Semanal</h2>
+            <h2>{{ isEditMode() ? 'Editar' : 'Nuevo' }} Programa</h2>
             <div class="header-actions">
-              <fit-flow-button variant="outline" (click)="saveDraft()" [disabled]="saving()">
-                Guardar Borrador
+              <fit-flow-button variant="outline" (click)="cancel()" [disabled]="saving()">
+                Cancelar
               </fit-flow-button>
               <fit-flow-button
                 variant="primary"
@@ -86,7 +82,7 @@
                 [disabled]="saving()"
                 [loading]="saving()"
               >
-                {{ saving() ? 'Guardando...' : 'Crear' }}
+                {{ saving() ? 'Guardando...' : 'Crear Programa' }}
               </fit-flow-button>
             </div>
           </header>
@@ -98,76 +94,49 @@
               id="name"
               [value]="formData().name"
               (input)="updateFormField('name', $any($event.target).value)"
-              placeholder="Ej: Core fuerza"
+              placeholder="Ej: Programa de Fuerza"
             />
           </div>
 
-          <div class="form-row">
-            <div class="form-group flex-1">
-              <label for="difficulty">* Dificultad</label>
-              <select
-                id="difficulty"
-                [value]="formData().difficulty"
-                (change)="updateFormField('difficulty', $any($event.target).value)"
-              >
-                @for (diff of difficultyOptions; track diff) {
-                  <option [value]="diff">{{ difficultyLabels[diff] }}</option>
-                }
-              </select>
-            </div>
-            <div class="form-group flex-1">
-              <label for="duration">* Duración</label>
-              <select
-                id="duration"
-                [value]="formData().durationWeeks"
-                (change)="updateFormField('durationWeeks', +$any($event.target).value)"
-              >
-                <option value="1">1 semana</option>
-                <option value="2">2 semanas</option>
-                <option value="4">4 semanas</option>
-                <option value="6">6 semanas</option>
-                <option value="8">8 semanas</option>
-                <option value="12">12 semanas</option>
-              </select>
-            </div>
+          <div class="form-group">
+            <label for="difficulty">* Dificultad</label>
+            <select
+              id="difficulty"
+              [value]="formData().difficulty"
+              (change)="updateFormField('difficulty', $any($event.target).value)"
+            >
+              @for (diff of difficultyOptions; track diff) {
+                <option [value]="diff">{{ difficultyLabels[diff] }}</option>
+              }
+            </select>
           </div>
 
           <div class="form-group">
-            <label for="description">Descripcion</label>
+            <label for="description">Descripción</label>
             <textarea
               id="description"
               rows="2"
               [value]="formData().description"
               (input)="updateFormField('description', $any($event.target).value)"
-              placeholder="Principiante"
+              placeholder="Descripción del programa"
             ></textarea>
           </div>
         </section>
 
         <section class="schedule-section">
-          <h3>Estructura Semanal</h3>
+          <h3>Rutinas del Programa</h3>
 
           <div class="days-list">
-            @for (
-              assignment of allDayAssignments();
-              track assignment.routineId + '-' + assignment.dayNumber
-            ) {
+            @for (assignment of allAssignments(); track assignment.routineId) {
               <div class="day-item-wrapper">
-                <div class="day-number-badge">{{ assignment.dayNumber }}</div>
-                <div
-                  class="day-card"
-                  [class.pending]="!assignment.isSaved"
-                  (click)="openRoutineDetail(assignment)"
-                >
+                <div class="day-number-badge">{{ assignment.order }}</div>
+                <div class="day-card">
                   <div class="day-card-content">
                     <div class="day-card-header">
-                      <span class="day-label">Día {{ assignment.dayNumber }}</span>
+                      <span class="day-label">Rutina {{ assignment.order }}</span>
                       <span class="difficulty-badge">{{
                         difficultyLabels[assignment.routine.difficulty]
                       }}</span>
-                      @if (!assignment.isSaved) {
-                        <span class="pending-badge">Pendiente</span>
-                      }
                     </div>
                     <div class="routine-name">{{ assignment.routine.name }}</div>
                     <div class="day-meta">
@@ -177,30 +146,17 @@
                       </span>
                       <span class="meta-item">
                         <span class="meta-icon">⏱</span>
-                        {{ assignment.routine.estimatedDuration }}-{{
-                          assignment.routine.estimatedDuration + 15
-                        }}
-                        min
-                      </span>
-                      <span class="meta-item meta-tags">
-                        <span class="meta-icon">🎯</span>
-                        Pecho, Hombros, Tríceps
+                        {{ assignment.routine.estimatedDuration }} min
                       </span>
                     </div>
                   </div>
                   <button
                     class="remove-btn"
-                    (click)="
-                      $event.stopPropagation();
-                      assignment.isSaved
-                        ? removeRoutineFromDay(assignment.routineId, assignment.dayNumber)
-                        : removePendingAssignment(assignment.routineId, assignment.dayNumber)
-                    "
+                    (click)="$event.stopPropagation(); removeAssignment(assignment.routineId)"
                   >
                     ✕
                   </button>
                 </div>
-                <div class="drag-handle">⋮⋮</div>
               </div>
             }
 
@@ -213,8 +169,8 @@
               (cdkDropListDropped)="onRoutineDropped($event)"
             >
               <div class="add-icon">+</div>
-              <span>Agregar</span>
-              <span class="hint">Arrastra una rutina aquí</span>
+              <span>Agregar Rutina</span>
+              <span class="hint">Arrastra o haz clic en una rutina</span>
             </div>
           </div>
         </section>
@@ -222,10 +178,3 @@
     </div>
   }
 </div>
-
-<fit-flow-routine-detail-dialog
-  [isOpen]="dialogOpen()"
-  [data]="dialogData()"
-  (close)="closeDialog()"
-  (save)="onDialogSave($event)"
-></fit-flow-routine-detail-dialog>

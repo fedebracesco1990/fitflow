@@ -1,0 +1,73 @@
+<div class="exercise-sets">
+  <header class="sets-header">
+    <button type="button" class="back-btn" (click)="goBack()">←</button>
+    <div class="header-content">
+      <h1>{{ exerciseName() }}</h1>
+      <p>Set {{ getCurrentSetIndex() + 1 }} de {{ totalSets }}</p>
+    </div>
+  </header>
+
+  <div class="progress-card">
+    <div class="progress-header">
+      <span class="progress-label">Progreso del ejercicio</span>
+      <span class="progress-value">{{ completedSets }}/{{ totalSets }}</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+    </div>
+  </div>
+
+  <div class="sets-list">
+    @for (set of sets(); track set.id) {
+      <div class="set-card" [class.completed]="set.completed" [class.current]="isCurrentSet(set)">
+        @if (isCurrentSet(set) && !set.completed) {
+          <span class="current-badge">ACTUAL</span>
+        }
+
+        <div class="set-info">
+          <h3>Set {{ set.setNumber }}</h3>
+          <p>{{ set.reps }} reps • {{ set.weight }}kg</p>
+        </div>
+
+        <div class="set-actions">
+          @if (set.completed) {
+            <div class="check-icon">✓</div>
+            <button type="button" class="action-btn edit" (click)="onEditSet(set)">✏️</button>
+          } @else {
+            <button type="button" class="action-btn edit" (click)="onEditSet(set)">✏️</button>
+            <button type="button" class="action-btn complete" (click)="onCompleteSet(set)">
+              ✓
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="add-section">
+    <button type="button" class="add-btn" (click)="addSet()" [disabled]="!allSetsCompleted">
+      <span class="plus-icon">+</span>
+      Agregar Set
+    </button>
+  </div>
+
+  <div class="complete-section">
+    <button
+      type="button"
+      class="complete-exercise-btn"
+      [disabled]="!allSetsCompleted"
+      (click)="onCompleteExercise()"
+    >
+      Completar Ejercicio
+    </button>
+  </div>
+</div>
+
+<fit-flow-edit-set-dialog
+  [isOpen]="editDialogOpen()"
+  [setNumber]="editingSet()?.setNumber || 1"
+  [initialReps]="editingSet()?.reps || 10"
+  [initialWeight]="editingSet()?.weight || 0"
+  (saved)="onEditSave($event)"
+  (cancelled)="onEditCancel()"
+/>

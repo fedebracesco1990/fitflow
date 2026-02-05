@@ -17,7 +17,7 @@
         }
 
         <div class="form-row">
-          <div class="form-group">
+          <div class="form-group" [class.full-width]="isWeeklyProgram()">
             <label for="startDate">Fecha de inicio</label>
             <input
               id="startDate"
@@ -27,18 +27,20 @@
             />
           </div>
 
-          <div class="form-group">
-            <label for="dayOfWeek">Día de la semana</label>
-            <select
-              id="dayOfWeek"
-              [ngModel]="selectedDay()"
-              (ngModelChange)="selectedDay.set($event)"
-            >
-              @for (day of days; track day) {
-                <option [value]="day">{{ dayLabels[day] }}</option>
-              }
-            </select>
-          </div>
+          @if (!isWeeklyProgram()) {
+            <div class="form-group">
+              <label for="dayOfWeek">Día de la semana</label>
+              <select
+                id="dayOfWeek"
+                [ngModel]="selectedDay()"
+                (ngModelChange)="selectedDay.set($event)"
+              >
+                @for (day of days; track day) {
+                  <option [value]="day">{{ dayLabels[day] }}</option>
+                }
+              </select>
+            </div>
+          }
         </div>
 
         <div class="users-section">

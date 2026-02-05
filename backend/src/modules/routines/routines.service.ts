@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Routine } from './entities/routine.entity';
 import { RoutineExercise } from './entities/routine-exercise.entity';
-import { ProgramRoutine } from './entities/program-routine.entity';
+import { ProgramRoutine } from '../programs/entities/program-routine.entity';
 import { ProgramRoutineExercise } from './entities/program-routine-exercise.entity';
 import { Exercise } from '../exercises/entities/exercise.entity';
 import {
@@ -16,7 +16,6 @@ import {
   UpdateRoutineDto,
   AddExerciseDto,
   UpdateRoutineExerciseDto,
-  AddRoutineToProgramDto,
 } from './dto';
 import {
   CreateProgramRoutineExerciseDto,
@@ -230,6 +229,44 @@ export class RoutinesService {
     await this.routineExerciseRepository.remove(routineExercise);
   }
 
+  async replaceExercises(
+    routineId: string,
+    exercises: AddExerciseDto[],
+    userId: string,
+    userRole: Role
+  ): Promise<RoutineExercise[]> {
+    const routine = await this.findOne(routineId);
+
+    if (userRole !== Role.ADMIN && routine.createdById !== userId) {
+      throw new ForbiddenException('No tienes permisos para modificar esta rutina');
+    }
+
+    // Eliminar todos los ejercicios existentes
+    await this.routineExerciseRepository.delete({ routineId });
+
+    // Agregar los nuevos ejercicios
+    const newExercises: RoutineExercise[] = [];
+    for (let i = 0; i < exercises.length; i++) {
+      const dto = exercises[i];
+      const routineExercise = this.routineExerciseRepository.create({
+        routineId,
+        exerciseId: dto.exerciseId,
+        order: dto.order ?? i + 1,
+        sets: dto.sets ?? 3,
+        reps: dto.reps ?? 12,
+        restSeconds: dto.restSeconds ?? 60,
+        notes: dto.notes,
+        suggestedWeight: dto.suggestedWeight,
+        dayOfWeek: dto.dayOfWeek,
+      });
+      const saved = await this.routineExerciseRepository.save(routineExercise);
+      newExercises.push(saved);
+    }
+
+    this.notifyRoutineUpdated(routine, userId);
+    return newExercises;
+  }
+
   private notifyRoutineUpdated(routine: Routine, updatedBy: string): void {
     if (!routine.createdById) return;
 
@@ -239,103 +276,6 @@ export class RoutinesService {
       updatedBy,
       updatedAt: new Date(),
     });
-  }
-
-  async getProgramRoutines(programId: string): Promise<ProgramRoutine[]> {
-    const program = await this.routineRepository.findOne({
-      where: { id: programId, type: RoutineType.WEEKLY },
-    });
-    if (!program) {
-      throw new NotFoundException(`Programa con ID "${programId}" no encontrado`);
-    }
-
-    return this.programRoutineRepository.find({
-      where: { programId },
-      relations: ['routine', 'routine.exercises', 'routine.exercises.exercise'],
-      order: { dayNumber: 'ASC', order: 'ASC' },
-    });
-  }
-
-  async addRoutineToProgram(
-    programId: string,
-    dto: AddRoutineToProgramDto,
-    userId: string,
-    userRole: Role
-  ): Promise<ProgramRoutine> {
-    const program = await this.routineRepository.findOne({
-      where: { id: programId, type: RoutineType.WEEKLY },
-    });
-    if (!program) {
-      throw new NotFoundException(`Programa con ID "${programId}" no encontrado`);
-    }
-
-    if (userRole !== Role.ADMIN && program.createdById !== userId) {
-      throw new ForbiddenException('No tienes permisos para modificar este programa');
-    }
-
-    const routine = await this.routineRepository.findOne({
-      where: { id: dto.routineId, type: RoutineType.DAILY, isActive: true },
-    });
-    if (!routine) {
-      throw new NotFoundException(`Rutina diaria con ID "${dto.routineId}" no encontrada`);
-    }
-
-    const existing = await this.programRoutineRepository.findOne({
-      where: { programId, routineId: dto.routineId, dayNumber: dto.dayNumber },
-    });
-    if (existing) {
-      throw new ConflictException('Esta rutina ya está asignada a este día del programa');
-    }
-
-    let order = dto.order;
-    if (!order) {
-      const maxOrder = await this.programRoutineRepository
-        .createQueryBuilder('pr')
-        .select('MAX(pr.order)', 'max')
-        .where('pr.programId = :programId AND pr.dayNumber = :dayNumber', {
-          programId,
-          dayNumber: dto.dayNumber,
-        })
-        .getRawOne<{ max: number }>();
-      order = (maxOrder?.max || 0) + 1;
-    }
-
-    const programRoutine = this.programRoutineRepository.create({
-      programId,
-      routineId: dto.routineId,
-      dayNumber: dto.dayNumber,
-      order,
-    });
-
-    return await this.programRoutineRepository.save(programRoutine);
-  }
-
-  async removeRoutineFromProgram(
-    programId: string,
-    routineId: string,
-    dayNumber: number,
-    userId: string,
-    userRole: Role
-  ): Promise<void> {
-    const program = await this.routineRepository.findOne({
-      where: { id: programId, type: RoutineType.WEEKLY },
-    });
-    if (!program) {
-      throw new NotFoundException(`Programa con ID "${programId}" no encontrado`);
-    }
-
-    if (userRole !== Role.ADMIN && program.createdById !== userId) {
-      throw new ForbiddenException('No tienes permisos para modificar este programa');
-    }
-
-    const programRoutine = await this.programRoutineRepository.findOne({
-      where: { programId, routineId, dayNumber },
-    });
-    if (!programRoutine) {
-      throw new NotFoundException('Rutina no encontrada en este día del programa');
-    }
-
-    await this.programRoutineRepository.remove(programRoutine);
   }
 
   // Program Routine Exercises (personalizaciones por instancia)
@@ -381,11 +321,7 @@ export class RoutinesService {
       throw new NotFoundException(`ProgramRoutine con ID "${programRoutineId}" no encontrado`);
     }
 
-    const program = await this.routineRepository.findOne({
-      where: { id: programRoutine.programId },
-    });
-
-    if (userRole !== Role.ADMIN && program?.createdById !== userId) {
+    if (userRole !== Role.ADMIN && programRoutine.program?.createdById !== userId) {
       throw new ForbiddenException('No tienes permisos para modificar este programa');
     }
 
@@ -419,17 +355,14 @@ export class RoutinesService {
   ): Promise<ProgramRoutineExercise> {
     const programRoutine = await this.programRoutineRepository.findOne({
       where: { id: programRoutineId },
+      relations: ['program'],
     });
 
     if (!programRoutine) {
       throw new NotFoundException(`ProgramRoutine con ID "${programRoutineId}" no encontrado`);
     }
 
-    const program = await this.routineRepository.findOne({
-      where: { id: programRoutine.programId },
-    });
-
-    if (userRole !== Role.ADMIN && program?.createdById !== userId) {
+    if (userRole !== Role.ADMIN && programRoutine.program?.createdById !== userId) {
       throw new ForbiddenException('No tienes permisos para modificar este programa');
     }
 
@@ -453,17 +386,14 @@ export class RoutinesService {
   ): Promise<void> {
     const programRoutine = await this.programRoutineRepository.findOne({
       where: { id: programRoutineId },
+      relations: ['program'],
     });
 
     if (!programRoutine) {
       throw new NotFoundException(`ProgramRoutine con ID "${programRoutineId}" no encontrado`);
     }
 
-    const program = await this.routineRepository.findOne({
-      where: { id: programRoutine.programId },
-    });
-
-    if (userRole !== Role.ADMIN && program?.createdById !== userId) {
+    if (userRole !== Role.ADMIN && programRoutine.program?.createdById !== userId) {
       throw new ForbiddenException('No tienes permisos para modificar este programa');
     }
 
@@ -486,17 +416,14 @@ export class RoutinesService {
   ): Promise<ProgramRoutineExercise[]> {
     const programRoutine = await this.programRoutineRepository.findOne({
       where: { id: programRoutineId },
+      relations: ['program'],
     });
 
     if (!programRoutine) {
       throw new NotFoundException(`ProgramRoutine con ID "${programRoutineId}" no encontrado`);
     }
 
-    const program = await this.routineRepository.findOne({
-      where: { id: programRoutine.programId },
-    });
-
-    if (userRole !== Role.ADMIN && program?.createdById !== userId) {
+    if (userRole !== Role.ADMIN && programRoutine.program?.createdById !== userId) {
       throw new ForbiddenException('No tienes permisos para modificar este programa');
     }
 

@@ -3,10 +3,8 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import {
   WorkoutLog,
-  CreateWorkoutDto,
   UpdateWorkoutDto,
   ExerciseLog,
-  LogExerciseDto,
   UpdateExerciseLogDto,
   CheckPrResult,
 } from '../models';
@@ -29,8 +27,8 @@ export class WorkoutsService {
   private readonly api = inject(ApiService);
   private readonly endpoint = 'workouts';
 
-  create(data: CreateWorkoutDto): Observable<WorkoutLog> {
-    return this.api.post<WorkoutLog>(this.endpoint, data);
+  startWorkout(routineId: string): Observable<WorkoutLog> {
+    return this.api.post<WorkoutLog>(`${this.endpoint}/start/${routineId}`, {});
   }
 
   getMyHistory(params?: WorkoutsPaginationParams): Observable<PaginatedResponse<WorkoutLog>> {
@@ -44,6 +42,10 @@ export class WorkoutsService {
     return this.api.get<PaginatedResponse<WorkoutLog>>(url);
   }
 
+  getLastWorkout(routineId: string): Observable<WorkoutLog | null> {
+    return this.api.get<WorkoutLog | null>(`${this.endpoint}/last/${routineId}`);
+  }
+
   getById(id: string): Observable<WorkoutLog> {
     return this.api.get<WorkoutLog>(`${this.endpoint}/${id}`);
   }
@@ -52,17 +54,8 @@ export class WorkoutsService {
     return this.api.patch<WorkoutLog>(`${this.endpoint}/${id}`, data);
   }
 
-  start(id: string): Observable<WorkoutLog> {
-    return this.api.patch<WorkoutLog>(`${this.endpoint}/${id}/start`, {});
-  }
-
   complete(id: string, duration?: number): Observable<WorkoutLog> {
     return this.api.patch<WorkoutLog>(`${this.endpoint}/${id}/complete`, { duration });
-  }
-
-  // Logs de ejercicios
-  logExercise(workoutId: string, data: LogExerciseDto): Observable<ExerciseLog> {
-    return this.api.post<ExerciseLog>(`${this.endpoint}/${workoutId}/exercises`, data);
   }
 
   getExerciseLogs(workoutId: string): Observable<ExerciseLog[]> {

@@ -7,7 +7,6 @@ import { Exercise } from '../../modules/exercises/entities/exercise.entity';
 import { MuscleGroup } from '../../modules/muscle-groups/entities/muscle-group.entity';
 import { Routine } from '../../modules/routines/entities/routine.entity';
 import { RoutineExercise } from '../../modules/routines/entities/routine-exercise.entity';
-import { UserRoutine } from '../../modules/user-routines/entities/user-routine.entity';
 import { MembershipType } from '../../modules/membership-types/entities/membership-type.entity';
 import { Membership } from '../../modules/memberships/entities/membership.entity';
 import { Payment } from '../../modules/payments/entities/payment.entity';
@@ -24,7 +23,6 @@ import { ExerciseLog } from '../../modules/workouts/entities/exercise-log.entity
       MuscleGroup,
       Routine,
       RoutineExercise,
-      UserRoutine,
       MembershipType,
       Membership,
       Payment,

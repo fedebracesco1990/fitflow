@@ -17,16 +17,14 @@ import {
   UpdateRoutineDto,
   AddExerciseDto,
   UpdateRoutineExerciseDto,
+  ReplaceExercisesDto,
   FilterRoutinesDto,
-  AssignRoutineFromRoutineDto,
-  AddRoutineToProgramDto,
 } from './dto';
 import {
   CreateProgramRoutineExerciseDto,
   UpdateProgramRoutineExerciseDto,
   BulkUpdateProgramRoutineExercisesDto,
 } from './dto/program-routine-exercise.dto';
-import { RoutineType } from '../../common/enums/routine-type.enum';
 import { SaveAsTemplateDto, FilterTemplatesDto, CreateFromTemplateDto } from './templates/dto';
 import { TemplatesService } from './templates/templates.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -34,14 +32,12 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
-import { UserRoutinesService } from '../user-routines/user-routines.service';
 
 @Controller('routines')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class RoutinesController {
   constructor(
     private readonly routinesService: RoutinesService,
-    private readonly userRoutinesService: UserRoutinesService,
     private readonly templatesService: TemplatesService
   ) {}
 
@@ -142,49 +138,14 @@ export class RoutinesController {
     return this.routinesService.removeExercise(id, exerciseId, req.user.userId, req.user.role);
   }
 
-  @Post(':id/assign')
+  @Patch(':id/exercises')
   @Roles(Role.ADMIN, Role.TRAINER)
-  assign(@Param('id', ParseUUIDPipe) id: string, @Body() dto: AssignRoutineFromRoutineDto) {
-    return this.userRoutinesService.assign({
-      routineId: id,
-      userId: dto.userId,
-      dayOfWeek: dto.dayOfWeek,
-      startDate: dto.startDate,
-      endDate: dto.endDate,
-    });
-  }
-
-  @Get(':id/daily-routines')
-  @Roles(Role.ADMIN, Role.TRAINER)
-  getProgramRoutines(@Param('id', ParseUUIDPipe) id: string) {
-    return this.routinesService.getProgramRoutines(id);
-  }
-
-  @Post(':id/daily-routines')
-  @Roles(Role.ADMIN, Role.TRAINER)
-  addRoutineToProgram(
+  replaceExercises(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: AddRoutineToProgramDto,
+    @Body() dto: ReplaceExercisesDto,
     @Request() req: { user: AuthenticatedUser }
   ) {
-    return this.routinesService.addRoutineToProgram(id, dto, req.user.userId, req.user.role);
-  }
-
-  @Delete(':id/daily-routines/:routineId')
-  @Roles(Role.ADMIN, Role.TRAINER)
-  removeRoutineFromProgram(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Param('routineId', ParseUUIDPipe) routineId: string,
-    @Query('dayNumber') dayNumber: string,
-    @Request() req: { user: AuthenticatedUser }
-  ) {
-    return this.routinesService.removeRoutineFromProgram(
-      id,
-      routineId,
-      parseInt(dayNumber, 10),
-      req.user.userId,
-      req.user.role
-    );
+    return this.routinesService.replaceExercises(id, dto.exercises, req.user.userId, req.user.role);
   }
 
   // Program Routine Exercises (personalizaciones por instancia)

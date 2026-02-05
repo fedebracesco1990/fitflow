@@ -3,36 +3,11 @@
     <div class="loading">Cargando...</div>
   } @else if (error()) {
     <div class="alert alert-error">{{ error() }}</div>
-  } @else if (!workout()) {
-    <!-- Pre-workout screen -->
-    <div class="pre-workout">
-      <h1>{{ userRoutine()?.routine?.name }}</h1>
-      <div class="routine-info">
-        <p>⏱️ {{ userRoutine()?.routine?.estimatedDuration }} min</p>
-        <p>💪 {{ routineExercises.length }} ejercicios</p>
-        <p>📊 {{ difficultyLabels[userRoutine()?.routine?.difficulty!] }}</p>
-      </div>
-
-      <div class="exercises-preview">
-        <h2>Ejercicios</h2>
-        @for (re of routineExercises; track re.id; let i = $index) {
-          <div class="exercise-preview-item">
-            <span class="exercise-num">{{ i + 1 }}</span>
-            <span class="exercise-name">{{ re.exercise.name }}</span>
-            <span class="exercise-sets">{{ re.sets }} x {{ re.reps }}</span>
-          </div>
-        }
-      </div>
-
-      <fit-flow-button variant="primary" size="lg" (click)="startWorkout()">
-        🏋️ Iniciar Entrenamiento
-      </fit-flow-button>
-    </div>
-  } @else {
+  } @else if (workout(); as w) {
     <!-- Active workout -->
     <div class="active-workout">
       <header class="workout-header">
-        <h1>{{ userRoutine()?.routine?.name }}</h1>
+        <h1>{{ w.userProgramRoutine.name }}</h1>
         <div class="progress-indicator">
           Ejercicio {{ currentExerciseIndex() + 1 }} de {{ exerciseGroups().length }}
         </div>
@@ -40,27 +15,14 @@
 
       @if (currentExerciseGroup(); as group) {
         <div class="current-exercise">
-          <h2>{{ group.routineExercise.exercise.name }}</h2>
-          @if (group.routineExercise.exercise.muscleGroup; as mg) {
+          <h2>{{ group.exercise.exercise.name }}</h2>
+          @if (group.exercise.exercise.muscleGroup; as mg) {
             <span class="muscle-badge">{{ mg.icon }} {{ mg.name }}</span>
           }
 
           <div class="sets-tracker">
             <div class="sets-header">
               <h3>Series: {{ group.sets.length }}</h3>
-              <div class="sets-actions">
-                <button
-                  class="btn btn-sm btn-outline"
-                  (click)="removeSet()"
-                  [disabled]="group.sets.length <= 1"
-                  title="Eliminar última serie"
-                >
-                  −
-                </button>
-                <button class="btn btn-sm btn-outline" (click)="addSet()" title="Agregar serie">
-                  +
-                </button>
-              </div>
             </div>
 
             <div class="sets-list">
@@ -81,9 +43,9 @@
                       }
                     </div>
                   </div>
-                  @if (group.routineExercise.suggestedWeight) {
+                  @if (group.exercise.weight) {
                     <div class="previous-weight">
-                      💡 Peso sugerido: {{ group.routineExercise.suggestedWeight }} kg
+                      💡 Peso sugerido: {{ group.exercise.weight }} kg
                     </div>
                   }
                   <div class="set-inputs">
@@ -119,7 +81,7 @@
                         <input
                           type="number"
                           #weightInput
-                          [ngModel]="set.weight || group.routineExercise.suggestedWeight || 0"
+                          [ngModel]="set.weight || group.exercise.weight || 0"
                           (ngModelChange)="onSetChange(set, +repsInput.value, $event)"
                           min="0"
                           step="0.5"
@@ -155,12 +117,6 @@
               }
             </div>
           </div>
-
-          @if (group.routineExercise.notes) {
-            <div class="exercise-notes">
-              <strong>Notas:</strong> {{ group.routineExercise.notes }}
-            </div>
-          }
         </div>
       }
 
@@ -181,6 +137,10 @@
           </fit-flow-button>
         }
       </div>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <p>Error: No se pudo cargar el entrenamiento</p>
     </div>
   }
 </div>

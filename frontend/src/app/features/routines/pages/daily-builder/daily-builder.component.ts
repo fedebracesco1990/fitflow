@@ -226,38 +226,23 @@ export class DailyRoutineBuilderComponent implements OnInit {
     const routineId = this.routineId()!;
     const exercises = this.pendingExercises();
 
-    if (exercises.length === 0) {
-      this.saving.set(false);
-      this.router.navigate(['/training']);
-      return;
-    }
+    const exerciseDtos = exercises.map((ex) => ({
+      exerciseId: ex.exercise.id,
+      sets: ex.sets,
+      reps: ex.reps,
+      restSeconds: ex.restSeconds,
+      order: ex.order,
+    }));
 
-    let completed = 0;
-    exercises.forEach((ex) => {
-      this.routinesService
-        .addExercise(routineId, {
-          exerciseId: ex.exercise.id,
-          sets: ex.sets,
-          reps: ex.reps,
-          restSeconds: ex.restSeconds,
-          order: ex.order,
-        })
-        .subscribe({
-          next: () => {
-            completed++;
-            if (completed === exercises.length) {
-              this.saving.set(false);
-              this.router.navigate(['/training']);
-            }
-          },
-          error: () => {
-            completed++;
-            if (completed === exercises.length) {
-              this.saving.set(false);
-              this.router.navigate(['/training']);
-            }
-          },
-        });
+    this.routinesService.replaceExercises(routineId, exerciseDtos).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.router.navigate(['/training']);
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Error al guardar ejercicios');
+        this.saving.set(false);
+      },
     });
   }
 

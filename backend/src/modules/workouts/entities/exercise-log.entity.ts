@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { WorkoutLog } from './workout-log.entity';
-import { RoutineExercise } from '../../routines/entities/routine-exercise.entity';
+import { Exercise } from '../../exercises/entities/exercise.entity';
 
 @Entity('exercise_logs')
 export class ExerciseLog {
@@ -15,11 +15,11 @@ export class ExerciseLog {
   workoutLog: WorkoutLog;
 
   @Column({ type: 'uuid' })
-  routineExerciseId: string;
+  exerciseId: string;
 
-  @ManyToOne(() => RoutineExercise, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'routineExerciseId' })
-  routineExercise: RoutineExercise;
+  @ManyToOne(() => Exercise, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'exerciseId' })
+  exercise: Exercise;
 
   @Column({ type: 'int' })
   setNumber: number;

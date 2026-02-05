@@ -1,4 +1,4 @@
-import { UserRoutine, RoutineExercise } from './routine.model';
+import { Exercise } from './exercise.model';
 
 export enum WorkoutStatus {
   PENDING = 'pending',
@@ -17,31 +17,52 @@ export const WorkoutStatusLabels: Record<WorkoutStatus, string> = {
 export interface ExerciseLog {
   id: string;
   workoutLogId: string;
-  routineExerciseId: string;
-  routineExercise: RoutineExercise;
+  exerciseId: string;
+  exercise: Exercise;
   setNumber: number;
   reps: number;
   weight: number | null;
   completed: boolean;
   notes: string | null;
+  rir: number | null;
+  rpe: number | null;
+}
+
+export interface UserProgramRoutine {
+  id: string;
+  userProgramId: string;
+  originalRoutineId: string;
+  name: string;
+  description: string | null;
+  order: number;
+  estimatedDuration: number;
+  lastCompletedAt: string | null;
+  exercises: UserProgramExercise[];
+}
+
+export interface UserProgramExercise {
+  id: string;
+  userProgramRoutineId: string;
+  exerciseId: string;
+  exercise: Exercise;
+  order: number;
+  sets: number;
+  reps: number;
+  restSeconds: number | null;
+  weight: number | null;
 }
 
 export interface WorkoutLog {
   id: string;
-  userRoutineId: string;
-  userRoutine: UserRoutine;
-  date: string;
+  userProgramRoutineId: string;
+  userProgramRoutine: UserProgramRoutine;
+  startedAt: string;
+  finishedAt: string | null;
   status: WorkoutStatus;
   duration: number | null;
   notes: string | null;
   exerciseLogs: ExerciseLog[];
   createdAt: string;
-}
-
-export interface CreateWorkoutDto {
-  userRoutineId: string;
-  date: string;
-  notes?: string;
 }
 
 export interface UpdateWorkoutDto {
@@ -50,18 +71,11 @@ export interface UpdateWorkoutDto {
   notes?: string;
 }
 
-export interface LogExerciseDto {
-  routineExerciseId: string;
-  setNumber: number;
-  reps: number;
-  weight?: number;
-  completed?: boolean;
-  notes?: string;
-}
-
 export interface UpdateExerciseLogDto {
   reps?: number;
   weight?: number;
   completed?: boolean;
   notes?: string;
+  rir?: number;
+  rpe?: number;
 }

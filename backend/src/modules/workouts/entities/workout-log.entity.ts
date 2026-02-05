@@ -7,7 +7,7 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { UserRoutine } from '../../user-routines/entities/user-routine.entity';
+import { UserProgramRoutine } from '../../programs/entities/user-program-routine.entity';
 import { WorkoutStatus } from '../../../common/enums/workout-status.enum';
 import { ExerciseLog } from './exercise-log.entity';
 
@@ -17,14 +17,17 @@ export class WorkoutLog {
   id: string;
 
   @Column({ type: 'uuid' })
-  userRoutineId: string;
+  userProgramRoutineId: string;
 
-  @ManyToOne(() => UserRoutine, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userRoutineId' })
-  userRoutine: UserRoutine;
+  @ManyToOne(() => UserProgramRoutine, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userProgramRoutineId' })
+  userProgramRoutine: UserProgramRoutine;
 
-  @Column({ type: 'date' })
-  date: Date;
+  @Column({ type: 'timestamp' })
+  startedAt: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  finishedAt: Date | null;
 
   @Column({
     type: 'enum',

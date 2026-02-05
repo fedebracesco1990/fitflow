@@ -5,19 +5,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Store } from '@ngxs/store';
-import { OfflineWorkoutsService, UserRoutinesService } from '../../../../core/services';
+import { OfflineWorkoutsService, UserProgramsService } from '../../../../core/services';
 import { TriggerCelebration } from '../../../../core/store';
 import {
-  UserRoutine,
   WorkoutLog,
   ExerciseLog,
   DifficultyLabels,
-  RoutineExercise,
+  UserProgramExercise,
 } from '../../../../core/models';
 import { ButtonComponent } from '../../../../shared';
 
 interface ExerciseGroup {
-  routineExercise: RoutineExercise;
+  exercise: UserProgramExercise;
   sets: ExerciseLog[];
 }
 
@@ -39,10 +38,9 @@ export class WorkoutComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly workoutsService = inject(OfflineWorkoutsService);
-  private readonly userRoutinesService = inject(UserRoutinesService);
+  private readonly userProgramsService = inject(UserProgramsService);
   private readonly store = inject(Store);
 
-  userRoutine = signal<UserRoutine | null>(null);
   workout = signal<WorkoutLog | null>(null);
   currentExerciseIndex = signal(0);
   loading = signal(true);
@@ -65,15 +63,19 @@ export class WorkoutComponent implements OnInit, OnDestroy {
     if (!w?.exerciseLogs) return [];
 
     const groups = new Map<string, ExerciseGroup>();
+    const routineExercises = w.userProgramRoutine?.exercises || [];
 
     for (const log of w.exerciseLogs) {
-      if (!groups.has(log.routineExerciseId)) {
-        groups.set(log.routineExerciseId, {
-          routineExercise: log.routineExercise,
-          sets: [],
-        });
+      if (!groups.has(log.exerciseId)) {
+        const exercise = routineExercises.find((e) => e.exerciseId === log.exerciseId);
+        if (exercise) {
+          groups.set(log.exerciseId, {
+            exercise,
+            sets: [],
+          });
+        }
       }
-      groups.get(log.routineExerciseId)!.sets.push(log);
+      groups.get(log.exerciseId)?.sets.push(log);
     }
 
     // Ordenar sets por número
@@ -82,9 +84,7 @@ export class WorkoutComponent implements OnInit, OnDestroy {
     }
 
     // Ordenar grupos por orden del ejercicio
-    return Array.from(groups.values()).sort(
-      (a, b) => a.routineExercise.order - b.routineExercise.order
-    );
+    return Array.from(groups.values()).sort((a, b) => a.exercise.order - b.exercise.order);
   });
 
   // Computed: ejercicio actual con todas sus series
@@ -94,9 +94,9 @@ export class WorkoutComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    const userRoutineId = this.route.snapshot.paramMap.get('id');
-    if (userRoutineId) {
-      this.loadUserRoutine(userRoutineId);
+    const routineId = this.route.snapshot.paramMap.get('id');
+    if (routineId) {
+      this.loadAndStartWorkout(routineId);
     }
     this.setupAutoSave();
   }
@@ -239,48 +239,22 @@ export class WorkoutComponent implements OnInit, OnDestroy {
     }, 2000);
   }
 
-  loadUserRoutine(id: string): void {
-    this.userRoutinesService.getById(id).subscribe({
-      next: (ur) => {
-        this.userRoutine.set(ur);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set(err.error?.message || 'Error al cargar rutina');
-        this.loading.set(false);
-      },
-    });
-  }
-
-  startWorkout(): void {
-    const ur = this.userRoutine();
-    if (!ur) return;
-
+  loadAndStartWorkout(routineId: string): void {
     this.loading.set(true);
-    const today = new Date().toISOString().split('T')[0];
-
-    this.workoutsService.create({ userRoutineId: ur.id, date: today }).subscribe({
+    this.workoutsService.startWorkout(routineId).subscribe({
       next: (workout) => {
-        this.workoutsService.start(workout.id).subscribe({
-          next: (startedWorkout) => {
-            this.workout.set(startedWorkout);
-            this.loading.set(false);
-          },
-          error: (err) => {
-            this.error.set(err.error?.message || 'Error al iniciar entrenamiento');
-            this.loading.set(false);
-          },
-        });
+        this.workout.set(workout);
+        this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(err.error?.message || 'Error al crear entrenamiento');
+        this.error.set(err.error?.message || 'Error al iniciar entrenamiento');
         this.loading.set(false);
       },
     });
   }
 
   get routineExercises() {
-    return this.userRoutine()?.routine?.exercises || [];
+    return this.workout()?.userProgramRoutine?.exercises || [];
   }
 
   nextExercise(): void {
@@ -294,45 +268,6 @@ export class WorkoutComponent implements OnInit, OnDestroy {
     if (this.currentExerciseIndex() > 0) {
       this.currentExerciseIndex.update((i) => i - 1);
     }
-  }
-
-  addSet(): void {
-    const w = this.workout();
-    const group = this.currentExerciseGroup();
-    if (!w || !group) return;
-
-    const nextSetNumber = group.sets.length + 1;
-    const lastSet = group.sets[group.sets.length - 1];
-
-    const reps = Number(lastSet?.reps ?? group.routineExercise.reps ?? 10);
-    const rawWeight = lastSet?.weight || group.routineExercise.suggestedWeight || 0;
-    const weight = Number(rawWeight) || 0;
-
-    this.workoutsService
-      .logExercise(w.id, {
-        routineExerciseId: group.routineExercise.id,
-        setNumber: nextSetNumber,
-        reps,
-        weight,
-        completed: false,
-      })
-      .subscribe({
-        next: () => this.refreshWorkout(),
-        error: (err) => this.error.set(err.error?.message || 'Error al agregar serie'),
-      });
-  }
-
-  removeSet(): void {
-    const w = this.workout();
-    const group = this.currentExerciseGroup();
-    if (!w || !group || group.sets.length <= 1) return;
-
-    const lastSet = group.sets[group.sets.length - 1];
-
-    this.workoutsService.deleteExerciseLog(w.id, lastSet.id).subscribe({
-      next: () => this.refreshWorkout(),
-      error: (err) => this.error.set(err.error?.message || 'Error al eliminar serie'),
-    });
   }
 
   completeWorkout(): void {

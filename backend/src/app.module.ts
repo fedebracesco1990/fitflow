@@ -12,7 +12,6 @@ import { MembershipsModule } from './modules/memberships/memberships.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { ExercisesModule } from './modules/exercises/exercises.module';
 import { RoutinesModule } from './modules/routines/routines.module';
-import { UserRoutinesModule } from './modules/user-routines/user-routines.module';
 import { WorkoutsModule } from './modules/workouts/workouts.module';
 import { MuscleGroupsModule } from './modules/muscle-groups/muscle-groups.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
@@ -34,6 +33,7 @@ import { PersonalRecordsModule } from './modules/personal-records/personal-recor
 import { StatsModule } from './modules/stats/stats.module';
 import { WebSocketModule } from './modules/websocket/websocket.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { ProgramsModule } from './modules/programs/programs.module';
 
 @Module({
   imports: [
@@ -95,7 +95,6 @@ import { ReportsModule } from './modules/reports/reports.module';
     PaymentsModule,
     ExercisesModule,
     RoutinesModule,
-    UserRoutinesModule,
     WorkoutsModule,
     MuscleGroupsModule,
     DashboardModule,
@@ -107,6 +106,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     StatsModule,
     WebSocketModule,
     ReportsModule,
+    ProgramsModule,
     SeederModule,
   ],
   controllers: [AppController],

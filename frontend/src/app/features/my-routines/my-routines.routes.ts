@@ -8,8 +8,11 @@ export const MY_ROUTINES_ROUTES: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'today',
-        pathMatch: 'full',
+        loadComponent: () =>
+          import('./components/workout-list/workout-list.component').then(
+            (m) => m.WorkoutListComponent
+          ),
+        title: 'Mis Rutinas',
       },
       {
         path: 'today',
@@ -31,8 +34,18 @@ export const MY_ROUTINES_ROUTES: Routes = [
       {
         path: ':id/start',
         loadComponent: () =>
-          import('./pages/workout/workout.component').then((m) => m.WorkoutComponent),
-        title: 'Entrenamiento',
+          import('./components/workout-active/workout-active.component').then(
+            (m) => m.WorkoutActiveComponent
+          ),
+        title: 'Entrenamiento Activo',
+      },
+      {
+        path: ':id/exercise/:exerciseId',
+        loadComponent: () =>
+          import('./components/exercise-sets/exercise-sets.component').then(
+            (m) => m.ExerciseSetsComponent
+          ),
+        title: 'Ejercicio',
       },
     ],
   },

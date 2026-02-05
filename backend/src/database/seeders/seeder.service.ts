@@ -7,14 +7,12 @@ import { Exercise } from '../../modules/exercises/entities/exercise.entity';
 import { MuscleGroup } from '../../modules/muscle-groups/entities/muscle-group.entity';
 import { Routine } from '../../modules/routines/entities/routine.entity';
 import { RoutineExercise } from '../../modules/routines/entities/routine-exercise.entity';
-import { UserRoutine } from '../../modules/user-routines/entities/user-routine.entity';
 import { MembershipType } from '../../modules/membership-types/entities/membership-type.entity';
 import { Membership, MembershipStatus } from '../../modules/memberships/entities/membership.entity';
 import { Payment, PaymentMethod } from '../../modules/payments/entities/payment.entity';
 import { AccessLog } from '../../modules/access/entities/access-log.entity';
 import { WorkoutLog } from '../../modules/workouts/entities/workout-log.entity';
 import { ExerciseLog } from '../../modules/workouts/entities/exercise-log.entity';
-import { WorkoutStatus } from '../../common/enums/workout-status.enum';
 import {
   NotificationTemplate,
   NotificationType,
@@ -22,7 +20,6 @@ import {
 import { Role } from '../../common/enums/role.enum';
 import { Difficulty } from '../../common/enums/difficulty.enum';
 import { Equipment } from '../../common/enums/equipment.enum';
-import { DayOfWeek } from '../../common/enums/day-of-week.enum';
 import { AccessType } from '../../common/enums/access-type.enum';
 import { TemplateCategory } from '../../common/enums/template-category.enum';
 import * as fs from 'fs';
@@ -54,8 +51,6 @@ export class SeederService implements OnModuleInit {
     private readonly routineRepository: Repository<Routine>,
     @InjectRepository(RoutineExercise)
     private readonly routineExerciseRepository: Repository<RoutineExercise>,
-    @InjectRepository(UserRoutine)
-    private readonly userRoutineRepository: Repository<UserRoutine>,
     @InjectRepository(MembershipType)
     private readonly membershipTypeRepository: Repository<MembershipType>,
     @InjectRepository(Membership)
@@ -85,13 +80,14 @@ export class SeederService implements OnModuleInit {
     await this.seedMuscleGroups();
     await this.seedExercises();
     await this.seedRoutines();
-    await this.seedUserRoutines();
+    // TODO: Actualizar para crear Programs y asignarlos a usuarios
     await this.seedMembershipTypes();
     await this.seedMemberships();
     await this.seedPayments();
     await this.seedAccessLogs();
     await this.seedNotificationTemplates();
-    await this.seedWorkoutHistory();
+    // TODO: Actualizar seedWorkoutHistory para nuevo modelo
+    // await this.seedWorkoutHistory();
 
     this.logger.log('✅ Seed completado');
   }
@@ -439,104 +435,6 @@ export class SeederService implements OnModuleInit {
       this.logger.log(`  ✓ ${created} rutinas creadas (incluyendo plantillas)`);
     } else {
       this.logger.log('  - Rutinas ya existen');
-    }
-  }
-
-  async seedUserRoutines() {
-    // Asignar rutinas a user1 y user2
-    const assignments = [
-      {
-        userEmail: 'user1@fitflow.com',
-        routineName: 'Rutina Full Body Principiante',
-        day: DayOfWeek.MONDAY,
-      },
-      {
-        userEmail: 'user1@fitflow.com',
-        routineName: 'Rutina Full Body Principiante',
-        day: DayOfWeek.WEDNESDAY,
-      },
-      {
-        userEmail: 'user1@fitflow.com',
-        routineName: 'Rutina Full Body Principiante',
-        day: DayOfWeek.FRIDAY,
-      },
-      {
-        userEmail: 'user2@fitflow.com',
-        routineName: 'Día de Pecho y Tríceps',
-        day: DayOfWeek.MONDAY,
-      },
-      {
-        userEmail: 'user2@fitflow.com',
-        routineName: 'Día de Espalda y Bíceps',
-        day: DayOfWeek.WEDNESDAY,
-      },
-      { userEmail: 'user2@fitflow.com', routineName: 'Día de Piernas', day: DayOfWeek.FRIDAY },
-      // Atleta dedicado - entrena los 7 días de la semana
-      {
-        userEmail: 'athlete@fitflow.com',
-        routineName: 'Día de Pecho y Tríceps',
-        day: DayOfWeek.MONDAY,
-      },
-      {
-        userEmail: 'athlete@fitflow.com',
-        routineName: 'Día de Espalda y Bíceps',
-        day: DayOfWeek.TUESDAY,
-      },
-      { userEmail: 'athlete@fitflow.com', routineName: 'Día de Piernas', day: DayOfWeek.WEDNESDAY },
-      {
-        userEmail: 'athlete@fitflow.com',
-        routineName: 'Día de Hombros y Core',
-        day: DayOfWeek.THURSDAY,
-      },
-      {
-        userEmail: 'athlete@fitflow.com',
-        routineName: 'Día de Pecho y Tríceps',
-        day: DayOfWeek.FRIDAY,
-      },
-      {
-        userEmail: 'athlete@fitflow.com',
-        routineName: 'Día de Espalda y Bíceps',
-        day: DayOfWeek.SATURDAY,
-      },
-      {
-        userEmail: 'athlete@fitflow.com',
-        routineName: 'Rutina Full Body Principiante',
-        day: DayOfWeek.SUNDAY,
-      },
-    ];
-
-    let created = 0;
-    for (const data of assignments) {
-      try {
-        const user = await this.userRepository.findOne({ where: { email: data.userEmail } });
-        const routine = await this.routineRepository.findOne({ where: { name: data.routineName } });
-
-        if (user && routine) {
-          const existing = await this.userRoutineRepository.findOne({
-            where: { userId: user.id, routineId: routine.id, dayOfWeek: data.day },
-          });
-
-          if (!existing) {
-            await this.userRoutineRepository.save(
-              this.userRoutineRepository.create({
-                userId: user.id,
-                routineId: routine.id,
-                dayOfWeek: data.day,
-                startDate: new Date(),
-              })
-            );
-            created++;
-          }
-        }
-      } catch (error) {
-        this.logger.error(`  ✗ Error asignando rutina`, error);
-      }
-    }
-
-    if (created > 0) {
-      this.logger.log(`  ✓ ${created} rutinas asignadas a usuarios`);
-    } else {
-      this.logger.log('  - Asignaciones ya existen');
     }
   }
 
@@ -1056,106 +954,6 @@ export class SeederService implements OnModuleInit {
 
     if (created > 0) {
       this.logger.log(`  ✓ ${created} logs de acceso creados`);
-    }
-  }
-
-  async seedWorkoutHistory() {
-    // Verificar si ya hay workouts
-    const existingCount = await this.workoutLogRepository.count();
-    if (existingCount > 0) {
-      this.logger.log(`  - Ya existen ${existingCount} workouts`);
-      return;
-    }
-
-    const subDays = (date: Date, days: number): Date => {
-      const result = new Date(date);
-      result.setDate(result.getDate() - days);
-      return result;
-    };
-
-    const today = new Date();
-
-    // Obtener athlete user y sus rutinas asignadas
-    const athlete = await this.userRepository.findOne({ where: { email: 'athlete@fitflow.com' } });
-    if (!athlete) {
-      this.logger.log('  - Usuario athlete no encontrado, saltando workout history');
-      return;
-    }
-
-    const userRoutines = await this.userRoutineRepository.find({
-      where: { userId: athlete.id },
-      relations: ['routine', 'routine.exercises'],
-    });
-
-    if (userRoutines.length === 0) {
-      this.logger.log('  - No hay rutinas asignadas a athlete, saltando workout history');
-      return;
-    }
-
-    let workoutsCreated = 0;
-    let exerciseLogsCreated = 0;
-
-    // Crear workouts para los últimos 7, 14 y 21 días
-    for (const daysAgo of [7, 14, 21]) {
-      const workoutDate = subDays(today, daysAgo);
-      const dayOfWeek = workoutDate.getDay();
-
-      // Mapear día de la semana a DayOfWeek enum
-      const dayMap: Record<number, DayOfWeek> = {
-        0: DayOfWeek.SUNDAY,
-        1: DayOfWeek.MONDAY,
-        2: DayOfWeek.TUESDAY,
-        3: DayOfWeek.WEDNESDAY,
-        4: DayOfWeek.THURSDAY,
-        5: DayOfWeek.FRIDAY,
-        6: DayOfWeek.SATURDAY,
-      };
-
-      const userRoutine = userRoutines.find((ur) => ur.dayOfWeek === dayMap[dayOfWeek]);
-      if (!userRoutine) continue;
-
-      try {
-        // Crear workout log
-        const workoutLog = await this.workoutLogRepository.save(
-          this.workoutLogRepository.create({
-            userRoutineId: userRoutine.id,
-            date: workoutDate,
-            status: WorkoutStatus.COMPLETED,
-            duration: 45 + Math.floor(Math.random() * 30), // 45-75 min
-            notes: 'Entrenamiento completado',
-          })
-        );
-        workoutsCreated++;
-
-        // Crear exercise logs para cada ejercicio de la rutina
-        for (const re of userRoutine.routine.exercises) {
-          for (let setNum = 1; setNum <= re.sets; setNum++) {
-            // Variar peso ligeramente entre sets y días
-            const baseWeight = re.suggestedWeight || 20;
-            const weight = baseWeight + Math.floor(Math.random() * 5) - 2;
-
-            await this.exerciseLogRepository.save(
-              this.exerciseLogRepository.create({
-                workoutLogId: workoutLog.id,
-                routineExerciseId: re.id,
-                setNumber: setNum,
-                reps: re.reps + Math.floor(Math.random() * 3) - 1, // Variar reps ±1
-                weight: Math.max(0, weight),
-                completed: true,
-              })
-            );
-            exerciseLogsCreated++;
-          }
-        }
-      } catch (error) {
-        this.logger.error(`  ✗ Error creando workout history`, error);
-      }
-    }
-
-    if (workoutsCreated > 0) {
-      this.logger.log(
-        `  ✓ ${workoutsCreated} workouts y ${exerciseLogsCreated} exercise logs creados`
-      );
     }
   }
 

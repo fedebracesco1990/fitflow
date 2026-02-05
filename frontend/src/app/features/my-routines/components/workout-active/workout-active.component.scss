@@ -1,0 +1,238 @@
+.workout-active {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 1rem;
+  padding-bottom: 100px;
+}
+
+.workout-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  .back-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: #f3f4f6;
+    border-radius: 12px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #e5e7eb;
+    }
+  }
+
+  .header-content {
+    flex: 1;
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      color: #111827;
+    }
+
+    p {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin: 0.25rem 0 0;
+    }
+  }
+
+  .progress-badge {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6366f1;
+  }
+}
+
+.timer-card {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  color: white;
+
+  .timer-content {
+    h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem;
+    }
+
+    p {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+  }
+
+  .timer-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+}
+
+.exercises-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.exercise-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+
+  &.completed {
+    border-left: 4px solid #10b981;
+  }
+
+  &.current {
+    border-left: 4px solid #10b981;
+  }
+
+  &.pending {
+    border-left: 4px solid #e5e7eb;
+  }
+
+  &.skipped {
+    border-left: 4px solid #f59e0b;
+    background: #fffbeb;
+  }
+
+  .current-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: #dbeafe;
+    color: #3b82f6;
+    font-size: 0.625rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .exercise-info {
+    margin-bottom: 0.75rem;
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem;
+      color: #111827;
+    }
+
+    p {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin: 0;
+    }
+  }
+
+  .exercise-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .check-icon {
+      width: 32px;
+      height: 32px;
+      background: #10b981;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      margin-right: auto;
+    }
+
+    .skip-icon {
+      width: 32px;
+      height: 32px;
+      background: #f59e0b;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      margin-right: auto;
+    }
+
+    .skipped-label {
+      color: #f59e0b;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .action-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &.outline {
+        background: white;
+        border: 1px solid #d1d5db;
+        color: #374151;
+
+        &:hover {
+          background: #f9fafb;
+        }
+      }
+
+      &.primary {
+        background: #6366f1;
+        border: none;
+        color: white;
+
+        &:hover {
+          background: #4f46e5;
+        }
+      }
+    }
+  }
+}
+
+.finish-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+
+  fit-flow-button {
+    display: block;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}

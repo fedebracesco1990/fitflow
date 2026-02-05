@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment } from '../payments/entities/payment.entity';
 import { Membership, MembershipStatus } from '../memberships/entities/membership.entity';
-import { UserRoutine } from '../user-routines/entities/user-routine.entity';
+import { UserProgram } from '../programs/entities/user-program.entity';
 import { Routine } from '../routines/entities/routine.entity';
 import { PersonalRecord } from '../personal-records/entities/personal-record.entity';
 import { Role } from '../../common/enums/role.enum';
@@ -66,8 +66,8 @@ export class DashboardService {
     private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Membership)
     private readonly membershipRepository: Repository<Membership>,
-    @InjectRepository(UserRoutine)
-    private readonly userRoutineRepository: Repository<UserRoutine>,
+    @InjectRepository(UserProgram)
+    private readonly userProgramRepository: Repository<UserProgram>,
     @InjectRepository(AccessLog)
     private readonly accessLogRepository: Repository<AccessLog>,
     @InjectRepository(Routine)
@@ -199,7 +199,7 @@ export class DashboardService {
   }
 
   private async getActiveRoutinesCount(): Promise<number> {
-    return this.userRoutineRepository.count({
+    return this.userProgramRepository.count({
       where: {
         isActive: true,
       },
@@ -512,7 +512,7 @@ export class DashboardService {
           .where('membership.status = :status', { status: MembershipStatus.EXPIRED })
           .andWhere('membership.endDate < :today', { today: new Date() })
           .getMany(),
-        this.userRoutineRepository
+        this.userProgramRepository
           .createQueryBuilder('userRoutine')
           .where('userRoutine.isActive = :active', { active: true })
           .getCount(),
@@ -549,7 +549,7 @@ export class DashboardService {
     });
 
     const userRoutinesMap = new Map<string, boolean>();
-    const userRoutines = await this.userRoutineRepository
+    const userRoutines = await this.userProgramRepository
       .createQueryBuilder('userRoutine')
       .where('userRoutine.isActive = :active', { active: true })
       .getMany();
@@ -755,7 +755,7 @@ export class DashboardService {
 
     const routineIds = routinesCreatedByTrainer.map((r) => r.id);
 
-    const userRoutines = await this.userRoutineRepository
+    const userRoutines = await this.userProgramRepository
       .createQueryBuilder('ur')
       .leftJoinAndSelect('ur.user', 'user')
       .leftJoinAndSelect('ur.routine', 'routine')
@@ -824,7 +824,7 @@ export class DashboardService {
 
     const routineIds = routinesCreatedByTrainer.map((r) => r.id);
 
-    const userRoutines = await this.userRoutineRepository
+    const userRoutines = await this.userProgramRepository
       .createQueryBuilder('ur')
       .select('DISTINCT ur.userId', 'userId')
       .where('ur.routineId IN (:...routineIds)', { routineIds })

@@ -3,7 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../../../core/services/users.service';
 import { UserRoutinesService } from '../../../../core/services/user-routines.service';
-import { User, Role, DayOfWeek, DayOfWeekLabels, BulkAssignResult } from '../../../../core/models';
+import { UserProgramsService } from '../../../../core/services/user-programs.service';
+import {
+  User,
+  Role,
+  DayOfWeek,
+  DayOfWeekLabels,
+  BulkAssignResult,
+  RoutineType,
+} from '../../../../core/models';
 import { ButtonComponent } from '../../../../shared';
 
 interface SelectableUser extends User {
@@ -20,10 +28,14 @@ interface SelectableUser extends User {
 export class AssignRoutineDialogComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly userRoutinesService = inject(UserRoutinesService);
+  private readonly userProgramsService = inject(UserProgramsService);
 
   isOpen = input(false);
   routineId = input.required<string>();
   routineName = input('');
+  routineType = input<RoutineType>(RoutineType.DAILY);
+
+  isWeeklyProgram = computed(() => this.routineType() === RoutineType.WEEKLY);
 
   confirmed = output<BulkAssignResult>();
   cancelled = output<void>();
@@ -108,6 +120,16 @@ export class AssignRoutineDialogComponent implements OnInit {
     this.saving.set(true);
     this.error.set(null);
 
+    if (this.isWeeklyProgram()) {
+      // Asignar programa semanal completo
+      this.assignWeeklyProgram(selected);
+    } else {
+      // Asignar rutina diaria con día específico
+      this.assignDailyRoutine(selected);
+    }
+  }
+
+  private assignDailyRoutine(selected: SelectableUser[]): void {
     const assignments = selected.map((u) => ({
       userId: u.id,
       dayOfWeek: this.selectedDay(),
@@ -130,6 +152,54 @@ export class AssignRoutineDialogComponent implements OnInit {
           this.error.set(err.error?.message || 'Error al asignar rutina');
         },
       });
+  }
+
+  private assignWeeklyProgram(selected: SelectableUser[]): void {
+    const userIds = selected.map((u) => u.id);
+    let completed = 0;
+    const errors: string[] = [];
+
+    for (const userId of userIds) {
+      this.userProgramsService
+        .assign({
+          userId,
+          programId: this.routineId(),
+          assignedAt: this.startDate(),
+        })
+        .subscribe({
+          next: () => {
+            completed++;
+            if (completed === userIds.length) {
+              this.saving.set(false);
+              this.resetForm();
+              this.confirmed.emit({
+                success: errors.length === 0,
+                totalAssigned: completed - errors.length,
+                totalNotifications: completed - errors.length,
+                errors,
+              });
+            }
+          },
+          error: (err) => {
+            completed++;
+            errors.push(err.error?.message || 'Error al asignar programa');
+            if (completed === userIds.length) {
+              this.saving.set(false);
+              if (errors.length === userIds.length) {
+                this.error.set(errors[0]);
+              } else {
+                this.resetForm();
+                this.confirmed.emit({
+                  success: false,
+                  totalAssigned: completed - errors.length,
+                  totalNotifications: completed - errors.length,
+                  errors,
+                });
+              }
+            }
+          },
+        });
+    }
   }
 
   onCancel(): void {

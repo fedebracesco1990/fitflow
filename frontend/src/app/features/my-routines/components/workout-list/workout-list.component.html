@@ -1,0 +1,74 @@
+<div class="workout-list">
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando tu programa...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <p>{{ error() }}</p>
+      <fit-flow-button variant="outline" (click)="loadProgram()">Reintentar</fit-flow-button>
+    </div>
+  } @else if (!program()) {
+    <div class="empty-state">
+      <div class="empty-icon">🏋️</div>
+      <h2>Sin programa asignado</h2>
+      <p>Contacta con tu entrenador para que te asigne un programa de entrenamiento.</p>
+    </div>
+  } @else {
+    <div class="program-header">
+      <div class="header-card">
+        <div class="header-icon">
+          <span>🏋️</span>
+        </div>
+        <span class="active-badge">Activa</span>
+        <h1 class="header-title">Mis Rutinas</h1>
+        <p class="header-subtitle">Plan semanal de entrenamiento</p>
+      </div>
+    </div>
+
+    <div class="week-section">
+      <div class="section-header">
+        <h2>Esta Semana</h2>
+        <button type="button" class="link-btn" (click)="goToHistory()">Ver todo</button>
+      </div>
+
+      <div class="routines-list">
+        @for (routine of routines; track routine.id) {
+          <button
+            type="button"
+            class="routine-card"
+            [class.completed]="isRoutineCompleted(routine)"
+            [class.pending]="!isRoutineCompleted(routine)"
+            (click)="startWorkout(routine)"
+          >
+            <div class="routine-icon">
+              @if (isRoutineCompleted(routine)) {
+                <span>✓</span>
+              } @else {
+                <span>🏃</span>
+              }
+            </div>
+
+            <div class="routine-content">
+              <h3 class="routine-name">{{ routine.name }}</h3>
+              <p class="routine-meta">
+                Rutina {{ routine.order + 1 }} • {{ getStatusText(routine) }}
+              </p>
+            </div>
+
+            <div class="routine-action">
+              <span class="arrow">→</span>
+            </div>
+          </button>
+        }
+
+        @if (routines.length === 0) {
+          <div class="no-routines">
+            <p>No hay rutinas en tu programa.</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

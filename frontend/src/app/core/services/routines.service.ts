@@ -12,8 +12,6 @@ import {
   CreateFromTemplateDto,
   FilterTemplatesParams,
   RoutineType,
-  ProgramRoutine,
-  AddRoutineToProgramDto,
 } from '../models';
 import { PaginatedResponse } from '../models/api-response.model';
 
@@ -80,6 +78,12 @@ export class RoutinesService {
     return this.api.delete<void>(`${this.endpoint}/${routineId}/exercises/${exerciseId}`);
   }
 
+  replaceExercises(routineId: string, exercises: AddExerciseDto[]): Observable<RoutineExercise[]> {
+    return this.api.patch<RoutineExercise[]>(`${this.endpoint}/${routineId}/exercises`, {
+      exercises,
+    });
+  }
+
   // Template methods
   getTemplates(params?: FilterTemplatesParams): Observable<PaginatedResponse<Routine>> {
     const queryParams = new URLSearchParams();
@@ -99,23 +103,5 @@ export class RoutinesService {
 
   createFromTemplate(templateId: string, data?: CreateFromTemplateDto): Observable<Routine> {
     return this.api.post<Routine>(`${this.endpoint}/from-template/${templateId}`, data || {});
-  }
-
-  getProgramRoutines(programId: string): Observable<ProgramRoutine[]> {
-    return this.api.get<ProgramRoutine[]>(`${this.endpoint}/${programId}/daily-routines`);
-  }
-
-  addRoutineToProgram(programId: string, data: AddRoutineToProgramDto): Observable<ProgramRoutine> {
-    return this.api.post<ProgramRoutine>(`${this.endpoint}/${programId}/daily-routines`, data);
-  }
-
-  removeRoutineFromProgram(
-    programId: string,
-    routineId: string,
-    dayNumber: number
-  ): Observable<void> {
-    return this.api.delete<void>(
-      `${this.endpoint}/${programId}/daily-routines/${routineId}?dayNumber=${dayNumber}`
-    );
   }
 }

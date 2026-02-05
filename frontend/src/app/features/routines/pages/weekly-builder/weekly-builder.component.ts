@@ -3,39 +3,20 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CdkDropList, CdkDrag, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { RoutinesService } from '../../../../core/services';
+import { RoutinesService, UserProgramsService } from '../../../../core/services';
 import { ButtonComponent } from '../../../../shared';
-import {
-  RoutineType,
-  Difficulty,
-  DifficultyLabels,
-  CreateRoutineDto,
-  Routine,
-  ProgramRoutine,
-} from '../../../../core/models';
-import {
-  RoutineDetailDialogComponent,
-  RoutineDetailDialogData,
-  RoutineExerciseItem,
-} from '../../components/routine-detail-dialog/routine-detail-dialog.component';
+import { RoutineType, Difficulty, DifficultyLabels, Routine } from '../../../../core/models';
+import { Program, CreateProgramDto } from '../../../../core/services/user-programs.service';
 
-interface PendingDayAssignment {
+interface PendingRoutineAssignment {
   routine: Routine;
-  dayNumber: number;
+  order: number;
 }
 
 @Component({
   selector: 'fit-flow-weekly-builder',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterLink,
-    CdkDropList,
-    CdkDrag,
-    RoutineDetailDialogComponent,
-    ButtonComponent,
-  ],
+  imports: [CommonModule, FormsModule, RouterLink, CdkDropList, CdkDrag, ButtonComponent],
   templateUrl: './weekly-builder.component.html',
   styleUrl: './weekly-builder.component.scss',
 })
@@ -43,6 +24,7 @@ export class WeeklyProgramBuilderComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly routinesService = inject(RoutinesService);
+  private readonly programsService = inject(UserProgramsService);
 
   programId = signal<string | null>(null);
   isEditMode = signal(false);
@@ -54,41 +36,25 @@ export class WeeklyProgramBuilderComponent implements OnInit {
     name: '',
     description: '',
     difficulty: Difficulty.BEGINNER,
-    estimatedDuration: 60,
-    durationWeeks: 4,
   });
 
   availableRoutines = signal<Routine[]>([]);
-  programRoutines = signal<ProgramRoutine[]>([]);
-  pendingAssignments = signal<PendingDayAssignment[]>([]);
+  pendingAssignments = signal<PendingRoutineAssignment[]>([]);
   routineSearch = signal('');
   selectedFilter = signal('');
   selectedRoutine = signal<Routine | null>(null);
+  currentProgram = signal<Program | null>(null);
 
-  // Dialog state
-  dialogOpen = signal(false);
-  dialogData = signal<RoutineDetailDialogData | null>(null);
-
-  allDayAssignments = computed(() => {
-    const saved = this.programRoutines().map((pr) => ({
-      routine: pr.routine,
-      dayNumber: pr.dayNumber,
-      isSaved: true,
-      routineId: pr.routineId,
-    }));
-    const pending = this.pendingAssignments().map((pa) => ({
+  allAssignments = computed(() => {
+    return this.pendingAssignments().map((pa) => ({
       routine: pa.routine,
-      dayNumber: pa.dayNumber,
-      isSaved: false,
+      order: pa.order,
       routineId: pa.routine.id,
     }));
-    return [...saved, ...pending];
   });
 
   difficultyOptions = Object.values(Difficulty);
   difficultyLabels = DifficultyLabels;
-  days = [1, 2, 3, 4, 5, 6, 7];
-  dayLabels = ['Día 1', 'Día 2', 'Día 3', 'Día 4', 'Día 5', 'Día 6', 'Día 7'];
 
   routineFilters = [
     { value: '', label: 'Todo' },
@@ -132,16 +98,34 @@ export class WeeklyProgramBuilderComponent implements OnInit {
 
   loadProgram(id: string): void {
     this.loading.set(true);
-    this.routinesService.getById(id).subscribe({
+    this.programsService.getById(id).subscribe({
       next: (program) => {
+        this.currentProgram.set(program);
         this.formData.set({
           name: program.name,
           description: program.description || '',
           difficulty: program.difficulty,
-          estimatedDuration: program.estimatedDuration,
-          durationWeeks: 4,
         });
-        this.loadProgramRoutines(id);
+
+        // Cargar las rutinas del programa en pendingAssignments
+        if (program.routines && program.routines.length > 0) {
+          const assignments: PendingRoutineAssignment[] = program.routines
+            .sort((a, b) => a.order - b.order)
+            .map((pr) => ({
+              routine: {
+                id: pr.routine.id,
+                name: pr.routine.name,
+                description: pr.routine.description,
+                difficulty: pr.routine.difficulty,
+                estimatedDuration: pr.routine.estimatedDuration,
+                exercises: pr.routine.exercises || [],
+              } as Routine,
+              order: pr.order,
+            }));
+          this.pendingAssignments.set(assignments);
+        }
+
+        this.loading.set(false);
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Error al cargar programa');
@@ -150,47 +134,27 @@ export class WeeklyProgramBuilderComponent implements OnInit {
     });
   }
 
-  loadProgramRoutines(programId: string): void {
-    this.routinesService.getProgramRoutines(programId).subscribe({
-      next: (routines) => {
-        this.programRoutines.set(routines);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-  }
-
-  getRoutinesForDay(dayNumber: number): ProgramRoutine[] {
-    return this.programRoutines().filter((pr) => pr.dayNumber === dayNumber);
-  }
-
-  addRoutineToDay(routineId: string, dayNumber: number): void {
-    if (!this.programId()) return;
-
-    this.routinesService
-      .addRoutineToProgram(this.programId()!, { routineId, dayNumber })
-      .subscribe({
-        next: (pr) => this.programRoutines.update((list) => [...list, pr]),
-        error: (err) => this.error.set(err.error?.message || 'Error al agregar rutina'),
-      });
-  }
-
-  removeRoutineFromDay(routineId: string, dayNumber: number): void {
-    if (!this.programId()) return;
-
-    this.routinesService
-      .removeRoutineFromProgram(this.programId()!, routineId, dayNumber)
-      .subscribe({
-        next: () =>
-          this.programRoutines.update((list) =>
-            list.filter((pr) => !(pr.routineId === routineId && pr.dayNumber === dayNumber))
-          ),
-        error: (err) => this.error.set(err.error?.message || 'Error al quitar rutina'),
-      });
-  }
-
   updateFormField(field: string, value: string | number): void {
     this.formData.update((data) => ({ ...data, [field]: value }));
+  }
+
+  addRoutine(routine: Routine): void {
+    const currentAssignments = this.pendingAssignments();
+    const alreadyAdded = currentAssignments.some((a) => a.routine.id === routine.id);
+    if (alreadyAdded) {
+      this.error.set('Esta rutina ya está agregada');
+      return;
+    }
+
+    const nextOrder = currentAssignments.length + 1;
+    this.pendingAssignments.update((list) => [...list, { routine, order: nextOrder }]);
+  }
+
+  removeAssignment(routineId: string): void {
+    this.pendingAssignments.update((list) => {
+      const filtered = list.filter((a) => a.routine.id !== routineId);
+      return filtered.map((a, index) => ({ ...a, order: index + 1 }));
+    });
   }
 
   save(): void {
@@ -200,75 +164,39 @@ export class WeeklyProgramBuilderComponent implements OnInit {
       return;
     }
 
-    this.saving.set(true);
-    this.error.set(null);
-
-    const dto: CreateRoutineDto = {
-      name: form.name,
-      description: form.description || undefined,
-      difficulty: form.difficulty,
-      estimatedDuration: form.estimatedDuration,
-      type: RoutineType.WEEKLY,
-      isDraft: false,
-    };
-
-    if (this.isEditMode() && this.programId()) {
-      this.routinesService.update(this.programId()!, dto).subscribe({
-        next: () => {
-          this.saving.set(false);
-          this.router.navigate(['/training']);
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Error al actualizar');
-          this.saving.set(false);
-        },
-      });
-    } else {
-      this.routinesService.create(dto).subscribe({
-        next: (program) => {
-          this.programId.set(program.id);
-          this.savePendingAssignments(program.id);
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Error al crear');
-          this.saving.set(false);
-        },
-      });
-    }
-  }
-
-  private savePendingAssignments(programId: string): void {
     const pending = this.pendingAssignments();
-
     if (pending.length === 0) {
-      this.saving.set(false);
-      this.router.navigate(['/training']);
+      this.error.set('Debe agregar al menos una rutina');
       return;
     }
 
-    let completed = 0;
-    pending.forEach((assignment) => {
-      this.routinesService
-        .addRoutineToProgram(programId, {
-          routineId: assignment.routine.id,
-          dayNumber: assignment.dayNumber,
-        })
-        .subscribe({
-          next: () => {
-            completed++;
-            if (completed === pending.length) {
-              this.saving.set(false);
-              this.router.navigate(['/training']);
-            }
-          },
-          error: () => {
-            completed++;
-            if (completed === pending.length) {
-              this.saving.set(false);
-              this.router.navigate(['/training']);
-            }
-          },
-        });
+    this.saving.set(true);
+    this.error.set(null);
+
+    const dto: CreateProgramDto = {
+      name: form.name,
+      description: form.description || undefined,
+      difficulty: form.difficulty,
+      routines: pending.map((a) => ({
+        routineId: a.routine.id,
+        order: a.order,
+      })),
+    };
+
+    const request$ =
+      this.isEditMode() && this.programId()
+        ? this.programsService.update(this.programId()!, dto)
+        : this.programsService.create(dto);
+
+    request$.subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.router.navigate(['/training']);
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Error al guardar programa');
+        this.saving.set(false);
+      },
     });
   }
 
@@ -291,11 +219,7 @@ export class WeeklyProgramBuilderComponent implements OnInit {
 
   selectRoutine(routine: Routine): void {
     this.selectedRoutine.set(routine);
-  }
-
-  openDaySelector(): void {
-    // TODO: Open modal to select day for adding routine
-    console.log('Open day selector');
+    this.addRoutine(routine);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -303,123 +227,8 @@ export class WeeklyProgramBuilderComponent implements OnInit {
     if (event.previousContainer !== event.container) {
       const routine = event.previousContainer.data[event.previousIndex] as Routine;
       if (routine) {
-        // Find next available day
-        const usedDays = new Set(this.allDayAssignments().map((a) => a.dayNumber));
-        let nextDay = 1;
-        while (usedDays.has(nextDay) && nextDay <= 7) {
-          nextDay++;
-        }
-        if (nextDay <= 7) {
-          if (this.programId()) {
-            // Si ya existe el programa, guardar directamente
-            this.addRoutineToDay(routine.id, nextDay);
-          } else {
-            // Si es nuevo, agregar a pendientes
-            this.pendingAssignments.update((list) => [...list, { routine, dayNumber: nextDay }]);
-          }
-        }
+        this.addRoutine(routine);
       }
     }
-  }
-
-  removePendingAssignment(routineId: string, dayNumber: number): void {
-    this.pendingAssignments.update((list) =>
-      list.filter((a) => !(a.routine.id === routineId && a.dayNumber === dayNumber))
-    );
-  }
-
-  saveDraft(): void {
-    const form = this.formData();
-    if (!form.name.trim()) {
-      this.error.set('El nombre es requerido para guardar borrador');
-      return;
-    }
-
-    this.saving.set(true);
-    this.error.set(null);
-
-    const dto: CreateRoutineDto = {
-      name: form.name,
-      description: form.description || undefined,
-      difficulty: form.difficulty,
-      estimatedDuration: form.estimatedDuration,
-      type: RoutineType.WEEKLY,
-      isDraft: true,
-    };
-
-    if (this.isEditMode() && this.programId()) {
-      this.routinesService.update(this.programId()!, dto).subscribe({
-        next: () => {
-          this.saving.set(false);
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Error al guardar borrador');
-          this.saving.set(false);
-        },
-      });
-    } else {
-      this.routinesService.create(dto).subscribe({
-        next: (program) => {
-          this.programId.set(program.id);
-          this.isEditMode.set(true);
-          this.savePendingAssignments(program.id);
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Error al guardar borrador');
-          this.saving.set(false);
-        },
-      });
-    }
-  }
-
-  // Dialog methods
-  openRoutineDetail(assignment: {
-    routine: Routine;
-    dayNumber: number;
-    isSaved: boolean;
-    routineId: string;
-  }): void {
-    const programRoutine = this.programRoutines().find(
-      (pr) => pr.routineId === assignment.routineId && pr.dayNumber === assignment.dayNumber
-    );
-
-    const exercises: RoutineExerciseItem[] = (assignment.routine.exercises || []).map(
-      (re, index) => ({
-        id: re.id,
-        exerciseId: re.exerciseId,
-        exerciseName: re.exercise?.name || 'Ejercicio',
-        order: re.order || index + 1,
-        sets: re.sets,
-        reps: re.reps,
-        restSeconds: re.restSeconds,
-        suggestedWeight: re.suggestedWeight,
-        notes: re.notes,
-      })
-    );
-
-    this.dialogData.set({
-      programRoutineId: programRoutine?.id || '',
-      routine: assignment.routine,
-      dayNumber: assignment.dayNumber,
-      exercises,
-    });
-    this.dialogOpen.set(true);
-  }
-
-  closeDialog(): void {
-    this.dialogOpen.set(false);
-    this.dialogData.set(null);
-  }
-
-  onDialogSave(exercises: RoutineExerciseItem[]): void {
-    const data = this.dialogData();
-    if (!data?.programRoutineId) {
-      this.closeDialog();
-      return;
-    }
-
-    // TODO: Call API to save custom exercises
-    console.log('Saving exercises for programRoutineId:', data.programRoutineId, exercises);
-    this.closeDialog();
   }
 }

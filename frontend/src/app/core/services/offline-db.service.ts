@@ -2,8 +2,6 @@ import { Injectable, signal } from '@angular/core';
 import Dexie, { Table } from 'dexie';
 import {
   SyncOperation,
-  CachedRoutine,
-  CachedUserRoutine,
   CachedWorkout,
   CachedExerciseLog,
   IdMapping,
@@ -12,8 +10,6 @@ import {
 
 class FitFlowDatabase extends Dexie {
   syncQueue!: Table<SyncOperation, string>;
-  cachedRoutines!: Table<CachedRoutine, string>;
-  cachedUserRoutines!: Table<CachedUserRoutine, string>;
   cachedWorkouts!: Table<CachedWorkout, string>;
   cachedExerciseLogs!: Table<CachedExerciseLog, string>;
   idMappings!: Table<IdMapping, string>;
@@ -21,11 +17,9 @@ class FitFlowDatabase extends Dexie {
   constructor() {
     super('FitFlowOfflineDb');
 
-    this.version(1).stores({
+    this.version(2).stores({
       syncQueue: 'id, type, status, timestamp',
-      cachedRoutines: 'id, dayOfWeek, userId, cachedAt',
-      cachedUserRoutines: 'id, dayOfWeek, userId, cachedAt',
-      cachedWorkouts: 'id, tempId, userRoutineId, userId, cachedAt',
+      cachedWorkouts: 'id, tempId, userProgramRoutineId, userId, cachedAt',
       cachedExerciseLogs: 'id, tempId, workoutId, cachedAt',
       idMappings: 'tempId, serverId, type, createdAt',
     });
@@ -79,40 +73,6 @@ export class OfflineDbService {
 
   async getPendingCount(): Promise<number> {
     return this.db.syncQueue.where('status').equals('pending').count();
-  }
-
-  // Cached Routines
-  async cacheRoutine(routine: CachedRoutine): Promise<void> {
-    await this.db.cachedRoutines.put(routine);
-  }
-
-  async getCachedRoutine(id: string): Promise<CachedRoutine | undefined> {
-    const cached = await this.db.cachedRoutines.get(id);
-    if (cached && this.isCacheValid(cached.cachedAt)) {
-      return cached;
-    }
-    return undefined;
-  }
-
-  async getCachedRoutineByDay(
-    userId: string,
-    dayOfWeek: string
-  ): Promise<CachedRoutine | undefined> {
-    const cached = await this.db.cachedRoutines.where({ userId, dayOfWeek }).first();
-    if (cached && this.isCacheValid(cached.cachedAt)) {
-      return cached;
-    }
-    return undefined;
-  }
-
-  // Cached User Routines (week data)
-  async cacheUserRoutine(userRoutine: CachedUserRoutine): Promise<void> {
-    await this.db.cachedUserRoutines.put(userRoutine);
-  }
-
-  async getCachedUserRoutinesByUser(userId: string): Promise<CachedUserRoutine[]> {
-    const cached = await this.db.cachedUserRoutines.where({ userId }).toArray();
-    return cached.filter((r) => this.isCacheValid(r.cachedAt));
   }
 
   // Cached Workouts
@@ -180,8 +140,6 @@ export class OfflineDbService {
   async clearAllData(): Promise<void> {
     await Promise.all([
       this.db.syncQueue.clear(),
-      this.db.cachedRoutines.clear(),
-      this.db.cachedUserRoutines.clear(),
       this.db.cachedWorkouts.clear(),
       this.db.cachedExerciseLogs.clear(),
       this.db.idMappings.clear(),
@@ -193,8 +151,6 @@ export class OfflineDbService {
   async clearExpiredCache(): Promise<void> {
     const expiredBefore = Date.now() - CACHE_EXPIRY_MS;
     await Promise.all([
-      this.db.cachedRoutines.where('cachedAt').below(expiredBefore).delete(),
-      this.db.cachedUserRoutines.where('cachedAt').below(expiredBefore).delete(),
       this.db.cachedWorkouts.where('cachedAt').below(expiredBefore).delete(),
       this.db.cachedExerciseLogs.where('cachedAt').below(expiredBefore).delete(),
     ]);

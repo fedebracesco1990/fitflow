@@ -66,6 +66,10 @@
   }
 
   .form-group {
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
     label {
       display: block;
       font-size: 0.875rem;

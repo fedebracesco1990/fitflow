@@ -30,7 +30,7 @@
 
   @if (loading()) {
     <div class="loading">Cargando rutinas...</div>
-  } @else if (routines().length === 0) {
+  } @else if (listItems().length === 0) {
     <div class="empty-state">
       <p>No hay rutinas creadas</p>
       <fit-flow-button variant="outline" (click)="openTypeModal()"
@@ -51,49 +51,43 @@
             </tr>
           </thead>
           <tbody>
-            @for (routine of displayedRoutines(); track routine.id) {
+            @for (item of displayedItems(); track item.id) {
               <tr>
                 <td>
-                  {{ routine.name }}
-                  @if (routine.isDraft) {
+                  {{ item.name }}
+                  @if (item.isDraft) {
                     <fit-flow-badge variant="warning" class="draft-badge">Borrador</fit-flow-badge>
+                  }
+                  @if (item.type === 'program') {
+                    <fit-flow-badge variant="neutral" class="type-badge">Programa</fit-flow-badge>
                   }
                 </td>
                 <td>
-                  <fit-flow-badge [variant]="getTypeBadgeVariant(routine.type)">
-                    {{ routineTypeLabels[routine.type] }}
+                  <fit-flow-badge [variant]="getTypeBadgeVariant(item.routineType)">
+                    {{ item.routineType ? routineTypeLabels[item.routineType] : 'Programa' }}
                   </fit-flow-badge>
                 </td>
                 <td>
-                  <fit-flow-badge [variant]="getDifficultyBadgeVariant(routine.difficulty)">
-                    {{ difficultyLabels[routine.difficulty] }}
+                  <fit-flow-badge [variant]="getDifficultyBadgeVariant(item.difficulty)">
+                    {{ difficultyLabels[item.difficulty] }}
                   </fit-flow-badge>
                 </td>
-                <td>{{ routine.createdAt | date: 'd MMM, y' }}</td>
+                <td>{{ item.createdAt | date: 'd MMM, y' }}</td>
                 <td class="actions">
-                  <button
-                    class="btn-icon"
-                    [title]="routine.isDraft ? 'No se puede asignar un borrador' : 'Asignar'"
-                    [disabled]="routine.isDraft"
-                    (click)="openAssignDialog(routine)"
-                  >
-                    👥
-                  </button>
-                  <a
-                    [routerLink]="
-                      routine.type === RoutineType.DAILY
-                        ? ['/training', 'routines', 'daily', routine.id, 'edit']
-                        : ['/training', 'routines', 'weekly', routine.id, 'edit']
-                    "
-                    class="btn-icon"
-                    title="Editar"
-                  >
-                    ✏️
-                  </a>
+                  @if (item.type === 'program') {
+                    <button
+                      class="btn-icon"
+                      title="Asignar a usuario"
+                      (click)="openAssignDialog(item)"
+                    >
+                      👥
+                    </button>
+                  }
+                  <a [routerLink]="getEditLink(item)" class="btn-icon" title="Editar"> ✏️ </a>
                   <button
                     class="btn-icon btn-icon-danger"
                     title="Eliminar"
-                    (click)="deleteRoutine(routine)"
+                    (click)="deleteItem(item)"
                   >
                     🗑️
                   </button>
@@ -107,7 +101,7 @@
 
     <div class="pagination-row">
       <span class="pagination-info">
-        Mostrando {{ displayedRoutines().length }} de {{ totalRoutines() }} rutinas
+        Mostrando {{ displayedItems().length }} de {{ totalItems() }} items
       </span>
       @if (totalPages() > 1) {
         <div class="pagination-controls">
@@ -149,6 +143,7 @@
     [isOpen]="assignDialogOpen()"
     [routineId]="selectedRoutineForAssign()!.id"
     [routineName]="selectedRoutineForAssign()!.name"
+    [routineType]="RoutineType.WEEKLY"
     (confirmed)="onAssignConfirmed($event)"
     (cancelled)="onAssignCancelled()"
   />

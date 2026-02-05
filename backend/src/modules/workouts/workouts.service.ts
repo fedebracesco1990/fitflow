@@ -9,15 +9,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WorkoutLog } from './entities/workout-log.entity';
 import { ExerciseLog } from './entities/exercise-log.entity';
-import { UserRoutine } from '../user-routines/entities/user-routine.entity';
-import { RoutineExercise } from '../routines/entities/routine-exercise.entity';
-import {
-  CreateWorkoutDto,
-  UpdateWorkoutDto,
-  LogExerciseDto,
-  UpdateExerciseLogDto,
-  BulkLogExercisesDto,
-} from './dto';
+import { UserProgramRoutine } from '../programs/entities/user-program-routine.entity';
+import { UserProgramExercise } from '../programs/entities/user-program-exercise.entity';
+import { UpdateWorkoutDto, UpdateExerciseLogDto } from './dto';
 import { WorkoutStatus } from '../../common/enums/workout-status.enum';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import { PersonalRecordsService } from '../personal-records/personal-records.service';
@@ -31,10 +25,10 @@ export class WorkoutsService {
     private readonly workoutLogRepository: Repository<WorkoutLog>,
     @InjectRepository(ExerciseLog)
     private readonly exerciseLogRepository: Repository<ExerciseLog>,
-    @InjectRepository(UserRoutine)
-    private readonly userRoutineRepository: Repository<UserRoutine>,
-    @InjectRepository(RoutineExercise)
-    private readonly routineExerciseRepository: Repository<RoutineExercise>,
+    @InjectRepository(UserProgramRoutine)
+    private readonly userProgramRoutineRepository: Repository<UserProgramRoutine>,
+    @InjectRepository(UserProgramExercise)
+    private readonly userProgramExerciseRepository: Repository<UserProgramExercise>,
     @Inject(forwardRef(() => PersonalRecordsService))
     private readonly personalRecordsService: PersonalRecordsService,
     @Inject(forwardRef(() => NotificationsService))
@@ -42,26 +36,43 @@ export class WorkoutsService {
     private readonly realtimeService: RealtimeService
   ) {}
 
-  async create(dto: CreateWorkoutDto, userId: string): Promise<WorkoutLog> {
-    // Verificar que la rutina pertenece al usuario
-    const userRoutine = await this.userRoutineRepository.findOne({
-      where: { id: dto.userRoutineId },
+  async startWorkout(userProgramRoutineId: string, userId: string): Promise<WorkoutLog> {
+    const routine = await this.userProgramRoutineRepository.findOne({
+      where: { id: userProgramRoutineId },
+      relations: ['userProgram', 'exercises', 'exercises.exercise'],
     });
-    if (!userRoutine) {
-      throw new NotFoundException('Rutina asignada no encontrada');
+
+    if (!routine) {
+      throw new NotFoundException('Rutina no encontrada');
     }
-    if (userRoutine.userId !== userId) {
+    if (routine.userProgram.userId !== userId) {
       throw new ForbiddenException('No tienes acceso a esta rutina');
     }
 
     const workoutLog = this.workoutLogRepository.create({
-      userRoutineId: dto.userRoutineId,
-      date: new Date(dto.date),
-      status: WorkoutStatus.PENDING,
-      notes: dto.notes,
+      userProgramRoutineId,
+      startedAt: new Date(),
+      status: WorkoutStatus.IN_PROGRESS,
     });
 
-    return await this.workoutLogRepository.save(workoutLog);
+    const savedWorkout = await this.workoutLogRepository.save(workoutLog);
+
+    for (const exercise of routine.exercises) {
+      for (let setNum = 1; setNum <= exercise.sets; setNum++) {
+        await this.exerciseLogRepository.save(
+          this.exerciseLogRepository.create({
+            workoutLogId: savedWorkout.id,
+            exerciseId: exercise.exerciseId,
+            setNumber: setNum,
+            reps: exercise.reps,
+            weight: exercise.weight,
+            completed: false,
+          })
+        );
+      }
+    }
+
+    return this.findOne(savedWorkout.id, userId);
   }
 
   async findMyHistory(
@@ -71,12 +82,13 @@ export class WorkoutsService {
   ): Promise<PaginatedResponse<WorkoutLog>> {
     const query = this.workoutLogRepository
       .createQueryBuilder('wl')
-      .innerJoin('wl.userRoutine', 'ur')
-      .where('ur.userId = :userId', { userId })
-      .leftJoinAndSelect('wl.userRoutine', 'userRoutine')
-      .leftJoinAndSelect('userRoutine.routine', 'routine')
+      .innerJoin('wl.userProgramRoutine', 'upr')
+      .innerJoin('upr.userProgram', 'up')
+      .where('up.userId = :userId', { userId })
+      .andWhere('wl.status = :status', { status: WorkoutStatus.COMPLETED })
+      .leftJoinAndSelect('wl.userProgramRoutine', 'routine')
       .leftJoinAndSelect('wl.exerciseLogs', 'exerciseLogs')
-      .orderBy('wl.date', 'DESC');
+      .orderBy('wl.finishedAt', 'DESC');
 
     const total = await query.getCount();
 
@@ -100,19 +112,18 @@ export class WorkoutsService {
     const workoutLog = await this.workoutLogRepository.findOne({
       where: { id },
       relations: [
-        'userRoutine',
-        'userRoutine.routine',
-        'userRoutine.routine.exercises',
-        'userRoutine.routine.exercises.exercise',
+        'userProgramRoutine',
+        'userProgramRoutine.userProgram',
+        'userProgramRoutine.exercises',
+        'userProgramRoutine.exercises.exercise',
         'exerciseLogs',
-        'exerciseLogs.routineExercise',
-        'exerciseLogs.routineExercise.exercise',
+        'exerciseLogs.exercise',
       ],
     });
     if (!workoutLog) {
       throw new NotFoundException('Workout no encontrado');
     }
-    if (workoutLog.userRoutine.userId !== userId) {
+    if (workoutLog.userProgramRoutine.userProgram.userId !== userId) {
       throw new ForbiddenException('No tienes acceso a este workout');
     }
     return workoutLog;
@@ -124,92 +135,21 @@ export class WorkoutsService {
     return await this.workoutLogRepository.save(workoutLog);
   }
 
-  async startWorkout(id: string, userId: string): Promise<WorkoutLog> {
-    const workoutLog = await this.findOne(id, userId);
-    workoutLog.status = WorkoutStatus.IN_PROGRESS;
-    await this.workoutLogRepository.save(workoutLog);
-
-    // Pre-crear exercise logs para cada ejercicio de la rutina
-    const routineExercises = workoutLog.userRoutine.routine.exercises;
-    for (const re of routineExercises) {
-      // Crear un log para cada serie del ejercicio
-      for (let setNum = 1; setNum <= re.sets; setNum++) {
-        const existingLog = await this.exerciseLogRepository.findOne({
-          where: {
-            workoutLogId: id,
-            routineExerciseId: re.id,
-            setNumber: setNum,
-          },
-        });
-
-        if (!existingLog) {
-          await this.exerciseLogRepository.save(
-            this.exerciseLogRepository.create({
-              workoutLogId: id,
-              routineExerciseId: re.id,
-              setNumber: setNum,
-              reps: re.reps,
-              weight: re.suggestedWeight,
-              completed: false,
-            })
-          );
-        }
-      }
-    }
-
-    // Recargar workout con los nuevos logs
-    return await this.findOne(id, userId);
-  }
-
   async completeWorkout(id: string, userId: string, duration?: number): Promise<WorkoutLog> {
     const workoutLog = await this.findOne(id, userId);
     workoutLog.status = WorkoutStatus.COMPLETED;
+    workoutLog.finishedAt = new Date();
     if (duration) {
       workoutLog.duration = duration;
     }
+
     const savedWorkout = await this.workoutLogRepository.save(workoutLog);
 
-    this.notifyProgressLogged(workoutLog);
+    await this.userProgramRoutineRepository.update(workoutLog.userProgramRoutineId, {
+      lastCompletedAt: new Date(),
+    });
 
     return savedWorkout;
-  }
-
-  // Logs de ejercicios
-  async logExercise(workoutId: string, dto: LogExerciseDto, userId: string): Promise<ExerciseLog> {
-    const workoutLog = await this.findOne(workoutId, userId);
-
-    // Verificar que el ejercicio pertenece a la rutina
-    const routineExercise = await this.routineExerciseRepository.findOne({
-      where: {
-        id: dto.routineExerciseId,
-        routineId: workoutLog.userRoutine.routineId,
-      },
-    });
-    if (!routineExercise) {
-      throw new NotFoundException('Ejercicio no encontrado en la rutina');
-    }
-
-    const exerciseLog = this.exerciseLogRepository.create({
-      workoutLogId: workoutId,
-      routineExerciseId: dto.routineExerciseId,
-      setNumber: dto.setNumber,
-      reps: dto.reps,
-      weight: dto.weight ?? null,
-      completed: dto.completed ?? true,
-      notes: dto.notes,
-      rir: dto.rir ?? null,
-      rpe: dto.rpe ?? null,
-    });
-
-    const savedLog = await this.exerciseLogRepository.save(exerciseLog);
-
-    // Check for personal record
-    if (dto.weight && dto.reps > 0) {
-      const userId = workoutLog.userRoutine.userId;
-      await this.checkAndNotifyPR(userId, routineExercise.exerciseId, dto.weight, dto.reps);
-    }
-
-    return savedLog;
   }
 
   async updateExerciseLog(
@@ -225,7 +165,7 @@ export class WorkoutsService {
 
     const exerciseLog = await this.exerciseLogRepository.findOne({
       where: { id: logId, workoutLogId: workoutId },
-      relations: ['routineExercise'],
+      relations: ['exercise'],
     });
     if (!exerciseLog) {
       throw new NotFoundException('Log de ejercicio no encontrado');
@@ -239,7 +179,7 @@ export class WorkoutsService {
     if (dto.completed && dto.weight && dto.reps && dto.reps > 0) {
       const result = await this.personalRecordsService.checkAndUpdatePR(
         userId,
-        exerciseLog.routineExercise.exerciseId,
+        exerciseLog.exerciseId,
         dto.weight,
         dto.reps
       );
@@ -263,17 +203,17 @@ export class WorkoutsService {
   }
 
   async getExerciseLogs(workoutId: string, userId: string): Promise<ExerciseLog[]> {
-    await this.findOne(workoutId, userId); // Verifica permisos
+    await this.findOne(workoutId, userId);
 
     return await this.exerciseLogRepository.find({
       where: { workoutLogId: workoutId },
-      relations: ['routineExercise', 'routineExercise.exercise'],
-      order: { routineExerciseId: 'ASC', setNumber: 'ASC' },
+      relations: ['exercise'],
+      order: { exerciseId: 'ASC', setNumber: 'ASC' },
     });
   }
 
   async deleteExerciseLog(workoutId: string, logId: string, userId: string): Promise<void> {
-    await this.findOne(workoutId, userId); // Verifica permisos
+    await this.findOne(workoutId, userId);
 
     const exerciseLog = await this.exerciseLogRepository.findOne({
       where: { id: logId, workoutLogId: workoutId },
@@ -285,98 +225,26 @@ export class WorkoutsService {
     await this.exerciseLogRepository.remove(exerciseLog);
   }
 
-  async logExercisesBulk(
-    workoutId: string,
-    dto: BulkLogExercisesDto,
+  async getLastWorkoutForRoutine(
+    userProgramRoutineId: string,
     userId: string
-  ): Promise<ExerciseLog[]> {
-    const workoutLog = await this.findOne(workoutId, userId);
-
-    const routineExerciseIds = [...new Set(dto.exercises.map((e) => e.routineExerciseId))];
-    const routineExercises = await this.routineExerciseRepository.find({
-      where: routineExerciseIds.map((id) => ({
-        id,
-        routineId: workoutLog.userRoutine.routineId,
-      })),
+  ): Promise<WorkoutLog | null> {
+    const routine = await this.userProgramRoutineRepository.findOne({
+      where: { id: userProgramRoutineId },
+      relations: ['userProgram'],
     });
 
-    const validIds = new Set(routineExercises.map((re) => re.id));
-    const invalidExercises = dto.exercises.filter((e) => !validIds.has(e.routineExerciseId));
-    if (invalidExercises.length > 0) {
-      throw new NotFoundException(
-        `Ejercicios no encontrados en la rutina: ${invalidExercises.map((e) => e.routineExerciseId).join(', ')}`
-      );
+    if (!routine || routine.userProgram.userId !== userId) {
+      return null;
     }
 
-    const exerciseLogs = dto.exercises.map((item) =>
-      this.exerciseLogRepository.create({
-        workoutLogId: workoutId,
-        routineExerciseId: item.routineExerciseId,
-        setNumber: item.setNumber,
-        reps: item.reps,
-        weight: item.weight ?? null,
-        completed: item.completed ?? true,
-        notes: item.notes ?? null,
-        rir: item.rir ?? null,
-        rpe: item.rpe ?? null,
-      })
-    );
-
-    const savedLogs = await this.exerciseLogRepository.save(exerciseLogs);
-
-    // Check for personal records in bulk
-    const ownerUserId = workoutLog.userRoutine.userId;
-    const routineExerciseMap = new Map(routineExercises.map((re) => [re.id, re.exerciseId]));
-
-    for (const item of dto.exercises) {
-      if (item.weight && item.reps > 0) {
-        const exerciseId = routineExerciseMap.get(item.routineExerciseId);
-        if (exerciseId) {
-          await this.checkAndNotifyPR(ownerUserId, exerciseId, item.weight, item.reps);
-        }
-      }
-    }
-
-    return savedLogs;
-  }
-
-  private async checkAndNotifyPR(
-    userId: string,
-    exerciseId: string,
-    weight: number,
-    reps: number
-  ): Promise<void> {
-    const prResult = await this.personalRecordsService.checkAndUpdatePR(
-      userId,
-      exerciseId,
-      weight,
-      reps
-    );
-
-    if (prResult.isNewPR && prResult.exerciseName) {
-      let message = '';
-      if (prResult.type === 'both') {
-        message = `Nuevo PR en ${prResult.exerciseName}: ${weight}kg x ${reps} reps (peso y volumen)`;
-      } else if (prResult.type === 'weight') {
-        message = `Nuevo PR de peso en ${prResult.exerciseName}: ${weight}kg`;
-      } else {
-        message = `Nuevo PR de volumen en ${prResult.exerciseName}: ${weight}kg x ${reps} reps`;
-      }
-
-      await this.notificationsService.sendToUser(userId, 'Nuevo Récord Personal', message);
-    }
-  }
-
-  private notifyProgressLogged(workoutLog: WorkoutLog): void {
-    const trainerId = workoutLog.userRoutine?.routine?.createdById;
-    if (!trainerId) return;
-
-    this.realtimeService.notifyProgressLogged(trainerId, {
-      workoutLogId: workoutLog.id,
-      userId: workoutLog.userRoutine.userId,
-      userName: workoutLog.userRoutine.user?.name || undefined,
-      routineName: workoutLog.userRoutine.routine?.name || 'Rutina',
-      timestamp: new Date(),
+    return this.workoutLogRepository.findOne({
+      where: {
+        userProgramRoutineId,
+        status: WorkoutStatus.COMPLETED,
+      },
+      relations: ['exerciseLogs', 'exerciseLogs.exercise'],
+      order: { finishedAt: 'DESC' },
     });
   }
 }
