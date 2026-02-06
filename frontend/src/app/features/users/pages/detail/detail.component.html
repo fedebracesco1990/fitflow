@@ -1,0 +1,87 @@
+<div class="user-detail-page">
+  <div class="page-header">
+    <a routerLink="/users" class="back-link">← Volver</a>
+    <h1>Perfil de Usuario</h1>
+    @if (user()) {
+      <a [routerLink]="['/users', userId(), 'edit']">
+        <fit-flow-button variant="outline">Editar</fit-flow-button>
+      </a>
+    }
+  </div>
+
+  @if (error()) {
+    <fit-flow-alert type="error" [message]="error()!" />
+  }
+
+  @if (loading()) {
+    <div class="loading">
+      <fit-flow-loading-spinner size="lg" />
+    </div>
+  } @else if (user()) {
+    <fit-flow-card padding="lg">
+      <div class="user-info">
+        <div class="info-group">
+          <span class="info-label">Nombre</span>
+          <p>{{ user()?.name }}</p>
+        </div>
+
+        <div class="info-group">
+          <span class="info-label">Correo electrónico</span>
+          <p>{{ user()?.email }}</p>
+        </div>
+
+        <div class="info-group">
+          <span class="info-label">Rol</span>
+          <p>
+            <fit-flow-badge [variant]="roleBadgeVariant()">{{ roleLabel() }}</fit-flow-badge>
+          </p>
+        </div>
+
+        <div class="info-group">
+          <span class="info-label">Estado</span>
+          <p>
+            <fit-flow-badge [variant]="user()?.isActive ? 'success' : 'error'">
+              {{ user()?.isActive ? 'Activo' : 'Inactivo' }}
+            </fit-flow-badge>
+          </p>
+        </div>
+
+        <div class="info-group">
+          <span class="info-label">Miembro desde</span>
+          <p>{{ formattedDate() }}</p>
+        </div>
+      </div>
+    </fit-flow-card>
+
+    <fit-flow-card padding="md" class="membership-section">
+      <h2>Membresía</h2>
+      @if (membership(); as m) {
+        <div class="membership-detail">
+          <div class="info-group">
+            <span class="info-label">Tipo</span>
+            <p>{{ m.membershipType?.name || 'N/A' }}</p>
+          </div>
+          <div class="info-group">
+            <span class="info-label">Estado</span>
+            <p>
+              <fit-flow-badge [variant]="membershipBadgeVariant()">
+                {{ membershipStatusLabel() }}
+              </fit-flow-badge>
+            </p>
+          </div>
+          @if (m.endDate) {
+            <div class="info-group">
+              <span class="info-label">Vencimiento</span>
+              <p>{{ m.endDate | date: 'dd/MM/yyyy' }}</p>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="no-membership">Este usuario no tiene membresía asignada.</p>
+        <a [routerLink]="['/memberships/new']" [queryParams]="{ userId: userId() }">
+          <fit-flow-button variant="primary" size="sm">Asignar membresía</fit-flow-button>
+        </a>
+      }
+    </fit-flow-card>
+  }
+</div>
