@@ -100,18 +100,17 @@ Emitido cuando un usuario completa un workout (solo a trainers).
 
 ### notification.new
 
-Emitido cuando se envía una nueva notificación.
+**Canal primario** de entrega de notificaciones in-app en tiempo real. Emitido cada vez que se crea una notificación. Para notificaciones dirigidas se emite al room `user:{userId}`. Para broadcasts se emite a todos excepto al sender via `emitToAllExcept(senderUserId)`.
 
 **Payload:**
 
 ```typescript
 {
-  notificationId?: string;
+  notificationId: string;  // UUID de la AppNotification persistida
   title: string;
   body: string;
-  type?: string;
+  type?: string;           // Tipo libre: 'broadcast', 'personal_record', etc.
   timestamp: Date;
-  data?: Record<string, unknown>;
 }
 ```
 
@@ -119,8 +118,10 @@ Emitido cuando se envía una nueva notificación.
 
 ```json
 {
+  "notificationId": "uuid-789",
   "title": "Nuevo Récord Personal",
   "body": "Nuevo PR en Press de Banca: 100kg x 5 reps",
+  "type": "personal_record",
   "timestamp": "2026-01-15T20:00:00.000Z"
 }
 ```

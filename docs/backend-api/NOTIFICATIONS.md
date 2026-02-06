@@ -1,6 +1,6 @@
 # Notifications Controller
 
-Endpoints para gestión de notificaciones push con Firebase Cloud Messaging.
+Endpoints para gestión de notificaciones in-app y push (FCM opcional).
 
 **Ruta base:** `/notifications`
 
@@ -8,14 +8,120 @@ Endpoints para gestión de notificaciones push con Firebase Cloud Messaging.
 
 ## Endpoints
 
+### In-App Notifications
+
+| Método | Ruta                      | Descripción                | Roles              |
+| ------ | ------------------------- | -------------------------- | ------------------ |
+| GET    | `/notifications/my`       | Obtener mis notificaciones | Todos autenticados |
+| PATCH  | `/notifications/:id/read` | Marcar como leída          | Todos autenticados |
+| PATCH  | `/notifications/read-all` | Marcar todas como leídas   | Todos autenticados |
+
+### FCM Token Management
+
 | Método | Ruta                              | Descripción         | Roles              |
 | ------ | --------------------------------- | ------------------- | ------------------ |
 | POST   | `/notifications/register-token`   | Registrar token FCM | Todos autenticados |
 | DELETE | `/notifications/unregister-token` | Eliminar token FCM  | Todos autenticados |
-| POST   | `/notifications/send`             | Enviar notificación | ADMIN              |
-| GET    | `/notifications/templates`        | Listar templates    | ADMIN              |
-| POST   | `/notifications/templates`        | Crear template      | ADMIN              |
-| POST   | `/notifications/templates/:id`    | Actualizar template | ADMIN              |
+
+### Admin
+
+| Método | Ruta                           | Descripción         | Roles |
+| ------ | ------------------------------ | ------------------- | ----- |
+| POST   | `/notifications/send`          | Enviar notificación | ADMIN |
+| GET    | `/notifications/templates`     | Listar templates    | ADMIN |
+| POST   | `/notifications/templates`     | Crear template      | ADMIN |
+| POST   | `/notifications/templates/:id` | Actualizar template | ADMIN |
+
+---
+
+## GET /notifications/my
+
+Obtiene las notificaciones del usuario autenticado, incluyendo notificaciones dirigidas y broadcasts. Excluye notificaciones enviadas por el propio usuario (`senderUserId`).
+
+**Roles:** Todos los usuarios autenticados
+
+**Query Parameters:**
+
+| Parámetro | Tipo   | Default | Descripción              |
+| --------- | ------ | ------- | ------------------------ |
+| limit     | number | 50      | Máximo de notificaciones |
+| offset    | number | 0       | Offset para paginación   |
+
+**Response (200):**
+
+```json
+{
+  "notifications": [
+    {
+      "id": "uuid",
+      "title": "Nuevo Récord Personal",
+      "body": "Nuevo PR en Press de Banca: 100kg x 5 reps",
+      "type": "personal_record",
+      "targetType": "user",
+      "targetUserId": "user-uuid",
+      "senderUserId": null,
+      "data": null,
+      "createdAt": "2026-02-06T12:00:00.000Z",
+      "read": false
+    }
+  ],
+  "total": 1
+}
+```
+
+| Campo         | Tipo    | Descripción                                        |
+| ------------- | ------- | -------------------------------------------------- |
+| notifications | array   | Lista de notificaciones con campo `read` computado |
+| total         | number  | Total de notificaciones (para paginación)          |
+| read          | boolean | `true` si el usuario ya leyó esta notificación     |
+
+---
+
+## PATCH /notifications/:id/read
+
+Marca una notificación como leída para el usuario autenticado.
+
+**Roles:** Todos los usuarios autenticados
+
+**Parámetros de ruta:**
+
+| Parámetro | Tipo | Descripción           |
+| --------- | ---- | --------------------- |
+| id        | UUID | ID de la notificación |
+
+**Response (200):**
+
+```json
+{
+  "message": "Notification marked as read"
+}
+```
+
+**Errores:**
+
+| Código | Descripción                |
+| ------ | -------------------------- |
+| 404    | Notificación no encontrada |
+
+---
+
+## PATCH /notifications/read-all
+
+Marca todas las notificaciones no leídas como leídas para el usuario autenticado.
+
+**Roles:** Todos los usuarios autenticados
+
+**Response (200):**
+
+```json
+{
+  "marked": 5
+}
+```
+
+| Campo  | Tipo   | Descripción                                     |
+| ------ | ------ | ----------------------------------------------- |
+| marked | number | Cantidad de notificaciones marcadas como leídas |
 
 ---
 
@@ -77,7 +183,7 @@ Elimina un token FCM del usuario autenticado.
 
 ## POST /notifications/send
 
-Envía una notificación push a un usuario.
+Envía una notificación. Persiste en DB, emite via WebSocket, y opcionalmente envía FCM push. El `senderUserId` del admin se registra automáticamente para excluirlo de recibir su propia notificación.
 
 **Roles:** `ADMIN`
 
@@ -288,6 +394,33 @@ await fetch('/api/notifications/send', {
 
 ## Entidades
 
+### AppNotification
+
+| Campo        | Tipo          | Nullable | Descripción                                     |
+| ------------ | ------------- | -------- | ----------------------------------------------- |
+| id           | UUID          | No       | ID único (PK)                                   |
+| title        | varchar(200)  | No       | Título de la notificación                       |
+| body         | varchar(1000) | No       | Cuerpo del mensaje                              |
+| type         | varchar(50)   | Sí       | Tipo libre (ej: `personal_record`, `broadcast`) |
+| targetType   | enum          | No       | `user` o `broadcast`                            |
+| targetUserId | UUID          | Sí       | Destinatario (NULL para broadcast)              |
+| senderUserId | UUID          | Sí       | Quien envió (NULL para sistema/cron)            |
+| data         | JSON          | Sí       | Datos adicionales                               |
+| createdAt    | Date          | No       | Fecha de creación                               |
+
+**Índices:** `[targetUserId, createdAt]`, `[targetType, createdAt]`
+
+### NotificationRead
+
+| Campo          | Tipo | Nullable | Descripción          |
+| -------------- | ---- | -------- | -------------------- |
+| id             | UUID | No       | ID único (PK)        |
+| notificationId | UUID | No       | FK a AppNotification |
+| userId         | UUID | No       | FK a User            |
+| readAt         | Date | No       | Fecha en que se leyó |
+
+**Índice único:** `[notificationId, userId]`
+
 ### DeviceToken
 
 | Campo     | Tipo   | Descripción               |
@@ -335,8 +468,9 @@ Cada notificación enviada incluye tanto `notification` como `data` payload:
 
 ## Notas
 
+- **Backend es fuente de verdad**: Todas las notificaciones se persisten en `AppNotification`. IndexedDB fue eliminado
+- **WebSocket primario**: Las notificaciones in-app se entregan via WebSocket (`notification.new`) en tiempo real
+- **FCM opcional**: Si Firebase no está configurado, las notificaciones in-app siguen funcionando (solo se omite el push nativo del OS)
+- **Sender exclusion**: El admin no recibe sus propias notificaciones (filtrado por `senderUserId` en query y WebSocket)
 - Los tokens inválidos o expirados se eliminan automáticamente al fallar el envío
 - Un usuario puede tener múltiples tokens (multi-dispositivo)
-- Firebase debe estar configurado para que las notificaciones funcionen
-- Si Firebase no está configurado, los endpoints funcionan pero no envían notificaciones reales
-- El `data` payload permite que las notificaciones aparezcan en el UI de la app cuando está en foreground

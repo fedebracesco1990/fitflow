@@ -375,6 +375,16 @@ flowchart TB
 
 ## API Endpoints
 
+### In-App Notifications (nuevos)
+
+| Método  | Endpoint                  | Rol  | Descripción                                          |
+| ------- | ------------------------- | ---- | ---------------------------------------------------- |
+| `GET`   | `/notifications/my`       | User | Obtener notificaciones del usuario (con read status) |
+| `PATCH` | `/notifications/:id/read` | User | Marcar una notificación como leída                   |
+| `PATCH` | `/notifications/read-all` | User | Marcar todas como leídas                             |
+
+### FCM & Admin
+
 | Método   | Endpoint                          | Rol   | Descripción                         |
 | -------- | --------------------------------- | ----- | ----------------------------------- |
 | `POST`   | `/notifications/register-token`   | User  | Registrar FCM token del dispositivo |
@@ -389,9 +399,9 @@ flowchart TB
 ### Modos de envío (`POST /notifications/send`):
 
 ```
-1. Broadcast:  { broadcast: true, title, body }
-2. Dirigida:   { userId, title, body }
-3. Template:   { userId, templateType }
+1. Broadcast:  { broadcast: true, title, body }  → persiste + WS broadcast (excl. sender) + FCM opcional
+2. Dirigida:   { userId, title, body }            → persiste + WS a usuario + FCM opcional
+3. Template:   { userId, templateType }           → persiste + WS a usuario + FCM opcional
 ```
 
 ---
@@ -414,11 +424,12 @@ flowchart TB
 
 ## WebSocket Events
 
-| Evento             | Room Target           | Disparado por   | Descripción                                 |
-| ------------------ | --------------------- | --------------- | ------------------------------------------- |
-| `routine.updated`  | `user:{userId}`       | RealtimeService | Rutina fue actualizada                      |
-| `progress.logged`  | `trainer:{trainerId}` | RealtimeService | Usuario registró progreso                   |
-| `notification.new` | `user:{userId}`       | RealtimeService | Nueva notificación (deshabilitado para FCM) |
+| Evento             | Room Target              | Disparado por   | Descripción                                               |
+| ------------------ | ------------------------ | --------------- | --------------------------------------------------------- |
+| `routine.updated`  | `user:{userId}`          | RealtimeService | Rutina fue actualizada                                    |
+| `progress.logged`  | `trainer:{trainerId}`    | RealtimeService | Usuario registró progreso                                 |
+| `notification.new` | `user:{userId}`          | RealtimeService | **Canal primario** de entrega in-app en tiempo real       |
+| `notification.new` | broadcast (excl. sender) | RealtimeService | Broadcast a todos excepto al sender via `emitToAllExcept` |
 
 ---
 
@@ -430,19 +441,27 @@ flowchart TB
     B --> C{¿Tiene template?}
     C -->|Sí| D[Buscar NotificationTemplate]
     C -->|No| E[Usar título/body custom]
-    D --> F[Obtener DeviceTokens del usuario]
+    D --> F[persistNotification en DB]
     E --> F
-    F --> G{¿Firebase inicializado?}
-    G -->|No| H[❌ Log warning, no envía]
-    G -->|Sí| I[firebase-admin.messaging.send]
-    I --> J{¿Token válido?}
-    J -->|Sí| K[✅ Notificación enviada a FCM]
-    J -->|No| L[🗑️ Eliminar token inválido]
-    K --> M{¿App en foreground?}
-    M -->|Sí| N[onMessage → NGXS → Badge + Panel]
-    M -->|No| O[Service Worker → IndexedDB + Notif. nativa OS]
+
+    F --> G[1️⃣ Guardar en AppNotification<br/>con senderUserId]
+    G --> H[2️⃣ Emitir via WebSocket]
+    H --> I{¿Es broadcast?}
+    I -->|Sí| J[broadcastExcept senderUserId]
+    I -->|No| K[emitToUser targetUserId]
+    J --> L[✅ In-App: Badge + Panel]
+    K --> L
+
+    G --> M{¿Firebase inicializado?}
+    M -->|No| N[⏭️ Skip FCM - solo in-app]
+    M -->|Sí| O[3️⃣ FCM push a DeviceTokens]
+    O --> P{¿Token válido?}
+    P -->|Sí| Q[✅ Notificación nativa OS]
+    P -->|No| R[🗑️ Eliminar token inválido]
 
     style B fill:#22c55e,color:#fff
-    style K fill:#3b82f6,color:#fff
-    style H fill:#ef4444,color:#fff
+    style G fill:#f97316,color:#fff
+    style L fill:#3b82f6,color:#fff
+    style N fill:#94a3b8,color:#fff
+    style Q fill:#22c55e,color:#fff
 ```
