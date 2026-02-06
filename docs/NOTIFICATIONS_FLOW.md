@@ -4,30 +4,34 @@ Documento que describe el flujo completo de notificaciones implementado en la ap
 
 > **Para visualizar**: Instala el plugin "Markdown Preview Mermaid Support" en VS Code o usa https://mermaid.live
 >
-> **Última actualización**: Febrero 2026
+> **Última actualización**: Febrero 2026 (v2 — Backend-First Architecture)
 
 ---
 
 ## Arquitectura General
+
+> **Principio clave**: El backend es la **fuente de verdad única** para todas las notificaciones. WebSocket es el canal primario de entrega in-app en tiempo real. FCM es opcional y solo se usa para notificaciones nativas del OS.
 
 ```mermaid
 flowchart TB
     subgraph Backend["🖥️ Backend (NestJS)"]
         SCHED[Scheduler Service<br/>Cron Jobs]
         WORK[Workouts Service<br/>Personal Records]
-        ADMIN_API[Notifications Controller<br/>POST /notifications/send]
+        ADMIN_API[Notifications Controller]
         NS[Notifications Service]
-        FCM_ADMIN[Firebase Admin SDK]
+        FCM_ADMIN[Firebase Admin SDK<br/>Opcional]
         WS[WebSocket Gateway<br/>Socket.io]
         RT[Realtime Service]
+        DB_NOTIF[(AppNotification<br/>+ NotificationRead)]
         DB_TOKENS[(DeviceToken)]
         DB_TEMPLATES[(NotificationTemplate)]
     end
 
     subgraph Frontend["📱 Frontend (Angular PWA)"]
         SW[Service Worker<br/>firebase-messaging-sw.js]
-        PUSH_SVC[PushNotifications Service<br/>Firebase Messaging SDK]
-        STORAGE[NotificationStorage Service<br/>IndexedDB]
+        PUSH_SVC[PushNotifications Service<br/>FCM Token Registration]
+        API_SVC[NotificationsApi Service<br/>HTTP Client]
+        WS_SVC[WebSocket Service<br/>Real-time]
         NGXS[NGXS Notifications State]
         BELL[Notification Bell<br/>+ Badge]
         CENTER[Notification Center<br/>Panel]
@@ -44,118 +48,128 @@ flowchart TB
     WORK -->|sendToUser| NS
     ADMIN_API -->|sendNotification| NS
 
-    %% Notification service flow
+    %% Notification service flow - always persist
+    NS -->|persist| DB_NOTIF
+    NS -->|WebSocket emit| RT
+    NS -->|optional FCM| FCM_ADMIN
     NS --> DB_TOKENS
     NS --> DB_TEMPLATES
-    NS --> FCM_ADMIN
-    FCM_ADMIN -->|HTTP| FIREBASE
+    FCM_ADMIN -.->|HTTP| FIREBASE
 
-    %% Firebase to frontend
-    FIREBASE -->|Push Background| SW
-    FIREBASE -->|Push Foreground| PUSH_SVC
+    %% WebSocket primary delivery
+    RT --> WS
+    WS -->|notification.new| WS_SVC
+    WS_SVC -->|AddNotification| NGXS
 
-    %% Frontend processing
-    SW -->|Guarda en| STORAGE
-    SW -->|showNotification| OS_NOTIF[Notificación Nativa OS]
-    PUSH_SVC -->|onMessage| NGXS
-    NGXS -->|Guarda en| STORAGE
+    %% Firebase optional OS notifications
+    FIREBASE -.->|Push Background| SW
+    SW -.->|showNotification| OS_NOTIF[Notificación Nativa OS]
+
+    %% Frontend API loading
+    API_SVC -->|GET /notifications/my| ADMIN_API
+    API_SVC -->|PATCH /:id/read| ADMIN_API
+    NGXS -->|LoadNotifications| API_SVC
     NGXS --> BELL
     NGXS --> CENTER
-
-    %% WebSocket (realtime events, no push)
-    RT --> WS
-    WS -.->|Socket.io| PUSH_SVC
 
     %% Admin UI
     ADMIN_UI -->|POST /send| ADMIN_API
 
-    %% Prompt flow
+    %% FCM token registration (optional)
     PROMPT -->|requestPermission| PUSH_SVC
     PUSH_SVC -->|POST /register-token| ADMIN_API
 
     %% Styles
     style FIREBASE fill:#f59e0b,color:#000
-    style FCM_ADMIN fill:#6366f1,color:#fff
+    style FCM_ADMIN fill:#94a3b8,color:#fff
     style NS fill:#22c55e,color:#fff
     style SCHED fill:#3b82f6,color:#fff
-    style SW fill:#ec4899,color:#fff
+    style SW fill:#94a3b8,color:#fff
     style NGXS fill:#8b5cf6,color:#fff
+    style RT fill:#22c55e,color:#fff
+    style DB_NOTIF fill:#f97316,color:#fff
+    style WS_SVC fill:#22c55e,color:#fff
+    style API_SVC fill:#3b82f6,color:#fff
 ```
 
 ---
 
 ## Canales de Notificación
 
-La app tiene **2 canales** de comunicación en tiempo real:
+La app tiene **2 canales** de entrega, con roles claramente separados:
 
-### 1. Firebase Cloud Messaging (FCM) — Push Notifications
+### 1. WebSocket (Socket.io) — Canal Primario In-App
 
-Canal principal para notificaciones al usuario. Funciona en background y foreground.
+Canal principal para entrega de notificaciones in-app en tiempo real. **Funciona siempre**, independientemente de los permisos de push del usuario.
+
+```mermaid
+sequenceDiagram
+    participant Backend as Backend (NestJS)
+    participant DB as AppNotification DB
+    participant RT as Realtime Service
+    participant GW as WebSocket Gateway
+    participant App as Angular App
+    participant NGXS as NGXS State
+    participant User as Usuario
+
+    Note over Backend,User: � ENVÍO (usuario con app abierta)
+    Backend->>DB: persistNotification(title, body, senderUserId)
+    Backend->>RT: notifyNewNotification(userId, event)
+    RT->>GW: emitToUser('notification.new', data)
+    GW->>App: WebSocket event
+    App->>NGXS: AddNotification
+    NGXS->>User: 🔔 Badge en campana + panel
+
+    Note over Backend,User: 📤 BROADCAST (excluye al sender)
+    Backend->>DB: persistNotification(targetType=BROADCAST)
+    Backend->>RT: broadcastExcept(senderUserId, event)
+    RT->>GW: emitToAllExcept(senderUserId)
+    GW->>App: WebSocket event (no llega al admin que envió)
+
+    Note over Backend,User: � CARGA INICIAL (login o refresh)
+    App->>Backend: GET /notifications/my
+    Backend->>DB: query(targetUserId + broadcasts, exclude sender)
+    DB-->>Backend: notifications[] con read status
+    Backend-->>App: { notifications, total }
+    App->>NGXS: patchState({ notifications })
+    NGXS->>User: 🔔 Badge + lista actualizada
+```
+
+### 2. Firebase Cloud Messaging (FCM) — Opcional, Solo OS Nativo
+
+Canal complementario para notificaciones nativas del sistema operativo. **Solo funciona si el usuario otorgó permisos de push.** No afecta las notificaciones in-app.
 
 ```mermaid
 sequenceDiagram
     participant Backend as Backend (NestJS)
     participant FCM as Firebase Cloud<br/>Messaging
     participant SW as Service Worker
-    participant App as Angular App
-    participant IDB as IndexedDB
     participant User as Usuario
 
-    Note over Backend,User: 📲 REGISTRO DE TOKEN (una vez)
-    App->>App: checkSupport() + requestPermission()
-    App->>SW: navigator.serviceWorker.register()
-    App->>FCM: getToken(vapidKey)
-    FCM-->>App: fcm-token-abc123
-    App->>Backend: POST /notifications/register-token<br/>{token, platform: 'web'}
-    Backend->>Backend: Guarda DeviceToken en DB
+    Note over Backend,User: � REGISTRO (opcional, una vez)
+    Note right of User: Solo si permiso = 'granted'<br/>y preferencia = 'enabled'
 
-    Note over Backend,User: 📤 ENVÍO (background - app cerrada/minimizada)
+    Note over Backend,User: 📤 ENVÍO (background - app cerrada)
     Backend->>FCM: admin.messaging().send({token, notification, data})
     FCM->>SW: onBackgroundMessage(payload)
-    SW->>IDB: saveNotificationToIndexedDB()
     SW->>User: self.registration.showNotification()<br/>🔔 Notificación nativa del OS
-
-    Note over Backend,User: 📤 ENVÍO (foreground - app abierta)
-    Backend->>FCM: admin.messaging().send({token, notification, data})
-    FCM->>App: onMessage(payload)
-    App->>IDB: saveNotification()
-    App->>App: NGXS AddNotification
-    App->>User: 🔔 Badge en campana + panel
+    Note right of SW: Sin IndexedDB.<br/>Solo muestra notificación nativa.
 ```
 
-### 2. WebSocket (Socket.io) — Eventos en Tiempo Real
-
-Canal secundario para eventos de la app (NO push notifications).
+### 3. Otros Eventos WebSocket
 
 ```mermaid
 sequenceDiagram
     participant Client as Angular App
-    participant GW as WebSocket Gateway<br/>/events
+    participant GW as WebSocket Gateway
     participant RT as Realtime Service
-    participant Module as Otros Módulos
 
-    Note over Client,Module: 🔌 CONEXIÓN
-    Client->>GW: connect (Bearer token)
-    GW->>GW: validateToken(JWT)
-    GW->>GW: join room user:{userId}
-    GW->>GW: join room admin (si admin)
-    GW->>GW: join room trainer:{id} (si trainer)
-
-    Note over Client,Module: 📡 EVENTOS DISPONIBLES
-    Module->>RT: notifyRoutineUpdate(userId, event)
     RT->>GW: emitToUser('routine.updated', data)
     GW->>Client: evento routine.updated
 
-    Module->>RT: notifyProgressLogged(trainerId, event)
     RT->>GW: emitToTrainer('progress.logged', data)
     GW->>Client: evento progress.logged
-
-    Module->>RT: notifyNewNotification(userId, event)
-    RT->>GW: emitToUser('notification.new', data)
-    GW->>Client: evento notification.new
 ```
-
-> **Nota**: El evento `notification.new` por WebSocket fue **deshabilitado** en `sendToUser()` para evitar duplicados con FCM. El comentario en el código dice: _"Don't send WebSocket notification - FCM handles it. WebSocket was causing duplicate notifications."_
 
 ---
 
@@ -189,10 +203,14 @@ flowchart LR
     M2 -->|sendToUser| T
     M3 -->|sendByTemplate| T
 
-    T -->|FCM Push| U[Usuario]
+    T -->|1. Persist DB| U[(AppNotification)]
+    T -->|2. WebSocket| V[In-App Bell]
+    T -.->|3. FCM opcional| W[OS Nativo]
 
     style T fill:#22c55e,color:#fff
-    style U fill:#3b82f6,color:#fff
+    style U fill:#f97316,color:#fff
+    style V fill:#3b82f6,color:#fff
+    style W fill:#94a3b8,color:#fff
 ```
 
 ---
@@ -216,8 +234,29 @@ Templates predefinidas almacenadas en la tabla `notification_templates`:
 ```mermaid
 erDiagram
     User ||--o{ DeviceToken : "registra dispositivos"
-    User ||--o{ Membership : "tiene"
-    Membership ||--o{ Payment : "genera"
+    User ||--o{ AppNotification : "recibe (targetUserId)"
+    User ||--o{ AppNotification : "envía (senderUserId)"
+    User ||--o{ NotificationRead : "marca como leída"
+    AppNotification ||--o{ NotificationRead : "tiene lecturas"
+
+    AppNotification {
+        uuid id PK
+        varchar title
+        varchar body
+        varchar type "nullable"
+        enum targetType "user | broadcast"
+        uuid targetUserId FK "nullable para broadcast"
+        uuid senderUserId FK "nullable para sistema"
+        json data "nullable"
+        datetime createdAt
+    }
+
+    NotificationRead {
+        uuid id PK
+        uuid notificationId FK
+        uuid userId FK
+        datetime readAt
+    }
 
     NotificationTemplate {
         uuid id PK
@@ -241,9 +280,18 @@ erDiagram
     NotificationTemplate ||--o{ CRON_TRIGGER : "usado por"
 ```
 
+### Lógica de Sender Exclusion
+
+| Campo                       | Valor                              | Significado                            |
+| --------------------------- | ---------------------------------- | -------------------------------------- |
+| `senderUserId = NULL`       | Notificación de sistema (cron, PR) | Todos la ven                           |
+| `senderUserId = admin-uuid` | Admin envió manualmente            | Admin **no** la ve en su campana       |
+| `targetType = 'broadcast'`  | Para todos los usuarios            | 1 fila, lecturas en `NotificationRead` |
+| `targetType = 'user'`       | Para usuario específico            | `targetUserId` indica el destinatario  |
+
 ---
 
-## Frontend: Flujo de Permisos y Preferencias
+## Frontend: Flujo de Inicialización
 
 ```mermaid
 stateDiagram-v2
@@ -251,85 +299,65 @@ stateDiagram-v2
 
     AppLoad --> CheckAuth: MainLayout.ngOnInit()
     CheckAuth --> NotAuthenticated: No autenticado
-    CheckAuth --> CheckSupport: Autenticado
+    CheckAuth --> InitNotifications: Autenticado
 
     NotAuthenticated --> [*]: Skip
 
-    CheckSupport --> iOSNoPWA: iOS sin PWA instalada
-    CheckSupport --> NotSupported: Navegador no soporta
-    CheckSupport --> Supported: Navegador soporta
+    state InitNotifications {
+        [*] --> LoadFromAPI: GET /notifications/my
+        LoadFromAPI --> SubscribeWS: WebSocket subscription
+        SubscribeWS --> SetupFCM: FCM setup (opcional)
 
-    iOSNoPWA --> ShowPWAPrompt: Mostrar "Instala la app"
-    NotSupported --> [*]: Skip silencioso
+        state SetupFCM {
+            [*] --> CheckPermission
+            CheckPermission --> PermGranted: granted + enabled
+            CheckPermission --> Skip: default/denied/dismissed
+            PermGranted --> RegisterToken: getAndRegisterToken()
+            Skip --> [*]
+            RegisterToken --> [*]
+        }
+    }
 
-    Supported --> CheckPermission
-
-    CheckPermission --> PermDefault: permission = 'default'
-    CheckPermission --> PermGranted: permission = 'granted'
-    CheckPermission --> PermDenied: permission = 'denied'
-
-    PermDefault --> ShowPrompt: Mostrar prompt "Activar notificaciones"
-    PermDenied --> [*]: No se puede hacer nada
-
-    PermGranted --> CheckUserPref
-    CheckUserPref --> Enabled: localStorage = 'enabled'
-    CheckUserPref --> NoPref: Sin preferencia
-    CheckUserPref --> Dismissed: localStorage = 'dismissed'
-
-    NoPref --> ShowPrompt: Mostrar prompt
-    Dismissed --> [*]: No mostrar
-
-    ShowPrompt --> UserAccepts: Click "Activar"
-    ShowPrompt --> UserDismisses: Click "Ahora no"
-
-    UserAccepts --> RequestPermission: Notification.requestPermission()
-    RequestPermission --> GetToken: permission granted
-    GetToken --> RegisterToken: getToken(vapidKey)
-    RegisterToken --> SavePref: POST /register-token
-    SavePref --> Active: localStorage = 'enabled'
-
-    UserDismisses --> SaveDismissed: localStorage = 'dismissed'
-    SaveDismissed --> [*]
-
-    Enabled --> RegisterFCM: getAndRegisterToken()
-    RegisterFCM --> SyncIDB: Cargar de IndexedDB
-    SyncIDB --> ListenForeground: onMessage listener
-    ListenForeground --> Active
-
-    Active --> ReceiveNotification: FCM push llega
-    ReceiveNotification --> Active
+    InitNotifications --> Active: Notificaciones listas
+    Active --> ReceiveWS: WebSocket notification.new
+    ReceiveWS --> Active: AddNotification al NGXS state
 ```
+
+> **Importante**: Las notificaciones in-app se cargan **siempre** desde el backend API, independientemente del estado de FCM. El usuario ve notificaciones en la campana aunque nunca haya aceptado permisos de push.
 
 ---
 
-## Frontend: Almacenamiento Local
+## Persistencia y Estado
 
 ```mermaid
 flowchart TB
-    subgraph Storage["💾 Persistencia de Notificaciones"]
-        IDB[(IndexedDB<br/>fitflow-notifications)]
-        LS[(localStorage<br/>Preferencias)]
-        NGXS_S[NGXS State<br/>En memoria]
+    subgraph Backend["�️ Fuente de Verdad (MySQL)"]
+        DB_N[(AppNotification)]
+        DB_R[(NotificationRead)]
+    end
+
+    subgraph Frontend["📱 Estado en Memoria"]
+        NGXS_S[NGXS Notifications State<br/>notifications: AppNotificationDto[]]
+        LS[(localStorage<br/>Preferencias FCM)]
     end
 
     subgraph Writes["Escrituras"]
-        SW_W[Service Worker<br/>Background msg] -->|put| IDB
-        FG_W[Foreground msg] -->|saveNotification| IDB
-        FG_W -->|AddNotification| NGXS_S
+        API_W[Backend persiste] -->|sendToUser / sendToAll| DB_N
+        MARK_W[Mark as read] -->|PATCH /:id/read| DB_R
+        MARK_ALL[Mark all read] -->|PATCH /read-all| DB_R
+        WS_W[WebSocket event] -->|AddNotification| NGXS_S
         PREF[User Preference] -->|setItem| LS
     end
 
     subgraph Reads["Lecturas"]
-        IDB -->|getAllNotifications<br/>on visibility change| NGXS_S
-        LS -->|getItem<br/>notification_preference_{userId}| INIT[Initialization Check]
+        DB_N -->|GET /notifications/my<br/>con LEFT JOIN NotificationRead| NGXS_S
+        LS -->|notification_preference_{userId}| INIT[FCM Init Check]
         NGXS_S -->|selectSignal| BELL_R[Bell Badge]
         NGXS_S -->|selectSignal| CENTER_R[Notification List]
     end
-
-    subgraph Keys["Claves localStorage"]
-        K1["notification_preference_{userId}<br/>= 'enabled' | 'dismissed' | null"]
-    end
 ```
+
+> **Nota**: IndexedDB fue eliminado. El backend es la única fuente de verdad. El NGXS state es un cache en memoria que se hidrata desde el API al login/refresh y se actualiza en real-time via WebSocket.
 
 ---
 
