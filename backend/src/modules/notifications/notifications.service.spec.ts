@@ -5,6 +5,9 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { DeviceToken, DevicePlatform } from './entities/device-token.entity';
 import { NotificationTemplate, NotificationType } from './entities/notification-template.entity';
+import { AppNotification } from './entities/notification.entity';
+import { NotificationRead } from './entities/notification-read.entity';
+import { RealtimeService } from '../websocket/realtime.service';
 
 describe('NotificationsService', () => {
   let service: NotificationsService;
@@ -14,7 +17,7 @@ describe('NotificationsService', () => {
     find: jest.fn(),
     create: jest.fn(),
     save: jest.fn(),
-    delete: jest.fn(),
+    delete: jest.fn().mockResolvedValue({ affected: 0 }),
   };
 
   const mockTemplateRepository = {
@@ -24,8 +27,29 @@ describe('NotificationsService', () => {
     save: jest.fn(),
   };
 
+  const mockNotificationRepository = {
+    findOne: jest.fn(),
+    find: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
+    createQueryBuilder: jest.fn(),
+  };
+
+  const mockNotificationReadRepository = {
+    findOne: jest.fn(),
+    find: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
+  };
+
   const mockConfigService = {
     get: jest.fn().mockReturnValue(null),
+  };
+
+  const mockRealtimeService = {
+    notifyNewNotification: jest.fn(),
+    broadcast: jest.fn(),
+    broadcastExcept: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -41,8 +65,20 @@ describe('NotificationsService', () => {
           useValue: mockTemplateRepository,
         },
         {
+          provide: getRepositoryToken(AppNotification),
+          useValue: mockNotificationRepository,
+        },
+        {
+          provide: getRepositoryToken(NotificationRead),
+          useValue: mockNotificationReadRepository,
+        },
+        {
           provide: ConfigService,
           useValue: mockConfigService,
+        },
+        {
+          provide: RealtimeService,
+          useValue: mockRealtimeService,
         },
       ],
     }).compile();
@@ -60,30 +96,20 @@ describe('NotificationsService', () => {
     const userId = 'user-123';
     const dto = { token: 'fcm-token-123', platform: DevicePlatform.WEB };
 
-    it('should return existing token if already registered', async () => {
-      const existingToken = { id: '1', userId, ...dto };
-      mockDeviceTokenRepository.findOne.mockResolvedValue(existingToken);
-
-      const result = await service.registerToken(userId, dto);
-
-      expect(result).toEqual(existingToken);
-      expect(mockDeviceTokenRepository.save).not.toHaveBeenCalled();
-    });
-
-    it('should create new token if not exists', async () => {
+    it('should delete existing tokens and create a new one', async () => {
       const newToken = { id: '1', userId, ...dto };
-      mockDeviceTokenRepository.findOne.mockResolvedValue(null);
       mockDeviceTokenRepository.create.mockReturnValue(newToken);
       mockDeviceTokenRepository.save.mockResolvedValue(newToken);
 
       const result = await service.registerToken(userId, dto);
 
+      expect(mockDeviceTokenRepository.delete).toHaveBeenCalledWith({ token: dto.token });
       expect(mockDeviceTokenRepository.create).toHaveBeenCalledWith({
         userId,
         token: dto.token,
         platform: dto.platform,
       });
-      expect(mockDeviceTokenRepository.save).toHaveBeenCalled();
+      expect(mockDeviceTokenRepository.save).toHaveBeenCalledWith(newToken);
       expect(result).toEqual(newToken);
     });
   });
@@ -121,18 +147,34 @@ describe('NotificationsService', () => {
   });
 
   describe('sendToUser', () => {
-    it('should return success false when Firebase not initialized', async () => {
-      const result = await service.sendToUser('user-123', 'Title', 'Body');
+    const mockNotification = { id: 'notif-1', createdAt: new Date() };
 
-      expect(result).toEqual({ success: false, sent: 0 });
+    beforeEach(() => {
+      mockNotificationRepository.create.mockReturnValue(mockNotification);
+      mockNotificationRepository.save.mockResolvedValue(mockNotification);
     });
 
-    it('should return success false when Firebase not initialized (even with no tokens)', async () => {
-      mockDeviceTokenRepository.find.mockResolvedValue([]);
-
+    it('should persist notification and emit via WebSocket', async () => {
       const result = await service.sendToUser('user-123', 'Title', 'Body');
 
-      expect(result).toEqual({ success: false, sent: 0 });
+      expect(mockNotificationRepository.create).toHaveBeenCalled();
+      expect(mockNotificationRepository.save).toHaveBeenCalled();
+      expect(mockRealtimeService.notifyNewNotification).toHaveBeenCalledWith(
+        'user-123',
+        expect.objectContaining({
+          notificationId: 'notif-1',
+          title: 'Title',
+          body: 'Body',
+        })
+      );
+      expect(result).toEqual({ success: true, sent: 0, notificationId: 'notif-1' });
+    });
+
+    it('should return sent 0 when Firebase not initialized (FCM skipped)', async () => {
+      const result = await service.sendToUser('user-123', 'Title', 'Body');
+
+      expect(result.sent).toBe(0);
+      expect(result.success).toBe(true);
     });
   });
 
@@ -162,6 +204,20 @@ describe('NotificationsService', () => {
     it('should throw BadRequestException when only title provided', async () => {
       await expect(service.sendNotification({ title: 'Test' })).rejects.toThrow(
         BadRequestException
+      );
+    });
+
+    it('should pass senderUserId to sendToAll for broadcast', async () => {
+      const mockNotification = { id: 'notif-1', createdAt: new Date() };
+      mockNotificationRepository.create.mockReturnValue(mockNotification);
+      mockNotificationRepository.save.mockResolvedValue(mockNotification);
+
+      await service.sendNotification({ broadcast: true, title: 'Hi', body: 'World' }, 'admin-1');
+
+      expect(mockRealtimeService.broadcastExcept).toHaveBeenCalledWith(
+        'admin-1',
+        'notification.new',
+        expect.objectContaining({ title: 'Hi' })
       );
     });
   });
