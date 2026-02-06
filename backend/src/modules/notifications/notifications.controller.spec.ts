@@ -76,7 +76,7 @@ describe('NotificationsController', () => {
 
       mockNotificationsService.sendNotification.mockResolvedValue(expectedResult);
 
-      const result = await controller.sendNotification(dto);
+      const result = await controller.sendNotification(senderId, dto);
 
       expect(result).toEqual(expectedResult);
       expect(mockNotificationsService.sendNotification).toHaveBeenCalledWith(dto, senderId);
@@ -93,7 +93,7 @@ describe('NotificationsController', () => {
 
       mockNotificationsService.sendNotification.mockResolvedValue(expectedResult);
 
-      const result = await controller.sendNotification(dto);
+      const result = await controller.sendNotification(senderId, dto);
 
       expect(result).toEqual(expectedResult);
       expect(mockNotificationsService.sendNotification).toHaveBeenCalledWith(dto, senderId);

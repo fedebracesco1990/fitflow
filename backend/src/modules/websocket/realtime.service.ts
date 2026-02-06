@@ -47,6 +47,11 @@ export class RealtimeService {
     this.eventsGateway.emitToAll(event, data);
   }
 
+  broadcastExcept(excludeUserId: string, event: string, data: unknown): void {
+    this.logger.debug(`Broadcasting ${event} to all except user:${excludeUserId}`);
+    this.eventsGateway.emitToAllExcept(excludeUserId, event, data);
+  }
+
   isUserOnline(userId: string): boolean {
     return this.eventsGateway.isUserConnected(userId);
   }

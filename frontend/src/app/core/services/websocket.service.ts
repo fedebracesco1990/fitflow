@@ -110,8 +110,6 @@ export class WebSocketService {
     this.socket.on('notification.new', (data: NotificationEvent) => {
       console.log('[WebSocket] notification.new:', data);
       this._notificationNew.next(data);
-      // Note: Don't dispatch AddNotification here - FCM foreground listener handles it
-      // This event is only for real-time UI updates (e.g., sound, badge)
     });
   }
 }

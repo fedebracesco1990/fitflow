@@ -8,7 +8,7 @@ import {
   RemoveNotification,
   ClearAllNotifications,
 } from '../../../core/store';
-import { PushNotification } from '../../../core/services';
+import { AppNotificationDto } from '../../../core/services/notifications-api.service';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -64,7 +64,7 @@ import { LucideAngularModule } from 'lucide-angular';
                 <div class="notification-content">
                   <strong class="title">{{ notification.title }}</strong>
                   <p class="body">{{ notification.body }}</p>
-                  <span class="time">{{ notification.timestamp | date: 'dd/MM HH:mm' }}</span>
+                  <span class="time">{{ notification.createdAt | date: 'dd/MM HH:mm' }}</span>
                 </div>
                 <button
                   class="remove-btn"
@@ -263,7 +263,7 @@ export class NotificationCenterComponent {
 
   notifications = this.store.selectSignal(NotificationsState.notifications);
 
-  onNotificationClick(notification: PushNotification): void {
+  onNotificationClick(notification: AppNotificationDto): void {
     if (!notification.read) {
       this.store.dispatch(new MarkAsRead(notification.id));
     }

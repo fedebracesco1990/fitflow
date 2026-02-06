@@ -1,10 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage, Messaging } from 'firebase/messaging';
+import { getMessaging, getToken, Messaging } from 'firebase/messaging';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiService } from './api.service';
-import { StorageService } from './storage.service';
 
 export type NotificationPermissionStatus = 'default' | 'granted' | 'denied';
 
@@ -16,22 +15,11 @@ export interface PushNotificationSupport {
   message?: string;
 }
 
-export interface PushNotification {
-  id: string;
-  title: string;
-  body: string;
-  timestamp: Date;
-  read: boolean;
-  data?: Record<string, string>;
-}
-
 @Injectable({
   providedIn: 'root',
 })
 export class PushNotificationsService {
-  private readonly http = inject(HttpClient);
   private readonly apiService = inject(ApiService);
-  private readonly storage = inject(StorageService);
   private messaging: Messaging | null = null;
   private initialized = false;
 
@@ -130,26 +118,10 @@ export class PushNotificationsService {
   }
 
   private async registerTokenInBackend(token: string): Promise<void> {
-    const accessToken = this.storage.getAccessToken();
-
-    if (!accessToken) {
-      console.warn('[PushNotifications] No access token, cannot register FCM token');
-      return;
-    }
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    });
-
     try {
-      await this.http
-        .post(
-          `${environment.apiUrl}/notifications/register-token`,
-          { token, platform: 'web' },
-          { headers }
-        )
-        .toPromise();
+      await firstValueFrom(
+        this.apiService.post('notifications/register-token', { token, platform: 'web' })
+      );
       console.log('[PushNotifications] FCM token registered in backend successfully');
     } catch (error) {
       console.error('[PushNotifications] Failed to register FCM token in backend:', error);
@@ -158,42 +130,9 @@ export class PushNotificationsService {
 
   async unregisterToken(token: string): Promise<void> {
     try {
-      await this.apiService.delete(`notifications/unregister-token?token=${token}`).toPromise();
+      await firstValueFrom(this.apiService.delete(`notifications/unregister-token?token=${token}`));
     } catch (error) {
       console.error('Failed to unregister token:', error);
     }
-  }
-
-  private foregroundListenerRegistered = false;
-
-  onForegroundMessage(callback: (payload: PushNotification) => void): void {
-    if (!this.messaging) {
-      console.warn(
-        '[PushNotifications] Cannot register foreground listener - messaging not initialized'
-      );
-      return;
-    }
-
-    if (this.foregroundListenerRegistered) {
-      console.log('[PushNotifications] Foreground listener already registered, skipping');
-      return;
-    }
-
-    this.foregroundListenerRegistered = true;
-    console.log('[PushNotifications] Registering foreground message listener');
-    onMessage(this.messaging, (payload) => {
-      console.log('[PushNotifications] Foreground message received:', payload);
-      // Use server timestamp as ID to avoid duplicates from multiple sources
-      const serverTimestamp = payload.data?.['timestamp'] || Date.now().toString();
-      const notification: PushNotification = {
-        id: `notif-${serverTimestamp}`,
-        title: payload.notification?.title || 'FitFlow',
-        body: payload.notification?.body || '',
-        timestamp: new Date(parseInt(serverTimestamp)),
-        read: false,
-        data: payload.data as Record<string, string>,
-      };
-      callback(notification);
-    });
   }
 }

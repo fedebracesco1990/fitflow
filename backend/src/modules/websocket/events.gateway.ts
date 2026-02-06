@@ -84,6 +84,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     this.server.emit(event, data);
   }
 
+  emitToAllExcept(excludeUserId: string, event: string, data: unknown): void {
+    this.server.except(`user:${excludeUserId}`).emit(event, data);
+  }
+
   getConnectedClientsCount(): number {
     return this.connectedClients.size;
   }

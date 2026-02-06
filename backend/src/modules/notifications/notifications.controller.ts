@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, Get, Body, Param, Query } from '@nestjs/common';
+import { Controller, Post, Delete, Get, Patch, Body, Param, Query } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { RegisterTokenDto, SendNotificationDto, CreateTemplateDto, UpdateTemplateDto } from './dto';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -8,6 +8,34 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
+
+  // ─── In-App Notification Endpoints ────────────────────────────────
+
+  @Get('my')
+  async getMyNotifications(
+    @CurrentUser('userId') userId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string
+  ) {
+    return this.notificationsService.getUserNotifications(
+      userId,
+      limit ? parseInt(limit, 10) : 50,
+      offset ? parseInt(offset, 10) : 0
+    );
+  }
+
+  @Patch(':id/read')
+  async markAsRead(@CurrentUser('userId') userId: string, @Param('id') notificationId: string) {
+    await this.notificationsService.markAsRead(notificationId, userId);
+    return { message: 'Notification marked as read' };
+  }
+
+  @Patch('read-all')
+  async markAllAsRead(@CurrentUser('userId') userId: string) {
+    return this.notificationsService.markAllAsRead(userId);
+  }
+
+  // ─── Existing Endpoints ───────────────────────────────────────────
 
   @Get('debug/tokens')
   @Roles(Role.ADMIN)
@@ -34,8 +62,8 @@ export class NotificationsController {
 
   @Post('send')
   @Roles(Role.ADMIN)
-  async sendNotification(@Body() dto: SendNotificationDto) {
-    return this.notificationsService.sendNotification(dto);
+  async sendNotification(@CurrentUser('userId') userId: string, @Body() dto: SendNotificationDto) {
+    return this.notificationsService.sendNotification(dto, userId);
   }
 
   @Get('templates')

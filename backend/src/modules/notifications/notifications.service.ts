@@ -9,7 +9,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
-import { DeviceToken, NotificationTemplate, NotificationType } from './entities';
+import {
+  DeviceToken,
+  NotificationTemplate,
+  NotificationType,
+  AppNotification,
+  NotificationTargetType,
+  NotificationRead,
+} from './entities';
 import { RegisterTokenDto, SendNotificationDto, CreateTemplateDto, UpdateTemplateDto } from './dto';
 import { RealtimeService } from '../websocket/realtime.service';
 
@@ -23,6 +30,10 @@ export class NotificationsService implements OnModuleInit {
     private readonly deviceTokenRepository: Repository<DeviceToken>,
     @InjectRepository(NotificationTemplate)
     private readonly templateRepository: Repository<NotificationTemplate>,
+    @InjectRepository(AppNotification)
+    private readonly notificationRepository: Repository<AppNotification>,
+    @InjectRepository(NotificationRead)
+    private readonly notificationReadRepository: Repository<NotificationRead>,
     private readonly configService: ConfigService,
     private readonly realtimeService: RealtimeService
   ) {}
@@ -157,42 +168,52 @@ export class NotificationsService implements OnModuleInit {
   async sendToUser(
     userId: string,
     title: string,
-    body: string
-  ): Promise<{ success: boolean; sent: number }> {
-    if (!this.firebaseInitialized) {
-      this.logger.warn('Firebase not initialized. Notification not sent.');
-      return { success: false, sent: 0 };
-    }
+    body: string,
+    type?: string,
+    senderUserId?: string
+  ): Promise<{ success: boolean; sent: number; notificationId: string }> {
+    // Always persist the notification server-side
+    const notification = await this.persistNotification({
+      title,
+      body,
+      type,
+      targetType: NotificationTargetType.USER,
+      targetUserId: userId,
+      senderUserId: senderUserId ?? null,
+    });
 
-    const tokens = await this.deviceTokenRepository.find({ where: { userId } });
+    // Always emit via WebSocket for in-app delivery
+    this.realtimeService.notifyNewNotification(userId, {
+      notificationId: notification.id,
+      title,
+      body,
+      type,
+      timestamp: notification.createdAt,
+    });
 
-    if (tokens.length === 0) {
-      this.logger.log(`No device tokens found for user ${userId}`);
-      return { success: true, sent: 0 };
-    }
-
-    const tokenStrings = tokens.map((t) => t.token);
+    // FCM push is optional - only send if Firebase is initialized
     let sent = 0;
-
-    for (const token of tokenStrings) {
-      try {
-        const message = this.buildMessagePayload(token, title, body, 'direct');
-        await admin.messaging().send(message);
-        sent++;
-      } catch (error: unknown) {
-        this.logger.error(`Failed to send notification to token: ${token}`, error);
-        await this.handleInvalidToken(token, error);
+    if (this.firebaseInitialized) {
+      const tokens = await this.deviceTokenRepository.find({ where: { userId } });
+      for (const deviceToken of tokens) {
+        try {
+          const message = this.buildMessagePayload(deviceToken.token, title, body, 'direct');
+          await admin.messaging().send(message);
+          sent++;
+        } catch (error: unknown) {
+          this.logger.error(`Failed to send FCM to token: ${deviceToken.token}`, error);
+          await this.handleInvalidToken(deviceToken.token, error);
+        }
       }
     }
 
-    // Note: Don't send WebSocket notification - FCM handles it
-    // WebSocket was causing duplicate notifications
-    return { success: true, sent };
+    return { success: true, sent, notificationId: notification.id };
   }
 
   async sendByTemplate(
     userId: string,
-    templateType: NotificationType
+    templateType: NotificationType,
+    senderUserId?: string
   ): Promise<{ success: boolean; sent: number }> {
     const template = await this.templateRepository.findOne({
       where: { type: templateType, isActive: true },
@@ -202,66 +223,77 @@ export class NotificationsService implements OnModuleInit {
       throw new NotFoundException(`Template ${templateType} not found or inactive`);
     }
 
-    return this.sendToUser(userId, template.title, template.body);
+    return this.sendToUser(userId, template.title, template.body, undefined, senderUserId);
   }
 
   async sendToAll(
     title: string,
     body: string,
-    excludeUserId?: string
-  ): Promise<{ success: boolean; sent: number }> {
-    if (!this.firebaseInitialized) {
-      this.logger.warn('Firebase not initialized. Broadcast notification not sent.');
-      return { success: false, sent: 0 };
+    senderUserId?: string
+  ): Promise<{ success: boolean; sent: number; notificationId: string }> {
+    // Persist one broadcast notification (targetUserId = null)
+    const notification = await this.persistNotification({
+      title,
+      body,
+      targetType: NotificationTargetType.BROADCAST,
+      targetUserId: null,
+      senderUserId: senderUserId ?? null,
+    });
+
+    // Broadcast via WebSocket for in-app delivery (exclude sender)
+    const wsPayload = {
+      notificationId: notification.id,
+      title,
+      body,
+      type: 'broadcast',
+      timestamp: notification.createdAt,
+    };
+    if (senderUserId) {
+      this.realtimeService.broadcastExcept(senderUserId, 'notification.new', wsPayload);
+    } else {
+      this.realtimeService.broadcast('notification.new', wsPayload);
     }
 
-    let allTokens = await this.deviceTokenRepository.find();
-
-    if (excludeUserId) {
-      allTokens = allTokens.filter((t) => t.userId !== excludeUserId);
-      this.logger.log(`Excluded sender (${excludeUserId}) from broadcast`);
-    }
-
-    if (allTokens.length === 0) {
-      this.logger.log('No device tokens found for broadcast');
-      return { success: true, sent: 0 };
-    }
-
-    const uniqueUsers = new Set(allTokens.map((t) => t.userId)).size;
-    this.logger.log(
-      `Starting broadcast notification to ${allTokens.length} tokens (${uniqueUsers} unique users)`
-    );
+    // FCM push is optional
     let sent = 0;
+    if (this.firebaseInitialized) {
+      let allTokens = await this.deviceTokenRepository.find();
 
-    for (const deviceToken of allTokens) {
-      try {
-        const message = this.buildMessagePayload(deviceToken.token, title, body, 'broadcast');
-        await admin.messaging().send(message);
-        sent++;
-      } catch (error: unknown) {
-        this.logger.error(`Failed to send broadcast to token: ${deviceToken.token}`, error);
-        await this.handleInvalidToken(deviceToken.token, error);
+      if (senderUserId) {
+        allTokens = allTokens.filter((t) => t.userId !== senderUserId);
       }
+
+      for (const deviceToken of allTokens) {
+        try {
+          const message = this.buildMessagePayload(deviceToken.token, title, body, 'broadcast');
+          await admin.messaging().send(message);
+          sent++;
+        } catch (error: unknown) {
+          this.logger.error(`Failed to send broadcast to token: ${deviceToken.token}`, error);
+          await this.handleInvalidToken(deviceToken.token, error);
+        }
+      }
+
+      this.logger.log(`Broadcast FCM sent to ${sent}/${allTokens.length} tokens`);
     }
 
-    this.logger.log(
-      `Broadcast notification sent to ${sent}/${allTokens.length} tokens (${uniqueUsers} users)`
-    );
-    return { success: true, sent };
+    return { success: true, sent, notificationId: notification.id };
   }
 
-  async sendNotification(dto: SendNotificationDto): Promise<{ success: boolean; sent: number }> {
+  async sendNotification(
+    dto: SendNotificationDto,
+    senderUserId?: string
+  ): Promise<{ success: boolean; sent: number }> {
     if (dto.broadcast && dto.title && dto.body) {
-      // Don't exclude sender - admin should receive broadcast too for testing
-      return this.sendToAll(dto.title, dto.body);
+      return this.sendToAll(dto.title, dto.body, senderUserId);
     }
 
     if (dto.templateType && dto.userId) {
-      return this.sendByTemplate(dto.userId, dto.templateType);
+      return this.sendByTemplate(dto.userId, dto.templateType, senderUserId);
     }
 
     if (dto.title && dto.body && dto.userId) {
-      return this.sendToUser(dto.userId, dto.title, dto.body);
+      return this.sendToUser(dto.userId, dto.title, dto.body, undefined, senderUserId);
     }
 
     throw new BadRequestException(
@@ -295,5 +327,121 @@ export class NotificationsService implements OnModuleInit {
 
     Object.assign(template, dto);
     return this.templateRepository.save(template);
+  }
+
+  // ─── In-App Notification Methods ───────────────────────────────────
+
+  private async persistNotification(params: {
+    title: string;
+    body: string;
+    type?: string;
+    targetType: NotificationTargetType;
+    targetUserId: string | null;
+    senderUserId: string | null;
+    data?: Record<string, unknown>;
+  }): Promise<AppNotification> {
+    const notification = this.notificationRepository.create({
+      title: params.title,
+      body: params.body,
+      type: params.type ?? null,
+      targetType: params.targetType,
+      targetUserId: params.targetUserId,
+      senderUserId: params.senderUserId,
+      data: params.data ?? null,
+    });
+    const saved = await this.notificationRepository.save(notification);
+    this.logger.debug(`Persisted notification ${saved.id} (${params.targetType})`);
+    return saved;
+  }
+
+  async getUserNotifications(
+    userId: string,
+    limit = 50,
+    offset = 0
+  ): Promise<{ notifications: Array<AppNotification & { read: boolean }>; total: number }> {
+    const queryBuilder = this.notificationRepository
+      .createQueryBuilder('n')
+      .leftJoin(NotificationRead, 'nr', 'nr.notificationId = n.id AND nr.userId = :userId', {
+        userId,
+      })
+      .addSelect('CASE WHEN nr.id IS NOT NULL THEN 1 ELSE 0 END', 'isRead')
+      .where('n.targetUserId = :userId OR n.targetType = :broadcast', {
+        userId,
+        broadcast: NotificationTargetType.BROADCAST,
+      })
+      .andWhere('(n.senderUserId != :userId OR n.senderUserId IS NULL)')
+      .orderBy('n.createdAt', 'DESC')
+      .limit(limit)
+      .offset(offset);
+
+    const total = await queryBuilder.getCount();
+    const rawResults = await queryBuilder.getRawAndEntities();
+
+    const notifications = rawResults.entities.map((entity, index) => {
+      const raw = rawResults.raw[index] as Record<string, unknown>;
+      return {
+        ...entity,
+        read: Number(raw?.isRead) === 1,
+      };
+    });
+
+    return { notifications, total };
+  }
+
+  async markAsRead(notificationId: string, userId: string): Promise<void> {
+    const notification = await this.notificationRepository.findOne({
+      where: { id: notificationId },
+    });
+    if (!notification) {
+      throw new NotFoundException(`Notification ${notificationId} not found`);
+    }
+
+    const existing = await this.notificationReadRepository.findOne({
+      where: { notificationId, userId },
+    });
+    if (!existing) {
+      const read = this.notificationReadRepository.create({ notificationId, userId });
+      await this.notificationReadRepository.save(read);
+    }
+  }
+
+  async markAllAsRead(userId: string): Promise<{ marked: number }> {
+    // 1. Get all notification IDs visible to this user
+    const visibleNotifications = await this.notificationRepository
+      .createQueryBuilder('n')
+      .select('n.id')
+      .where('n.targetUserId = :userId OR n.targetType = :broadcast', {
+        userId,
+        broadcast: NotificationTargetType.BROADCAST,
+      })
+      .andWhere('(n.senderUserId != :userId OR n.senderUserId IS NULL)')
+      .getRawMany();
+
+    if (visibleNotifications.length === 0) {
+      return { marked: 0 };
+    }
+
+    const visibleIds: string[] = visibleNotifications.map((r: { n_id: string }) => r.n_id);
+
+    // 2. Get already-read notification IDs for this user
+    const existingReads = await this.notificationReadRepository.find({
+      where: { userId },
+      select: ['notificationId'],
+    });
+    const alreadyReadIds = new Set(existingReads.map((r) => r.notificationId));
+
+    // 3. Create read records only for unread ones
+    const unreadIds = visibleIds.filter((id) => !alreadyReadIds.has(id));
+
+    if (unreadIds.length === 0) {
+      return { marked: 0 };
+    }
+
+    const reads = unreadIds.map((notificationId) =>
+      this.notificationReadRepository.create({ notificationId, userId })
+    );
+    await this.notificationReadRepository.save(reads);
+
+    return { marked: reads.length };
   }
 }

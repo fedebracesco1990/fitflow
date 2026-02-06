@@ -1,7 +1,11 @@
-import { PushNotification } from '../../services/push-notifications.service';
+import { AppNotificationDto } from '../../services/notifications-api.service';
 
 export class InitializeNotifications {
   static readonly type = '[Notifications] Initialize';
+}
+
+export class LoadNotifications {
+  static readonly type = '[Notifications] Load From API';
 }
 
 export class SetPermissionStatus {
@@ -11,7 +15,7 @@ export class SetPermissionStatus {
 
 export class AddNotification {
   static readonly type = '[Notifications] Add';
-  constructor(public payload: PushNotification) {}
+  constructor(public payload: AppNotificationDto) {}
 }
 
 export class MarkAsRead {
