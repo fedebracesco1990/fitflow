@@ -1,7 +1,4 @@
 .reports-page {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
 }
 
 .page-header {
@@ -18,7 +15,7 @@
     font-size: 2rem;
     font-weight: 700;
     color: #1f2937;
-    margin-bottom: 0.5rem;
+    margin-block: 0 0.5rem;
   }
 
   .subtitle {
@@ -102,10 +99,6 @@
 }
 
 @media (max-width: 768px) {
-  .reports-page {
-    padding: 1rem;
-  }
-
   .page-header {
     .header-content {
       flex-direction: column;

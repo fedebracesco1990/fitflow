@@ -1,10 +1,12 @@
-# FitFlow - Esquema de Base de Datos (V2)
+# FitFlow - Esquema de Base de Datos (V3)
 
 Este documento muestra el diagrama de entidades y relaciones de la base de datos.
 
 > **Para visualizar**: Instala el plugin "Markdown Preview Mermaid Support" en VS Code o usa https://mermaid.live
+>
+> **Última actualización**: Febrero 2026
 
-## Diagrama ER - Módulo de Rutinas y Programas
+## Diagrama ER - Completo
 
 ```mermaid
 erDiagram
@@ -15,7 +17,81 @@ erDiagram
         string email UK
         string password
         enum role
+        string refreshToken
+        string resetPasswordTokenHash
+        datetime resetPasswordExpires
         boolean isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    %% ========== MEMBRESÍAS ==========
+    MembershipType {
+        uuid id PK
+        string name
+        text description
+        decimal price
+        int durationDays
+        int gracePeriodDays
+        enum accessType
+        boolean isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    Membership {
+        uuid id PK
+        uuid userId FK
+        uuid membershipTypeId FK
+        date startDate
+        date endDate
+        enum status
+        text notes
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    Payment {
+        uuid id PK
+        uuid membershipId FK
+        uuid registeredById FK
+        decimal amount
+        enum paymentMethod
+        date paymentDate
+        date coverageStart
+        date coverageEnd
+        string reference
+        text notes
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    %% ========== ACCESO ==========
+    AccessLog {
+        uuid id PK
+        uuid userId FK
+        uuid scannedById FK
+        boolean granted
+        string reason
+        datetime createdAt
+    }
+
+    %% ========== NOTIFICACIONES ==========
+    NotificationTemplate {
+        uuid id PK
+        enum type UK
+        string title
+        string body
+        boolean isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    DeviceToken {
+        uuid id PK
+        uuid userId FK
+        string token
+        enum platform
         datetime createdAt
         datetime updatedAt
     }
@@ -26,7 +102,11 @@ erDiagram
         string code UK
         string name
         text description
+        string icon
         int order
+        boolean isActive
+        datetime createdAt
+        datetime updatedAt
     }
 
     Exercise {
@@ -37,7 +117,10 @@ erDiagram
         enum difficulty
         enum equipment
         string videoUrl
+        string imageUrl
         boolean isActive
+        datetime createdAt
+        datetime updatedAt
     }
 
     %% ========== RUTINAS (Templates) ==========
@@ -49,6 +132,12 @@ erDiagram
         enum difficulty
         int estimatedDuration
         boolean isActive
+        boolean isTemplate
+        boolean isDraft
+        enum templateCategory
+        enum type
+        datetime createdAt
+        datetime updatedAt
     }
 
     RoutineExercise {
@@ -59,7 +148,9 @@ erDiagram
         int sets
         int reps
         int restSeconds
+        text notes
         decimal suggestedWeight
+        enum dayOfWeek
     }
 
     %% ========== PROGRAMAS (Templates) ==========
@@ -71,6 +162,8 @@ erDiagram
         enum difficulty
         int totalRoutines
         boolean isActive
+        datetime createdAt
+        datetime updatedAt
     }
 
     ProgramRoutine {
@@ -78,6 +171,7 @@ erDiagram
         uuid programId FK
         uuid routineId FK
         int order
+        datetime createdAt
     }
 
     ProgramRoutineExercise {
@@ -87,7 +181,10 @@ erDiagram
         int order
         int sets
         int reps
+        int restSeconds
         decimal weight
+        text notes
+        datetime createdAt
     }
 
     %% ========== ASIGNACIÓN A USUARIOS (Snapshots) ==========
@@ -99,6 +196,7 @@ erDiagram
         date assignedAt
         date endDate
         boolean isActive
+        datetime createdAt
     }
 
     UserProgramRoutine {
@@ -110,6 +208,7 @@ erDiagram
         int order
         int estimatedDuration
         datetime lastCompletedAt
+        datetime createdAt
     }
 
     UserProgramExercise {
@@ -121,6 +220,9 @@ erDiagram
         int reps
         int restSeconds
         decimal weight
+        text notes
+        datetime createdAt
+        datetime updatedAt
     }
 
     %% ========== REGISTRO DE ENTRENAMIENTOS ==========
@@ -132,6 +234,7 @@ erDiagram
         enum status
         int duration
         text notes
+        datetime createdAt
     }
 
     ExerciseLog {
@@ -142,20 +245,40 @@ erDiagram
         int reps
         decimal weight
         boolean completed
+        text notes
         int rir
         decimal rpe
     }
 
+    %% ========== RÉCORDS PERSONALES ==========
     PersonalRecord {
         uuid id PK
         uuid userId FK
         uuid exerciseId FK
         decimal maxWeight
         int maxWeightReps
+        datetime maxWeightAchievedAt
         decimal maxVolume
+        decimal maxVolumeWeight
+        int maxVolumeReps
+        datetime maxVolumeAchievedAt
+        datetime createdAt
+        datetime updatedAt
     }
 
     %% ========== RELACIONES ==========
+
+    %% Membresías y Pagos
+    User ||--o{ Membership : "tiene"
+    MembershipType ||--o{ Membership : "define"
+    Membership ||--o{ Payment : "genera"
+    User ||--o{ Payment : "registra"
+
+    %% Acceso
+    User ||--o{ AccessLog : "accede"
+
+    %% Notificaciones
+    User ||--o{ DeviceToken : "registra dispositivo"
 
     %% Ejercicios
     MuscleGroup ||--o{ Exercise : "agrupa"
@@ -226,20 +349,52 @@ flowchart TB
     style WL fill:#f59e0b,color:#fff
 ```
 
-## Entidades Principales
+## Entidades por Módulo
 
-| Entidad                    | Tipo      | Descripción                                 |
-| -------------------------- | --------- | ------------------------------------------- |
-| **Routine**                | Template  | Rutina base con ejercicios                  |
-| **RoutineExercise**        | Template  | Ejercicios de la rutina                     |
-| **Program**                | Template  | Programa semanal (agrupa rutinas)           |
-| **ProgramRoutine**         | Template  | Rutina dentro del programa                  |
-| **ProgramRoutineExercise** | Template  | Ejercicios personalizados para el programa  |
-| **UserProgram**            | Snapshot  | Programa asignado a usuario                 |
-| **UserProgramRoutine**     | Snapshot  | Rutina copiada para el usuario              |
-| **UserProgramExercise**    | Snapshot  | Ejercicios copiados (editables por usuario) |
-| **WorkoutLog**             | Ejecución | Registro de sesión de entrenamiento         |
-| **ExerciseLog**            | Ejecución | Registro de cada serie realizada            |
+### Módulo de Usuarios y Acceso
+
+| Entidad       | Tipo | Descripción                              |
+| ------------- | ---- | ---------------------------------------- |
+| **User**      | Core | Usuario del sistema (admin/trainer/user) |
+| **AccessLog** | Log  | Registro de acceso al gimnasio (QR)      |
+
+### Módulo de Membresías y Pagos
+
+| Entidad            | Tipo   | Descripción                    |
+| ------------------ | ------ | ------------------------------ |
+| **MembershipType** | Config | Tipos de membresía disponibles |
+| **Membership**     | Core   | Membresía activa de un usuario |
+| **Payment**        | Log    | Registro de pagos realizados   |
+
+### Módulo de Notificaciones
+
+| Entidad                  | Tipo   | Descripción                      |
+| ------------------------ | ------ | -------------------------------- |
+| **NotificationTemplate** | Config | Plantillas de notificación       |
+| **DeviceToken**          | Core   | Tokens de dispositivos para push |
+
+### Módulo de Rutinas y Programas
+
+| Entidad                    | Tipo     | Descripción                                 |
+| -------------------------- | -------- | ------------------------------------------- |
+| **MuscleGroup**            | Config   | Grupos musculares                           |
+| **Exercise**               | Config   | Ejercicio individual                        |
+| **Routine**                | Template | Rutina base con ejercicios                  |
+| **RoutineExercise**        | Template | Ejercicios de la rutina                     |
+| **Program**                | Template | Programa (agrupa rutinas)                   |
+| **ProgramRoutine**         | Template | Rutina dentro del programa                  |
+| **ProgramRoutineExercise** | Template | Ejercicios personalizados para el programa  |
+| **UserProgram**            | Snapshot | Programa asignado a usuario                 |
+| **UserProgramRoutine**     | Snapshot | Rutina copiada para el usuario              |
+| **UserProgramExercise**    | Snapshot | Ejercicios copiados (editables por usuario) |
+
+### Módulo de Entrenamientos
+
+| Entidad            | Tipo      | Descripción                           |
+| ------------------ | --------- | ------------------------------------- |
+| **WorkoutLog**     | Ejecución | Registro de sesión de entrenamiento   |
+| **ExerciseLog**    | Ejecución | Registro de cada serie realizada      |
+| **PersonalRecord** | Récord    | Mejor marca por ejercicio por usuario |
 
 ## Flujo de Datos
 
@@ -264,9 +419,10 @@ ProgramRoutineExercise → UserProgramExercise (copia ejercicios editables)
 
 ```
 UserProgramRoutine → WorkoutLog (startedAt, timer inicia)
-WorkoutLog → ExerciseLog (cada serie completada)
+WorkoutLog → ExerciseLog (cada serie completada con reps, peso, RIR, RPE)
 WorkoutLog.finishedAt → Timer finaliza
 UserProgramRoutine.lastCompletedAt → Se actualiza
+PersonalRecord → Se verifica y actualiza si hay nuevo PR
 ```
 
 ### 4. Próxima ejecución
@@ -276,10 +432,26 @@ Buscar último WorkoutLog de esta UserProgramRoutine
 Cargar ExerciseLogs → Pre-llenar formulario con últimos valores
 ```
 
-## Entidades Eliminadas
+## Enums Utilizados
+
+| Enum                 | Valores                                                                          | Usado en                   |
+| -------------------- | -------------------------------------------------------------------------------- | -------------------------- |
+| **Role**             | user, admin, trainer                                                             | User                       |
+| **Difficulty**       | beginner, intermediate, advanced                                                 | Exercise, Routine, Program |
+| **Equipment**        | none, barbell, dumbbell, etc.                                                    | Exercise                   |
+| **RoutineType**      | daily, weekly                                                                    | Routine                    |
+| **TemplateCategory** | strength, hypertrophy, endurance, cardio, etc.                                   | Routine                    |
+| **DayOfWeek**        | monday-sunday                                                                    | RoutineExercise            |
+| **WorkoutStatus**    | pending, in_progress, completed, skipped                                         | WorkoutLog                 |
+| **MembershipStatus** | active, expired, cancelled, grace_period                                         | Membership                 |
+| **PaymentMethod**    | cash, card, transfer, other                                                      | Payment                    |
+| **AccessType**       | all_access, etc.                                                                 | MembershipType             |
+| **DevicePlatform**   | web, android, ios                                                                | DeviceToken                |
+| **NotificationType** | MEMBERSHIP_EXPIRING, MEMBERSHIP_EXPIRED, LOW_ATTENDANCE, PERSONAL_RECORD, CUSTOM | NotificationTemplate       |
+
+## Entidades Eliminadas (Historial)
 
 | Entidad                   | Razón                                         |
 | ------------------------- | --------------------------------------------- |
 | ~~UserRoutine~~           | Solo se asignan programas, no rutinas sueltas |
-| ~~dayOfWeek / dayNumber~~ | Sin secuencialidad obligatoria                |
-| ~~Routine.type (WEEKLY)~~ | Program es entidad separada                   |
+| ~~dayOfWeek / dayNumber~~ | Sin secuencialidad obligatoria en programas   |

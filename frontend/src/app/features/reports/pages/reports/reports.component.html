@@ -1,69 +1,67 @@
-<div class="reports-page">
-  <header class="page-header">
-    <div class="header-content">
-      <div>
-        <h1>Centro de Reportes</h1>
-        <p class="subtitle">Análisis financiero y de comportamiento de miembros</p>
-      </div>
-      <div class="header-actions">
-        <fit-flow-button variant="secondary" [disabled]="isExporting()" (click)="exportToCsv()">
-          {{ isExporting() ? 'Exportando...' : 'Exportar CSV' }}
-        </fit-flow-button>
-        <fit-flow-button variant="primary" (click)="openExportDialog()">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          Exportar Reporte
-        </fit-flow-button>
-      </div>
+<header class="page-header">
+  <div class="header-content">
+    <div>
+      <h1>Centro de Reportes</h1>
+      <p class="subtitle">Análisis financiero y de comportamiento de miembros</p>
     </div>
-  </header>
-
-  @if (exportError()) {
-    <fit-flow-alert [message]="exportError()!" type="error"></fit-flow-alert>
-  }
-
-  <div class="reports-content">
-    <div class="tabs-header">
-      <button
-        class="tab-button"
-        [class.active]="activeTab() === 'financial'"
-        (click)="setActiveTab('financial')"
-      >
-        Financiero
-      </button>
-      <button
-        class="tab-button"
-        [class.active]="activeTab() === 'behavior'"
-        (click)="setActiveTab('behavior')"
-      >
-        Uso y Comportamiento
-      </button>
-    </div>
-
-    <div class="tab-content">
-      @if (activeTab() === 'financial') {
-        <fit-flow-financial-tab></fit-flow-financial-tab>
-      }
-
-      @if (activeTab() === 'behavior') {
-        <fit-flow-behavior-tab></fit-flow-behavior-tab>
-      }
+    <div class="header-actions">
+      <fit-flow-button variant="secondary" [disabled]="isExporting()" (click)="exportToCsv()">
+        {{ isExporting() ? 'Exportando...' : 'Exportar CSV' }}
+      </fit-flow-button>
+      <fit-flow-button variant="primary" (click)="openExportDialog()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Exportar Reporte
+      </fit-flow-button>
     </div>
   </div>
+</header>
 
-  <fit-flow-report-history></fit-flow-report-history>
+@if (exportError()) {
+  <fit-flow-alert [message]="exportError()!" type="error"></fit-flow-alert>
+}
+
+<div class="reports-content">
+  <div class="tabs-header">
+    <button
+      class="tab-button"
+      [class.active]="activeTab() === 'financial'"
+      (click)="setActiveTab('financial')"
+    >
+      Financiero
+    </button>
+    <button
+      class="tab-button"
+      [class.active]="activeTab() === 'behavior'"
+      (click)="setActiveTab('behavior')"
+    >
+      Uso y Comportamiento
+    </button>
+  </div>
+
+  <div class="tab-content">
+    @if (activeTab() === 'financial') {
+      <fit-flow-financial-tab></fit-flow-financial-tab>
+    }
+
+    @if (activeTab() === 'behavior') {
+      <fit-flow-behavior-tab></fit-flow-behavior-tab>
+    }
+  </div>
 </div>
+
+<fit-flow-report-history></fit-flow-report-history>
 
 <fit-flow-export-report-dialog
   [isOpen]="isExportDialogOpen()"
