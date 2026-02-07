@@ -18,9 +18,9 @@
     <fit-flow-card padding="lg">
       <div class="empty-state">
         <p>No hay pagos registrados</p>
-        <a routerLink="/payments/new">
-          <fit-flow-button variant="secondary">Registrar primer pago</fit-flow-button>
-        </a>
+        <fit-flow-button variant="secondary" (click)="openPaymentModal()"
+          >Registrar primer pago</fit-flow-button
+        >
       </div>
     </fit-flow-card>
   } @else {

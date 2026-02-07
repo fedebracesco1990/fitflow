@@ -13,12 +13,6 @@ export const PAYMENTS_ROUTES: Routes = [
         title: 'Pagos',
       },
       {
-        path: 'new',
-        loadComponent: () =>
-          import('./pages/form/form.component').then((m) => m.PaymentFormComponent),
-        title: 'Nuevo Pago',
-      },
-      {
         path: ':id/edit',
         loadComponent: () =>
           import('./pages/form/form.component').then((m) => m.PaymentFormComponent),

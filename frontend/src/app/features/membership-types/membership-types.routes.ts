@@ -15,14 +15,6 @@ export const MEMBERSHIP_TYPES_ROUTES: Routes = [
           import('./pages/list/list.component').then((m) => m.MembershipTypesListComponent),
       },
       {
-        path: 'new',
-        title: 'Nuevo Tipo de Membresía',
-        canActivate: [roleGuard],
-        data: { roles: [Role.ADMIN] },
-        loadComponent: () =>
-          import('./pages/form/form.component').then((m) => m.MembershipTypeFormComponent),
-      },
-      {
         path: ':id/edit',
         title: 'Editar Tipo de Membresía',
         canActivate: [roleGuard],
