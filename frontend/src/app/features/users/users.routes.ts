@@ -12,11 +12,6 @@ export const usersRoutes: Routes = [
           import('./pages/list/list.component').then((m) => m.UsersListComponent),
       },
       {
-        path: 'new',
-        title: 'Nuevo Usuario',
-        loadComponent: () => import('./pages/form/form.component').then((m) => m.UserFormComponent),
-      },
-      {
         path: ':id',
         title: 'Perfil de Usuario',
         loadComponent: () =>
@@ -25,8 +20,7 @@ export const usersRoutes: Routes = [
       {
         path: ':id/edit',
         title: 'Editar Usuario',
-        loadComponent: () =>
-          import('./pages/edit/edit.component').then((m) => m.UserEditComponent),
+        loadComponent: () => import('./pages/edit/edit.component').then((m) => m.UserEditComponent),
       },
     ],
   },

@@ -1,12 +1,10 @@
 <div class="users-list-page">
   <div class="page-header">
     <h1>Directorio de Usuarios</h1>
-    <a routerLink="/users/new">
-      <fit-flow-button variant="primary" size="md">
-        <lucide-icon name="user-plus" [size]="20"></lucide-icon>
-        <span>+ Nuevo Usuario</span>
-      </fit-flow-button>
-    </a>
+    <fit-flow-button variant="primary" size="md" (click)="openCreateDialog()">
+      <lucide-icon name="user-plus" [size]="20"></lucide-icon>
+      <span>Nuevo Usuario</span>
+    </fit-flow-button>
   </div>
 
   <!-- Filtros -->
@@ -151,3 +149,9 @@
     }
   }
 </div>
+
+<!-- User Create Dialog -->
+<fit-flow-user-dialog
+  [isOpen]="showUserDialog()"
+  (cancelled)="closeUserDialog()"
+></fit-flow-user-dialog>

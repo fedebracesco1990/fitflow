@@ -81,6 +81,10 @@ import {
   Loader2,
   History,
   Inbox,
+  Weight,
+  TrendingUp,
+  TrendingDown,
+  Layers,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -194,6 +198,10 @@ export const appConfig: ApplicationConfig = {
         Loader2,
         History,
         Inbox,
+        Weight,
+        TrendingUp,
+        TrendingDown,
+        Layers,
       })
     ),
   ],
