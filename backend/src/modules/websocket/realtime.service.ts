@@ -4,6 +4,7 @@ import {
   RoutineUpdatedEvent,
   ProgressLoggedEvent,
   NotificationEvent,
+  AccessRegisteredEvent,
   WsEventType,
 } from './dto/ws-events.dto';
 
@@ -32,6 +33,14 @@ export class RealtimeService {
   notifyNewNotification(userId: string, event: NotificationEvent): void {
     this.logger.debug(`Emitting notification.new to user:${userId}`);
     this.eventsGateway.emitToUser(userId, WsEventType.NOTIFICATION_NEW, {
+      ...event,
+      timestamp: new Date(),
+    });
+  }
+
+  notifyAccessRegistered(event: AccessRegisteredEvent): void {
+    this.logger.debug(`Emitting access.registered to admins`);
+    this.eventsGateway.emitToAdmins(WsEventType.ACCESS_REGISTERED, {
       ...event,
       timestamp: new Date(),
     });

@@ -9,6 +9,7 @@ import { AccessLogsQueryDto } from './dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import { MembershipStatus } from '../memberships/entities/membership.entity';
 import { User } from '../users/entities/user.entity';
+import { RealtimeService } from '../websocket/realtime.service';
 
 export interface ValidateQrResult {
   granted: boolean;
@@ -34,7 +35,8 @@ export class AccessService {
     private readonly qrService: QrService,
     private readonly membershipsService: MembershipsService,
     @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly realtimeService: RealtimeService
   ) {}
 
   async validateQrAccess(token: string, scannedById: string): Promise<ValidateQrResult> {
@@ -102,7 +104,18 @@ export class AccessService {
       };
     }
 
-    await this.logAccess(payload.userId, scannedById, true, 'Acceso permitido');
+    const accessLog = await this.logAccess(payload.userId, scannedById, true, 'Acceso permitido');
+
+    if (accessLog) {
+      this.realtimeService.notifyAccessRegistered({
+        accessLogId: accessLog.id,
+        userId: user.id,
+        userName: user.name,
+        granted: true,
+        reason: 'Acceso permitido',
+        timestamp: new Date(),
+      });
+    }
 
     return {
       granted: true,
@@ -126,8 +139,8 @@ export class AccessService {
     scannedById: string,
     granted: boolean,
     reason: string
-  ): Promise<void> {
-    if (!userId) return;
+  ): Promise<AccessLog | null> {
+    if (!userId) return null;
 
     const log = this.accessLogRepository.create({
       userId,
@@ -136,7 +149,7 @@ export class AccessService {
       reason,
     });
 
-    await this.accessLogRepository.save(log);
+    return this.accessLogRepository.save(log);
   }
 
   async getAccessLogs(query: AccessLogsQueryDto): Promise<PaginatedResponse<AccessLog>> {

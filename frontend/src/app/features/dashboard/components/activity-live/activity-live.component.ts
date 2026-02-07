@@ -1,24 +1,23 @@
-import { Component, OnInit, inject, signal, input, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, input, DestroyRef, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { interval } from 'rxjs';
-import { switchMap, startWith } from 'rxjs/operators';
 import { AccessService, AccessLog } from '../../../access/services/access.service';
+import { WebSocketService } from '../../../../core/services/websocket.service';
 import { ButtonComponent, BadgeComponent, LoadingSpinnerComponent } from '../../../../shared';
-import { LucideAngularModule } from 'lucide-angular';
+import { ConnectionState } from '../../../../core/models/websocket.model';
 
 @Component({
   selector: 'fit-flow-activity-live',
   standalone: true,
-  imports: [ButtonComponent, BadgeComponent, LoadingSpinnerComponent, LucideAngularModule],
+  imports: [ButtonComponent, BadgeComponent, LoadingSpinnerComponent],
   templateUrl: './activity-live.component.html',
   styleUrl: './activity-live.component.scss',
 })
 export class ActivityLiveComponent implements OnInit {
   private readonly accessService = inject(AccessService);
+  private readonly wsService = inject(WebSocketService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly limit = input<number>(25);
-  readonly refreshInterval = input<number>(30000);
 
   readonly logs = signal<AccessLog[]>([]);
   readonly isLoading = signal(true);
@@ -26,30 +25,32 @@ export class ActivityLiveComponent implements OnInit {
   readonly currentPage = signal(1);
   readonly totalPages = signal(1);
   readonly total = signal(0);
-  readonly lastUpdated = signal<Date | null>(null);
 
-  ngOnInit(): void {
-    this.startAutoRefresh();
+  private previousConnectionState: ConnectionState = 'disconnected';
+
+  constructor() {
+    this.setupReconnectionHandler();
   }
 
-  private startAutoRefresh(): void {
-    interval(this.refreshInterval())
-      .pipe(
-        startWith(0),
-        switchMap(() => {
-          if (this.logs().length > 0) {
-            this.isRefreshing.set(true);
-          } else {
-            this.isLoading.set(true);
-          }
-          return this.accessService.getAccessLogs(this.buildParams());
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response) => this.handleResponse(response),
-        error: () => this.isLoading.set(false),
-      });
+  ngOnInit(): void {
+    this.loadLogs();
+    this.listenToAccessEvents();
+  }
+
+  private listenToAccessEvents(): void {
+    this.wsService.accessRegistered$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.loadLogs(this.currentPage());
+    });
+  }
+
+  private setupReconnectionHandler(): void {
+    effect(() => {
+      const currentState = this.wsService.connectionState();
+      if (this.previousConnectionState === 'reconnecting' && currentState === 'connected') {
+        this.loadLogs(this.currentPage());
+      }
+      this.previousConnectionState = currentState;
+    });
   }
 
   private buildParams(): {
@@ -79,11 +80,7 @@ export class ActivityLiveComponent implements OnInit {
     };
   }
 
-  refresh(): void {
-    this.loadLogs();
-  }
-
-  loadLogs(page = 1): void {
+  private loadLogs(page = 1): void {
     this.currentPage.set(page);
     if (this.logs().length > 0) {
       this.isRefreshing.set(true);
@@ -105,7 +102,6 @@ export class ActivityLiveComponent implements OnInit {
     this.currentPage.set(response.meta.page);
     this.totalPages.set(response.meta.totalPages);
     this.total.set(response.meta.total);
-    this.lastUpdated.set(new Date());
     this.isLoading.set(false);
     this.isRefreshing.set(false);
   }
@@ -126,16 +122,6 @@ export class ActivityLiveComponent implements OnInit {
     return new Date(dateString).toLocaleTimeString('es-ES', {
       hour: '2-digit',
       minute: '2-digit',
-    });
-  }
-
-  formatLastUpdated(): string {
-    const date = this.lastUpdated();
-    if (!date) return '';
-    return date.toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
     });
   }
 }

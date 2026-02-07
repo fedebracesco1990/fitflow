@@ -37,8 +37,18 @@ export interface NotificationEvent {
   data?: Record<string, unknown>;
 }
 
+export interface AccessRegisteredEvent {
+  accessLogId: string;
+  userId: string;
+  userName: string;
+  granted: boolean;
+  reason: string;
+  timestamp: Date;
+}
+
 export enum WsEventType {
   ROUTINE_UPDATED = 'routine.updated',
   PROGRESS_LOGGED = 'progress.logged',
   NOTIFICATION_NEW = 'notification.new',
+  ACCESS_REGISTERED = 'access.registered',
 }

@@ -56,6 +56,8 @@ POST /access/validate-qr
 }
 ```
 
+**WebSocket Event:** Cuando el acceso es exitoso (`granted: true`), se emite el evento `access.registered` al room `admin` vía WebSocket. Ver [WEBSOCKET.md](./WEBSOCKET.md#accessregistered) para detalles del payload.
+
 **Response 400 (QR inválido o expirado):**
 
 ```json

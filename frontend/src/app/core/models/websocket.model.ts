@@ -37,4 +37,17 @@ export interface NotificationEvent {
   data?: Record<string, unknown>;
 }
 
-export type WebSocketEvent = 'routine.updated' | 'progress.logged' | 'notification.new';
+export interface AccessRegisteredEvent {
+  accessLogId: string;
+  userId: string;
+  userName: string;
+  granted: boolean;
+  reason: string;
+  timestamp: Date;
+}
+
+export type WebSocketEvent =
+  | 'routine.updated'
+  | 'progress.logged'
+  | 'notification.new'
+  | 'access.registered';

@@ -1,20 +1,6 @@
 <div class="activity-live">
   <div class="activity-header">
     <h3>🔴 Actividad en Vivo</h3>
-    <div class="header-actions">
-      @if (lastUpdated()) {
-        <span class="last-updated">Actualizado: {{ formatLastUpdated() }}</span>
-      }
-      <fit-flow-button
-        variant="outline"
-        size="sm"
-        (click)="refresh()"
-        [disabled]="isLoading() || isRefreshing()"
-      >
-        <lucide-icon name="refresh-cw" [size]="16" [class.spinning]="isRefreshing()"></lucide-icon>
-        <span>{{ isRefreshing() ? 'Actualizando...' : 'Actualizar' }}</span>
-      </fit-flow-button>
-    </div>
   </div>
 
   @if (isLoading() && logs().length === 0) {

@@ -126,6 +126,38 @@ Emitido cuando un usuario completa un workout (solo a trainers).
 }
 ```
 
+### access.registered
+
+Emitido cuando un usuario registra un ingreso exitoso al gimnasio (check-in vía QR). Solo se emite al room `admin`.
+
+**Payload:**
+
+```typescript
+{
+  accessLogId: string;
+  userId: string;
+  userName: string;
+  granted: boolean;
+  reason: string;
+  timestamp: Date;
+}
+```
+
+**Ejemplo:**
+
+```json
+{
+  "accessLogId": "uuid-abc",
+  "userId": "user-uuid",
+  "userName": "Juan Pérez",
+  "granted": true,
+  "reason": "Acceso permitido",
+  "timestamp": "2026-02-07T20:00:00.000Z"
+}
+```
+
+**Nota:** Este evento reemplaza el polling periódico que usaba el componente `fit-flow-activity-live`. El componente ahora escucha este evento para actualizarse en tiempo real.
+
 ## Sistema de Rooms
 
 | Room    | Formato               | Usuarios               |

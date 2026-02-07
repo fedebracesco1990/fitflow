@@ -6,6 +6,7 @@ import { AccessLog } from './entities/access-log.entity';
 import { QrModule } from '../qr/qr.module';
 import { MembershipsModule } from '../memberships/memberships.module';
 import { UsersModule } from '../users/users.module';
+import { WebSocketModule } from '../websocket/websocket.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UsersModule } from '../users/users.module';
     QrModule,
     MembershipsModule,
     forwardRef(() => UsersModule),
+    WebSocketModule,
   ],
   controllers: [AccessController],
   providers: [AccessService],

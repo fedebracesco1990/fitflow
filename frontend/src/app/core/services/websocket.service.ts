@@ -8,6 +8,7 @@ import {
   RoutineUpdatedEvent,
   ProgressLoggedEvent,
   NotificationEvent,
+  AccessRegisteredEvent,
 } from '../models/websocket.model';
 
 @Injectable({
@@ -25,10 +26,12 @@ export class WebSocketService {
   private readonly _routineUpdated = new Subject<RoutineUpdatedEvent>();
   private readonly _progressLogged = new Subject<ProgressLoggedEvent>();
   private readonly _notificationNew = new Subject<NotificationEvent>();
+  private readonly _accessRegistered = new Subject<AccessRegisteredEvent>();
 
   readonly routineUpdated$ = this._routineUpdated.asObservable();
   readonly progressLogged$ = this._progressLogged.asObservable();
   readonly notificationNew$ = this._notificationNew.asObservable();
+  readonly accessRegistered$ = this._accessRegistered.asObservable();
 
   connect(): void {
     if (this.socket?.connected) {
@@ -110,6 +113,11 @@ export class WebSocketService {
     this.socket.on('notification.new', (data: NotificationEvent) => {
       console.log('[WebSocket] notification.new:', data);
       this._notificationNew.next(data);
+    });
+
+    this.socket.on('access.registered', (data: AccessRegisteredEvent) => {
+      console.log('[WebSocket] access.registered:', data);
+      this._accessRegistered.next(data);
     });
   }
 }
