@@ -74,33 +74,13 @@
     grid-column: 1 / -1;
   }
 
-  &.checkbox-group {
-    flex-direction: row;
-    align-items: center;
-  }
-
   label {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--text-primary, #1f2937);
-
-    &.checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      font-weight: 400;
-
-      input[type='checkbox'] {
-        width: 1rem;
-        height: 1rem;
-        cursor: pointer;
-      }
-    }
   }
 
-  input[type='text'],
-  input[type='number'],
+  input[type='date'],
   select,
   textarea {
     padding: 0.5rem 0.75rem;
@@ -118,16 +98,20 @@
     &::placeholder {
       color: var(--text-secondary, #9ca3af);
     }
-  }
 
-  textarea {
-    resize: vertical;
-    min-height: 80px;
+    &.error {
+      border-color: var(--danger-color, #dc2626);
+    }
   }
 
   select {
     cursor: pointer;
     background-color: white;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
   }
 
   .error-message {

@@ -32,7 +32,7 @@ export class AdminDashboardComponent {
 
   readonly quickActions: QuickAction[] = [
     { label: 'Directorio de Usuarios', icon: 'users', route: '/memberships' },
-    { label: '+ Nuevo Miembro', icon: 'user-plus', route: '/memberships/new' },
+    { label: '+ Nuevo Miembro', icon: 'user-plus', route: '/memberships' },
     { label: '$ Nuevo Pago', icon: 'dollar-sign', route: '/payments/new' },
     { label: 'Check-in', icon: 'scan', route: '/access/scan' },
   ];

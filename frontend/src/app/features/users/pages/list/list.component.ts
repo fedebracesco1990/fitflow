@@ -10,6 +10,7 @@ import { PaginationMeta } from '../../../../core/models/api-response.model';
 import { AlertComponent, ButtonComponent, CardComponent, BadgeComponent } from '../../../../shared';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserDialogComponent } from '../../components';
+import { MembershipDialogComponent } from '../../../memberships/components';
 
 @Component({
   selector: 'fit-flow-users-list',
@@ -23,6 +24,7 @@ import { UserDialogComponent } from '../../components';
     DatePipe,
     LucideAngularModule,
     UserDialogComponent,
+    MembershipDialogComponent,
   ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
@@ -41,6 +43,8 @@ export class UsersListComponent implements OnInit {
   readonly selectedMembershipStatus = signal<string>('');
 
   readonly showUserDialog = signal(false);
+  readonly showMembershipDialog = signal(false);
+  readonly membershipDialogUserId = signal<string | null>(null);
 
   readonly Role = Role;
   readonly MembershipStatus = MembershipStatus;
@@ -194,6 +198,17 @@ export class UsersListComponent implements OnInit {
 
   closeUserDialog(): void {
     this.showUserDialog.set(false);
+    this.loadUsers(1);
+  }
+
+  openMembershipDialog(userId: string): void {
+    this.membershipDialogUserId.set(userId);
+    this.showMembershipDialog.set(true);
+  }
+
+  closeMembershipDialog(): void {
+    this.showMembershipDialog.set(false);
+    this.membershipDialogUserId.set(null);
     this.loadUsers(1);
   }
 

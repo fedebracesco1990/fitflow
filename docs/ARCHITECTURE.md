@@ -125,6 +125,8 @@ frontend/src/app/
 │   ├── exercises/       # CRUD Ejercicios
 │   ├── membership-types/# CRUD Tipos de Membresía
 │   ├── memberships/     # CRUD Membresías de usuarios
+│   │   ├── components/   # MembershipDialogComponent (crear membresía via dialog)
+│   │   └── pages/        # list, form (edit only)
 │   ├── my-routines/     # Vista semanal + Workout (Usuario)
 │   ├── notifications-admin/ # Panel de notificaciones personalizadas
 │   ├── payments/        # CRUD Pagos
@@ -134,6 +136,8 @@ frontend/src/app/
 │   ├── routines/        # CRUD Rutinas (Admin/Trainer)
 │   ├── training/        # Gestión de entrenamiento
 │   └── users/           # Gestión de usuarios
+│       ├── components/   # UserDialogComponent (crear usuario via dialog)
+│       └── pages/        # list, detail, edit
 ├── layouts/
 │   ├── auth-layout/     # Layout para auth (sin nav)
 │   └── main-layout/     # Layout principal (con nav y sidebar)

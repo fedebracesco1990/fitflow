@@ -1,0 +1,106 @@
+@if (isOpen()) {
+  <div
+    class="dialog-backdrop"
+    (click)="onBackdropClick($event)"
+    (keydown.escape)="onCancel()"
+    tabindex="-1"
+  >
+    <div class="dialog" role="dialog" aria-modal="true">
+      <div class="dialog-header">
+        <h3>Nueva Membresía</h3>
+      </div>
+      <div class="dialog-body">
+        @if (error()) {
+          <fit-flow-alert type="error" [message]="error()!" />
+        }
+
+        @if (isLoadingData()) {
+          <div class="loading">
+            <p>Cargando datos...</p>
+          </div>
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="form-grid">
+              <!-- Usuario -->
+              <div class="form-group full-width">
+                <label for="dialog-userId">Usuario *</label>
+                <select
+                  id="dialog-userId"
+                  formControlName="userId"
+                  [class.error]="isFieldInvalid('userId')"
+                  [attr.disabled]="preSelectedUserId() ? true : null"
+                >
+                  <option value="">Seleccionar usuario...</option>
+                  @for (user of users(); track user.id) {
+                    <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+                  }
+                </select>
+                @if (isFieldInvalid('userId')) {
+                  <span class="error-message">Selecciona un usuario</span>
+                }
+              </div>
+
+              <!-- Tipo de Membresía -->
+              <div class="form-group full-width">
+                <label for="dialog-membershipTypeId">Tipo de Membresía *</label>
+                <select
+                  id="dialog-membershipTypeId"
+                  formControlName="membershipTypeId"
+                  [class.error]="isFieldInvalid('membershipTypeId')"
+                >
+                  <option value="">Seleccionar tipo...</option>
+                  @for (type of membershipTypes(); track type.id) {
+                    <option [value]="type.id">
+                      {{ type.name }} - ${{ type.price }} ({{ type.durationDays }} días)
+                    </option>
+                  }
+                </select>
+                @if (isFieldInvalid('membershipTypeId')) {
+                  <span class="error-message">Selecciona un tipo de membresía</span>
+                }
+              </div>
+
+              <!-- Fecha de Inicio -->
+              <div class="form-group full-width">
+                <label for="dialog-startDate">Fecha de Inicio *</label>
+                <input
+                  type="date"
+                  id="dialog-startDate"
+                  formControlName="startDate"
+                  [class.error]="isFieldInvalid('startDate')"
+                />
+                @if (isFieldInvalid('startDate')) {
+                  <span class="error-message">La fecha de inicio es requerida</span>
+                }
+              </div>
+
+              <!-- Notas -->
+              <div class="form-group full-width">
+                <label for="dialog-notes">Notas</label>
+                <textarea
+                  id="dialog-notes"
+                  formControlName="notes"
+                  placeholder="Notas opcionales..."
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+          </form>
+        }
+      </div>
+      <div class="dialog-footer">
+        <fit-flow-button type="button" variant="outline" (click)="onCancel()">
+          Cancelar
+        </fit-flow-button>
+        <fit-flow-button
+          type="button"
+          variant="primary"
+          [disabled]="form.invalid || isSaving() || isLoadingData()"
+          (click)="onSubmit()"
+        >
+          {{ isSaving() ? 'Creando...' : 'Crear Membresía' }}
+        </fit-flow-button>
+      </div>
+    </div>
+  </div>
+}

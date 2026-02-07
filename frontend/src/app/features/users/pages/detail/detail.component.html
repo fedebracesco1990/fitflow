@@ -78,10 +78,17 @@
         </div>
       } @else {
         <p class="no-membership">Este usuario no tiene membresía asignada.</p>
-        <a [routerLink]="['/memberships/new']" [queryParams]="{ userId: userId() }">
-          <fit-flow-button variant="primary" size="sm">Asignar membresía</fit-flow-button>
-        </a>
+        <fit-flow-button variant="primary" size="sm" (click)="openMembershipDialog()"
+          >Asignar membresía</fit-flow-button
+        >
       }
     </fit-flow-card>
   }
 </div>
+
+<!-- Membership Create Dialog -->
+<fit-flow-membership-dialog
+  [isOpen]="showMembershipDialog()"
+  [preSelectedUserId]="userId()"
+  (cancelled)="closeMembershipDialog()"
+/>

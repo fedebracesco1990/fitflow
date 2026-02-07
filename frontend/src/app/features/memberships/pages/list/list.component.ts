@@ -11,6 +11,7 @@ import {
   BadgeComponent,
   ConfirmDialogComponent,
 } from '../../../../shared';
+import { MembershipDialogComponent } from '../../components';
 
 @Component({
   selector: 'fit-flow-memberships-list',
@@ -23,6 +24,7 @@ import {
     CardComponent,
     BadgeComponent,
     ConfirmDialogComponent,
+    MembershipDialogComponent,
   ],
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
@@ -38,6 +40,7 @@ export class MembershipsListComponent implements OnInit {
   readonly MembershipStatusLabels = MembershipStatusLabels;
 
   // Dialog state
+  readonly showMembershipDialog = signal(false);
   readonly showDeleteDialog = signal(false);
   readonly showCancelDialog = signal(false);
   readonly selectedMembership = signal<Membership | null>(null);
@@ -113,6 +116,15 @@ export class MembershipsListComponent implements OnInit {
         this.closeCancelDialog();
       },
     });
+  }
+
+  openCreateDialog(): void {
+    this.showMembershipDialog.set(true);
+  }
+
+  closeMembershipDialog(): void {
+    this.showMembershipDialog.set(false);
+    this.loadMemberships();
   }
 
   getUserName(membership: Membership): string {

@@ -11,6 +11,7 @@ import {
   CardComponent,
   LoadingSpinnerComponent,
 } from '../../../../shared';
+import { MembershipDialogComponent } from '../../../memberships/components';
 
 @Component({
   selector: 'fit-flow-user-detail',
@@ -23,6 +24,7 @@ import {
     ButtonComponent,
     CardComponent,
     LoadingSpinnerComponent,
+    MembershipDialogComponent,
   ],
   templateUrl: './detail.component.html',
   styleUrl: './detail.component.scss',
@@ -34,6 +36,7 @@ export class UserDetailComponent implements OnInit {
   readonly user = signal<User | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly showMembershipDialog = signal(false);
 
   readonly userId = computed(() => this.user()?.id || '');
 
@@ -46,23 +49,27 @@ export class UserDetailComponent implements OnInit {
     return labels[this.user()?.role || ''] || 'Usuario';
   });
 
-  readonly roleBadgeVariant = computed((): 'primary' | 'neutral' | 'success' | 'warning' | 'error' => {
-    switch (this.user()?.role) {
-      case Role.ADMIN:
-        return 'error';
-      case Role.TRAINER:
-        return 'warning';
-      case Role.USER:
-        return 'primary';
-      default:
-        return 'neutral';
+  readonly roleBadgeVariant = computed(
+    (): 'primary' | 'neutral' | 'success' | 'warning' | 'error' => {
+      switch (this.user()?.role) {
+        case Role.ADMIN:
+          return 'error';
+        case Role.TRAINER:
+          return 'warning';
+        case Role.USER:
+          return 'primary';
+        default:
+          return 'neutral';
+      }
     }
-  });
+  );
 
   readonly membership = computed(() => {
     const memberships = this.user()?.memberships;
     if (!memberships || memberships.length === 0) return null;
-    const active = memberships.find((m: { status: string }) => m.status === MembershipStatus.ACTIVE);
+    const active = memberships.find(
+      (m: { status: string }) => m.status === MembershipStatus.ACTIVE
+    );
     return active || memberships[0];
   });
 
@@ -78,22 +85,24 @@ export class UserDetailComponent implements OnInit {
     return labels[status] || status;
   });
 
-  readonly membershipBadgeVariant = computed((): 'primary' | 'neutral' | 'success' | 'warning' | 'error' => {
-    const status = this.membership()?.status;
-    if (!status) return 'neutral';
-    switch (status) {
-      case MembershipStatus.ACTIVE:
-        return 'success';
-      case MembershipStatus.EXPIRED:
-        return 'error';
-      case MembershipStatus.GRACE_PERIOD:
-        return 'warning';
-      case MembershipStatus.CANCELLED:
-        return 'neutral';
-      default:
-        return 'neutral';
+  readonly membershipBadgeVariant = computed(
+    (): 'primary' | 'neutral' | 'success' | 'warning' | 'error' => {
+      const status = this.membership()?.status;
+      if (!status) return 'neutral';
+      switch (status) {
+        case MembershipStatus.ACTIVE:
+          return 'success';
+        case MembershipStatus.EXPIRED:
+          return 'error';
+        case MembershipStatus.GRACE_PERIOD:
+          return 'warning';
+        case MembershipStatus.CANCELLED:
+          return 'neutral';
+        default:
+          return 'neutral';
+      }
     }
-  });
+  );
 
   readonly formattedDate = computed(() => {
     const date = this.user()?.createdAt;
@@ -106,6 +115,18 @@ export class UserDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.loadUser(id);
+    }
+  }
+
+  openMembershipDialog(): void {
+    this.showMembershipDialog.set(true);
+  }
+
+  closeMembershipDialog(): void {
+    this.showMembershipDialog.set(false);
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadUser(id);

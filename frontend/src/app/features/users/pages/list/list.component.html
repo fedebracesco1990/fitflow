@@ -114,11 +114,12 @@
                     <a [routerLink]="['/users', user.id, 'edit']">
                       <fit-flow-button variant="outline" size="sm">Editar</fit-flow-button>
                     </a>
-                    <a [routerLink]="['/memberships/new']" [queryParams]="{ userId: user.id }">
-                      <fit-flow-button variant="outline" size="sm"
-                        >Asignar membresía</fit-flow-button
-                      >
-                    </a>
+                    <fit-flow-button
+                      variant="outline"
+                      size="sm"
+                      (click)="openMembershipDialog(user.id)"
+                      >Asignar membresía</fit-flow-button
+                    >
                   </div>
                 </td>
               </tr>
@@ -155,3 +156,10 @@
   [isOpen]="showUserDialog()"
   (cancelled)="closeUserDialog()"
 ></fit-flow-user-dialog>
+
+<!-- Membership Create Dialog -->
+<fit-flow-membership-dialog
+  [isOpen]="showMembershipDialog()"
+  [preSelectedUserId]="membershipDialogUserId()"
+  (cancelled)="closeMembershipDialog()"
+/>

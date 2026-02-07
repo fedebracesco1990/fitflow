@@ -1,9 +1,7 @@
 <div class="memberships-list-page">
   <div class="page-header">
     <h1>Membresías</h1>
-    <a routerLink="/memberships/new">
-      <fit-flow-button>+ Nueva Membresía</fit-flow-button>
-    </a>
+    <fit-flow-button (click)="openCreateDialog()">+ Nueva Membresía</fit-flow-button>
   </div>
 
   @if (error()) {
@@ -18,9 +16,9 @@
     <fit-flow-card>
       <div class="empty-state">
         <p>No hay membresías registradas</p>
-        <a routerLink="/memberships/new">
-          <fit-flow-button variant="secondary">Crear primera membresía</fit-flow-button>
-        </a>
+        <fit-flow-button variant="secondary" (click)="openCreateDialog()"
+          >Crear primera membresía</fit-flow-button
+        >
       </div>
     </fit-flow-card>
   } @else {
@@ -134,4 +132,10 @@
   variant="warning"
   (confirmed)="confirmCancel()"
   (cancelled)="closeCancelDialog()"
+/>
+
+<!-- Create Membership Dialog -->
+<fit-flow-membership-dialog
+  [isOpen]="showMembershipDialog()"
+  (cancelled)="closeMembershipDialog()"
 />
