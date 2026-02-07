@@ -79,6 +79,7 @@ export interface ExerciseFilters {
   styles: [
     `
       .filters-card {
+        display: block;
         margin-bottom: 1.5rem;
       }
 
