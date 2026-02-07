@@ -44,11 +44,15 @@
           <p class="membership-type">{{ membershipStatus()?.membershipType?.name }}</p>
         </div>
         <div class="membership-details">
-          <p><strong>Vencimiento:</strong> {{ membershipStatus()?.endDate | date:'dd/MM/yyyy' }}</p>
+          <p>
+            <strong>Vencimiento:</strong> {{ membershipStatus()?.endDate | date: 'dd/MM/yyyy' }}
+          </p>
           <p>
             <strong>Días restantes:</strong>
             @if (daysUntilExpiration() !== null) {
-              <span [class.warning]="daysUntilExpiration()! <= 7">{{ daysUntilExpiration() }} días</span>
+              <span [class.warning]="daysUntilExpiration()! <= 7"
+                >{{ daysUntilExpiration() }} días</span
+              >
             }
           </p>
         </div>
@@ -74,7 +78,9 @@
       <div class="routine-preview">
         <div class="routine-header">
           <h3>{{ todayRoutine()?.routine?.name }}</h3>
-          <span class="exercise-count">{{ todayRoutine()?.exercises?.length ?? 0 }} ejercicios</span>
+          <span class="exercise-count"
+            >{{ todayRoutine()?.exercises?.length ?? 0 }} ejercicios</span
+          >
         </div>
         <a routerLink="/my-routines/today" class="start-workout-btn">
           <lucide-icon name="play" [size]="20"></lucide-icon>
@@ -90,8 +96,4 @@
       </div>
     }
   </fit-flow-card>
-</section>
-
-<section class="dashboard-section">
-  <fit-flow-quick-actions [actions]="quickActions" />
 </section>

@@ -11,18 +11,15 @@ HomeComponent (Orquestador)
 ├── AdminDashboardComponent (rol: admin)
 │   ├── StatCardWidget (6 KPIs)
 │   ├── ActivityLiveComponent
-│   ├── RecentPaymentsComponent
-│   └── QuickActionsWidget
+│   └── RecentPaymentsComponent
 ├── TrainerDashboardComponent (rol: trainer)
 │   ├── StatCardWidget (4 KPIs)
 │   ├── StudentsListWidget
-│   ├── ActivityLiveComponent
-│   └── QuickActionsWidget
+│   └── ActivityLiveComponent
 └── UserDashboardComponent (rol: user)
     ├── StatCardWidget (4 KPIs)
     ├── MembershipCard
-    ├── TodayRoutineCard
-    └── QuickActionsWidget
+    └── TodayRoutineCard
 ```
 
 ## Flujo de Datos
@@ -42,6 +39,7 @@ ngOnInit() {
 ```
 
 **API Endpoint:** `GET /dashboard` (FITFLOW-61)
+
 - Retorna `AdminDashboardDto | TrainerDashboardDto` según rol del token JWT
 
 ### User (Socio)
@@ -57,6 +55,7 @@ forkJoin({
 ```
 
 **APIs utilizadas:**
+
 - `GET /user-routines/today` - Rutina del día
 - `GET /stats/me/monthly` - Estadísticas mensuales
 
@@ -64,19 +63,18 @@ forkJoin({
 
 ### Widgets (`features/dashboard/widgets/`)
 
-| Widget | Props | Descripción |
-|--------|-------|-------------|
-| `stat-card` | `title`, `value`, `label`, `icon`, `variant` | Card KPI con variantes de color |
-| `quick-actions` | `actions[]` | Grid de botones de navegación rápida |
-| `students-list` | `students[]` | Lista de alumnos del trainer |
+| Widget          | Props                                        | Descripción                     |
+| --------------- | -------------------------------------------- | ------------------------------- |
+| `stat-card`     | `title`, `value`, `label`, `icon`, `variant` | Card KPI con variantes de color |
+| `students-list` | `students[]`                                 | Lista de alumnos del trainer    |
 
 ### Dashboard Components (`features/dashboard/components/`)
 
-| Componente | Rol | Datos |
-|------------|-----|-------|
-| `AdminDashboardComponent` | ADMIN | `AdminDashboard` desde API unificada |
-| `TrainerDashboardComponent` | TRAINER | `TrainerDashboard` desde API unificada |
-| `UserDashboardComponent` | USER | Composición de stats + routines + profile |
+| Componente                  | Rol     | Datos                                     |
+| --------------------------- | ------- | ----------------------------------------- |
+| `AdminDashboardComponent`   | ADMIN   | `AdminDashboard` desde API unificada      |
+| `TrainerDashboardComponent` | TRAINER | `TrainerDashboard` desde API unificada    |
+| `UserDashboardComponent`    | USER    | Composición de stats + routines + profile |
 
 ## Interfaces TypeScript
 
@@ -132,8 +130,6 @@ frontend/src/app/features/dashboard/
 ├── widgets/
 │   ├── stat-card/
 │   │   └── ... (3 files)
-│   ├── quick-actions/
-│   │   └── ... (3 files)
 │   └── students-list/
 │       └── ... (3 files)
 └── pages/
@@ -147,52 +143,32 @@ frontend/src/app/features/dashboard/
 
 ### Admin Dashboard
 
-| KPI | Fuente | Variante |
-|-----|--------|----------|
-| Miembros Activos | `miembrosActivos` | default |
-| Expiran Pronto | `expiranPronto` | warning |
-| Morosos | `morosos` | danger |
-| Ingresos del Mes | `ingresosMes` | success |
-| Asistencias Hoy | `asistenciasHoy` | default |
-| Rutinas Activas | `rutinasActivas` | default |
+| KPI              | Fuente            | Variante |
+| ---------------- | ----------------- | -------- |
+| Miembros Activos | `miembrosActivos` | default  |
+| Expiran Pronto   | `expiranPronto`   | warning  |
+| Morosos          | `morosos`         | danger   |
+| Ingresos del Mes | `ingresosMes`     | success  |
+| Asistencias Hoy  | `asistenciasHoy`  | default  |
+| Rutinas Activas  | `rutinasActivas`  | default  |
 
 ### Trainer Dashboard
 
-| KPI | Fuente | Variante |
-|-----|--------|----------|
-| Total Alumnos | `totalAlumnos` | default |
-| Alumnos Activos | `alumnosActivos` | success |
-| Mis Rutinas | `rutinasActivasCreadas` | default |
-| PRs del Mes | `prsAlumnosMes` | warning |
+| KPI             | Fuente                  | Variante |
+| --------------- | ----------------------- | -------- |
+| Total Alumnos   | `totalAlumnos`          | default  |
+| Alumnos Activos | `alumnosActivos`        | success  |
+| Mis Rutinas     | `rutinasActivasCreadas` | default  |
+| PRs del Mes     | `prsAlumnosMes`         | warning  |
 
 ### User Dashboard
 
-| KPI | Fuente | Variante |
-|-----|--------|----------|
-| Entrenamientos | `monthlyStats.currentMonth.totalWorkouts` | default |
-| Volumen Total | `monthlyStats.currentMonth.totalVolume` | success |
-| Ejercicios | `monthlyStats.currentMonth.uniqueExercises` | default |
-| Récords | `monthlyStats.currentMonth.personalRecords` | warning |
-
-## Quick Actions por Rol
-
-### Admin
-- Directorio de Usuarios → `/memberships`
-- Nuevo Miembro → `/memberships/new`
-- Nuevo Pago → `/payments/new`
-- Check-in → `/access/scan`
-
-### Trainer
-- Crear Rutina → `/routines/new`
-- Ver Clientes → `/training`
-- Biblioteca Ejercicios → `/exercises`
-- Check-in → `/access/scan`
-
-### User
-- Mi Rutina de Hoy → `/my-routines/today`
-- Mi Semana → `/my-routines`
-- Mi Progreso → `/my-progress`
-- Mi QR → `/profile/qr`
+| KPI            | Fuente                                      | Variante |
+| -------------- | ------------------------------------------- | -------- |
+| Entrenamientos | `monthlyStats.currentMonth.totalWorkouts`   | default  |
+| Volumen Total  | `monthlyStats.currentMonth.totalVolume`     | success  |
+| Ejercicios     | `monthlyStats.currentMonth.uniqueExercises` | default  |
+| Récords        | `monthlyStats.currentMonth.personalRecords` | warning  |
 
 ## Dependencias
 

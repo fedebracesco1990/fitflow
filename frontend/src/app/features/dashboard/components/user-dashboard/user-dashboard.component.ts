@@ -6,7 +6,6 @@ import { UserState } from '../../../../core/store';
 import { UserRoutinesService, StatsService } from '../../../../core/services';
 import { TodayRoutineResponse, MonthlyComparison } from '../../../../core/models';
 import { StatCardComponent } from '../../widgets/stat-card/stat-card.component';
-import { QuickActionsComponent, QuickAction } from '../../widgets/quick-actions/quick-actions.component';
 import { CardComponent } from '../../../../shared';
 import { LucideAngularModule } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
@@ -14,14 +13,7 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'fit-flow-user-dashboard',
   standalone: true,
-  imports: [
-    DatePipe,
-    StatCardComponent,
-    QuickActionsComponent,
-    CardComponent,
-    LucideAngularModule,
-    RouterLink,
-  ],
+  imports: [DatePipe, StatCardComponent, CardComponent, LucideAngularModule, RouterLink],
   templateUrl: './user-dashboard.component.html',
   styleUrl: './user-dashboard.component.scss',
 })
@@ -50,13 +42,6 @@ export class UserDashboardComponent implements OnInit {
     const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     return diff;
   });
-
-  readonly quickActions: QuickAction[] = [
-    { label: 'Mi Rutina de Hoy', icon: 'dumbbell', route: '/my-routines/today' },
-    { label: 'Mi Semana', icon: 'calendar', route: '/my-routines' },
-    { label: 'Mi Progreso', icon: 'trending-up', route: '/my-progress' },
-    { label: 'Mi QR', icon: 'qr-code', route: '/profile/qr' },
-  ];
 
   ngOnInit(): void {
     this.loadDashboardData();

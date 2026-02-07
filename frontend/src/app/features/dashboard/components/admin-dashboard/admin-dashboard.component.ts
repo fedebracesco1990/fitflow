@@ -2,10 +2,6 @@ import { Component, input, inject, signal } from '@angular/core';
 import { AdminDashboard } from '../../../../core/models';
 import { UsersService } from '../../../../core/services';
 import { StatCardComponent } from '../../widgets/stat-card/stat-card.component';
-import {
-  QuickActionsComponent,
-  QuickAction,
-} from '../../widgets/quick-actions/quick-actions.component';
 import { ActivityLiveComponent } from '../activity-live/activity-live.component';
 import { RecentPaymentsComponent } from '../recent-payments/recent-payments.component';
 import { RetentionAlertWidgetComponent } from '../../widgets/retention-alert/retention-alert-widget.component';
@@ -15,7 +11,6 @@ import { RetentionAlertWidgetComponent } from '../../widgets/retention-alert/ret
   standalone: true,
   imports: [
     StatCardComponent,
-    QuickActionsComponent,
     ActivityLiveComponent,
     RecentPaymentsComponent,
     RetentionAlertWidgetComponent,
@@ -29,13 +24,6 @@ export class AdminDashboardComponent {
   readonly data = input.required<AdminDashboard>();
   readonly isLoading = input<boolean>(false);
   readonly isExporting = signal(false);
-
-  readonly quickActions: QuickAction[] = [
-    { label: 'Directorio de Usuarios', icon: 'users', route: '/memberships' },
-    { label: '+ Nuevo Miembro', icon: 'user-plus', route: '/memberships' },
-    { label: '$ Nuevo Pago', icon: 'dollar-sign', route: '/payments' },
-    { label: 'Check-in', icon: 'scan', route: '/access/scan' },
-  ];
 
   exportMembers(): void {
     this.isExporting.set(true);
