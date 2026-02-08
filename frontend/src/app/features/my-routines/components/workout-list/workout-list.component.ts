@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { UserProgramsService, MyProgramResponse } from '../../../../core/services';
+import { OfflineProgramsService, MyProgramResponse } from '../../../../core/services';
 import { UserProgramRoutine } from '../../../../core/models';
 import { ButtonComponent } from '../../../../shared';
 
@@ -13,7 +13,7 @@ import { ButtonComponent } from '../../../../shared';
   styleUrl: './workout-list.component.scss',
 })
 export class WorkoutListComponent implements OnInit {
-  private readonly userProgramsService = inject(UserProgramsService);
+  private readonly offlineProgramsService = inject(OfflineProgramsService);
   private readonly router = inject(Router);
 
   program = signal<MyProgramResponse | null>(null);
@@ -28,7 +28,7 @@ export class WorkoutListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    this.userProgramsService.getMyProgram().subscribe({
+    this.offlineProgramsService.getMyProgram().subscribe({
       next: (data) => {
         this.program.set(data);
         this.loading.set(false);

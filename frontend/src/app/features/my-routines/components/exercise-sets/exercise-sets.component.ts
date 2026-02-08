@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { WorkoutStateService } from '../../../../core/services';
+import { WorkoutStateService, OfflineWorkoutsService } from '../../../../core/services';
 import { EditSetDialogComponent } from '../edit-set-dialog/edit-set-dialog.component';
 
 interface SetData {
@@ -19,17 +19,47 @@ interface SetData {
   templateUrl: './exercise-sets.component.html',
   styleUrl: './exercise-sets.component.scss',
 })
-export class ExerciseSetsComponent {
+export class ExerciseSetsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly stateService = inject(WorkoutStateService);
+  private readonly offlineWorkoutsService = inject(OfflineWorkoutsService);
 
-  exerciseName = signal('Prensa de piernas');
-  sets = signal<SetData[]>([
-    { id: '1', setNumber: 1, reps: 10, weight: 40, completed: false },
-    { id: '2', setNumber: 2, reps: 10, weight: 40, completed: false },
-    { id: '3', setNumber: 3, reps: 10, weight: 40, completed: false },
-  ]);
+  exerciseName = signal('');
+  sets = signal<SetData[]>([]);
+
+  ngOnInit(): void {
+    const exerciseId = this.route.snapshot.paramMap.get('exerciseId');
+    if (exerciseId) {
+      this.loadExerciseData(exerciseId);
+    }
+  }
+
+  private loadExerciseData(exerciseId: string): void {
+    // Get exercise state for the name
+    const exerciseStates = this.stateService.exerciseStates();
+    const exerciseState = exerciseStates.find((e) => e.id === exerciseId);
+    if (exerciseState) {
+      this.exerciseName.set(exerciseState.name);
+    }
+
+    // Get real exercise logs from the workout
+    const exerciseLogs = this.stateService.getExerciseLogsForExercise(
+      exerciseState?.exerciseId || exerciseId
+    );
+
+    if (exerciseLogs.length > 0) {
+      this.sets.set(
+        exerciseLogs.map((log) => ({
+          id: log.id,
+          setNumber: log.setNumber,
+          reps: log.reps,
+          weight: log.weight ?? 0,
+          completed: log.completed,
+        }))
+      );
+    }
+  }
 
   editDialogOpen = signal(false);
   editingSet = signal<SetData | null>(null);
@@ -68,6 +98,14 @@ export class ExerciseSetsComponent {
   onCompleteSet(set: SetData): void {
     this.sets.update((sets) => sets.map((s) => (s.id === set.id ? { ...s, completed: true } : s)));
 
+    // Persist the completed set via offline workouts service
+    const workoutLogId = this.stateService.workoutLogId();
+    if (workoutLogId) {
+      this.offlineWorkoutsService
+        .updateExerciseLog(workoutLogId, set.id, { completed: true })
+        .subscribe();
+    }
+
     if (this.completedSets === this.totalSets) {
       this.stateService.markCurrentCompleted();
       this.stateService.startRest(90);
@@ -82,6 +120,14 @@ export class ExerciseSetsComponent {
     this.sets.update((sets) =>
       sets.map((s) => (s.id === set.id ? { ...s, reps: data.reps, weight: data.weight } : s))
     );
+
+    // Persist the edit via offline workouts service
+    const workoutLogId = this.stateService.workoutLogId();
+    if (workoutLogId) {
+      this.offlineWorkoutsService
+        .updateExerciseLog(workoutLogId, set.id, { reps: data.reps, weight: data.weight })
+        .subscribe();
+    }
 
     this.editDialogOpen.set(false);
     this.editingSet.set(null);

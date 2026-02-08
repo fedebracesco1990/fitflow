@@ -5,8 +5,7 @@ import {
   WorkoutTimerService,
   WorkoutStateService,
   ExerciseState,
-  WorkoutsService,
-  UserProgramsService,
+  OfflineWorkoutsService,
 } from '../../../../core/services';
 import { ButtonComponent } from '../../../../shared';
 import { RestTimerComponent } from '../rest-timer/rest-timer.component';
@@ -24,8 +23,7 @@ export class WorkoutActiveComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly timerService = inject(WorkoutTimerService);
   private readonly stateService = inject(WorkoutStateService);
-  private readonly workoutsService = inject(WorkoutsService);
-  private readonly userProgramsService = inject(UserProgramsService);
+  private readonly offlineWorkoutsService = inject(OfflineWorkoutsService);
 
   private workoutLogId = signal<string | null>(null);
 
@@ -55,8 +53,8 @@ export class WorkoutActiveComponent implements OnInit {
   private loadRoutine(routineId: string): void {
     this.loading.set(true);
 
-    // Iniciar workout directamente - el backend crea el WorkoutLog
-    this.workoutsService.startWorkout(routineId).subscribe({
+    // Iniciar workout - online crea en backend, offline genera temporal
+    this.offlineWorkoutsService.startWorkout(routineId).subscribe({
       next: (workoutLog) => {
         this.workoutLogId.set(workoutLog.id);
         this.routineName.set(workoutLog.userProgramRoutine.name);
@@ -83,7 +81,12 @@ export class WorkoutActiveComponent implements OnInit {
       })
     );
 
-    this.stateService.initWorkout(routineId, exerciseStates);
+    this.stateService.initWorkout(
+      routineId,
+      exerciseStates,
+      workoutLog.id,
+      workoutLog.exerciseLogs
+    );
     this.loading.set(false);
 
     if (!this.timerService.isRunning()) {
@@ -133,8 +136,8 @@ export class WorkoutActiveComponent implements OnInit {
     const totalTime = Math.floor(this.timerService.elapsedSeconds() / 60);
 
     if (workoutId) {
-      // Completar en backend
-      this.workoutsService.complete(workoutId, totalTime).subscribe({
+      // Completar workout - online en backend, offline encola sync
+      this.offlineWorkoutsService.complete(workoutId, totalTime).subscribe({
         next: () => {
           this.timerService.stop();
           this.stateService.reset();

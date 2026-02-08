@@ -27,16 +27,6 @@
   ],
   "dataGroups": [
     {
-      "name": "user-routines-api",
-      "urls": ["/api/user-routines/**"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 50,
-        "maxAge": "1h",
-        "timeout": "5s"
-      }
-    },
-    {
       "name": "workouts-api",
       "urls": ["/api/workouts/**"],
       "cacheConfig": {
@@ -78,6 +68,16 @@
     {
       "name": "personal-records-api",
       "urls": ["/api/personal-records/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "1h",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "programs-api",
+      "urls": ["/api/programs/**"],
       "cacheConfig": {
         "strategy": "freshness",
         "maxSize": 50,

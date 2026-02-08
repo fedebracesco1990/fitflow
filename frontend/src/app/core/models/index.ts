@@ -11,6 +11,7 @@ export * from './workout.model';
 export * from './dashboard.model';
 export * from './personal-record.model';
 export * from './stats.model';
+export * from './program.model';
 export * from './offline.model';
 export * from './websocket.model';
 export * from './low-attendance.model';

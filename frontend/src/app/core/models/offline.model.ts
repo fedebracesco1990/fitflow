@@ -1,4 +1,5 @@
-import { WorkoutLog, ExerciseLog } from './workout.model';
+import { WorkoutLog, ExerciseLog, UserProgramRoutine } from './workout.model';
+import { MyProgramResponse } from './program.model';
 
 export enum SyncStatus {
   IDLE = 'idle',
@@ -56,6 +57,20 @@ export interface IdMapping {
   serverId: string;
   type: 'workout' | 'exercise_log';
   createdAt: number;
+}
+
+export interface CachedProgram {
+  id: string;
+  userId: string;
+  data: MyProgramResponse;
+  cachedAt: number;
+}
+
+export interface CachedRoutine {
+  id: string;
+  userProgramId: string;
+  data: UserProgramRoutine;
+  cachedAt: number;
 }
 
 export interface OfflineState {

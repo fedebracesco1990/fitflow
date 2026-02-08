@@ -4,10 +4,8 @@ import { ApiService } from './api.service';
 import {
   UserRoutine,
   AssignRoutineDto,
-  DayOfWeek,
   BulkAssignRoutineDto,
   BulkAssignResult,
-  TodayRoutineResponse,
   RoutineHistoryResponse,
 } from '../models';
 
@@ -24,14 +22,6 @@ export class UserRoutinesService {
 
   assignBulk(data: BulkAssignRoutineDto): Observable<BulkAssignResult> {
     return this.api.post<BulkAssignResult>(`${this.endpoint}/bulk`, data);
-  }
-
-  getMyWeek(): Observable<Record<DayOfWeek, UserRoutine[]>> {
-    return this.api.get<Record<DayOfWeek, UserRoutine[]>>(`${this.endpoint}/my-week`);
-  }
-
-  getToday(): Observable<TodayRoutineResponse | null> {
-    return this.api.get<TodayRoutineResponse | null>(`${this.endpoint}/today`);
   }
 
   getByUser(userId: string): Observable<UserRoutine[]> {

@@ -35,6 +35,7 @@ core/
 │   ├── membership-type.model.ts # Tipos de membresía
 │   ├── membership.model.ts   # Membresías
 │   ├── offline.model.ts      # Modelos para offline
+│   ├── program.model.ts      # Programas y asignaciones
 │   ├── payment.model.ts      # Pagos
 │   ├── personal-record.model.ts # Récords personales
 │   ├── routine.model.ts      # Rutinas y plantillas
@@ -53,8 +54,9 @@ core/
 │   ├── memberships.service.ts # CRUD membresías
 │   ├── muscle-groups.service.ts # CRUD grupos musculares
 │   ├── network.service.ts    # Detectar online/offline
-│   ├── offline-db.service.ts # IndexedDB con Dexie
-│   ├── offline-workouts.service.ts # Workouts offline
+│   ├── offline-db.service.ts # IndexedDB con Dexie (v3)
+│   ├── offline-programs.service.ts # Programas offline (wrapper)
+│   ├── offline-workouts.service.ts # Workouts offline (wrapper)
 │   ├── page-title.strategy.ts # Títulos de página
 │   ├── payments.service.ts   # CRUD pagos
 │   ├── personal-records.service.ts # Gestión de PRs
@@ -66,9 +68,11 @@ core/
 │   ├── sync-manager.service.ts # Coordinador de sync
 │   ├── sync-queue.service.ts # Cola de operaciones offline
 │   ├── token-refresh.service.ts # Refresh automático
-│   ├── user-routines.service.ts # Asignación de rutinas
+│   ├── user-programs.service.ts # Programas de entrenamiento
+│   ├── user-routines.service.ts # Asignación de rutinas (admin)
 │   ├── user.service.ts       # Perfil del usuario
 │   ├── users.service.ts      # CRUD usuarios (admin)
+│   ├── workout-state.service.ts # Estado de sesión activa
 │   ├── websocket.service.ts  # WebSocket real-time
 │   ├── workouts.service.ts   # CRUD entrenamientos
 │   └── index.ts

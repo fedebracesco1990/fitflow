@@ -28,3 +28,4 @@ export * from './notifications-api.service';
 export * from './workout-timer.service';
 export * from './workout-state.service';
 export * from './user-programs.service';
+export * from './offline-programs.service';

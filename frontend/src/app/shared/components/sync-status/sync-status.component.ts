@@ -220,7 +220,7 @@ export class SyncStatusComponent {
 
   onSyncClick(): void {
     if (this.isPending() || this.isError()) {
-      this.syncManager.forcSync();
+      this.syncManager.forceSync();
     }
   }
 }

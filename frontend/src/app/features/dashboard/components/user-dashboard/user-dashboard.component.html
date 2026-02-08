@@ -66,34 +66,3 @@
     }
   </fit-flow-card>
 </section>
-
-<section class="dashboard-section">
-  <h2>🎯 Rutina de Hoy</h2>
-  <fit-flow-card padding="md" class="routine-card">
-    @if (isLoading()) {
-      <div class="routine-loading">
-        <p>Cargando rutina...</p>
-      </div>
-    } @else if (todayRoutine()) {
-      <div class="routine-preview">
-        <div class="routine-header">
-          <h3>{{ todayRoutine()?.routine?.name }}</h3>
-          <span class="exercise-count"
-            >{{ todayRoutine()?.exercises?.length ?? 0 }} ejercicios</span
-          >
-        </div>
-        <a routerLink="/my-routines/today" class="start-workout-btn">
-          <lucide-icon name="play" [size]="20"></lucide-icon>
-          Comenzar Entrenamiento
-        </a>
-      </div>
-    } @else {
-      <div class="routine-empty">
-        <lucide-icon name="calendar-x" [size]="32"></lucide-icon>
-        <p>No tienes rutina asignada para hoy</p>
-        <small>Revisa tu semana completa</small>
-        <a routerLink="/my-routines" class="view-week-link">Ver Mi Semana</a>
-      </div>
-    }
-  </fit-flow-card>
-</section>

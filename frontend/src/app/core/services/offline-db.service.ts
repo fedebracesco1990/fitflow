@@ -4,6 +4,8 @@ import {
   SyncOperation,
   CachedWorkout,
   CachedExerciseLog,
+  CachedProgram,
+  CachedRoutine,
   IdMapping,
   CACHE_EXPIRY_MS,
 } from '../models';
@@ -12,6 +14,8 @@ class FitFlowDatabase extends Dexie {
   syncQueue!: Table<SyncOperation, string>;
   cachedWorkouts!: Table<CachedWorkout, string>;
   cachedExerciseLogs!: Table<CachedExerciseLog, string>;
+  cachedPrograms!: Table<CachedProgram, string>;
+  cachedRoutines!: Table<CachedRoutine, string>;
   idMappings!: Table<IdMapping, string>;
 
   constructor() {
@@ -21,6 +25,15 @@ class FitFlowDatabase extends Dexie {
       syncQueue: 'id, type, status, timestamp',
       cachedWorkouts: 'id, tempId, userProgramRoutineId, userId, cachedAt',
       cachedExerciseLogs: 'id, tempId, workoutId, cachedAt',
+      idMappings: 'tempId, serverId, type, createdAt',
+    });
+
+    this.version(3).stores({
+      syncQueue: 'id, type, status, timestamp',
+      cachedWorkouts: 'id, tempId, userProgramRoutineId, userId, cachedAt',
+      cachedExerciseLogs: 'id, tempId, workoutId, cachedAt',
+      cachedPrograms: 'id, userId, cachedAt',
+      cachedRoutines: 'id, userProgramId, cachedAt',
       idMappings: 'tempId, serverId, type, createdAt',
     });
   }
@@ -131,8 +144,34 @@ export class OfflineDbService {
     await this.db.idMappings.where('createdAt').below(olderThan).delete();
   }
 
+  // Cached Programs
+  async cacheProgram(program: CachedProgram): Promise<void> {
+    await this.db.cachedPrograms.put(program);
+  }
+
+  async getCachedProgram(userId: string): Promise<CachedProgram | undefined> {
+    return this.db.cachedPrograms.where('userId').equals(userId).first();
+  }
+
+  async deleteCachedProgram(id: string): Promise<void> {
+    await this.db.cachedPrograms.delete(id);
+  }
+
+  // Cached Routines
+  async cacheRoutine(routine: CachedRoutine): Promise<void> {
+    await this.db.cachedRoutines.put(routine);
+  }
+
+  async getCachedRoutine(id: string): Promise<CachedRoutine | undefined> {
+    return this.db.cachedRoutines.get(id);
+  }
+
+  async getCachedRoutinesByProgram(userProgramId: string): Promise<CachedRoutine[]> {
+    return this.db.cachedRoutines.where('userProgramId').equals(userProgramId).toArray();
+  }
+
   // Cache Validation
-  private isCacheValid(cachedAt: number): boolean {
+  isCacheValid(cachedAt: number): boolean {
     return Date.now() - cachedAt < CACHE_EXPIRY_MS;
   }
 
@@ -142,6 +181,8 @@ export class OfflineDbService {
       this.db.syncQueue.clear(),
       this.db.cachedWorkouts.clear(),
       this.db.cachedExerciseLogs.clear(),
+      this.db.cachedPrograms.clear(),
+      this.db.cachedRoutines.clear(),
       this.db.idMappings.clear(),
     ]);
     console.log('[OfflineDb] All data cleared');
@@ -153,6 +194,8 @@ export class OfflineDbService {
     await Promise.all([
       this.db.cachedWorkouts.where('cachedAt').below(expiredBefore).delete(),
       this.db.cachedExerciseLogs.where('cachedAt').below(expiredBefore).delete(),
+      this.db.cachedPrograms.where('cachedAt').below(expiredBefore).delete(),
+      this.db.cachedRoutines.where('cachedAt').below(expiredBefore).delete(),
     ]);
   }
 }

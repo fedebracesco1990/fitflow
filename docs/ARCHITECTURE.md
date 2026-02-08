@@ -151,6 +151,55 @@ frontend/src/app/
 
 ---
 
+## Arquitectura PWA / Offline
+
+La aplicación implementa una estrategia de doble caché para funcionalidad offline completa en el flujo de entrenamientos.
+
+### Capas de Caché
+
+```
+┌─────────────────────────────────────────────┐
+│  Angular Service Worker (NGSW)              │
+│  - Caché HTTP automático por dataGroups     │
+│  - Estrategia "freshness" con timeout 5s    │
+│  - Endpoints: programs, workouts, stats...  │
+└──────────────────┬──────────────────────────┘
+                   │ fallback
+┌──────────────────▼──────────────────────────┐
+│  IndexedDB (Dexie v3)                       │
+│  - cachedPrograms, cachedRoutines           │
+│  - cachedWorkouts, cachedExerciseLogs       │
+│  - syncQueue (operaciones pendientes)       │
+│  - idMappings (temp ID → server ID)         │
+└──────────────────┬──────────────────────────┘
+                   │ reconexión
+┌──────────────────▼──────────────────────────┐
+│  SyncManager + SyncQueue                    │
+│  - Procesa cola FIFO al reconectar          │
+│  - Resuelve IDs temporales → IDs servidor   │
+│  - Retry con backoff exponencial            │
+└─────────────────────────────────────────────┘
+```
+
+### Servicios Offline (Wrapper Pattern)
+
+Los servicios offline envuelven a los servicios API directos con lógica online-first + fallback:
+
+| Servicio Offline         | Servicio API          | Función                                        |
+| ------------------------ | --------------------- | ---------------------------------------------- |
+| `OfflineProgramsService` | `UserProgramsService` | Cargar programa y rutinas del usuario          |
+| `OfflineWorkoutsService` | `WorkoutsService`     | Iniciar, actualizar y completar entrenamientos |
+
+### Flujo de Datos Offline
+
+```
+Online:  Component → OfflineService → APIService → Backend → Cache IndexedDB
+Offline: Component → OfflineService → Cache IndexedDB → Enqueue SyncQueue
+Sync:    SyncManager → SyncQueue → Resolve Temp IDs → Backend
+```
+
+---
+
 ## Arquitectura del Backend
 
 ```mermaid

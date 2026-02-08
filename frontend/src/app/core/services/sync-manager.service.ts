@@ -81,7 +81,8 @@ export class SyncManagerService {
     await this.syncQueueService.markAsProcessing(operation.id);
 
     try {
-      const url = `${environment.apiUrl}/${operation.endpoint}`;
+      const resolvedEndpoint = await this.resolveEndpointIds(operation.endpoint);
+      const url = `${environment.apiUrl}/${resolvedEndpoint}`;
       let response: unknown;
 
       switch (operation.method) {
@@ -151,7 +152,7 @@ export class SyncManagerService {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async forcSync(): Promise<void> {
+  async forceSync(): Promise<void> {
     if (!this.networkService.isOnline()) {
       console.log('[SyncManager] Cannot force sync while offline');
       return;
@@ -162,5 +163,20 @@ export class SyncManagerService {
   async resolveId(tempId: string): Promise<string> {
     const serverId = await this.offlineDb.getServerIdByTempId(tempId);
     return serverId || tempId;
+  }
+
+  private async resolveEndpointIds(endpoint: string): Promise<string> {
+    const tempIdPattern = /temp_\d+_[a-z0-9]+/g;
+    const matches = endpoint.match(tempIdPattern);
+    if (!matches) return endpoint;
+
+    let resolved = endpoint;
+    for (const tempId of matches) {
+      const serverId = await this.offlineDb.getServerIdByTempId(tempId);
+      if (serverId) {
+        resolved = resolved.replace(tempId, serverId);
+      }
+    }
+    return resolved;
   }
 }

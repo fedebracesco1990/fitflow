@@ -14,6 +14,7 @@ import {
   SyncOperationType,
   CachedWorkout,
   CachedExerciseLog,
+  UserProgramExercise,
 } from '../models';
 
 @Injectable({
@@ -32,10 +33,93 @@ export class OfflineWorkoutsService {
   }
 
   startWorkout(routineId: string): Observable<WorkoutLog> {
-    // Solo funciona online - offline no soportado en nuevo modelo
-    return this.workoutsService
-      .startWorkout(routineId)
-      .pipe(tap((workout) => this.cacheWorkout(workout, false)));
+    if (this.networkService.isOnline()) {
+      return this.workoutsService.startWorkout(routineId).pipe(
+        tap((workout) => this.cacheWorkoutWithLogs(workout)),
+        catchError(() => from(this.startWorkoutOffline(routineId)))
+      );
+    }
+
+    return from(this.startWorkoutOffline(routineId));
+  }
+
+  private async cacheWorkoutWithLogs(workout: WorkoutLog): Promise<void> {
+    await this.cacheWorkout(workout, false);
+    for (const log of workout.exerciseLogs) {
+      await this.cacheExerciseLog(log, workout.id, false);
+    }
+  }
+
+  private async startWorkoutOffline(routineId: string): Promise<WorkoutLog> {
+    const cachedRoutine = await this.offlineDb.getCachedRoutine(routineId);
+    if (!cachedRoutine) {
+      throw new Error('Routine not found in cache. Connect to internet first.');
+    }
+
+    const routine = cachedRoutine.data;
+    const tempWorkoutId = this.generateTempId();
+    const now = new Date().toISOString();
+
+    // Generate exercise logs from routine exercises
+    const exerciseLogs: ExerciseLog[] = this.generateExerciseLogs(routine.exercises, tempWorkoutId);
+
+    const workoutLog: WorkoutLog = {
+      id: tempWorkoutId,
+      userProgramRoutineId: routineId,
+      userProgramRoutine: routine,
+      startedAt: now,
+      finishedAt: null,
+      status: WorkoutStatus.IN_PROGRESS,
+      duration: null,
+      notes: null,
+      exerciseLogs,
+      createdAt: now,
+    };
+
+    await this.cacheWorkout(workoutLog, true, tempWorkoutId);
+
+    // Cache each exercise log individually
+    for (const log of exerciseLogs) {
+      await this.cacheExerciseLog(log, tempWorkoutId, true, log.id);
+    }
+
+    await this.syncQueue.enqueue(
+      SyncOperationType.START_WORKOUT,
+      `workouts/start/${routineId}`,
+      'POST',
+      null,
+      tempWorkoutId
+    );
+
+    return workoutLog;
+  }
+
+  private generateExerciseLogs(exercises: UserProgramExercise[], workoutId: string): ExerciseLog[] {
+    const logs: ExerciseLog[] = [];
+
+    for (const exercise of exercises) {
+      for (let setNum = 1; setNum <= exercise.sets; setNum++) {
+        logs.push({
+          id: this.generateTempId(),
+          workoutLogId: workoutId,
+          exerciseId: exercise.exerciseId,
+          exercise: exercise.exercise,
+          setNumber: setNum,
+          reps: exercise.reps,
+          weight: exercise.weight,
+          completed: false,
+          notes: null,
+          rir: null,
+          rpe: null,
+        });
+      }
+    }
+
+    return logs;
+  }
+
+  private generateTempId(): string {
+    return `temp_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
 
   complete(id: string, duration?: number): Observable<WorkoutLog> {
