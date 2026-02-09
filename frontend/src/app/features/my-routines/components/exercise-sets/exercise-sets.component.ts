@@ -1,7 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngxs/store';
 import { WorkoutStateService, OfflineWorkoutsService } from '../../../../core/services';
+import { TriggerCelebration } from '../../../../core/store';
 import { EditSetDialogComponent } from '../edit-set-dialog/edit-set-dialog.component';
 import { RestTimerComponent } from '../rest-timer/rest-timer.component';
 
@@ -25,6 +27,7 @@ export class ExerciseSetsComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly stateService = inject(WorkoutStateService);
   private readonly offlineWorkoutsService = inject(OfflineWorkoutsService);
+  private readonly store = inject(Store);
 
   exerciseName = signal('');
   sets = signal<SetData[]>([]);
@@ -118,7 +121,20 @@ export class ExerciseSetsComponent implements OnInit {
           weight: set.weight,
           reps: set.reps,
         })
-        .subscribe();
+        .subscribe({
+          next: (response) => {
+            if (response.prResult?.isNewPR && response.prResult.exerciseName) {
+              this.store.dispatch(
+                new TriggerCelebration({
+                  exerciseName: response.prResult.exerciseName,
+                  weight: set.weight,
+                  reps: set.reps,
+                  type: response.prResult.type as 'weight' | 'volume' | 'both',
+                })
+              );
+            }
+          },
+        });
     }
 
     // Trigger rest timer if there are remaining incomplete sets
