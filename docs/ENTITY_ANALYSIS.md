@@ -36,12 +36,12 @@
 
 ## Arquitectura de Entidades (Estado Actual)
 
-### Total: 21 entidades en 7 módulos
+### Total: 23 entidades en 7 módulos
 
 ```
 Módulo Users (2):        User, AccessLog
 Módulo Memberships (3):  MembershipType, Membership, Payment
-Módulo Notifications (2): NotificationTemplate, DeviceToken
+Módulo Notifications (4): NotificationTemplate, DeviceToken, AppNotification, NotificationRead
 Módulo Exercises (2):    MuscleGroup, Exercise
 Módulo Routines (2):     Routine, RoutineExercise
 Módulo Programs (6):     Program, ProgramRoutine, ProgramRoutineExercise,
@@ -149,6 +149,7 @@ ProgramRoutineExercise → UserProgramExercise (copia ejercicios editables)
 │   └──► DeviceToken                                          │
 │                                                             │
 │  NotificationTemplate (plantillas globales)                 │
+│  AppNotification ──► NotificationRead                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -165,3 +166,4 @@ ProgramRoutineExercise → UserProgramExercise (copia ejercicios editables)
 | Feb 2026 | Agregados módulos: Memberships, Payments, Access, Notifications |
 | Feb 2026 | `PersonalRecord` ampliado con timestamps y volumen              |
 | Feb 2026 | `ExerciseLog` con RIR y RPE                                     |
+| Feb 2026 | Agregados `AppNotification` y `NotificationRead` al esquema     |

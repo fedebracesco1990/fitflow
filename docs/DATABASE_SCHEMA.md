@@ -96,6 +96,25 @@ erDiagram
         datetime updatedAt
     }
 
+    AppNotification {
+        uuid id PK
+        string title
+        string body
+        string type
+        enum targetType
+        uuid targetUserId FK
+        uuid senderUserId FK
+        json data
+        datetime createdAt
+    }
+
+    NotificationRead {
+        uuid id PK
+        uuid notificationId FK
+        uuid userId FK
+        datetime readAt
+    }
+
     %% ========== EJERCICIOS ==========
     MuscleGroup {
         uuid id PK
@@ -279,6 +298,10 @@ erDiagram
 
     %% Notificaciones
     User ||--o{ DeviceToken : "registra dispositivo"
+    User ||--o{ AppNotification : "recibe"
+    User ||--o{ AppNotification : "envía"
+    AppNotification ||--o{ NotificationRead : "leída por"
+    User ||--o{ NotificationRead : "lee"
 
     %% Ejercicios
     MuscleGroup ||--o{ Exercise : "agrupa"
@@ -368,10 +391,12 @@ flowchart TB
 
 ### Módulo de Notificaciones
 
-| Entidad                  | Tipo   | Descripción                      |
-| ------------------------ | ------ | -------------------------------- |
-| **NotificationTemplate** | Config | Plantillas de notificación       |
-| **DeviceToken**          | Core   | Tokens de dispositivos para push |
+| Entidad                  | Tipo   | Descripción                                     |
+| ------------------------ | ------ | ----------------------------------------------- |
+| **NotificationTemplate** | Config | Plantillas de notificación                      |
+| **DeviceToken**          | Core   | Tokens de dispositivos para push                |
+| **AppNotification**      | Core   | Notificación enviada (broadcast o a usuario)    |
+| **NotificationRead**     | Log    | Registro de lectura de notificación por usuario |
 
 ### Módulo de Rutinas y Programas
 
@@ -434,20 +459,21 @@ Cargar ExerciseLogs → Pre-llenar formulario con últimos valores
 
 ## Enums Utilizados
 
-| Enum                 | Valores                                                                          | Usado en                   |
-| -------------------- | -------------------------------------------------------------------------------- | -------------------------- |
-| **Role**             | user, admin, trainer                                                             | User                       |
-| **Difficulty**       | beginner, intermediate, advanced                                                 | Exercise, Routine, Program |
-| **Equipment**        | none, barbell, dumbbell, etc.                                                    | Exercise                   |
-| **RoutineType**      | daily, weekly                                                                    | Routine                    |
-| **TemplateCategory** | strength, hypertrophy, endurance, cardio, etc.                                   | Routine                    |
-| **DayOfWeek**        | monday-sunday                                                                    | RoutineExercise            |
-| **WorkoutStatus**    | pending, in_progress, completed, skipped                                         | WorkoutLog                 |
-| **MembershipStatus** | active, expired, cancelled, grace_period                                         | Membership                 |
-| **PaymentMethod**    | cash, card, transfer, other                                                      | Payment                    |
-| **AccessType**       | all_access, etc.                                                                 | MembershipType             |
-| **DevicePlatform**   | web, android, ios                                                                | DeviceToken                |
-| **NotificationType** | MEMBERSHIP_EXPIRING, MEMBERSHIP_EXPIRED, LOW_ATTENDANCE, PERSONAL_RECORD, CUSTOM | NotificationTemplate       |
+| Enum                       | Valores                                                                          | Usado en                   |
+| -------------------------- | -------------------------------------------------------------------------------- | -------------------------- |
+| **Role**                   | user, admin, trainer                                                             | User                       |
+| **Difficulty**             | beginner, intermediate, advanced                                                 | Exercise, Routine, Program |
+| **Equipment**              | none, barbell, dumbbell, etc.                                                    | Exercise                   |
+| **RoutineType**            | daily, weekly                                                                    | Routine                    |
+| **TemplateCategory**       | strength, hypertrophy, endurance, cardio, etc.                                   | Routine                    |
+| **DayOfWeek**              | monday-sunday                                                                    | RoutineExercise            |
+| **WorkoutStatus**          | pending, in_progress, completed, skipped                                         | WorkoutLog                 |
+| **MembershipStatus**       | active, expired, cancelled, grace_period                                         | Membership                 |
+| **PaymentMethod**          | cash, card, transfer, other                                                      | Payment                    |
+| **AccessType**             | all_access, etc.                                                                 | MembershipType             |
+| **DevicePlatform**         | web, android, ios                                                                | DeviceToken                |
+| **NotificationType**       | MEMBERSHIP_EXPIRING, MEMBERSHIP_EXPIRED, LOW_ATTENDANCE, PERSONAL_RECORD, CUSTOM | NotificationTemplate       |
+| **NotificationTargetType** | user, broadcast                                                                  | AppNotification            |
 
 ## Entidades Eliminadas (Historial)
 
