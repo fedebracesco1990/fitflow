@@ -12,6 +12,7 @@ import {
   LoadingSpinnerComponent,
 } from '../../../../shared';
 import { MembershipDialogComponent } from '../../../memberships/components';
+import { UserProgramHistoryComponent } from '../../components';
 
 @Component({
   selector: 'fit-flow-user-detail',
@@ -25,6 +26,7 @@ import { MembershipDialogComponent } from '../../../memberships/components';
     CardComponent,
     LoadingSpinnerComponent,
     MembershipDialogComponent,
+    UserProgramHistoryComponent,
   ],
   templateUrl: './detail.component.html',
   styleUrl: './detail.component.scss',

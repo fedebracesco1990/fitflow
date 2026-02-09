@@ -12,10 +12,12 @@ import {
   BulkAssignResult,
   RoutineType,
 } from '../../../../core/models';
+import { forkJoin } from 'rxjs';
 import { ButtonComponent } from '../../../../shared';
 
 interface SelectableUser extends User {
   selected: boolean;
+  activeProgramName: string | null;
 }
 
 @Component({
@@ -45,6 +47,9 @@ export class AssignRoutineDialogComponent implements OnInit {
   saving = signal(false);
   error = signal<string | null>(null);
   searchQuery = signal('');
+
+  showReplaceConfirm = signal(false);
+  usersWithPlan = signal<SelectableUser[]>([]);
 
   startDate = signal(new Date().toISOString().split('T')[0]);
   selectedDay = signal<DayOfWeek>(DayOfWeek.MONDAY);
@@ -83,11 +88,40 @@ export class AssignRoutineDialogComponent implements OnInit {
 
     this.usersService.getAll({ role: Role.USER, limit: 100 }).subscribe({
       next: (response) => {
-        this.users.set(response.data.map((u) => ({ ...u, selected: false })));
-        this.loading.set(false);
+        const users = response.data.map((u) => ({
+          ...u,
+          selected: false,
+          activeProgramName: null as string | null,
+        }));
+        this.users.set(users);
+        this.loadActivePrograms(users);
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Error al cargar usuarios');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  private loadActivePrograms(users: SelectableUser[]): void {
+    if (!this.isWeeklyProgram() || users.length === 0) {
+      this.loading.set(false);
+      return;
+    }
+
+    const requests = users.map((u) => this.userProgramsService.getActiveByUser(u.id));
+
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        this.users.update((list) =>
+          list.map((u, i) => ({
+            ...u,
+            activeProgramName: results[i]?.programName ?? null,
+          }))
+        );
+        this.loading.set(false);
+      },
+      error: () => {
         this.loading.set(false);
       },
     });
@@ -117,14 +151,35 @@ export class AssignRoutineDialogComponent implements OnInit {
       return;
     }
 
+    if (this.isWeeklyProgram()) {
+      const withPlan = selected.filter((u) => u.activeProgramName);
+      if (withPlan.length > 0) {
+        this.usersWithPlan.set(withPlan);
+        this.showReplaceConfirm.set(true);
+        return;
+      }
+    }
+
+    this.executeAssignment(selected);
+  }
+
+  confirmReplace(): void {
+    this.showReplaceConfirm.set(false);
+    this.executeAssignment(this.selectedUsers());
+  }
+
+  cancelReplace(): void {
+    this.showReplaceConfirm.set(false);
+    this.usersWithPlan.set([]);
+  }
+
+  private executeAssignment(selected: SelectableUser[]): void {
     this.saving.set(true);
     this.error.set(null);
 
     if (this.isWeeklyProgram()) {
-      // Asignar programa semanal completo
       this.assignWeeklyProgram(selected);
     } else {
-      // Asignar rutina diaria con día específico
       this.assignDailyRoutine(selected);
     }
   }
@@ -219,5 +274,7 @@ export class AssignRoutineDialogComponent implements OnInit {
     this.startDate.set(new Date().toISOString().split('T')[0]);
     this.selectedDay.set(DayOfWeek.MONDAY);
     this.error.set(null);
+    this.showReplaceConfirm.set(false);
+    this.usersWithPlan.set([]);
   }
 }

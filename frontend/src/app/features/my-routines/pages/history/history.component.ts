@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { WorkoutsService } from '../../../../core/services';
-import { WorkoutLog } from '../../../../core/models';
+import { WorkoutLog, ExerciseLog } from '../../../../core/models';
 import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../../../../shared';
 
 @Component({
@@ -68,7 +68,13 @@ import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../
           } @else {
             <div class="history-grid">
               @for (item of history(); track item.id) {
-                <div class="history-card">
+                <div
+                  class="history-card"
+                  (click)="openDetail(item)"
+                  (keydown.enter)="openDetail(item)"
+                  tabindex="0"
+                  role="button"
+                >
                   <div class="card-header">
                     <h3>{{ getRoutineName(item) }}</h3>
                     <span class="date">{{ formatDate(item.createdAt) }}</span>
@@ -84,6 +90,48 @@ import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../
         </section>
       }
     </div>
+
+    @if (selectedWorkout()) {
+      <div
+        class="dialog-backdrop"
+        (click)="onBackdropClick($event)"
+        (keydown.escape)="closeDetail()"
+        tabindex="-1"
+      >
+        <div class="dialog" role="dialog" aria-modal="true">
+          <div class="dialog-header">
+            <div>
+              <h3>{{ getRoutineName(selectedWorkout()!) }}</h3>
+              <span class="dialog-date"
+                >{{ formatDate(selectedWorkout()!.createdAt) }} · ⏱️
+                {{ formatTime(selectedWorkout()!.duration) }}</span
+              >
+            </div>
+            <button class="close-btn" (click)="closeDetail()" aria-label="Cerrar">
+              <lucide-icon name="x" [size]="20"></lucide-icon>
+            </button>
+          </div>
+          <div class="dialog-body">
+            @for (group of getGroupedExercises(selectedWorkout()!); track group.exerciseId) {
+              <div class="exercise-group">
+                <span class="exercise-name">{{ group.name }}</span>
+                <div class="sets-list">
+                  @for (set of group.sets; track set.setNumber) {
+                    <div class="set-row" [class.completed]="set.completed">
+                      <span class="set-number">Set {{ set.setNumber }}</span>
+                      <span class="set-detail">{{ set.reps }} reps</span>
+                      @if (set.weight) {
+                        <span class="set-detail">{{ set.weight }} kg</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
   `,
   styles: `
     .history-page {
@@ -223,12 +271,165 @@ import { CardComponent, LoadingSpinnerComponent, EmptyStateComponent } from '../
       }
     }
 
+    .history-card {
+      cursor: pointer;
+      transition:
+        box-shadow 0.15s,
+        transform 0.15s;
+
+      &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        transform: translateY(-1px);
+      }
+
+      &:focus-visible {
+        outline: 2px solid #6366f1;
+        outline-offset: 2px;
+      }
+    }
+
     .card-stats {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
       font-size: 14px;
       color: #475569;
+    }
+
+    .dialog-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .dialog {
+      background: white;
+      border-radius: 12px;
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      max-width: 480px;
+      width: 90%;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      animation: slideIn 0.2s ease;
+    }
+
+    .dialog-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+
+      h3 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1e293b;
+      }
+    }
+
+    .dialog-date {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 2px;
+      display: block;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition:
+        color 0.15s,
+        background 0.15s;
+      flex-shrink: 0;
+
+      &:hover {
+        color: #1e293b;
+        background: #f1f5f9;
+      }
+    }
+
+    .dialog-body {
+      padding: 1rem 1.5rem 1.5rem;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .exercise-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .exercise-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .sets-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .set-row {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: #64748b;
+      padding: 3px 0;
+    }
+
+    .set-row.completed {
+      color: #059669;
+    }
+
+    .set-number {
+      min-width: 44px;
+      font-weight: 500;
+    }
+
+    .set-detail {
+      min-width: 60px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
     }
 
     @media (max-width: 640px) {
@@ -251,6 +452,7 @@ export class RoutineHistoryComponent implements OnInit {
   completedWorkouts = computed(() => this.history().length);
   loading = signal(true);
   error = signal<string | null>(null);
+  selectedWorkout = signal<WorkoutLog | null>(null);
 
   ngOnInit(): void {
     this.loadHistory();
@@ -299,6 +501,42 @@ export class RoutineHistoryComponent implements OnInit {
   }
 
   getExerciseCount(log: WorkoutLog): number {
-    return log.exerciseLogs?.length || 0;
+    if (!log.exerciseLogs?.length) return 0;
+    return new Set(log.exerciseLogs.map((e) => e.exerciseId)).size;
+  }
+
+  openDetail(workout: WorkoutLog): void {
+    this.selectedWorkout.set(workout);
+  }
+
+  closeDetail(): void {
+    this.selectedWorkout.set(null);
+  }
+
+  onBackdropClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement).classList.contains('dialog-backdrop')) {
+      this.closeDetail();
+    }
+  }
+
+  getGroupedExercises(
+    log: WorkoutLog
+  ): { exerciseId: string; name: string; sets: ExerciseLog[] }[] {
+    if (!log.exerciseLogs?.length) return [];
+    const map = new Map<string, { exerciseId: string; name: string; sets: ExerciseLog[] }>();
+    for (const el of log.exerciseLogs) {
+      if (!map.has(el.exerciseId)) {
+        map.set(el.exerciseId, {
+          exerciseId: el.exerciseId,
+          name: el.exercise?.name || 'Ejercicio',
+          sets: [],
+        });
+      }
+      map.get(el.exerciseId)!.sets.push(el);
+    }
+    for (const group of map.values()) {
+      group.sets.sort((a, b) => a.setNumber - b.setNumber);
+    }
+    return Array.from(map.values());
   }
 }

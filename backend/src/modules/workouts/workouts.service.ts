@@ -116,6 +116,7 @@ export class WorkoutsService {
       .andWhere('wl.status = :status', { status: WorkoutStatus.COMPLETED })
       .leftJoinAndSelect('wl.userProgramRoutine', 'routine')
       .leftJoinAndSelect('wl.exerciseLogs', 'exerciseLogs')
+      .leftJoinAndSelect('exerciseLogs.exercise', 'exercise')
       .orderBy('wl.finishedAt', 'DESC');
 
     const total = await query.getCount();

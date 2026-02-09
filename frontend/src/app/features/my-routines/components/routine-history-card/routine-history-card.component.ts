@@ -44,7 +44,7 @@ import { CardComponent, BadgeComponent } from '../../../../shared';
         <div class="stat highlight">
           <lucide-icon name="dumbbell" [size]="18"></lucide-icon>
           <div class="stat-content">
-            <span class="stat-value">{{ item().exerciseLogs.length || 0 }}</span>
+            <span class="stat-value">{{ getExerciseCount() }}</span>
             <span class="stat-label">Ejercicios</span>
           </div>
         </div>
@@ -145,5 +145,11 @@ export class RoutineHistoryCardComponent {
   getRoutineDescription(): string | null {
     const workout = this.item();
     return workout.userProgramRoutine?.description || null;
+  }
+
+  getExerciseCount(): number {
+    const logs = this.item().exerciseLogs;
+    if (!logs?.length) return 0;
+    return new Set(logs.map((e) => e.exerciseId)).size;
   }
 }

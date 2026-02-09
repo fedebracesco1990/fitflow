@@ -59,4 +59,12 @@ export class UserProgramsService {
   assign(data: AssignProgramDto): Observable<UserProgram> {
     return this.api.post<UserProgram>(`${this.endpoint}/assign`, data);
   }
+
+  getActiveByUser(userId: string): Observable<UserProgram | null> {
+    return this.api.get<UserProgram | null>(`${this.endpoint}/user/${userId}/active`);
+  }
+
+  getUserProgramHistory(userId: string): Observable<UserProgram[]> {
+    return this.api.get<UserProgram[]>(`${this.endpoint}/user/${userId}/history`);
+  }
 }

@@ -211,12 +211,67 @@
   }
 }
 
+.active-plan-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 0.2rem 0.5rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.replace-confirm {
+  border-top: 1px solid #f3f4f6;
+  padding: 1rem 1.5rem;
+
+  .replace-confirm-header {
+    font-size: 0.9375rem;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+  }
+
+  .replace-confirm-body {
+    font-size: 0.8125rem;
+    color: #475569;
+
+    p {
+      margin: 0 0 0.5rem;
+    }
+
+    ul {
+      margin: 0.5rem 0;
+      padding-left: 1.25rem;
+
+      li {
+        margin-bottom: 0.25rem;
+      }
+    }
+  }
+
+  .replace-confirm-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+}
+
 .dialog-footer {
   padding: 1rem 1.5rem 1.25rem;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
   border-top: 1px solid #f3f4f6;
+
+  &.hidden {
+    display: none;
+  }
 }
 
 @keyframes fadeIn {

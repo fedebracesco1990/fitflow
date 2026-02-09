@@ -78,6 +78,9 @@
                     <span class="user-name">{{ user.name }}</span>
                     <span class="user-email">{{ user.email }}</span>
                   </div>
+                  @if (isWeeklyProgram() && user.activeProgramName) {
+                    <span class="active-plan-badge">{{ user.activeProgramName }}</span>
+                  }
                 </div>
               }
             </div>
@@ -85,7 +88,34 @@
         </div>
       </div>
 
-      <div class="dialog-footer">
+      @if (showReplaceConfirm()) {
+        <div class="replace-confirm">
+          <div class="replace-confirm-header">
+            <strong>Confirmar reemplazo de plan</strong>
+          </div>
+          <div class="replace-confirm-body">
+            <p>Los siguientes usuarios ya tienen un plan activo que será reemplazado:</p>
+            <ul>
+              @for (user of usersWithPlan(); track user.id) {
+                <li>
+                  <strong>{{ user.name }}</strong> — {{ user.activeProgramName }}
+                </li>
+              }
+            </ul>
+            <p>¿Deseas continuar y reemplazar sus planes actuales?</p>
+          </div>
+          <div class="replace-confirm-footer">
+            <fit-flow-button variant="outline" (click)="cancelReplace()">
+              Cancelar
+            </fit-flow-button>
+            <fit-flow-button variant="primary" (click)="confirmReplace()">
+              Reemplazar y asignar
+            </fit-flow-button>
+          </div>
+        </div>
+      }
+
+      <div class="dialog-footer" [class.hidden]="showReplaceConfirm()">
         <fit-flow-button variant="outline" (click)="onCancel()" [disabled]="saving()">
           Cancelar
         </fit-flow-button>

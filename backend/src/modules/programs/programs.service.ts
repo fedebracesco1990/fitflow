@@ -13,6 +13,7 @@ import { Routine } from '../routines/entities/routine.entity';
 import { RoutineExercise } from '../routines/entities/routine-exercise.entity';
 import { CreateProgramDto } from './dto/create-program.dto';
 import { AssignProgramDto } from './dto/assign-program.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ProgramsService {
@@ -32,7 +33,8 @@ export class ProgramsService {
     @InjectRepository(Routine)
     private readonly routineRepository: Repository<Routine>,
     @InjectRepository(RoutineExercise)
-    private readonly routineExerciseRepository: Repository<RoutineExercise>
+    private readonly routineExerciseRepository: Repository<RoutineExercise>,
+    private readonly notificationsService: NotificationsService
   ) {}
 
   async create(dto: CreateProgramDto, createdById: string): Promise<Program> {
@@ -226,7 +228,36 @@ export class ProgramsService {
       }
     }
 
-    return this.findUserProgram(savedUserProgram.id);
+    const result = await this.findUserProgram(savedUserProgram.id);
+
+    await this.notificationsService.sendToUser(
+      dto.userId,
+      'Nuevo plan semanal asignado',
+      `Se te ha asignado el plan "${program.name}". ¡Revisa tus rutinas!`,
+      'program_assigned'
+    );
+
+    return result;
+  }
+
+  async getActiveByUser(userId: string): Promise<UserProgram | null> {
+    return this.userProgramRepository.findOne({
+      where: { userId, isActive: true },
+      relations: ['routines'],
+    });
+  }
+
+  async getUserProgramHistory(userId: string): Promise<UserProgram[]> {
+    return this.userProgramRepository.find({
+      where: { userId },
+      relations: [
+        'routines',
+        'routines.exercises',
+        'routines.exercises.exercise',
+        'routines.exercises.exercise.muscleGroup',
+      ],
+      order: { assignedAt: 'DESC' },
+    });
   }
 
   async findUserProgram(id: string): Promise<UserProgram> {

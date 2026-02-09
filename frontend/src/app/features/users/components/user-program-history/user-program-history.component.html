@@ -1,0 +1,83 @@
+<fit-flow-card padding="md" class="program-history-section">
+  <h2>Planes Semanales</h2>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <fit-flow-loading-spinner size="sm" />
+    </div>
+  } @else if (error()) {
+    <p class="error-text">{{ error() }}</p>
+  } @else if (programs().length === 0) {
+    <p class="empty-text">Este usuario no tiene planes asignados.</p>
+  } @else {
+    @if (activeProgram(); as active) {
+      <div class="active-program">
+        <div
+          class="program-header"
+          (click)="toggleExpand(active.id)"
+          (keydown.enter)="toggleExpand(active.id)"
+          tabindex="0"
+          role="button"
+        >
+          <div class="program-info">
+            <span class="program-name">{{ active.programName }}</span>
+            <fit-flow-badge variant="success">Activo</fit-flow-badge>
+          </div>
+          <span class="program-date">Desde {{ active.assignedAt | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        @if (isExpanded(active.id)) {
+          <div class="program-details">
+            <p class="details-title">Rutinas asignadas:</p>
+            <ul class="routine-list">
+              @for (routine of active.routines; track routine.id) {
+                <li>
+                  <span class="routine-name">{{ routine.name }}</span>
+                  <span class="routine-meta">{{ routine.estimatedDuration }} min</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    }
+
+    @if (inactivePrograms().length > 0) {
+      <p class="history-label">Historial</p>
+      @for (program of inactivePrograms(); track program.id) {
+        <div class="inactive-program">
+          <div
+            class="program-header"
+            (click)="toggleExpand(program.id)"
+            (keydown.enter)="toggleExpand(program.id)"
+            tabindex="0"
+            role="button"
+          >
+            <div class="program-info">
+              <span class="program-name">{{ program.programName }}</span>
+              <fit-flow-badge variant="neutral">Finalizado</fit-flow-badge>
+            </div>
+            <span class="program-date">
+              {{ program.assignedAt | date: 'dd/MM/yyyy' }}
+              @if (program.endDate) {
+                — {{ program.endDate | date: 'dd/MM/yyyy' }}
+              }
+            </span>
+          </div>
+          @if (isExpanded(program.id)) {
+            <div class="program-details">
+              <p class="details-title">Rutinas asignadas:</p>
+              <ul class="routine-list">
+                @for (routine of program.routines; track routine.id) {
+                  <li>
+                    <span class="routine-name">{{ routine.name }}</span>
+                    <span class="routine-meta">{{ routine.estimatedDuration }} min</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+    }
+  }
+</fit-flow-card>

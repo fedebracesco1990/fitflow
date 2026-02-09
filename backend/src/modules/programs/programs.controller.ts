@@ -50,6 +50,20 @@ export class ProgramsController {
     return this.programsService.getMyRoutine(userId, routineId);
   }
 
+  @Get('user/:userId/active')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN, Role.TRAINER)
+  getActiveByUser(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.programsService.getActiveByUser(userId);
+  }
+
+  @Get('user/:userId/history')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN, Role.TRAINER)
+  getUserProgramHistory(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.programsService.getUserProgramHistory(userId);
+  }
+
   @Get(':id')
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN, Role.TRAINER)

@@ -12,6 +12,7 @@ import {
 } from './entities';
 import { Routine } from '../routines/entities/routine.entity';
 import { RoutineExercise } from '../routines/entities/routine-exercise.entity';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RoutineExercise } from '../routines/entities/routine-exercise.entity';
       Routine,
       RoutineExercise,
     ]),
+    NotificationsModule,
   ],
   controllers: [ProgramsController],
   providers: [ProgramsService],

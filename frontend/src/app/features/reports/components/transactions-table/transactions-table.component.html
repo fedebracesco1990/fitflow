@@ -15,7 +15,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (transaction of paginatedTransactions(); track transaction.fecha) {
+          @for (transaction of paginatedTransactions(); track $index) {
             <tr>
               <td>{{ transaction.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
               <td class="amount">{{ formatCurrency(transaction.monto) }}</td>
