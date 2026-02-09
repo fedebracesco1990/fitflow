@@ -93,7 +93,7 @@ export class NotificationsState {
       return;
     }
 
-    ctx.patchState({ isInitialized: true });
+    ctx.patchState({ isInitialized: true, notifications: [] });
 
     // Always load notifications from backend API (independent of FCM)
     await firstValueFrom(ctx.dispatch(new LoadNotifications()));
@@ -109,7 +109,8 @@ export class NotificationsState {
   async loadNotifications(ctx: StateContext<NotificationsStateModel>) {
     try {
       const response = await firstValueFrom(this.notificationsApi.getMyNotifications());
-      ctx.patchState({ notifications: response.notifications });
+      const unread = response.notifications.filter((n) => !n.read);
+      ctx.patchState({ notifications: unread });
     } catch (error) {
       console.error('[NotificationsState] Failed to load notifications from API:', error);
     }
@@ -173,9 +174,7 @@ export class NotificationsState {
   @Action(MarkAsRead)
   async markAsRead(ctx: StateContext<NotificationsStateModel>, action: MarkAsRead) {
     const state = ctx.getState();
-    const notifications = state.notifications.map((n) =>
-      n.id === action.payload ? { ...n, read: true } : n
-    );
+    const notifications = state.notifications.filter((n) => n.id !== action.payload);
     ctx.patchState({ notifications });
 
     try {
@@ -187,9 +186,7 @@ export class NotificationsState {
 
   @Action(MarkAllAsRead)
   async markAllAsRead(ctx: StateContext<NotificationsStateModel>) {
-    const state = ctx.getState();
-    const notifications = state.notifications.map((n) => ({ ...n, read: true }));
-    ctx.patchState({ notifications });
+    ctx.patchState({ notifications: [] });
 
     try {
       await firstValueFrom(this.notificationsApi.markAllAsRead());

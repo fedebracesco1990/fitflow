@@ -10,11 +10,11 @@ Endpoints para gestión de notificaciones in-app y push (FCM opcional).
 
 ### In-App Notifications
 
-| Método | Ruta                      | Descripción                | Roles              |
-| ------ | ------------------------- | -------------------------- | ------------------ |
-| GET    | `/notifications/my`       | Obtener mis notificaciones | Todos autenticados |
-| PATCH  | `/notifications/:id/read` | Marcar como leída          | Todos autenticados |
-| PATCH  | `/notifications/read-all` | Marcar todas como leídas   | Todos autenticados |
+| Método | Ruta                      | Descripción                      | Roles              |
+| ------ | ------------------------- | -------------------------------- | ------------------ |
+| GET    | `/notifications/my`       | Obtener notificaciones no leídas | Todos autenticados |
+| PATCH  | `/notifications/:id/read` | Marcar como leída                | Todos autenticados |
+| PATCH  | `/notifications/read-all` | Marcar todas como leídas         | Todos autenticados |
 
 ### FCM Token Management
 
@@ -36,7 +36,7 @@ Endpoints para gestión de notificaciones in-app y push (FCM opcional).
 
 ## GET /notifications/my
 
-Obtiene las notificaciones del usuario autenticado, incluyendo notificaciones dirigidas y broadcasts. Excluye notificaciones enviadas por el propio usuario (`senderUserId`).
+Obtiene las notificaciones **no leídas** del usuario autenticado, incluyendo notificaciones dirigidas y broadcasts. Excluye notificaciones enviadas por el propio usuario (`senderUserId`) y notificaciones ya marcadas como leídas (via `notification_reads`).
 
 **Roles:** Todos los usuarios autenticados
 
@@ -69,11 +69,11 @@ Obtiene las notificaciones del usuario autenticado, incluyendo notificaciones di
 }
 ```
 
-| Campo         | Tipo    | Descripción                                        |
-| ------------- | ------- | -------------------------------------------------- |
-| notifications | array   | Lista de notificaciones con campo `read` computado |
-| total         | number  | Total de notificaciones (para paginación)          |
-| read          | boolean | `true` si el usuario ya leyó esta notificación     |
+| Campo         | Tipo    | Descripción                                                                                                         |
+| ------------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
+| notifications | array   | Lista de notificaciones no leídas (filtradas por `NOT EXISTS` en `notification_reads`)                              |
+| total         | number  | Total de notificaciones no leídas (para paginación)                                                                 |
+| read          | boolean | `true` si el usuario ya leyó esta notificación (siempre `false` cuando `NOT EXISTS` filtra, incluido como fallback) |
 
 ---
 
@@ -469,8 +469,11 @@ Cada notificación enviada incluye tanto `notification` como `data` payload:
 ## Notas
 
 - **Backend es fuente de verdad**: Todas las notificaciones se persisten en `AppNotification`. IndexedDB fue eliminado
+- **Read filtering**: `GET /notifications/my` usa `NOT EXISTS` subquery para excluir notificaciones con registro en `notification_reads`. El frontend además filtra `read === false` como red de seguridad
+- **Mark as read = ocultar**: Marcar como leída (`PATCH /:id/read` o `PATCH /read-all`) crea un registro en `notification_reads`, lo que hace que la notificación deje de aparecer en `GET /my`
 - **WebSocket primario**: Las notificaciones in-app se entregan via WebSocket (`notification.new`) en tiempo real
 - **FCM opcional**: Si Firebase no está configurado, las notificaciones in-app siguen funcionando (solo se omite el push nativo del OS)
 - **Sender exclusion**: El admin no recibe sus propias notificaciones (filtrado por `senderUserId` en query y WebSocket)
+- **No localStorage**: Las notificaciones NO se persisten en localStorage del frontend. Siempre se cargan frescas del backend al iniciar sesión o refrescar
 - Los tokens inválidos o expirados se eliminan automáticamente al fallar el envío
 - Un usuario puede tener múltiples tokens (multi-dispositivo)

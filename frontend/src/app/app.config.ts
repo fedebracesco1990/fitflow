@@ -127,7 +127,7 @@ export const appConfig: ApplicationConfig = {
     provideStore(
       [AuthState, UserState, NotificationsState, PersonalRecordsState],
       withNgxsStoragePlugin({
-        keys: ['auth.user', 'auth.isAuthenticated', 'user.profile', 'notifications.notifications'],
+        keys: ['auth.user', 'auth.isAuthenticated', 'user.profile'],
       }),
       withNgxsReduxDevtoolsPlugin({ disabled: environment.production })
     ),

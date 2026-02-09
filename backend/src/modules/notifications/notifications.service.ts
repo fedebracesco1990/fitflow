@@ -370,6 +370,9 @@ export class NotificationsService implements OnModuleInit {
         broadcast: NotificationTargetType.BROADCAST,
       })
       .andWhere('(n.senderUserId != :userId OR n.senderUserId IS NULL)')
+      .andWhere(
+        'NOT EXISTS (SELECT 1 FROM notification_reads nr WHERE nr.notificationId = n.id AND nr.userId = :userId)'
+      )
       .orderBy('n.createdAt', 'DESC')
       .limit(limit)
       .offset(offset);
@@ -399,6 +402,7 @@ export class NotificationsService implements OnModuleInit {
     const existing = await this.notificationReadRepository.findOne({
       where: { notificationId, userId },
     });
+
     if (!existing) {
       const read = this.notificationReadRepository.create({ notificationId, userId });
       await this.notificationReadRepository.save(read);

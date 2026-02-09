@@ -55,7 +55,6 @@ import { LucideAngularModule } from 'lucide-angular';
             @for (notification of notifications(); track notification.id) {
               <li
                 class="notification-item"
-                [class.unread]="!notification.read"
                 (click)="onNotificationClick(notification)"
                 (keydown.enter)="onNotificationClick(notification)"
                 tabindex="0"
@@ -184,18 +183,6 @@ import { LucideAngularModule } from 'lucide-angular';
 
       &:hover {
         background: #f8fafc;
-      }
-
-      &.unread {
-        background: #eff6ff;
-
-        &:hover {
-          background: #dbeafe;
-        }
-
-        .title {
-          color: #1d4ed8;
-        }
       }
     }
 
