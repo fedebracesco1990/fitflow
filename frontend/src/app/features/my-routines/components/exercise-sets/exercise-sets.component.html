@@ -71,3 +71,11 @@
   (saved)="onEditSave($event)"
   (cancelled)="onEditCancel()"
 />
+
+<fit-flow-rest-timer
+  [isActive]="isResting()"
+  [duration]="restDuration()"
+  [restType]="restType() === 'exercise' ? 'exercise' : 'set'"
+  (completed)="onRestCompleted()"
+  (skipped)="onRestSkipped()"
+/>

@@ -96,6 +96,7 @@ export class WorkoutActiveComponent implements OnInit {
       status: index === 0 ? 'current' : 'pending',
       setsCompleted: 0,
       totalSets: ex.sets,
+      restSeconds: ex.restSeconds ?? 90,
     }));
 
     this.stateService.initWorkout(

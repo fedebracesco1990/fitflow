@@ -8,7 +8,11 @@
       </div>
 
       <h1 class="title">¡Descansa!</h1>
-      <p class="subtitle">Tómate un respiro antes de la siguiente serie</p>
+      @if (restType() === 'exercise') {
+        <p class="subtitle">Tómate un respiro antes del siguiente ejercicio</p>
+      } @else {
+        <p class="subtitle">Tómate un respiro antes de la siguiente serie</p>
+      }
 
       <div class="timer-card">
         <div class="timer-value">{{ formattedTime }}</div>

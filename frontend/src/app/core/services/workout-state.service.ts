@@ -3,6 +3,8 @@ import { ExerciseLog } from '../models';
 
 export type ExerciseStatus = 'pending' | 'current' | 'completed' | 'skipped';
 
+export type RestType = 'set' | 'exercise' | null;
+
 export interface ExerciseState {
   id: string;
   exerciseId: string;
@@ -10,6 +12,7 @@ export interface ExerciseState {
   status: ExerciseStatus;
   setsCompleted: number;
   totalSets: number;
+  restSeconds: number;
 }
 
 @Injectable({
@@ -20,6 +23,7 @@ export class WorkoutStateService {
   private _currentExerciseIndex = signal<number>(0);
   private _isResting = signal<boolean>(false);
   private _restDuration = signal<number>(90);
+  private _restType = signal<RestType>(null);
   private _workoutId = signal<string | null>(null);
   private _workoutLogId = signal<string | null>(null);
   private _exerciseLogsMap = signal<Record<string, ExerciseLog[]>>({});
@@ -29,6 +33,7 @@ export class WorkoutStateService {
   readonly currentExerciseIndex = this._currentExerciseIndex.asReadonly();
   readonly isResting = this._isResting.asReadonly();
   readonly restDuration = this._restDuration.asReadonly();
+  readonly restType = this._restType.asReadonly();
   readonly workoutId = this._workoutId.asReadonly();
   readonly workoutLogId = this._workoutLogId.asReadonly();
   readonly exerciseLogsMap = this._exerciseLogsMap.asReadonly();
@@ -158,19 +163,33 @@ export class WorkoutStateService {
     }
   }
 
-  startRest(duration = 90): void {
+  startSetRest(duration = 90): void {
     this._restDuration.set(duration);
+    this._restType.set('set');
+    this._isResting.set(true);
+  }
+
+  startExerciseRest(duration = 90): void {
+    this._restDuration.set(duration);
+    this._restType.set('exercise');
     this._isResting.set(true);
   }
 
   endRest(): void {
-    this._isResting.set(false);
-    this.moveToNextExercise();
+    this._stopRest();
   }
 
   skipRest(): void {
+    this._stopRest();
+  }
+
+  private _stopRest(): void {
+    const type = this._restType();
     this._isResting.set(false);
-    this.moveToNextExercise();
+    this._restType.set(null);
+    if (type === 'exercise') {
+      this.moveToNextExercise();
+    }
   }
 
   setRoutineName(name: string): void {
@@ -181,6 +200,7 @@ export class WorkoutStateService {
     this._exerciseStates.set([]);
     this._currentExerciseIndex.set(0);
     this._isResting.set(false);
+    this._restType.set(null);
     this._workoutId.set(null);
     this._workoutLogId.set(null);
     this._routineName.set('');

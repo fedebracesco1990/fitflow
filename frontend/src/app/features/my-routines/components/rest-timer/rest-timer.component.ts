@@ -1,4 +1,4 @@
-import { Component, input, output, signal, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, input, output, signal, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,9 +8,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: './rest-timer.component.html',
   styleUrl: './rest-timer.component.scss',
 })
-export class RestTimerComponent implements OnInit, OnDestroy {
+export class RestTimerComponent implements OnDestroy {
   isActive = input(false);
   duration = input(90);
+  restType = input<'set' | 'exercise'>('set');
 
   completed = output<void>();
   skipped = output<void>();
@@ -27,13 +28,6 @@ export class RestTimerComponent implements OnInit, OnDestroy {
         this.stopCountdown();
       }
     });
-  }
-
-  ngOnInit(): void {
-    if (this.isActive()) {
-      this.remainingSeconds.set(this.duration());
-      this.startCountdown();
-    }
   }
 
   ngOnDestroy(): void {

@@ -55,10 +55,27 @@ Wrapper de `WorkoutsService`. Métodos principales:
 
 Gestiona el estado de la sesión de entrenamiento activa:
 
-- `exerciseStates` — Estado de cada ejercicio (completado, en progreso, pendiente)
+- `exerciseStates` — Estado de cada ejercicio (completado, en progreso, pendiente). Cada `ExerciseState` incluye `restSeconds` (duración de descanso configurada en la rutina)
 - `workoutLogId` — ID del WorkoutLog activo
 - `exerciseLogsMap` — Mapa de exerciseId → ExerciseLog[] para acceso rápido
 - `getExerciseLogsForExercise(exerciseId)` — Retorna los logs de un ejercicio específico
+
+**Rest Timer State:**
+
+- `isResting` — Signal booleano que indica si el timer de descanso está activo
+- `restDuration` — Duración del descanso actual en segundos
+- `restType` — Tipo de descanso: `'set'` (entre series) o `'exercise'` (entre ejercicios) o `null`
+- `startSetRest(duration)` — Inicia descanso entre series (no avanza al siguiente ejercicio al terminar)
+- `startExerciseRest(duration)` — Inicia descanso entre ejercicios (llama `moveToNextExercise()` al terminar)
+- `endRest()` / `skipRest()` — Finaliza el descanso; si `restType === 'exercise'`, avanza al siguiente ejercicio
+
+**Flujo del Rest Timer:**
+
+```
+Completar set (quedan sets) → startSetRest() → RestTimerComponent → endRest() → continúa en mismo ejercicio
+Completar ejercicio          → startExerciseRest() → RestTimerComponent → endRest() → moveToNextExercise() → navega a workout-active
+Último ejercicio             → markCurrentCompleted() → navega a workout-active (sin timer)
+```
 
 ### `SyncManagerService`
 

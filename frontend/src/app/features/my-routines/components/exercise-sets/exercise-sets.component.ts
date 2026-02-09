@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WorkoutStateService, OfflineWorkoutsService } from '../../../../core/services';
 import { EditSetDialogComponent } from '../edit-set-dialog/edit-set-dialog.component';
+import { RestTimerComponent } from '../rest-timer/rest-timer.component';
 
 interface SetData {
   id: string;
@@ -15,7 +16,7 @@ interface SetData {
 @Component({
   selector: 'fit-flow-exercise-sets',
   standalone: true,
-  imports: [CommonModule, EditSetDialogComponent],
+  imports: [CommonModule, EditSetDialogComponent, RestTimerComponent],
   templateUrl: './exercise-sets.component.html',
   styleUrl: './exercise-sets.component.scss',
 })
@@ -28,6 +29,12 @@ export class ExerciseSetsComponent implements OnInit {
   exerciseName = signal('');
   sets = signal<SetData[]>([]);
   private catalogExerciseId = '';
+  private exerciseRestSeconds = 90;
+  private pendingExerciseCompletion = false;
+
+  readonly isResting = this.stateService.isResting;
+  readonly restDuration = this.stateService.restDuration;
+  readonly restType = this.stateService.restType;
 
   ngOnInit(): void {
     const exerciseId = this.route.snapshot.paramMap.get('exerciseId');
@@ -43,6 +50,7 @@ export class ExerciseSetsComponent implements OnInit {
     if (exerciseState) {
       this.exerciseName.set(exerciseState.name);
       this.catalogExerciseId = exerciseState.exerciseId;
+      this.exerciseRestSeconds = exerciseState.restSeconds ?? 90;
     }
 
     // Get real exercise logs from the workout
@@ -113,7 +121,34 @@ export class ExerciseSetsComponent implements OnInit {
         .subscribe();
     }
 
-    // Exercise completion is handled by onCompleteExercise button
+    // Trigger rest timer if there are remaining incomplete sets
+    const hasRemainingSets = this.sets().some((s) => !s.completed && s.id !== set.id);
+    if (hasRemainingSets) {
+      this.stateService.startSetRest(this.exerciseRestSeconds);
+    }
+  }
+
+  onRestCompleted(): void {
+    this.handleRestEnd();
+  }
+
+  onRestSkipped(): void {
+    this.handleRestEnd();
+  }
+
+  private handleRestEnd(): void {
+    const wasExerciseRest = this.pendingExerciseCompletion;
+    if (wasExerciseRest) {
+      this.pendingExerciseCompletion = false;
+      const current = this.stateService.currentExercise();
+      if (current) {
+        this.stateService.updateExerciseStatus(current.id, 'completed');
+      }
+    }
+    this.stateService.endRest();
+    if (wasExerciseRest) {
+      this.goBack();
+    }
   }
 
   onEditSave(data: { reps: number; weight: number }): void {
@@ -202,13 +237,20 @@ export class ExerciseSetsComponent implements OnInit {
   onCompleteExercise(): void {
     if (!this.allSetsCompleted) return;
 
-    // Marcar ejercicio como completado y avanzar al siguiente
     const exerciseId = this.route.snapshot.paramMap.get('exerciseId');
     if (exerciseId) {
       this.stateService.updateExerciseSets(exerciseId, this.completedSets);
     }
-    this.stateService.markCurrentCompleted();
-    this.goBack();
+
+    if (!this.stateService.isLastExercise()) {
+      // Show rest timer before moving to next exercise
+      this.pendingExerciseCompletion = true;
+      this.stateService.startExerciseRest(this.exerciseRestSeconds);
+    } else {
+      // Last exercise, complete directly
+      this.stateService.markCurrentCompleted();
+      this.goBack();
+    }
   }
 
   goBack(): void {
