@@ -1,14 +1,35 @@
 <div class="attendance-calendar">
   <div class="calendar-header">
     <button class="nav-btn" (click)="previousMonth()">← Anterior</button>
-    <span class="current-month">
-      {{ viewDate | date: 'MMMM yyyy' }}
-    </span>
+    <span class="current-month">{{ getMonthLabel() }}</span>
     <button class="nav-btn" (click)="nextMonth()">Siguiente →</button>
   </div>
 
-  <mwl-calendar-month-view [viewDate]="viewDate" [events]="events" [locale]="'es'">
-  </mwl-calendar-month-view>
+  <div class="calendar-grid">
+    <div class="weekday-header">
+      @for (day of weekDays; track day) {
+        <div class="weekday-cell">{{ day }}</div>
+      }
+    </div>
+
+    @for (week of weeks; track $index) {
+      <div class="week-row">
+        @for (day of week; track day.date.getTime()) {
+          <div
+            class="day-cell"
+            [class.other-month]="!day.isCurrentMonth"
+            [class.today]="day.isToday"
+            [class.has-attendance]="day.hasAttendance"
+          >
+            <span class="day-number">{{ day.dayNumber }}</span>
+            @if (day.hasAttendance) {
+              <span class="attendance-dot"></span>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
 
   <div class="calendar-legend">
     <div class="legend-item">

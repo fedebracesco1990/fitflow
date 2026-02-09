@@ -3,9 +3,7 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "schematicCollections": [
-      "@angular-eslint/schematics"
-    ],
+    "schematicCollections": ["@angular-eslint/schematics"],
     "analytics": false
   },
   "newProjectRoot": "projects",
@@ -35,7 +33,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["node_modules/angular-calendar/css/angular-calendar.css", "src/styles.scss"]
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
             "production": {
@@ -95,7 +93,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["node_modules/angular-calendar/css/angular-calendar.css", "src/styles.scss"]
+            "styles": ["src/styles.scss"]
           }
         },
         "lint": {

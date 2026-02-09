@@ -13,6 +13,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
+import { AuthenticatedUser } from '../auth/types/authenticated-user.type';
 import { AccessLog } from '../access/entities/access-log.entity';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
@@ -37,9 +38,9 @@ export class AttendanceController {
   async getUserAttendance(
     @Param('userId') userId: string,
     @Query() query: AttendanceQueryDto,
-    @Request() req: { user: { id: string; role: Role } }
+    @Request() req: { user: AuthenticatedUser }
   ): Promise<PaginatedResponse<AccessLog>> {
-    const isOwnProfile = req.user.id === userId;
+    const isOwnProfile = req.user.userId === userId;
     const isAdminOrTrainer = req.user.role === Role.ADMIN || req.user.role === Role.TRAINER;
 
     if (!isOwnProfile && !isAdminOrTrainer) {
@@ -52,11 +53,11 @@ export class AttendanceController {
   @Get('user/:userId/count')
   async getUserMonthlyCount(
     @Param('userId') userId: string,
-    @Request() req: { user: { id: string; role: Role } },
+    @Request() req: { user: AuthenticatedUser },
     @Query('month') month?: string,
     @Query('year') year?: string
   ): Promise<{ count: number; month: number; year: number }> {
-    const isOwnProfile = req.user.id === userId;
+    const isOwnProfile = req.user.userId === userId;
     const isAdminOrTrainer = req.user.role === Role.ADMIN || req.user.role === Role.TRAINER;
 
     if (!isOwnProfile && !isAdminOrTrainer) {
