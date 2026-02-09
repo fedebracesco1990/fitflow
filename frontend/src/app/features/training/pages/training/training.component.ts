@@ -1,6 +1,6 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { RoutineType } from '../../../../core/models';
 import { AuthState } from '../../../../core/store';
@@ -15,7 +15,6 @@ type TabType = 'routines' | 'exercises' | 'classes';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     RoutinesListComponent,
     ExercisesListComponent,
     RoutineTypeSelectDialogComponent,

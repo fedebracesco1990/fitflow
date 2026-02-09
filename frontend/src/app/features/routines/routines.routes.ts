@@ -13,12 +13,6 @@ export const ROUTINES_ROUTES: Routes = [
         title: 'Rutinas',
       },
       {
-        path: 'templates',
-        loadComponent: () =>
-          import('./pages/templates/templates.component').then((m) => m.TemplatesListComponent),
-        title: 'Plantillas de Rutinas',
-      },
-      {
         path: 'daily/new',
         loadComponent: () =>
           import('./pages/daily-builder/daily-builder.component').then(
@@ -55,18 +49,6 @@ export const ROUTINES_ROUTES: Routes = [
         loadComponent: () =>
           import('./pages/form/form.component').then((m) => m.RoutineFormComponent),
         title: 'Nueva Rutina',
-      },
-      {
-        path: 'builder',
-        loadComponent: () =>
-          import('./pages/builder/builder.component').then((m) => m.RoutineBuilderComponent),
-        title: 'Constructor de Rutinas',
-      },
-      {
-        path: ':id/builder',
-        loadComponent: () =>
-          import('./pages/builder/builder.component').then((m) => m.RoutineBuilderComponent),
-        title: 'Editar Rutina',
       },
       {
         path: ':id/edit',

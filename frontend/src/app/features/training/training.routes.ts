@@ -45,22 +45,6 @@ export const TRAINING_ROUTES: Routes = [
         title: 'Editar Programa Semanal',
       },
       {
-        path: 'routines/templates',
-        loadComponent: () =>
-          import('../routines/pages/templates/templates.component').then(
-            (m) => m.TemplatesListComponent
-          ),
-        title: 'Plantillas de Rutinas',
-      },
-      {
-        path: 'routines/:id/builder',
-        loadComponent: () =>
-          import('../routines/pages/builder/builder.component').then(
-            (m) => m.RoutineBuilderComponent
-          ),
-        title: 'Editar Rutina',
-      },
-      {
         path: 'routines/:id/edit',
         loadComponent: () =>
           import('../routines/pages/form/form.component').then((m) => m.RoutineFormComponent),
