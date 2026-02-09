@@ -51,133 +51,12 @@
 }
 
 .exercise-library {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  padding: 1rem;
   position: sticky;
   top: 1rem;
   max-height: calc(100vh - 260px);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-
-  h3 {
-    margin: 0 0 1rem;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #1f2937;
-  }
-}
-
-.library-search {
-  margin-bottom: 0.75rem;
-
-  input {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    background: #f9fafb;
-
-    &::placeholder {
-      color: #9ca3af;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: #667eea;
-      background: white;
-    }
-  }
-}
-
-.muscle-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.chip {
-  padding: 0.375rem 0.75rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 1rem;
-  background: white;
-  font-size: 0.75rem;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    border-color: #667eea;
-    color: #667eea;
-  }
-
-  &.active {
-    background: #667eea;
-    border-color: #667eea;
-    color: white;
-  }
-}
-
-.exercise-list {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.exercise-card {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.625rem;
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  cursor: grab;
-
-  &:hover {
-    background: #f1f5f9;
-    border-color: #667eea;
-  }
-
-  &:active {
-    cursor: grabbing;
-  }
-}
-
-.exercise-avatar {
-  width: 40px;
-  height: 40px;
-  background: #667eea;
-  color: white;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.625rem;
-  font-weight: 600;
-}
-
-.exercise-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.exercise-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #1f2937;
-}
-
-.exercise-muscle {
-  font-size: 0.75rem;
-  color: #6b7280;
+  min-height: 0;
 }
 
 .builder-main {
@@ -247,6 +126,7 @@
     border-radius: 0.5rem;
     font-size: 0.875rem;
     background: white;
+    width: 100%;
 
     &:focus {
       outline: none;
@@ -347,6 +227,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 0.375rem;
     font-size: 0.875rem;
+    width: 100%;
   }
 }
 
@@ -436,13 +317,6 @@
 @media (max-width: 768px) {
   .builder-layout {
     grid-template-columns: 1fr;
-  }
-
-  .exercise-panel-container {
-    position: static;
-    height: auto;
-    max-height: 300px;
-    overflow-y: auto;
   }
 
   .form-row {

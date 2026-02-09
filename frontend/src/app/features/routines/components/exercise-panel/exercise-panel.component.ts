@@ -71,10 +71,19 @@ import { Exercise, MuscleGroup } from '../../../../core/models';
   `,
   styles: [
     `
+      :host {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+      }
+
       .exercise-panel {
         display: flex;
         flex-direction: column;
         height: 100%;
+        min-height: 0;
         background: #ffffff;
         border-radius: 0.75rem;
         border: 1px solid #e5e7eb;
@@ -253,7 +262,7 @@ export class ExercisePanelComponent implements OnInit {
     this.loading.set(true);
     this.exercisesService
       .getAll({
-        limit: 100,
+        limit: 200,
         muscleGroupId: this.filters.muscleGroupId || undefined,
         search: this.filters.search || undefined,
       })

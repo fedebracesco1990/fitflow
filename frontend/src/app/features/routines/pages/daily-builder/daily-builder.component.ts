@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -9,7 +9,7 @@ import {
   CdkDragHandle,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { RoutinesService, ExercisesService } from '../../../../core/services';
+import { RoutinesService } from '../../../../core/services';
 import { ButtonComponent } from '../../../../shared';
 import {
   RoutineType,
@@ -18,6 +18,7 @@ import {
   CreateRoutineDto,
   Exercise,
 } from '../../../../core/models';
+import { ExercisePanelComponent } from '../../components/exercise-panel/exercise-panel.component';
 
 interface PendingExercise {
   exercise: Exercise;
@@ -39,6 +40,7 @@ interface PendingExercise {
     CdkDrag,
     CdkDragHandle,
     ButtonComponent,
+    ExercisePanelComponent,
   ],
   templateUrl: './daily-builder.component.html',
   styleUrl: './daily-builder.component.scss',
@@ -47,7 +49,6 @@ export class DailyRoutineBuilderComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly routinesService = inject(RoutinesService);
-  private readonly exercisesService = inject(ExercisesService);
 
   routineId = signal<string | null>(null);
   isEditMode = signal(false);
@@ -63,52 +64,19 @@ export class DailyRoutineBuilderComponent implements OnInit {
   });
 
   pendingExercises = signal<PendingExercise[]>([]);
-  exercises = signal<Exercise[]>([]);
-  exerciseSearch = signal('');
-  selectedMuscleGroup = signal('');
 
   difficultyOptions = Object.values(Difficulty);
   difficultyLabels = DifficultyLabels;
 
-  muscleGroups = [
-    { value: '', label: 'Todo' },
-    { value: 'core', label: 'Core' },
-    { value: 'triceps', label: 'Triceps' },
-    { value: 'espalda', label: 'Espalda' },
-    { value: 'piernas', label: 'Piernas' },
-  ];
-
-  filteredExercises = computed(() => {
-    let result = this.exercises();
-    const search = this.exerciseSearch().toLowerCase().trim();
-    const muscle = this.selectedMuscleGroup();
-
-    if (search) {
-      result = result.filter((e) => e.name.toLowerCase().includes(search));
-    }
-    if (muscle) {
-      result = result.filter((e) => e.muscleGroup?.name?.toLowerCase().includes(muscle));
-    }
-    return result;
-  });
-
-  connectedDropLists = ['exercise-panel', 'routine-exercises'];
+  connectedDropLists = ['routine-exercises'];
 
   ngOnInit(): void {
-    this.loadExercises();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.routineId.set(id);
       this.isEditMode.set(true);
       this.loadRoutine(id);
     }
-  }
-
-  loadExercises(): void {
-    this.exercisesService.getAll().subscribe({
-      next: (response) => this.exercises.set(response.data),
-      error: () => this.exercises.set([]),
-    });
   }
 
   loadRoutine(id: string): void {
@@ -169,7 +137,11 @@ export class DailyRoutineBuilderComponent implements OnInit {
     });
   }
 
-  updateExercise(index: number, field: 'sets' | 'reps' | 'restSeconds', value: number): void {
+  updateExercise(
+    index: number,
+    field: 'sets' | 'reps' | 'restSeconds' | 'weight',
+    value: number
+  ): void {
     this.pendingExercises.update((list) => {
       const newList = [...list];
       newList[index] = { ...newList[index], [field]: value };
@@ -249,27 +221,6 @@ export class DailyRoutineBuilderComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/training']);
-  }
-
-  setRoutinesTab(): void {
-    // Tab state will be handled by training component
-  }
-
-  onExerciseSearchChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.exerciseSearch.set(input.value);
-  }
-
-  selectMuscleGroup(value: string): void {
-    this.selectedMuscleGroup.set(value);
-  }
-
-  updateExerciseWeight(index: number, value: number): void {
-    this.pendingExercises.update((list) => {
-      const newList = [...list];
-      newList[index] = { ...newList[index], weight: value };
-      return newList;
-    });
   }
 
   saveDraft(): void {

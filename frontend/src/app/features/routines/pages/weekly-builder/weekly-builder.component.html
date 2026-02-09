@@ -17,25 +17,17 @@
   } @else {
     <div class="builder-layout">
       <aside class="routines-library">
-        <h3>Biblioteca de Rutinas Diarias</h3>
-        <div class="library-search">
+        <div class="panel-header">
+          <h3>Biblioteca de Rutinas Diarias</h3>
+        </div>
+        <div class="panel-filters">
           <input
-            type="text"
-            placeholder="Buscar"
+            type="search"
+            class="search-input"
+            placeholder="Buscar rutina..."
             [value]="routineSearch()"
             (input)="onRoutineSearchChange($event)"
           />
-        </div>
-        <div class="filter-chips">
-          @for (filter of routineFilters; track filter.value) {
-            <button
-              class="chip"
-              [class.active]="selectedFilter() === filter.value"
-              (click)="selectFilter(filter.value)"
-            >
-              {{ filter.label }}
-            </button>
-          }
         </div>
         <div
           class="routines-list"
@@ -46,7 +38,7 @@
           [cdkDropListSortingDisabled]="true"
         >
           @if (filteredRoutines().length === 0) {
-            <p class="empty">No hay rutinas diarias disponibles</p>
+            <div class="empty">No hay rutinas diarias disponibles</div>
           } @else {
             @for (routine of filteredRoutines(); track routine.id) {
               <div
@@ -57,11 +49,16 @@
                 (click)="selectRoutine(routine)"
                 (keydown.enter)="selectRoutine(routine)"
               >
-                <div class="routine-info">
-                  <span class="routine-name">{{ routine.name }}</span>
-                  <div class="routine-meta">
-                    <span class="meta-item">{{ routine.exercises.length || 0 }} ejercicios</span>
-                    <span class="meta-item">{{ routine.estimatedDuration }} min</span>
+                <div class="routine-content">
+                  <div class="routine-thumb">
+                    {{ routine.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="routine-info">
+                    <span class="routine-name">{{ routine.name }}</span>
+                    <span class="routine-meta">
+                      {{ routine.exercises.length || 0 }} ejercicios ·
+                      {{ routine.estimatedDuration }} min
+                    </span>
                   </div>
                 </div>
               </div>

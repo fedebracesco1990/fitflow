@@ -3,7 +3,7 @@
     <button class="back-btn" (click)="goBack()">‹</button>
     <a routerLink="/training">Entrenamiento</a>
     <span class="separator">›</span>
-    <a routerLink="/training" (click)="setRoutinesTab()">Rutinas</a>
+    <a routerLink="/training">Rutinas</a>
     <span class="separator">›</span>
     <span class="current">Rutina Diaria</span>
   </nav>
@@ -17,44 +17,7 @@
   } @else {
     <div class="builder-layout">
       <aside class="exercise-library">
-        <h3>Biblioteca de Ejercicios</h3>
-        <div class="library-search">
-          <input
-            type="text"
-            placeholder="Buscar"
-            [value]="exerciseSearch()"
-            (input)="onExerciseSearchChange($event)"
-          />
-        </div>
-        <div class="muscle-chips">
-          @for (group of muscleGroups; track group.value) {
-            <button
-              class="chip"
-              [class.active]="selectedMuscleGroup() === group.value"
-              (click)="selectMuscleGroup(group.value)"
-            >
-              {{ group.label }}
-            </button>
-          }
-        </div>
-        <div
-          class="exercise-list"
-          cdkDropList
-          id="exercise-panel"
-          [cdkDropListData]="filteredExercises()"
-          [cdkDropListConnectedTo]="['routine-exercises']"
-          [cdkDropListSortingDisabled]="true"
-        >
-          @for (exercise of filteredExercises(); track exercise.id) {
-            <div class="exercise-card" cdkDrag>
-              <div class="exercise-avatar">IMG</div>
-              <div class="exercise-details">
-                <span class="exercise-name">{{ exercise.name }}</span>
-                <span class="exercise-muscle">{{ exercise.muscleGroup?.name || 'General' }}</span>
-              </div>
-            </div>
-          }
-        </div>
+        <fit-flow-exercise-panel [connectedLists]="connectedDropLists" />
       </aside>
 
       <main class="builder-main">
@@ -184,7 +147,7 @@
                     <input
                       type="number"
                       [value]="item.weight || 0"
-                      (input)="updateExerciseWeight(i, +$any($event.target).value)"
+                      (input)="updateExercise(i, 'weight', +$any($event.target).value)"
                       min="0"
                     />
                   </div>
