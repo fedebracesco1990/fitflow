@@ -235,6 +235,51 @@ export class OfflineWorkoutsService {
     return { log: updatedLog };
   }
 
+  addExerciseLog(
+    workoutId: string,
+    data: { exerciseId: string; setNumber: number; reps: number; weight: number | null }
+  ): Observable<ExerciseLog> {
+    if (this.networkService.isOnline()) {
+      return this.workoutsService
+        .addExerciseLog(workoutId, data)
+        .pipe(tap((log) => this.cacheExerciseLog(log, workoutId, false)));
+    }
+
+    return from(this.addExerciseLogOffline(workoutId, data));
+  }
+
+  private async addExerciseLogOffline(
+    workoutId: string,
+    data: { exerciseId: string; setNumber: number; reps: number; weight: number | null }
+  ): Promise<ExerciseLog> {
+    const tempId = this.generateTempId();
+    const log: ExerciseLog = {
+      id: tempId,
+      workoutLogId: workoutId,
+      exerciseId: data.exerciseId,
+      setNumber: data.setNumber,
+      reps: data.reps,
+      weight: data.weight,
+      completed: false,
+      notes: null,
+      rir: null,
+      rpe: null,
+      exercise: null as never,
+    };
+
+    await this.cacheExerciseLog(log, workoutId, true, tempId);
+
+    await this.syncQueue.enqueue(
+      SyncOperationType.UPDATE_EXERCISE_LOG,
+      `workouts/${workoutId}/exercises`,
+      'POST',
+      data,
+      tempId
+    );
+
+    return log;
+  }
+
   deleteExerciseLog(workoutId: string, logId: string): Observable<void> {
     if (this.networkService.isOnline()) {
       return this.workoutsService

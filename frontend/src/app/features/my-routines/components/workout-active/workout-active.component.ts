@@ -51,6 +51,21 @@ export class WorkoutActiveComponent implements OnInit {
   }
 
   private loadRoutine(routineId: string): void {
+    // Si ya hay un workout activo, restaurar desde el state sin crear uno nuevo
+    const existingLogId = this.stateService.workoutLogId();
+    const existingStates = this.stateService.exerciseStates();
+    if (existingLogId && existingStates.length > 0) {
+      this.workoutLogId.set(existingLogId);
+      this.routineName.set(this.stateService.routineName());
+      this.routineDate.set(this.formatTodayDate());
+      this.loading.set(false);
+
+      if (!this.timerService.isRunning()) {
+        this.timerService.start(routineId);
+      }
+      return;
+    }
+
     this.loading.set(true);
 
     // Iniciar workout - online crea en backend, offline genera temporal
@@ -59,6 +74,7 @@ export class WorkoutActiveComponent implements OnInit {
         this.workoutLogId.set(workoutLog.id);
         this.routineName.set(workoutLog.userProgramRoutine.name);
         this.routineDate.set(this.formatTodayDate());
+        this.stateService.setRoutineName(workoutLog.userProgramRoutine.name);
         this.startWorkoutSession(routineId, workoutLog);
       },
       error: (err) => {
@@ -69,17 +85,18 @@ export class WorkoutActiveComponent implements OnInit {
   }
 
   private startWorkoutSession(routineId: string, workoutLog: WorkoutLog): void {
-    // Convertir ejercicios del workout a ExerciseState
-    const exerciseStates: ExerciseState[] = workoutLog.userProgramRoutine.exercises.map(
-      (ex, index) => ({
-        id: ex.id,
-        exerciseId: ex.exerciseId,
-        name: ex.exercise?.name || `Ejercicio ${index + 1}`,
-        status: index === 0 ? 'current' : 'pending',
-        setsCompleted: 0,
-        totalSets: ex.sets,
-      })
+    // Convertir ejercicios del workout a ExerciseState (ordenados por order)
+    const sortedExercises = [...workoutLog.userProgramRoutine.exercises].sort(
+      (a, b) => a.order - b.order
     );
+    const exerciseStates: ExerciseState[] = sortedExercises.map((ex, index) => ({
+      id: ex.id,
+      exerciseId: ex.exerciseId,
+      name: ex.exercise?.name || `Ejercicio ${index + 1}`,
+      status: index === 0 ? 'current' : 'pending',
+      setsCompleted: 0,
+      totalSets: ex.sets,
+    }));
 
     this.stateService.initWorkout(
       routineId,

@@ -57,15 +57,43 @@ export class WorkoutsService {
 
     const savedWorkout = await this.workoutLogRepository.save(workoutLog);
 
-    for (const exercise of routine.exercises) {
-      for (let setNum = 1; setNum <= exercise.sets; setNum++) {
+    // Buscar el último workout completado de esta misma rutina para usar sus valores
+    const lastCompletedWorkout = await this.workoutLogRepository.findOne({
+      where: {
+        userProgramRoutineId,
+        status: WorkoutStatus.COMPLETED,
+      },
+      order: { startedAt: 'DESC' },
+      relations: ['exerciseLogs'],
+    });
+
+    // Indexar logs anteriores por exerciseId + setNumber y contar sets por ejercicio
+    const previousLogs: Record<string, ExerciseLog> = {};
+    const previousSetCounts: Record<string, number> = {};
+    if (lastCompletedWorkout?.exerciseLogs) {
+      for (const log of lastCompletedWorkout.exerciseLogs) {
+        previousLogs[`${log.exerciseId}_${log.setNumber}`] = log;
+        const current = previousSetCounts[log.exerciseId] || 0;
+        previousSetCounts[log.exerciseId] = Math.max(current, log.setNumber);
+      }
+    }
+
+    const sortedExercises = [...routine.exercises].sort((a, b) => a.order - b.order);
+    for (const exercise of sortedExercises) {
+      const defaultWeight = exercise.weight != null ? parseFloat(String(exercise.weight)) : null;
+      // Usar el máximo entre sets del plan y sets del último workout (por sets extra)
+      const totalSets = Math.max(exercise.sets, previousSetCounts[exercise.exerciseId] || 0);
+      for (let setNum = 1; setNum <= totalSets; setNum++) {
+        const prevLog = previousLogs[`${exercise.exerciseId}_${setNum}`];
+        const weight = prevLog?.weight != null ? parseFloat(String(prevLog.weight)) : defaultWeight;
+        const reps = prevLog?.reps != null ? Number(prevLog.reps) : exercise.reps;
         await this.exerciseLogRepository.save(
           this.exerciseLogRepository.create({
             workoutLogId: savedWorkout.id,
             exerciseId: exercise.exerciseId,
             setNumber: setNum,
-            reps: exercise.reps,
-            weight: exercise.weight,
+            reps,
+            weight,
             completed: false,
           })
         );
@@ -150,6 +178,27 @@ export class WorkoutsService {
     });
 
     return savedWorkout;
+  }
+
+  async addExerciseLog(
+    workoutId: string,
+    exerciseId: string,
+    dto: { setNumber: number; reps: number; weight: number | null },
+    userId: string
+  ): Promise<ExerciseLog> {
+    await this.findOne(workoutId, userId);
+
+    const weight = dto.weight != null ? parseFloat(String(dto.weight)) : null;
+    const exerciseLog = this.exerciseLogRepository.create({
+      workoutLogId: workoutId,
+      exerciseId,
+      setNumber: dto.setNumber,
+      reps: Number(dto.reps),
+      weight,
+      completed: false,
+    });
+
+    return this.exerciseLogRepository.save(exerciseLog);
   }
 
   async updateExerciseLog(

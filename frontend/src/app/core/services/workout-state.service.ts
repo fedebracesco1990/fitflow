@@ -23,6 +23,7 @@ export class WorkoutStateService {
   private _workoutId = signal<string | null>(null);
   private _workoutLogId = signal<string | null>(null);
   private _exerciseLogsMap = signal<Record<string, ExerciseLog[]>>({});
+  private _routineName = signal<string>('');
 
   readonly exerciseStates = this._exerciseStates.asReadonly();
   readonly currentExerciseIndex = this._currentExerciseIndex.asReadonly();
@@ -31,6 +32,7 @@ export class WorkoutStateService {
   readonly workoutId = this._workoutId.asReadonly();
   readonly workoutLogId = this._workoutLogId.asReadonly();
   readonly exerciseLogsMap = this._exerciseLogsMap.asReadonly();
+  readonly routineName = this._routineName.asReadonly();
 
   readonly currentExercise = computed(() => {
     const states = this._exerciseStates();
@@ -65,7 +67,11 @@ export class WorkoutStateService {
     exerciseLogs?: ExerciseLog[]
   ): void {
     // Solo inicializar si es un workout diferente o no hay workout activo
-    if (this._workoutId() === workoutId && this._exerciseStates().length > 0) {
+    if (
+      this._workoutLogId() === workoutLogId &&
+      workoutLogId &&
+      this._exerciseStates().length > 0
+    ) {
       return; // Ya hay un workout activo con este ID, no reinicializar
     }
 
@@ -167,12 +173,17 @@ export class WorkoutStateService {
     this.moveToNextExercise();
   }
 
+  setRoutineName(name: string): void {
+    this._routineName.set(name);
+  }
+
   reset(): void {
     this._exerciseStates.set([]);
     this._currentExerciseIndex.set(0);
     this._isResting.set(false);
     this._workoutId.set(null);
     this._workoutLogId.set(null);
+    this._routineName.set('');
     this._exerciseLogsMap.set({});
   }
 

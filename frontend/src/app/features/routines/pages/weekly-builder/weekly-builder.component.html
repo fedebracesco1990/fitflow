@@ -82,7 +82,9 @@
                 [disabled]="saving()"
                 [loading]="saving()"
               >
-                {{ saving() ? 'Guardando...' : 'Crear Programa' }}
+                {{
+                  saving() ? 'Guardando...' : isEditMode() ? 'Guardar Programa' : 'Crear Programa'
+                }}
               </fit-flow-button>
             </div>
           </header>

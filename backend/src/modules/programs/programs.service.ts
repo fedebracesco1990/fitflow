@@ -80,6 +80,7 @@ export class ProgramsService {
         }
       } else {
         for (const re of routine.exercises) {
+          const weight = re.suggestedWeight != null ? parseFloat(String(re.suggestedWeight)) : null;
           const exercise = this.programRoutineExerciseRepository.create({
             programRoutineId: savedProgramRoutine.id,
             exerciseId: re.exerciseId,
@@ -87,7 +88,7 @@ export class ProgramsService {
             sets: re.sets,
             reps: re.reps,
             restSeconds: re.restSeconds,
-            weight: re.suggestedWeight,
+            weight,
             notes: re.notes,
           });
           await this.programRoutineExerciseRepository.save(exercise);
@@ -112,6 +113,7 @@ export class ProgramsService {
       relations: [
         'routines',
         'routines.routine',
+        'routines.routine.exercises',
         'routines.exercises',
         'routines.exercises.exercise',
         'createdBy',
@@ -125,7 +127,7 @@ export class ProgramsService {
     return program;
   }
 
-  async update(id: string, dto: CreateProgramDto, _userId: string): Promise<Program> {
+  async update(id: string, dto: CreateProgramDto): Promise<Program> {
     const program = await this.findOne(id);
 
     // Actualizar datos básicos
@@ -160,6 +162,7 @@ export class ProgramsService {
 
       // Copiar ejercicios de la rutina original
       for (const re of routine.exercises) {
+        const weight = re.suggestedWeight != null ? parseFloat(String(re.suggestedWeight)) : null;
         const exercise = this.programRoutineExerciseRepository.create({
           programRoutineId: savedProgramRoutine.id,
           exerciseId: re.exerciseId,
@@ -167,7 +170,7 @@ export class ProgramsService {
           sets: re.sets,
           reps: re.reps,
           restSeconds: re.restSeconds,
-          weight: re.suggestedWeight,
+          weight,
           notes: re.notes,
         });
         await this.programRoutineExerciseRepository.save(exercise);
@@ -208,6 +211,7 @@ export class ProgramsService {
       const savedUserRoutine = await this.userProgramRoutineRepository.save(userRoutine);
 
       for (const exercise of pr.exercises) {
+        const weight = exercise.weight != null ? parseFloat(String(exercise.weight)) : null;
         const userExercise = this.userProgramExerciseRepository.create({
           userProgramRoutineId: savedUserRoutine.id,
           exerciseId: exercise.exerciseId,
@@ -215,7 +219,7 @@ export class ProgramsService {
           sets: exercise.sets,
           reps: exercise.reps,
           restSeconds: exercise.restSeconds,
-          weight: exercise.weight,
+          weight,
           notes: exercise.notes,
         });
         await this.userProgramExerciseRepository.save(userExercise);
@@ -286,7 +290,7 @@ export class ProgramsService {
   }
 
   async delete(id: string): Promise<void> {
-    const program = await this.findOne(id);
+    await this.findOne(id);
     await this.programRepository.update(id, { isActive: false });
   }
 }

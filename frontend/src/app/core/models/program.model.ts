@@ -53,11 +53,23 @@ export interface CreateProgramDto {
   routines: CreateProgramRoutineDto[];
 }
 
+export interface ProgramRoutineExercise {
+  id: string;
+  exerciseId: string;
+  order: number;
+  sets: number;
+  reps: number;
+  restSeconds: number;
+  weight: number | null;
+  notes: string | null;
+}
+
 export interface ProgramRoutine {
   id: string;
   programId: string;
   routineId: string;
   order: number;
+  exercises?: ProgramRoutineExercise[];
   routine: {
     id: string;
     name: string;

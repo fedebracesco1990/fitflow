@@ -60,12 +60,8 @@ export class ProgramsController {
   @Put(':id')
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN, Role.TRAINER)
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: CreateProgramDto,
-    @CurrentUser('userId') userId: string
-  ) {
-    return this.programsService.update(id, dto, userId);
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: CreateProgramDto) {
+    return this.programsService.update(id, dto);
   }
 
   @Post('assign')

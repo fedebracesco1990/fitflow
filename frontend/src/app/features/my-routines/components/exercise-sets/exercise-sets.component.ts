@@ -27,6 +27,7 @@ export class ExerciseSetsComponent implements OnInit {
 
   exerciseName = signal('');
   sets = signal<SetData[]>([]);
+  private catalogExerciseId = '';
 
   ngOnInit(): void {
     const exerciseId = this.route.snapshot.paramMap.get('exerciseId');
@@ -41,6 +42,7 @@ export class ExerciseSetsComponent implements OnInit {
     const exerciseState = exerciseStates.find((e) => e.id === exerciseId);
     if (exerciseState) {
       this.exerciseName.set(exerciseState.name);
+      this.catalogExerciseId = exerciseState.exerciseId;
     }
 
     // Get real exercise logs from the workout
@@ -49,12 +51,13 @@ export class ExerciseSetsComponent implements OnInit {
     );
 
     if (exerciseLogs.length > 0) {
+      const sortedLogs = [...exerciseLogs].sort((a, b) => a.setNumber - b.setNumber);
       this.sets.set(
-        exerciseLogs.map((log) => ({
+        sortedLogs.map((log) => ({
           id: log.id,
-          setNumber: log.setNumber,
-          reps: log.reps,
-          weight: log.weight ?? 0,
+          setNumber: Number(log.setNumber),
+          reps: Number(log.reps),
+          weight: Number(log.weight) || 0,
           completed: log.completed,
         }))
       );
@@ -102,14 +105,15 @@ export class ExerciseSetsComponent implements OnInit {
     const workoutLogId = this.stateService.workoutLogId();
     if (workoutLogId) {
       this.offlineWorkoutsService
-        .updateExerciseLog(workoutLogId, set.id, { completed: true })
+        .updateExerciseLog(workoutLogId, set.id, {
+          completed: true,
+          weight: set.weight,
+          reps: set.reps,
+        })
         .subscribe();
     }
 
-    if (this.completedSets === this.totalSets) {
-      this.stateService.markCurrentCompleted();
-      this.stateService.startRest(90);
-    }
+    // Exercise completion is handled by onCompleteExercise button
   }
 
   onEditSave(data: { reps: number; weight: number }): void {
@@ -141,29 +145,69 @@ export class ExerciseSetsComponent implements OnInit {
   addSet(): void {
     const newSetNumber = this.sets().length + 1;
     const lastSet = this.sets()[this.sets().length - 1];
-    this.sets.update((sets) => [
-      ...sets,
-      {
-        id: `new-${Date.now()}`,
-        setNumber: newSetNumber,
-        reps: lastSet?.reps || 10,
-        weight: lastSet?.weight || 0,
-        completed: false,
-      },
-    ]);
+    const reps = lastSet?.reps || 10;
+    const weight = lastSet?.weight || 0;
+
+    // Persist to backend
+    const workoutLogId = this.stateService.workoutLogId();
+    if (workoutLogId && this.catalogExerciseId) {
+      this.offlineWorkoutsService
+        .addExerciseLog(workoutLogId, {
+          exerciseId: this.catalogExerciseId,
+          setNumber: newSetNumber,
+          reps,
+          weight,
+        })
+        .subscribe({
+          next: (log) => {
+            this.sets.update((sets) => [
+              ...sets,
+              {
+                id: log.id,
+                setNumber: newSetNumber,
+                reps: Number(log.reps),
+                weight: Number(log.weight) || 0,
+                completed: false,
+              },
+            ]);
+          },
+          error: () => {
+            // Fallback: add locally with temp id
+            this.sets.update((sets) => [
+              ...sets,
+              {
+                id: `new-${Date.now()}`,
+                setNumber: newSetNumber,
+                reps,
+                weight,
+                completed: false,
+              },
+            ]);
+          },
+        });
+    } else {
+      this.sets.update((sets) => [
+        ...sets,
+        {
+          id: `new-${Date.now()}`,
+          setNumber: newSetNumber,
+          reps,
+          weight,
+          completed: false,
+        },
+      ]);
+    }
   }
 
   onCompleteExercise(): void {
     if (!this.allSetsCompleted) return;
 
-    // Marcar ejercicio como completado con los sets finalizados
+    // Marcar ejercicio como completado y avanzar al siguiente
     const exerciseId = this.route.snapshot.paramMap.get('exerciseId');
     if (exerciseId) {
-      this.stateService.updateExerciseStatus(exerciseId, 'completed');
       this.stateService.updateExerciseSets(exerciseId, this.completedSets);
     }
-
-    this.stateService.startRest(90);
+    this.stateService.markCurrentCompleted();
     this.goBack();
   }
 

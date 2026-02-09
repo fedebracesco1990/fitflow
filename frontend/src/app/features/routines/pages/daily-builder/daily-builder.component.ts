@@ -127,7 +127,7 @@ export class DailyRoutineBuilderComponent implements OnInit {
             sets: re.sets,
             reps: re.reps,
             restSeconds: re.restSeconds,
-            weight: 0,
+            weight: re.suggestedWeight ?? 0,
             order: re.order,
           }))
         );
@@ -231,6 +231,7 @@ export class DailyRoutineBuilderComponent implements OnInit {
       sets: ex.sets,
       reps: ex.reps,
       restSeconds: ex.restSeconds,
+      suggestedWeight: ex.weight || undefined,
       order: ex.order,
     }));
 

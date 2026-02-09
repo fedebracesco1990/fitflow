@@ -74,6 +74,15 @@ export class WorkoutsController {
     return this.workoutsService.getExerciseLogs(id, req.user.userId);
   }
 
+  @Post(':id/exercises')
+  addExerciseLog(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { exerciseId: string; setNumber: number; reps: number; weight: number | null },
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    return this.workoutsService.addExerciseLog(id, body.exerciseId, body, req.user.userId);
+  }
+
   @Patch(':id/exercises/:logId')
   updateExerciseLog(
     @Param('id', ParseUUIDPipe) id: string,

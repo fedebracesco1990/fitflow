@@ -226,8 +226,17 @@ export class RoutinesListComponent implements OnInit {
     const isProgram = this.programs().some((p) => p.id === item.id);
 
     if (isProgram) {
-      // TODO: Implementar delete en programsService si es necesario
-      this.closeDeleteDialog();
+      this.programsService.delete(item.id).subscribe({
+        next: () => {
+          this.programs.update((list) => list.filter((p) => p.id !== item.id));
+          this.buildListItems();
+          this.closeDeleteDialog();
+        },
+        error: (err) => {
+          this.error.set(err.error?.message || 'Error al eliminar programa');
+          this.closeDeleteDialog();
+        },
+      });
     } else {
       this.routinesService.delete(item.id).subscribe({
         next: () => {

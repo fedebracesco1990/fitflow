@@ -118,7 +118,7 @@ export class WeeklyProgramBuilderComponent implements OnInit {
                 description: pr.routine.description,
                 difficulty: pr.routine.difficulty,
                 estimatedDuration: pr.routine.estimatedDuration,
-                exercises: pr.routine.exercises || [],
+                exercises: pr.routine.exercises || pr.exercises || [],
               } as Routine,
               order: pr.order,
             }));

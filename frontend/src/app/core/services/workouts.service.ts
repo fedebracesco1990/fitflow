@@ -73,6 +73,13 @@ export class WorkoutsService {
     );
   }
 
+  addExerciseLog(
+    workoutId: string,
+    data: { exerciseId: string; setNumber: number; reps: number; weight: number | null }
+  ): Observable<ExerciseLog> {
+    return this.api.post<ExerciseLog>(`${this.endpoint}/${workoutId}/exercises`, data);
+  }
+
   deleteExerciseLog(workoutId: string, logId: string): Observable<void> {
     return this.api.delete<void>(`${this.endpoint}/${workoutId}/exercises/${logId}`);
   }
