@@ -19,6 +19,16 @@ export enum SyncOperationType {
   DELETE_EXERCISE_LOG = 'delete_exercise_log',
 }
 
+export interface OfflineSyncMetaItem {
+  tempId: string;
+  exerciseId: string;
+  setNumber: number;
+}
+
+export interface OfflineSyncMeta {
+  exerciseLogs: OfflineSyncMetaItem[];
+}
+
 export interface SyncOperation {
   id: string;
   type: SyncOperationType;
@@ -31,6 +41,7 @@ export interface SyncOperation {
   tempId?: string;
   serverId?: string;
   error?: string;
+  offlineMeta?: OfflineSyncMeta;
 }
 
 export interface CachedWorkout {

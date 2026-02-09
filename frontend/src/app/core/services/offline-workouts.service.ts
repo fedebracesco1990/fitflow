@@ -15,6 +15,7 @@ import {
   CachedWorkout,
   CachedExerciseLog,
   UserProgramExercise,
+  OfflineSyncMeta,
 } from '../models';
 
 @Injectable({
@@ -83,12 +84,21 @@ export class OfflineWorkoutsService {
       await this.cacheExerciseLog(log, tempWorkoutId, true, log.id);
     }
 
+    const offlineMeta: OfflineSyncMeta = {
+      exerciseLogs: exerciseLogs.map((log) => ({
+        tempId: log.id,
+        exerciseId: log.exerciseId,
+        setNumber: log.setNumber,
+      })),
+    };
+
     await this.syncQueue.enqueue(
       SyncOperationType.START_WORKOUT,
       `workouts/start/${routineId}`,
       'POST',
       null,
-      tempWorkoutId
+      tempWorkoutId,
+      offlineMeta
     );
 
     return workoutLog;

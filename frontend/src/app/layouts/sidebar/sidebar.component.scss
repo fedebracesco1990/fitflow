@@ -294,10 +294,13 @@ $transition-speed: 0.2s;
 
       .nav-label,
       .logo-text,
-      .user-details,
       .logout-btn span,
       .connection-status span {
         display: block;
+      }
+
+      .user-details {
+        display: flex;
       }
 
       .nav-item,

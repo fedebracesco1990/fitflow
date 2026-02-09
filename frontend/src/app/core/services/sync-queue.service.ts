@@ -1,6 +1,12 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { OfflineDbService } from './offline-db.service';
-import { SyncOperation, SyncOperationType, SyncStatus, MAX_RETRY_COUNT } from '../models';
+import {
+  SyncOperation,
+  SyncOperationType,
+  SyncStatus,
+  OfflineSyncMeta,
+  MAX_RETRY_COUNT,
+} from '../models';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +33,8 @@ export class SyncQueueService {
     endpoint: string,
     method: 'POST' | 'PATCH' | 'DELETE',
     payload: unknown,
-    tempId?: string
+    tempId?: string,
+    offlineMeta?: OfflineSyncMeta
   ): Promise<string> {
     const operation: SyncOperation = {
       id: this.generateId(),
@@ -39,6 +46,7 @@ export class SyncQueueService {
       status: 'pending',
       retryCount: 0,
       tempId,
+      offlineMeta,
     };
 
     await this.offlineDb.addToSyncQueue(operation);
@@ -133,6 +141,6 @@ export class SyncQueueService {
   }
 
   private generateId(): string {
-    return `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `sync_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
 }

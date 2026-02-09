@@ -50,11 +50,11 @@ class OfflineDbService {
   addToSyncQueue(operation: SyncOperation): Promise<void>;
   getSyncQueue(): Promise<SyncOperation[]>;
   updateSyncOperation(id: string, updates: Partial<SyncOperation>): Promise<void>;
-  
+
   // Cached Workouts
   cacheWorkout(workout: CachedWorkout): Promise<void>;
   getCachedWorkout(id: string): Promise<CachedWorkout | undefined>;
-  
+
   // ID Mappings
   addIdMapping(mapping: IdMapping): Promise<void>;
   getServerIdByTempId(tempId: string): Promise<string | undefined>;
@@ -71,9 +71,9 @@ class SyncQueueService {
   readonly pendingCount: Signal<number>;
   readonly syncStatus: Signal<SyncStatus>;
   readonly hasPendingOperations: Signal<boolean>;
-  
+
   // Métodos
-  enqueue(type, endpoint, method, payload, tempId?): Promise<string>;
+  enqueue(type, endpoint, method, payload, tempId?, offlineMeta?): Promise<string>;
   peek(): Promise<SyncOperation | undefined>;
   dequeue(): Promise<SyncOperation | undefined>;
   markAsCompleted(id: string, serverId?: string): Promise<void>;
@@ -90,10 +90,10 @@ class SyncManagerService {
   // Signals
   readonly isSyncing: Signal<boolean>;
   readonly lastSyncAt: Signal<number | null>;
-  
+
   // Métodos
-  processQueue(): Promise<void>;      // Procesa toda la cola
-  forcSync(): Promise<void>;          // Fuerza sincronización
+  processQueue(): Promise<void>; // Procesa toda la cola
+  forcSync(): Promise<void>; // Fuerza sincronización
   resolveId(tempId: string): Promise<string>; // Resuelve ID temporal
 }
 ```
@@ -120,18 +120,29 @@ class OfflineWorkoutsService {
 ### SyncOperation
 
 ```typescript
+interface OfflineSyncMetaItem {
+  tempId: string; // ID temporal del exercise log
+  exerciseId: string; // ID del ejercicio (UUID real)
+  setNumber: number; // Número de serie
+}
+
+interface OfflineSyncMeta {
+  exerciseLogs: OfflineSyncMetaItem[]; // Metadata para mapeo de IDs
+}
+
 interface SyncOperation {
-  id: string;                           // ID único de la operación
-  type: SyncOperationType;              // Tipo de operación
-  endpoint: string;                     // Endpoint API
-  method: 'POST' | 'PATCH' | 'DELETE';  // Método HTTP
-  payload: unknown;                     // Datos a enviar
-  timestamp: number;                    // Timestamp de creación
+  id: string; // ID único de la operación
+  type: SyncOperationType; // Tipo de operación
+  endpoint: string; // Endpoint API
+  method: 'POST' | 'PATCH' | 'DELETE'; // Método HTTP
+  payload: unknown; // Datos a enviar
+  timestamp: number; // Timestamp de creación
   status: 'pending' | 'processing' | 'completed' | 'failed';
-  retryCount: number;                   // Intentos realizados
-  tempId?: string;                      // ID temporal (si aplica)
-  serverId?: string;                    // ID del servidor (post-sync)
-  error?: string;                       // Mensaje de error
+  retryCount: number; // Intentos realizados
+  tempId?: string; // ID temporal (si aplica)
+  serverId?: string; // ID del servidor (post-sync)
+  error?: string; // Mensaje de error
+  offlineMeta?: OfflineSyncMeta; // Metadata para mapeo de exercise log IDs
 }
 ```
 
@@ -139,11 +150,11 @@ interface SyncOperation {
 
 ```typescript
 enum SyncStatus {
-  IDLE = 'idle',         // Sin operaciones pendientes
-  SYNCING = 'syncing',   // Sincronizando
-  SYNCED = 'synced',     // Recién sincronizado
-  PENDING = 'pending',   // Hay operaciones pendientes
-  ERROR = 'error',       // Error en sincronización
+  IDLE = 'idle', // Sin operaciones pendientes
+  SYNCING = 'syncing', // Sincronizando
+  SYNCED = 'synced', // Recién sincronizado
+  PENDING = 'pending', // Hay operaciones pendientes
+  ERROR = 'error', // Error en sincronización
 }
 ```
 
@@ -176,9 +187,14 @@ SyncManagerService.processQueue()
         ↓
 Para cada operación:
   1. Marcar como "processing"
-  2. Ejecutar request HTTP
-  3. Si éxito: guardar mapping ID, marcar "completed"
-  4. Si error: incrementar retry, marcar "failed" si max
+  2. Resolver IDs temporales en endpoint (resolveEndpointIds)
+  3. Ejecutar request HTTP
+  4. Si éxito:
+     a. Guardar mapping tempId → serverId
+     b. Si START_WORKOUT con offlineMeta: mapear exercise log IDs
+        (comparar por exerciseId + setNumber con respuesta del servidor)
+     c. Marcar "completed"
+  5. Si error: incrementar retry, marcar "failed" si max
 ```
 
 ## Configuración
@@ -187,8 +203,8 @@ Para cada operación:
 
 ```typescript
 export const CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 horas
-export const MAX_RETRY_COUNT = 3;                    // Máx reintentos
-export const RETRY_DELAY_MS = 1000;                  // Delay base
+export const MAX_RETRY_COUNT = 3; // Máx reintentos
+export const RETRY_DELAY_MS = 1000; // Delay base
 ```
 
 ## Componentes UI
@@ -210,6 +226,7 @@ Indicador de estado de sincronización en el header.
 ```
 
 Estados visuales:
+
 - **Idle**: Icono de nube
 - **Pending**: Icono de reloj con badge de contador
 - **Syncing**: Icono girando
@@ -250,7 +267,7 @@ this.networkService.isOnline$.subscribe(online => {
 1. **Solo workouts**: Actualmente solo las operaciones de workout están habilitadas para offline
 2. **Sin merge automático**: Conflictos se resuelven con last-write-wins
 3. **Tamaño de cache**: Sin límite explícito, depende del navegador
-4. **IDs temporales**: Visibles en UI hasta sincronización
+4. **IDs temporales**: Visibles en UI hasta sincronización (exercise log IDs se mapean automáticamente post-sync via `offlineMeta`)
 
 ## Mejoras Futuras
 

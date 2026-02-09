@@ -5,7 +5,7 @@ import { filter, firstValueFrom } from 'rxjs';
 import { NetworkService } from './network.service';
 import { SyncQueueService } from './sync-queue.service';
 import { OfflineDbService } from './offline-db.service';
-import { SyncOperation, RETRY_DELAY_MS } from '../models';
+import { SyncOperation, SyncOperationType, RETRY_DELAY_MS } from '../models';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -108,6 +108,10 @@ export class SyncManagerService {
         });
       }
 
+      if (operation.type === SyncOperationType.START_WORKOUT && operation.offlineMeta) {
+        await this.mapExerciseLogIds(response, operation.offlineMeta.exerciseLogs);
+      }
+
       await this.syncQueueService.markAsCompleted(operation.id, serverId);
       console.log(`[SyncManager] Operation ${operation.type} completed`);
     } catch (error) {
@@ -139,6 +143,39 @@ export class SyncManagerService {
       }
     }
     return 'Unknown error';
+  }
+
+  private async mapExerciseLogIds(
+    response: unknown,
+    metaItems: { tempId: string; exerciseId: string; setNumber: number }[]
+  ): Promise<void> {
+    if (!response || typeof response !== 'object' || !('exerciseLogs' in response)) {
+      return;
+    }
+
+    const serverLogs = (
+      response as { exerciseLogs: { id: string; exerciseId: string; setNumber: number }[] }
+    ).exerciseLogs;
+    if (!Array.isArray(serverLogs)) {
+      return;
+    }
+
+    for (const meta of metaItems) {
+      const serverLog = serverLogs.find(
+        (sl) => sl.exerciseId === meta.exerciseId && sl.setNumber === meta.setNumber
+      );
+
+      if (serverLog) {
+        await this.offlineDb.addIdMapping({
+          tempId: meta.tempId,
+          serverId: serverLog.id,
+          type: 'exercise_log',
+          createdAt: Date.now(),
+        });
+      }
+    }
+
+    console.log(`[SyncManager] Mapped ${metaItems.length} exercise log IDs`);
   }
 
   private getIdMappingType(operationType: string): 'workout' | 'exercise_log' {
