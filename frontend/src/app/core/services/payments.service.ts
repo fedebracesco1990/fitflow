@@ -1,7 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { Payment, CreatePaymentDto, UpdatePaymentDto } from '../models';
+import {
+  Payment,
+  CreatePaymentDto,
+  CreatePaymentWithMembershipUpdateDto,
+  UpdatePaymentDto,
+} from '../models';
 import { PaginatedResponse } from '../models/api-response.model';
 
 export interface PaymentsPaginationParams {
@@ -45,6 +50,10 @@ export class PaymentsService {
 
   create(data: CreatePaymentDto): Observable<Payment> {
     return this.api.post<Payment>(this.endpoint, data);
+  }
+
+  createWithMembershipUpdate(data: CreatePaymentWithMembershipUpdateDto): Observable<Payment> {
+    return this.api.post<Payment>(`${this.endpoint}/with-membership-update`, data);
   }
 
   update(id: string, data: UpdatePaymentDto): Observable<Payment> {

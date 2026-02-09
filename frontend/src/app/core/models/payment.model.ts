@@ -58,4 +58,8 @@ export interface CreatePaymentDto {
   notes?: string;
 }
 
+export interface CreatePaymentWithMembershipUpdateDto extends CreatePaymentDto {
+  newMembershipTypeId?: string;
+}
+
 export type UpdatePaymentDto = Partial<CreatePaymentDto>;

@@ -43,6 +43,7 @@ export interface CreateMembershipRequest {
 }
 
 export interface UpdateMembershipRequest {
+  membershipTypeId?: string;
   startDate?: string;
   endDate?: string;
   status?: MembershipStatus;

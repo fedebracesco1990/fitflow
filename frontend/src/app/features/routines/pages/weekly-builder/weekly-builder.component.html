@@ -52,13 +52,15 @@
               <div
                 class="routine-card"
                 cdkDrag
+                tabindex="0"
                 [class.selected]="selectedRoutine()?.id === routine.id"
                 (click)="selectRoutine(routine)"
+                (keydown.enter)="selectRoutine(routine)"
               >
                 <div class="routine-info">
                   <span class="routine-name">{{ routine.name }}</span>
                   <div class="routine-meta">
-                    <span class="meta-item">{{ routine.exercises?.length || 0 }} ejercicios</span>
+                    <span class="meta-item">{{ routine.exercises.length || 0 }} ejercicios</span>
                     <span class="meta-item">{{ routine.estimatedDuration }} min</span>
                   </div>
                 </div>
@@ -144,7 +146,7 @@
                     <div class="day-meta">
                       <span class="meta-item">
                         <span class="meta-icon">🔥</span>
-                        {{ assignment.routine.exercises?.length || 0 }} ejercicios
+                        {{ assignment.routine.exercises.length || 0 }} ejercicios
                       </span>
                       <span class="meta-item">
                         <span class="meta-icon">⏱</span>

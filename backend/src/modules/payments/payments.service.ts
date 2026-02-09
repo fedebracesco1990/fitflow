@@ -2,8 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Payment } from './entities/payment.entity';
-import { Membership } from '../memberships/entities/membership.entity';
-import { CreatePaymentDto, UpdatePaymentDto } from './dto';
+import { Membership, MembershipStatus } from '../memberships/entities/membership.entity';
+import { MembershipType } from '../membership-types/entities/membership-type.entity';
+import { CreatePaymentDto, CreatePaymentWithMembershipUpdateDto, UpdatePaymentDto } from './dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
@@ -13,6 +14,8 @@ export class PaymentsService {
     private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(Membership)
     private readonly membershipRepository: Repository<Membership>,
+    @InjectRepository(MembershipType)
+    private readonly membershipTypeRepository: Repository<MembershipType>,
     private readonly dataSource: DataSource
   ) {}
 
@@ -35,6 +38,72 @@ export class PaymentsService {
         paymentDate: new Date(createDto.paymentDate),
         coverageStart: new Date(createDto.coverageStartDate),
         coverageEnd: new Date(createDto.coverageEndDate),
+        registeredById,
+      });
+
+      const savedPayment = await queryRunner.manager.save(payment);
+      await queryRunner.commitTransaction();
+
+      return savedPayment;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async createWithMembershipUpdate(
+    createDto: CreatePaymentWithMembershipUpdateDto,
+    registeredById: string
+  ): Promise<Payment> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Verificar que la membresía existe
+      const membership = await queryRunner.manager.findOne(Membership, {
+        where: { id: createDto.membershipId },
+        relations: ['membershipType'],
+      });
+      if (!membership) {
+        throw new NotFoundException(`Membresía con ID "${createDto.membershipId}" no encontrada`);
+      }
+
+      // Si se solicita cambio de tipo de membresía
+      if (
+        createDto.newMembershipTypeId &&
+        createDto.newMembershipTypeId !== membership.membershipTypeId
+      ) {
+        const newType = await queryRunner.manager.findOne(MembershipType, {
+          where: { id: createDto.newMembershipTypeId, isActive: true },
+        });
+        if (!newType) {
+          throw new NotFoundException(
+            `Tipo de membresía con ID "${createDto.newMembershipTypeId}" no encontrado o no está activo`
+          );
+        }
+
+        membership.membershipTypeId = newType.id;
+      }
+
+      // Reactivar membresía y actualizar fechas de cobertura
+      membership.status = MembershipStatus.ACTIVE;
+      membership.startDate = new Date(createDto.coverageStartDate);
+      membership.endDate = new Date(createDto.coverageEndDate);
+      await queryRunner.manager.save(membership);
+
+      // Crear el pago
+      const payment = queryRunner.manager.create(Payment, {
+        membershipId: createDto.membershipId,
+        amount: createDto.amount,
+        paymentMethod: createDto.paymentMethod,
+        paymentDate: new Date(createDto.paymentDate),
+        coverageStart: new Date(createDto.coverageStartDate),
+        coverageEnd: new Date(createDto.coverageEndDate),
+        reference: createDto.reference,
+        notes: createDto.notes,
         registeredById,
       });
 

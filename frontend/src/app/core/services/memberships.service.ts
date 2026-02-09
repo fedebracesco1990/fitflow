@@ -42,7 +42,7 @@ export class MembershipsService {
     return this.api.get<Membership[]>(`${this.endpoint}/user/${userId}`);
   }
 
-  getActiveByUser(userId: string): Observable<Membership | null> {
+  getPayableByUser(userId: string): Observable<Membership | null> {
     return this.api.get<Membership | null>(`${this.endpoint}/user/${userId}/active`);
   }
 

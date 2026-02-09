@@ -54,11 +54,15 @@
   text-align: center;
 
   &.granted {
-    border: 2px solid var(--success, #22c55e);
+    .card {
+      border: 2px solid var(--success, #22c55e);
+    }
   }
 
   &.denied {
-    border: 2px solid var(--error, #ef4444);
+    .card {
+      border: 2px solid var(--error, #ef4444);
+    }
   }
 }
 

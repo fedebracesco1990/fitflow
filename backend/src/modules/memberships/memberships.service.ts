@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual } from 'typeorm';
+import { Repository, In, LessThanOrEqual } from 'typeorm';
 import { Membership, MembershipStatus } from './entities/membership.entity';
 import { MembershipType } from '../membership-types/entities/membership-type.entity';
 import { User } from '../users/entities/user.entity';
@@ -102,9 +102,16 @@ export class MembershipsService {
     });
   }
 
-  async findActiveByUser(userId: string): Promise<Membership | null> {
+  async findPayableByUser(userId: string): Promise<Membership | null> {
     return await this.membershipRepository.findOne({
-      where: { userId, status: MembershipStatus.ACTIVE },
+      where: {
+        userId,
+        status: In([
+          MembershipStatus.ACTIVE,
+          MembershipStatus.GRACE_PERIOD,
+          MembershipStatus.EXPIRED,
+        ]),
+      },
       relations: ['membershipType'],
     });
   }
@@ -112,7 +119,7 @@ export class MembershipsService {
   async update(id: string, updateDto: UpdateMembershipDto): Promise<Membership> {
     const membership = await this.findOne(id);
 
-    // Si se cambia el tipo de membresía, verificar que existe
+    // Si se cambia el tipo de membresía, verificar que existe y recalcular endDate
     if (updateDto.membershipTypeId && updateDto.membershipTypeId !== membership.membershipTypeId) {
       const membershipType = await this.membershipTypeRepository.findOne({
         where: { id: updateDto.membershipTypeId, isActive: true },
@@ -122,6 +129,12 @@ export class MembershipsService {
           `Tipo de membresía con ID "${updateDto.membershipTypeId}" no encontrado o no está activo`
         );
       }
+
+      // Recalcular endDate basado en el nuevo tipo de membresía
+      const startDate = updateDto.startDate ? new Date(updateDto.startDate) : membership.startDate;
+      membership.endDate = new Date(
+        new Date(startDate).getTime() + membershipType.durationDays * 24 * 60 * 60 * 1000
+      );
     }
 
     Object.assign(membership, updateDto);

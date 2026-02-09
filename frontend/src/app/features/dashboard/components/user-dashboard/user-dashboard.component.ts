@@ -8,12 +8,11 @@ import { MonthlyComparison } from '../../../../core/models';
 import { StatCardComponent } from '../../widgets/stat-card/stat-card.component';
 import { CardComponent } from '../../../../shared';
 import { LucideAngularModule } from 'lucide-angular';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'fit-flow-user-dashboard',
   standalone: true,
-  imports: [DatePipe, StatCardComponent, CardComponent, LucideAngularModule, RouterLink],
+  imports: [DatePipe, StatCardComponent, CardComponent, LucideAngularModule],
   templateUrl: './user-dashboard.component.html',
   styleUrl: './user-dashboard.component.scss',
 })

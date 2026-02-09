@@ -1,44 +1,58 @@
-.card {
-  background-color: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  width: 100%;
-
-  &--shadow {
-    box-shadow:
-      0 1px 3px 0 rgb(0 0 0 / 0.1),
-      0 1px 2px -1px rgb(0 0 0 / 0.1);
+:host {
+  &.granted {
+    .card {
+      border: 2px solid var(--success, #22c55e);
+    }
   }
 
-  &--no-border {
-    border: none;
+  &.denied {
+    .card {
+      border: 2px solid var(--error, #ef4444);
+    }
   }
 
-  &--gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: white;
-    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
-  }
+  .card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    width: 100%;
 
-  &--flat {
-    border: none;
-    box-shadow: none;
-  }
+    &--shadow {
+      box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
+        0 1px 2px -1px rgb(0 0 0 / 0.1);
+    }
 
-  &--padding-none {
-    padding: 0;
-  }
+    &--no-border {
+      border: none;
+    }
 
-  &--padding-sm {
-    padding: 12px;
-  }
+    &--gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    }
 
-  &--padding-md {
-    padding: 16px;
-  }
+    &--flat {
+      border: none;
+      box-shadow: none;
+    }
 
-  &--padding-lg {
-    padding: 24px;
+    &--padding-none {
+      padding: 0;
+    }
+
+    &--padding-sm {
+      padding: 12px;
+    }
+
+    &--padding-md {
+      padding: 16px;
+    }
+
+    &--padding-lg {
+      padding: 24px;
+    }
   }
 }

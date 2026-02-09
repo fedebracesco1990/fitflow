@@ -64,6 +64,16 @@
   font-size: 0.875rem;
 }
 
+.info-alert {
+  background: #dbeafe;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  margin-bottom: 0.25rem;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -13,7 +13,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
-import { CreatePaymentDto, UpdatePaymentDto } from './dto';
+import { CreatePaymentDto, CreatePaymentWithMembershipUpdateDto, UpdatePaymentDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -30,6 +30,15 @@ export class PaymentsController {
   @Roles(Role.ADMIN)
   create(@Body() createDto: CreatePaymentDto, @Request() req: { user: AuthenticatedUser }) {
     return this.paymentsService.create(createDto, req.user.userId);
+  }
+
+  @Post('with-membership-update')
+  @Roles(Role.ADMIN)
+  createWithMembershipUpdate(
+    @Body() createDto: CreatePaymentWithMembershipUpdateDto,
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    return this.paymentsService.createWithMembershipUpdate(createDto, req.user.userId);
   }
 
   @Get()

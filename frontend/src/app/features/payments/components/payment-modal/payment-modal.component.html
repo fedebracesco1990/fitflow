@@ -16,22 +16,42 @@
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="form-grid">
-            <!-- Membresía -->
+            <!-- Usuario -->
             <div class="form-group full-width">
-              <label for="membershipId">Membresía *</label>
-              <select id="membershipId" formControlName="membershipId">
-                <option value="">Seleccionar membresía</option>
-                @for (membership of memberships(); track membership.id) {
-                  <option [value]="membership.id">
-                    {{ getMembershipLabel(membership) }}
+              <label for="userId">Usuario *</label>
+              <select id="userId" formControlName="userId">
+                <option value="">Seleccionar usuario</option>
+                @for (user of users(); track user.id) {
+                  <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
+                }
+              </select>
+              @if (isFieldInvalid('userId')) {
+                <span class="error-message">Selecciona un usuario</span>
+              }
+              @if (loadingUsers()) {
+                <span class="hint">Cargando usuarios...</span>
+              }
+            </div>
+
+            <!-- Membresía info + Tipo de membresía -->
+            <div class="form-group full-width">
+              <label for="membershipTypeId">Membresía *</label>
+              @if (loadingMembership()) {
+                <span class="hint">Cargando membresía...</span>
+              } @else if (form.get('userId')?.value && !userMembership()) {
+                <div class="info-alert">Sin membresía activa. Selecciona un tipo para asignar.</div>
+              }
+              <select id="membershipTypeId" formControlName="membershipTypeId">
+                <option value="">Seleccionar tipo de membresía</option>
+                @for (type of membershipTypes(); track type.id) {
+                  <option [value]="type.id">
+                    {{ type.name }} - ${{ type.price | number: '1.2-2' }} ({{ type.durationDays }}
+                    días)
                   </option>
                 }
               </select>
-              @if (isFieldInvalid('membershipId')) {
-                <span class="error-message">Selecciona una membresía</span>
-              }
-              @if (loadingMemberships()) {
-                <span class="hint">Cargando membresías...</span>
+              @if (isFieldInvalid('membershipTypeId')) {
+                <span class="error-message">Selecciona un tipo de membresía</span>
               }
             </div>
 
@@ -80,7 +100,7 @@
             </div>
 
             <!-- Cobertura Hasta -->
-            <div class="form-group">
+            <div class="form-group full-width">
               <label for="coverageEndDate">Cobertura Hasta *</label>
               <input type="date" id="coverageEndDate" formControlName="coverageEndDate" readonly />
               <span class="hint">Calculado automáticamente</span>

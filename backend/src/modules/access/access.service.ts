@@ -65,7 +65,7 @@ export class AccessService {
       };
     }
 
-    const membership = await this.membershipsService.findActiveByUser(payload.userId);
+    const membership = await this.membershipsService.findPayableByUser(payload.userId);
 
     if (!membership) {
       await this.logAccess(payload.userId, scannedById, false, 'Sin membresía activa');

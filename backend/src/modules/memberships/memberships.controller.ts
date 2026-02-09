@@ -53,7 +53,7 @@ export class MembershipsController {
 
   @Get('user/:userId/active')
   @Roles(Role.ADMIN, Role.USER)
-  findActiveByUser(
+  findPayableByUser(
     @Param('userId', ParseUUIDPipe) userId: string,
     @Request() req: { user: AuthenticatedUser }
   ) {
@@ -61,7 +61,7 @@ export class MembershipsController {
     if (req.user.role === Role.USER && req.user.userId !== userId) {
       throw new ForbiddenException('Solo puedes ver tu propia membresía');
     }
-    return this.membershipsService.findActiveByUser(userId);
+    return this.membershipsService.findPayableByUser(userId);
   }
 
   @Get(':id')

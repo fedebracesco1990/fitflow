@@ -1,15 +1,30 @@
 import { Component, input, output, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { combineLatest, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { PaymentsService, MembershipsService, Membership } from '../../../../core/services';
-import { PaymentMethod, PaymentMethodLabels, Payment } from '../../../../core/models';
+import {
+  PaymentsService,
+  MembershipsService,
+  Membership,
+  MembershipTypesService,
+} from '../../../../core/services';
+import { UserService } from '../../../../core/services/user.service';
+import {
+  PaymentMethod,
+  PaymentMethodLabels,
+  Payment,
+  MembershipType,
+  User,
+} from '../../../../core/models';
 import { ButtonComponent } from '../../../../shared';
+
+const PAYABLE_MEMBERSHIP_STATUSES = ['active', 'grace_period', 'expired'];
 
 @Component({
   selector: 'fit-flow-payment-modal',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonComponent],
+  imports: [ReactiveFormsModule, DecimalPipe, ButtonComponent],
   templateUrl: './payment-modal.component.html',
   styleUrls: ['./payment-modal.component.scss'],
 })
@@ -17,6 +32,8 @@ export class PaymentModalComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly paymentsService = inject(PaymentsService);
   private readonly membershipsService = inject(MembershipsService);
+  private readonly membershipTypesService = inject(MembershipTypesService);
+  private readonly userService = inject(UserService);
   private readonly destroy$ = new Subject<void>();
 
   isOpen = input(false);
@@ -25,9 +42,13 @@ export class PaymentModalComponent implements OnInit, OnDestroy {
 
   readonly form: FormGroup;
   readonly loading = signal(false);
-  readonly loadingMemberships = signal(true);
+  readonly loadingUsers = signal(true);
+  readonly loadingMembership = signal(false);
   readonly error = signal<string | null>(null);
-  readonly memberships = signal<Membership[]>([]);
+  readonly users = signal<User[]>([]);
+  readonly membershipTypes = signal<MembershipType[]>([]);
+  readonly userMembership = signal<Membership | null>(null);
+  readonly originalMembershipTypeId = signal<string | null>(null);
 
   readonly paymentMethods = Object.values(PaymentMethod);
   readonly PaymentMethodLabels = PaymentMethodLabels;
@@ -36,7 +57,8 @@ export class PaymentModalComponent implements OnInit, OnDestroy {
     const today = new Date().toISOString().split('T')[0];
 
     this.form = this.fb.group({
-      membershipId: ['', Validators.required],
+      userId: ['', Validators.required],
+      membershipTypeId: ['', Validators.required],
       amount: ['', [Validators.required, Validators.min(0.01)]],
       paymentMethod: [PaymentMethod.CASH, Validators.required],
       paymentDate: [today, Validators.required],
@@ -48,9 +70,11 @@ export class PaymentModalComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadMemberships();
-    this.setupAutoCoverage();
-    this.setupAutoAmount();
+    this.loadUsers();
+    this.loadMembershipTypes();
+    this.setupUserChangeListener();
+    this.setupMembershipTypeChangeListener();
+    this.setupCoverageStartDateListener();
   }
 
   ngOnDestroy(): void {
@@ -58,47 +82,115 @@ export class PaymentModalComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadMemberships(): void {
-    this.loadingMemberships.set(true);
-    this.membershipsService.getAll({ limit: 100 }).subscribe({
+  loadUsers(): void {
+    this.loadingUsers.set(true);
+    this.userService.getAll({ limit: 200 }).subscribe({
       next: (response) => {
-        this.memberships.set(response.data);
-        this.loadingMemberships.set(false);
+        const filtered = response.data.filter((user) =>
+          user.memberships?.some((m) => PAYABLE_MEMBERSHIP_STATUSES.includes(m.status))
+        );
+        this.users.set(filtered);
+        this.loadingUsers.set(false);
       },
       error: () => {
-        this.loadingMemberships.set(false);
+        this.loadingUsers.set(false);
       },
     });
   }
 
-  setupAutoCoverage(): void {
-    combineLatest([
-      this.form.get('membershipId')!.valueChanges,
-      this.form.get('coverageStartDate')!.valueChanges,
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([membershipId, startDate]) => {
-        if (membershipId && startDate) {
-          const membership = this.memberships().find((m) => m.id === membershipId);
-          const durationDays = membership?.membershipType?.durationDays || 30;
-          const endDate = this.addDays(startDate, durationDays);
-          this.form.patchValue({ coverageEndDate: endDate }, { emitEvent: false });
+  loadMembershipTypes(): void {
+    this.membershipTypesService.getAll().subscribe({
+      next: (types) => {
+        this.membershipTypes.set(types);
+      },
+      error: () => {
+        this.error.set('Error al cargar tipos de membresía');
+      },
+    });
+  }
+
+  setupUserChangeListener(): void {
+    this.form
+      .get('userId')!
+      .valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((userId) => {
+        if (userId) {
+          this.loadUserMembership(userId);
+        } else {
+          this.userMembership.set(null);
+          this.originalMembershipTypeId.set(null);
+          this.form.patchValue(
+            { membershipTypeId: '', amount: '', coverageEndDate: '' },
+            { emitEvent: false }
+          );
         }
       });
   }
 
-  setupAutoAmount(): void {
+  setupMembershipTypeChangeListener(): void {
     this.form
-      .get('membershipId')!
+      .get('membershipTypeId')!
       .valueChanges.pipe(takeUntil(this.destroy$))
-      .subscribe((membershipId) => {
-        if (membershipId) {
-          const membership = this.memberships().find((m) => m.id === membershipId);
-          if (membership?.membershipType?.price) {
-            this.form.patchValue({ amount: membership.membershipType.price });
+      .subscribe((typeId) => {
+        if (typeId) {
+          const type = this.membershipTypes().find((t) => t.id === typeId);
+          if (type) {
+            this.form.patchValue({ amount: type.price }, { emitEvent: false });
+            this.recalculateCoverageEndDate(type.durationDays);
           }
         }
       });
+  }
+
+  setupCoverageStartDateListener(): void {
+    this.form
+      .get('coverageStartDate')!
+      .valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        const typeId = this.form.get('membershipTypeId')!.value;
+        if (typeId) {
+          const type = this.membershipTypes().find((t) => t.id === typeId);
+          if (type) {
+            this.recalculateCoverageEndDate(type.durationDays);
+          }
+        }
+      });
+  }
+
+  loadUserMembership(userId: string): void {
+    this.loadingMembership.set(true);
+    this.membershipsService.getPayableByUser(userId).subscribe({
+      next: (membership) => {
+        this.userMembership.set(membership);
+        if (membership) {
+          this.originalMembershipTypeId.set(membership.membershipTypeId);
+          this.form.patchValue({
+            membershipTypeId: membership.membershipTypeId,
+          });
+        } else {
+          this.originalMembershipTypeId.set(null);
+          this.form.patchValue({
+            membershipTypeId: '',
+            amount: '',
+            coverageEndDate: '',
+          });
+        }
+        this.loadingMembership.set(false);
+      },
+      error: () => {
+        this.userMembership.set(null);
+        this.originalMembershipTypeId.set(null);
+        this.loadingMembership.set(false);
+      },
+    });
+  }
+
+  recalculateCoverageEndDate(durationDays: number): void {
+    const startDate = this.form.get('coverageStartDate')!.value;
+    if (startDate) {
+      const endDate = this.addDays(startDate, durationDays);
+      this.form.patchValue({ coverageEndDate: endDate }, { emitEvent: false });
+    }
   }
 
   addDays(dateString: string, days: number): string {
@@ -113,16 +205,36 @@ export class PaymentModalComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const membership = this.userMembership();
+    if (!membership) {
+      this.error.set('El usuario no tiene una membresía elegible para pago');
+      return;
+    }
+
     this.loading.set(true);
     this.error.set(null);
 
     const formValue = this.form.value;
-    const data = {
-      ...formValue,
+    const selectedTypeId = formValue.membershipTypeId;
+    const membershipTypeChanged =
+      this.originalMembershipTypeId() !== null &&
+      selectedTypeId !== this.originalMembershipTypeId();
+
+    const paymentData = {
+      membershipId: membership.id,
       amount: Number(formValue.amount),
+      paymentMethod: formValue.paymentMethod,
+      paymentDate: formValue.paymentDate,
+      coverageStartDate: formValue.coverageStartDate,
+      coverageEndDate: formValue.coverageEndDate,
+      reference: formValue.reference,
+      notes: formValue.notes,
+      ...(membershipTypeChanged ? { newMembershipTypeId: selectedTypeId } : {}),
     };
 
-    this.paymentsService.create(data).subscribe({
+    const request$ = this.paymentsService.createWithMembershipUpdate(paymentData);
+
+    request$.subscribe({
       next: (payment) => {
         this.paymentCreated.emit(payment);
         this.resetForm();
@@ -148,7 +260,8 @@ export class PaymentModalComponent implements OnInit, OnDestroy {
   resetForm(): void {
     const today = new Date().toISOString().split('T')[0];
     this.form.reset({
-      membershipId: '',
+      userId: '',
+      membershipTypeId: '',
       amount: '',
       paymentMethod: PaymentMethod.CASH,
       paymentDate: today,
@@ -157,14 +270,10 @@ export class PaymentModalComponent implements OnInit, OnDestroy {
       reference: '',
       notes: '',
     });
+    this.userMembership.set(null);
+    this.originalMembershipTypeId.set(null);
     this.loading.set(false);
     this.error.set(null);
-  }
-
-  getMembershipLabel(membership: Membership): string {
-    const userName = membership.user?.name || 'Usuario';
-    const typeName = membership.membershipType?.name || 'Sin tipo';
-    return `${userName} - ${typeName}`;
   }
 
   isFieldInvalid(fieldName: string): boolean {
