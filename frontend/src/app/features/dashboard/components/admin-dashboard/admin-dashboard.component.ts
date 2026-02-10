@@ -1,4 +1,4 @@
-import { Component, input, inject, signal } from '@angular/core';
+import { Component, input, inject } from '@angular/core';
 import { AdminDashboard } from '../../../../core/models';
 import { UsersService } from '../../../../core/services';
 import { StatCardComponent } from '../../widgets/stat-card/stat-card.component';
