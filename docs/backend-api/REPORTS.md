@@ -16,11 +16,13 @@ Todos los endpoints requieren JWT y rol `ADMIN`.
 
 ## Formatos Disponibles
 
-| Formato | Content-Type                                                        |
-| ------- | ------------------------------------------------------------------- |
-| `pdf`   | `application/pdf`                                                   |
-| `xlsx`  | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` |
-| `csv`   | `text/csv`                                                          |
+| Formato | Content-Type                                                        | Status  |
+| ------- | ------------------------------------------------------------------- | ------- |
+| `pdf`   | `application/pdf`                                                   | ✅      |
+| `xlsx`  | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` | ✅      |
+| `csv`   | `text/csv`                                                          | 🚧 TODO |
+
+> **Nota:** El formato CSV está planificado para futuras versiones.
 
 ---
 

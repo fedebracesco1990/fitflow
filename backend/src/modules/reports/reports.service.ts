@@ -5,7 +5,7 @@ import { Payment } from '../payments/entities/payment.entity';
 import { AccessLog } from '../access/entities/access-log.entity';
 import { User } from '../users/entities/user.entity';
 import { CreateReportDto, ReportFormat, ReportType } from './dto/create-report.dto';
-import { formatDate, formatTime } from './utils/date.utils';
+import { formatDate, formatTime, getStartOfDay, getEndOfDay } from './utils/date.utils';
 import {
   PAYMENT_METHOD_TRANSLATIONS,
   MEMBERSHIP_STATUS_TRANSLATIONS,
@@ -101,11 +101,11 @@ export class ReportsService {
     const whereClause: Record<string, unknown> = {};
 
     if (startDate && endDate) {
-      whereClause.paymentDate = Between(new Date(startDate), new Date(endDate));
+      whereClause.paymentDate = Between(getStartOfDay(startDate), getEndOfDay(endDate));
     } else if (startDate) {
-      whereClause.paymentDate = MoreThanOrEqual(new Date(startDate));
+      whereClause.paymentDate = MoreThanOrEqual(getStartOfDay(startDate));
     } else if (endDate) {
-      whereClause.paymentDate = LessThanOrEqual(new Date(endDate));
+      whereClause.paymentDate = LessThanOrEqual(getEndOfDay(endDate));
     }
 
     const payments = await this.paymentRepository.find({
@@ -159,11 +159,11 @@ export class ReportsService {
     const whereClause: Record<string, unknown> = { granted: true };
 
     if (startDate && endDate) {
-      whereClause.createdAt = Between(new Date(startDate), new Date(endDate));
+      whereClause.createdAt = Between(getStartOfDay(startDate), getEndOfDay(endDate));
     } else if (startDate) {
-      whereClause.createdAt = MoreThanOrEqual(new Date(startDate));
+      whereClause.createdAt = MoreThanOrEqual(getStartOfDay(startDate));
     } else if (endDate) {
-      whereClause.createdAt = LessThanOrEqual(new Date(endDate));
+      whereClause.createdAt = LessThanOrEqual(getEndOfDay(endDate));
     }
 
     const accessLogs = await this.accessLogRepository.find({

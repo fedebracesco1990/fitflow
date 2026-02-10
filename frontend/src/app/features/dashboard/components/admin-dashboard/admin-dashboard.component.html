@@ -1,13 +1,6 @@
 <section class="dashboard-section">
   <div class="section-header">
     <h2>📊 Resumen del Gimnasio</h2>
-    <button class="export-btn" (click)="exportMembers()" [disabled]="isExporting()">
-      @if (isExporting()) {
-        Exportando...
-      } @else {
-        Exportar Miembros
-      }
-    </button>
   </div>
   <div class="stats-grid">
     <fit-flow-stat-card

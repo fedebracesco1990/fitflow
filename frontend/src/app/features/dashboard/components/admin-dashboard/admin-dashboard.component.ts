@@ -23,23 +23,4 @@ export class AdminDashboardComponent {
 
   readonly data = input.required<AdminDashboard>();
   readonly isLoading = input<boolean>(false);
-  readonly isExporting = signal(false);
-
-  exportMembers(): void {
-    this.isExporting.set(true);
-    this.usersService.exportMembers().subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `miembros-fitflow-${new Date().toISOString().split('T')[0]}.xlsx`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-        this.isExporting.set(false);
-      },
-      error: () => {
-        this.isExporting.set(false);
-      },
-    });
-  }
 }

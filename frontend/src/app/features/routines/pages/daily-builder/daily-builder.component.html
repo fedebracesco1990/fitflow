@@ -131,36 +131,40 @@
                 </div>
                 <div class="exercise-config">
                   <div class="config-field">
-                    <label>* Series</label>
+                    <label [for]="'sets-' + i">* Series</label>
                     <input
                       type="number"
+                      [id]="'sets-' + i"
                       [value]="item.sets"
                       (input)="updateExercise(i, 'sets', +$any($event.target).value)"
                       min="1"
                     />
                   </div>
                   <div class="config-field">
-                    <label>* Reps</label>
+                    <label [for]="'reps-' + i">* Reps</label>
                     <input
                       type="number"
+                      [id]="'reps-' + i"
                       [value]="item.reps"
                       (input)="updateExercise(i, 'reps', +$any($event.target).value)"
                       min="1"
                     />
                   </div>
                   <div class="config-field">
-                    <label>* Peso (kg)</label>
+                    <label [for]="'weight-' + i">* Peso (kg)</label>
                     <input
                       type="number"
+                      [id]="'weight-' + i"
                       [value]="item.weight || 0"
                       (input)="updateExercise(i, 'weight', +$any($event.target).value)"
                       min="0"
                     />
                   </div>
                   <div class="config-field">
-                    <label>* Descanso (s)</label>
+                    <label [for]="'rest-' + i">* Descanso (s)</label>
                     <input
                       type="number"
+                      [id]="'rest-' + i"
                       [value]="item.restSeconds"
                       (input)="updateExercise(i, 'restSeconds', +$any($event.target).value)"
                       min="0"

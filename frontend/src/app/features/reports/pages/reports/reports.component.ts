@@ -53,6 +53,7 @@ export class ReportsComponent {
     this.activeTab.set(tab);
   }
 
+  // TODO: Review CSV export functionality in future versions - currently calls non-existent backend endpoint
   exportToCsv(): void {
     this.isExporting.set(true);
     this.exportError.set(null);

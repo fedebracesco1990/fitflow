@@ -5,9 +5,10 @@
       <p class="subtitle">Análisis financiero y de comportamiento de miembros</p>
     </div>
     <div class="header-actions">
-      <fit-flow-button variant="secondary" [disabled]="isExporting()" (click)="exportToCsv()">
+      <!-- TODO: Review CSV export in future versions - backend endpoint not implemented yet -->
+      <!-- <fit-flow-button variant="secondary" [disabled]="isExporting()" (click)="exportToCsv()">
         {{ isExporting() ? 'Exportando...' : 'Exportar CSV' }}
-      </fit-flow-button>
+      </fit-flow-button> -->
       <fit-flow-button variant="primary" (click)="openExportDialog()">
         <svg
           xmlns="http://www.w3.org/2000/svg"

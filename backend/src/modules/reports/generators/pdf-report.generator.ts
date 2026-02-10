@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-import PdfPrinter = require('pdfmake');
 import { TDocumentDefinitions, Content, TableCell } from 'pdfmake/interfaces';
 import {
   IReportGenerator,
@@ -9,20 +7,28 @@ import {
   UsersReportData,
 } from '../interfaces/report-generator.interface';
 import { formatDate } from '../utils/date.utils';
+import type { PdfPrinterInstance, PdfPrinterConstructor, FontDictionary } from '../types/pdfmake.d';
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const PdfPrinter = require('pdfmake') as PdfPrinterConstructor;
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const vfsFonts = require('pdfmake/build/vfs_fonts') as Record<string, string>;
+
+const fonts: FontDictionary = {
+  Roboto: {
+    normal: Buffer.from(vfsFonts['Roboto-Regular.ttf'], 'base64'),
+    bold: Buffer.from(vfsFonts['Roboto-Medium.ttf'], 'base64'),
+    italics: Buffer.from(vfsFonts['Roboto-Italic.ttf'], 'base64'),
+    bolditalics: Buffer.from(vfsFonts['Roboto-MediumItalic.ttf'], 'base64'),
+  },
+};
 
 @Injectable()
 export class PdfReportGenerator implements IReportGenerator {
-  private printer: PdfPrinter;
+  private printer: PdfPrinterInstance;
 
   constructor() {
-    const fonts = {
-      Roboto: {
-        normal: 'node_modules/pdfmake/build/vfs_fonts.js',
-        bold: 'node_modules/pdfmake/build/vfs_fonts.js',
-        italics: 'node_modules/pdfmake/build/vfs_fonts.js',
-        bolditalics: 'node_modules/pdfmake/build/vfs_fonts.js',
-      },
-    };
     this.printer = new PdfPrinter(fonts);
   }
 
@@ -81,7 +87,9 @@ export class PdfReportGenerator implements IReportGenerator {
       const chunks: Buffer[] = [];
 
       pdfDoc.on('data', (chunk: Buffer) => chunks.push(chunk));
+
       pdfDoc.on('end', () => resolve(Buffer.concat(chunks)));
+
       pdfDoc.on('error', reject);
 
       pdfDoc.end();

@@ -1,5 +1,13 @@
 <fit-flow-card padding="none" class="retention-widget">
-  <div class="widget-header" (click)="toggleExpanded()">
+  <div
+    class="widget-header"
+    (click)="toggleExpanded()"
+    (keydown.enter)="toggleExpanded()"
+    (keydown.space)="toggleExpanded()"
+    tabindex="0"
+    role="button"
+    [attr.aria-expanded]="expanded()"
+  >
     <div class="header-left">
       <div class="header-icon">
         <lucide-icon name="user-x" [size]="20"></lucide-icon>
