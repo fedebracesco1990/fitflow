@@ -1,9 +1,11 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, Messaging } from 'firebase/messaging';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiService } from './api.service';
+import { StorageService } from './storage.service';
 
 export type NotificationPermissionStatus = 'default' | 'granted' | 'denied';
 
@@ -19,7 +21,9 @@ export interface PushNotificationSupport {
   providedIn: 'root',
 })
 export class PushNotificationsService {
+  private readonly http = inject(HttpClient);
   private readonly apiService = inject(ApiService);
+  private readonly storage = inject(StorageService);
   private messaging: Messaging | null = null;
   private initialized = false;
 
@@ -118,12 +122,34 @@ export class PushNotificationsService {
   }
 
   private async registerTokenInBackend(token: string): Promise<void> {
+    // Verify JWT is available before attempting to register
+    const accessToken = this.storage.getAccessToken();
+    if (!accessToken) {
+      return;
+    }
+
     try {
+      // Use HttpClient directly with explicit Authorization header
+      // This bypasses potential interceptor timing issues
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      });
+
       await firstValueFrom(
-        this.apiService.post('notifications/register-token', { token, platform: 'web' })
+        this.http.post(
+          `${environment.apiUrl}/notifications/register-token`,
+          { token, platform: 'web' },
+          { headers }
+        )
       );
       console.log('[PushNotifications] FCM token registered in backend successfully');
-    } catch (error) {
+    } catch (error: unknown) {
+      // Silent handling for 401 - will retry on next page refresh
+      const httpError = error as { status?: number };
+      if (httpError?.status === 401) {
+        return;
+      }
       console.error('[PushNotifications] Failed to register FCM token in backend:', error);
     }
   }
