@@ -88,18 +88,6 @@ Admin/Trainer abre diálogo de asignación
         └─ Backend desactiva plan anterior + crea nuevo + notifica
 ```
 
-### Historial desde UI
-
-```
-Admin navega a detalle de usuario (/users/:id)
-    │
-    └─ UserProgramHistoryComponent.ngOnInit()
-        └─ getUserProgramHistory(userId)
-            └─ GET /programs/user/:userId/history
-                └─ Muestra plan activo (badge verde) + históricos (badge gris)
-                    └─ Click expande → rutinas con duración estimada
-```
-
 ## Consideraciones de Performance
 
 - `getActiveByUser()` usa query simple con `findOne` (índice en `userId` + `isActive`)

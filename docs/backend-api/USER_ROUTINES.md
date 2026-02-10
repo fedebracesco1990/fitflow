@@ -1,6 +1,23 @@
 # User Routines Controller
 
-Endpoints para asignación de rutinas a usuarios.
+> ⚠️ **DEPRECADO - Febrero 2026**
+>
+> Este módulo está **obsoleto**. La asignación de rutinas ahora se realiza a través de **Programas**.
+>
+> **Ver documentación actual:** [PROGRAMS.md](./PROGRAMS.md)
+>
+> El flujo actual es:
+>
+> 1. Crear Programa con Rutinas → `POST /programs`
+> 2. Asignar Programa a Usuario → `POST /programs/assign`
+> 3. Usuario ve sus rutinas → `GET /programs/my-program`
+>
+> Los endpoints de este archivo pueden seguir funcionando por compatibilidad,
+> pero se recomienda migrar a la API de Programas.
+
+---
+
+Endpoints para asignación de rutinas a usuarios (legacy).
 
 **Ruta base:** `/user-routines`
 

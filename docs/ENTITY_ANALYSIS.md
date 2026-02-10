@@ -152,18 +152,3 @@ ProgramRoutineExercise → UserProgramExercise (copia ejercicios editables)
 │  AppNotification ──► NotificationRead                       │
 └─────────────────────────────────────────────────────────────┘
 ```
-
----
-
-## Historial de Cambios
-
-| Fecha    | Cambio                                                          |
-| -------- | --------------------------------------------------------------- |
-| Inicial  | Modelo con `Routine` haciendo doble función                     |
-| V2       | Separación `Routine` / `Program`, eliminación `UserRoutine`     |
-| V2       | Patrón Snapshot implementado                                    |
-| V2       | `WorkoutLog` simplificado a un solo FK                          |
-| Feb 2026 | Agregados módulos: Memberships, Payments, Access, Notifications |
-| Feb 2026 | `PersonalRecord` ampliado con timestamps y volumen              |
-| Feb 2026 | `ExerciseLog` con RIR y RPE                                     |
-| Feb 2026 | Agregados `AppNotification` y `NotificationRead` al esquema     |

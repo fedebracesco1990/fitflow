@@ -53,15 +53,17 @@ fitflow/
 
 ## Documentación
 
-| Documento                                                  | Descripción                              |
-| ---------------------------------------------------------- | ---------------------------------------- |
-| [ARCHITECTURE.md](./ARCHITECTURE.md)                       | Diagramas de arquitectura del sistema    |
-| [COMMANDS.md](./COMMANDS.md)                               | Todos los comandos y referencia rápida   |
-| [BACKEND_GUIDE.md](./BACKEND_GUIDE.md)                     | Guía de desarrollo backend               |
-| [FRONTEND_GUIDE.md](./FRONTEND_GUIDE.md)                   | Guía de desarrollo frontend              |
-| [FRONTEND_CORE.md](./FRONTEND_CORE.md)                     | Documentación del módulo Core            |
-| [AI_DEVELOPMENT_GUIDE.md](./AI_DEVELOPMENT_GUIDE.md)       | Guía para desarrollo asistido por IA     |
-| [CHANGE_REQUEST_TEMPLATE.md](./CHANGE_REQUEST_TEMPLATE.md) | Template para solicitar cambios frontend |
+| Documento                                            | Descripción                                  |
+| ---------------------------------------------------- | -------------------------------------------- |
+| [ARCHITECTURE.md](./ARCHITECTURE.md)                 | Diagramas de arquitectura del sistema        |
+| [USER_FLOWS.md](./USER_FLOWS.md)                     | Flujos de usuario por rol                    |
+| [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md)           | Diagrama ER de la base de datos              |
+| [DATA_DICTIONARY.md](./DATA_DICTIONARY.md)           | Diccionario de datos con todas las entidades |
+| [COMMANDS.md](./COMMANDS.md)                         | Todos los comandos y referencia rápida       |
+| [BACKEND_GUIDE.md](./BACKEND_GUIDE.md)               | Guía de desarrollo backend                   |
+| [FRONTEND_GUIDE.md](./FRONTEND_GUIDE.md)             | Guía de desarrollo frontend                  |
+| [FRONTEND_CORE.md](./FRONTEND_CORE.md)               | Documentación del módulo Core                |
+| [AI_DEVELOPMENT_GUIDE.md](./AI_DEVELOPMENT_GUIDE.md) | Guía para desarrollo asistido por IA         |
 
 ### Documentación Técnica
 

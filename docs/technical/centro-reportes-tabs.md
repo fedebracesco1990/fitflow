@@ -578,13 +578,6 @@ clearHistory(): void
 - `frontend/src/app/features/reports/components/export-report-dialog/`
 - `frontend/src/app/features/reports/components/report-history/`
 
-### Historial de Reportes
-
-- Almacenado en `localStorage` con key `fitflow_report_history`
-- Máximo 10 items
-- Permite regenerar reportes anteriores
-- Muestra: tipo, formato, fechas, fecha de generación
-
 ### Extensibilidad
 
 Para agregar un nuevo tab:
