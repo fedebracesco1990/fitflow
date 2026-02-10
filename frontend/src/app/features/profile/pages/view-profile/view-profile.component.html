@@ -78,6 +78,17 @@
         <p class="section-description">
           Recibirás alertas sobre vencimientos, recordatorios y más.
         </p>
+        <fit-flow-button
+          variant="outline"
+          (click)="openToggleDialog('disable')"
+          [disabled]="isDisablingNotifications()"
+        >
+          @if (isDisablingNotifications()) {
+            Desactivando...
+          } @else {
+            Desactivar notificaciones
+          }
+        </fit-flow-button>
       } @else if (notificationsDenied()) {
         <div class="notification-status denied">
           <lucide-icon name="x-circle" [size]="20"></lucide-icon>
@@ -88,12 +99,16 @@
           notificaciones.
         </p>
       } @else {
+        <div class="notification-status disabled">
+          <lucide-icon name="bell-off" [size]="20"></lucide-icon>
+          <span>Las notificaciones están desactivadas</span>
+        </div>
         <p class="section-description">
           Recibe alertas sobre vencimientos de membresía, recordatorios de entrenamiento y más.
         </p>
         <fit-flow-button
           variant="primary"
-          (click)="enableNotifications()"
+          (click)="openToggleDialog('enable')"
           [disabled]="isEnablingNotifications()"
         >
           @if (isEnablingNotifications()) {
@@ -104,6 +119,16 @@
         </fit-flow-button>
       }
     </fit-flow-card>
+
+    <fit-flow-confirm-dialog
+      [isOpen]="showConfirmDialog()"
+      [title]="dialogTitle()"
+      [message]="dialogMessage()"
+      [confirmText]="dialogConfirmText()"
+      [variant]="dialogVariant()"
+      (confirmed)="onDialogConfirm()"
+      (cancelled)="onDialogCancel()"
+    />
 
     <fit-flow-card padding="md" class="security-section">
       <h2>Seguridad</h2>

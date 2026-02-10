@@ -14,6 +14,7 @@ import {
   BadgeComponent,
   ButtonComponent,
   CardComponent,
+  ConfirmDialogComponent,
   LoadingSpinnerComponent,
 } from '../../../../shared';
 import { LucideAngularModule } from 'lucide-angular';
@@ -27,6 +28,7 @@ import { LucideAngularModule } from 'lucide-angular';
     BadgeComponent,
     ButtonComponent,
     CardComponent,
+    ConfirmDialogComponent,
     LoadingSpinnerComponent,
     LucideAngularModule,
   ],
@@ -42,9 +44,28 @@ export class ViewProfileComponent implements OnInit {
   readonly permissionStatus = this.store.selectSignal(NotificationsState.permissionStatus);
 
   readonly isEnablingNotifications = signal(false);
+  readonly isDisablingNotifications = signal(false);
+  readonly showConfirmDialog = signal(false);
+  readonly pendingAction = signal<'enable' | 'disable' | null>(null);
 
   // Use signal to make preference reactive
   readonly userPreferenceSignal = signal<string | null>(null);
+
+  // Computed properties for dialog
+  readonly dialogTitle = computed(() =>
+    this.pendingAction() === 'enable' ? 'Activar notificaciones' : 'Desactivar notificaciones'
+  );
+  readonly dialogMessage = computed(() =>
+    this.pendingAction() === 'enable'
+      ? 'Recibirás alertas sobre vencimientos de membresía, recordatorios de entrenamiento y más.'
+      : 'Dejarás de recibir alertas sobre vencimientos, recordatorios y récords personales.'
+  );
+  readonly dialogConfirmText = computed(() =>
+    this.pendingAction() === 'enable' ? 'Activar' : 'Desactivar'
+  );
+  readonly dialogVariant = computed<'primary' | 'warning'>(() =>
+    this.pendingAction() === 'enable' ? 'primary' : 'warning'
+  );
 
   readonly notificationsEnabled = computed(
     () => this.permissionStatus() === 'granted' && this.userPreferenceSignal() === 'enabled'
@@ -59,11 +80,15 @@ export class ViewProfileComponent implements OnInit {
     this.loadUserPreference();
   }
 
-  private loadUserPreference(): void {
+  private getPreferenceKey(): string | null {
     const userId = this.profile()?.id;
-    if (userId) {
-      const pref = localStorage.getItem(`notification_preference_${userId}`);
-      this.userPreferenceSignal.set(pref);
+    return userId ? `notification_preference_${userId}` : null;
+  }
+
+  private loadUserPreference(): void {
+    const key = this.getPreferenceKey();
+    if (key) {
+      this.userPreferenceSignal.set(localStorage.getItem(key));
     }
   }
 
@@ -98,6 +123,26 @@ export class ViewProfileComponent implements OnInit {
     });
   });
 
+  openToggleDialog(action: 'enable' | 'disable'): void {
+    this.pendingAction.set(action);
+    this.showConfirmDialog.set(true);
+  }
+
+  onDialogConfirm(): void {
+    this.showConfirmDialog.set(false);
+    if (this.pendingAction() === 'enable') {
+      this.enableNotifications();
+    } else {
+      this.disableNotifications();
+    }
+    this.pendingAction.set(null);
+  }
+
+  onDialogCancel(): void {
+    this.showConfirmDialog.set(false);
+    this.pendingAction.set(null);
+  }
+
   async enableNotifications(): Promise<void> {
     this.isEnablingNotifications.set(true);
 
@@ -110,17 +155,35 @@ export class ViewProfileComponent implements OnInit {
         const token = await this.pushService.getAndRegisterToken();
         if (token) {
           this.store.dispatch(new SetFcmToken(token));
-          // Save user preference with their userId
-          const userId = this.profile()?.id;
-          if (userId) {
-            localStorage.setItem(`notification_preference_${userId}`, 'enabled');
-            // Update signal to trigger UI refresh
+          const key = this.getPreferenceKey();
+          if (key) {
+            localStorage.setItem(key, 'enabled');
             this.userPreferenceSignal.set('enabled');
           }
         }
       }
     } finally {
       this.isEnablingNotifications.set(false);
+    }
+  }
+
+  async disableNotifications(): Promise<void> {
+    this.isDisablingNotifications.set(true);
+
+    try {
+      const fcmToken = this.store.selectSnapshot(NotificationsState.fcmToken);
+      if (fcmToken) {
+        await this.pushService.unregisterToken(fcmToken);
+        this.store.dispatch(new SetFcmToken(null));
+      }
+
+      const key = this.getPreferenceKey();
+      if (key) {
+        localStorage.setItem(key, 'disabled');
+        this.userPreferenceSignal.set('disabled');
+      }
+    } finally {
+      this.isDisablingNotifications.set(false);
     }
   }
 }

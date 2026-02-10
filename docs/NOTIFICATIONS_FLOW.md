@@ -139,6 +139,8 @@ sequenceDiagram
 
 Canal complementario para notificaciones nativas del sistema operativo. **Solo funciona si el usuario otorgó permisos de push.** No afecta las notificaciones in-app.
 
+> **Nota técnica (Feb 2026):** El `PushNotificationsService` usa `HttpClient` directamente con header `Authorization` explícito en lugar de depender del `authInterceptor`. Esto evita problemas de timing durante la inicialización de notificaciones donde el interceptor no se ejecutaba correctamente.
+
 ```mermaid
 sequenceDiagram
     participant Backend as Backend (NestJS)
@@ -368,8 +370,49 @@ flowchart TB
 | `NotificationBellComponent`    | Header (MainLayout) | Icono campana con badge de no leídas          |
 | `NotificationCenterComponent`  | Header (MainLayout) | Panel desplegable con lista de notificaciones |
 | `NotificationPromptComponent`  | MainLayout          | Dialog para pedir permiso de notificaciones   |
+| `ViewProfileComponent`         | Profile page        | Toggle para activar/desactivar notificaciones |
 | `SendNotificationsComponent`   | Admin page          | Enviar broadcast o dirigidas desde UI admin   |
 | `NotificationHistoryComponent` | Admin page          | Historial local de notificaciones enviadas    |
+
+---
+
+## Gestión de Notificaciones desde Profile
+
+Los usuarios pueden gestionar sus preferencias de notificaciones push desde `/profile`:
+
+### Estados posibles
+
+| Estado       | UI                   | Acción disponible                            |
+| ------------ | -------------------- | -------------------------------------------- |
+| Activadas    | ✅ Verde con check   | Botón "Desactivar"                           |
+| Desactivadas | ⚪ Gris con bell-off | Botón "Activar"                              |
+| Bloqueadas   | ❌ Rojo con X        | Instrucciones para desbloquear desde browser |
+
+### Flujo de toggle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Desactivadas: Usuario no ha activado
+
+    Desactivadas --> ConfirmActivar: Click "Activar"
+    ConfirmActivar --> Activadas: Confirma + Permiso granted
+    ConfirmActivar --> Desactivadas: Cancela
+    ConfirmActivar --> Bloqueadas: Permiso denied
+
+    Activadas --> ConfirmDesactivar: Click "Desactivar"
+    ConfirmDesactivar --> Desactivadas: Confirma
+    ConfirmDesactivar --> Activadas: Cancela
+
+    Bloqueadas --> [*]: Usuario debe desbloquear manualmente en browser
+```
+
+### Almacenamiento de preferencias
+
+- **localStorage**: `notification_preference_{userId}`
+  - `'enabled'` - Notificaciones activas
+  - `'disabled'` - Desactivadas por el usuario
+  - `'dismissed'` - Dialog inicial descartado
+- **Backend**: FCM token en tabla `DeviceToken` (se elimina al desactivar via `DELETE /notifications/unregister-token`)
 
 ---
 
