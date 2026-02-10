@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -65,6 +65,8 @@ export class DailyRoutineBuilderComponent implements OnInit {
 
   pendingExercises = signal<PendingExercise[]>([]);
 
+  addedExerciseIds = computed(() => this.pendingExercises().map((pe) => pe.exercise.id));
+
   difficultyOptions = Object.values(Difficulty);
   difficultyLabels = DifficultyLabels;
 
@@ -95,7 +97,7 @@ export class DailyRoutineBuilderComponent implements OnInit {
             sets: re.sets,
             reps: re.reps,
             restSeconds: re.restSeconds,
-            weight: re.suggestedWeight ?? 0,
+            weight: re.suggestedWeight ? parseFloat(String(re.suggestedWeight)) : 0,
             order: re.order,
           }))
         );
@@ -117,6 +119,9 @@ export class DailyRoutineBuilderComponent implements OnInit {
       this.pendingExercises.set(exercises);
     } else {
       const exercise = event.previousContainer.data[event.previousIndex] as Exercise;
+      if (this.addedExerciseIds().includes(exercise.id)) {
+        return;
+      }
       const newExercise: PendingExercise = {
         exercise,
         sets: 3,

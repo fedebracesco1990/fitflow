@@ -123,6 +123,14 @@
     border-color: #667eea;
     background: #eef2ff;
   }
+
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+    border-color: #d1d5db;
+    background: #e5e7eb;
+  }
 }
 
 .routine-content {

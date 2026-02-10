@@ -46,7 +46,13 @@ import { Exercise, MuscleGroup } from '../../../../core/models';
           <div class="empty">No se encontraron ejercicios</div>
         } @else {
           @for (exercise of exercises(); track exercise.id) {
-            <div class="exercise-item" cdkDrag [cdkDragData]="exercise">
+            <div
+              class="exercise-item"
+              [class.disabled]="disabledExerciseIds.includes(exercise.id)"
+              cdkDrag
+              [cdkDragData]="exercise"
+              [cdkDragDisabled]="disabledExerciseIds.includes(exercise.id)"
+            >
               <div class="drag-placeholder" *cdkDragPlaceholder></div>
               <div class="exercise-content">
                 @if (exercise.imageUrl) {
@@ -153,6 +159,14 @@ import { Exercise, MuscleGroup } from '../../../../core/models';
         cursor: grabbing;
       }
 
+      .exercise-item.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+        border-color: #d1d5db;
+        background: #e5e7eb;
+      }
+
       .exercise-content {
         display: flex;
         align-items: center;
@@ -231,6 +245,7 @@ export class ExercisePanelComponent implements OnInit {
   private readonly searchSubject = new Subject<string>();
 
   @Input() connectedLists: string[] = [];
+  @Input() disabledExerciseIds: string[] = [];
 
   exercises = signal<Exercise[]>([]);
   muscleGroups = signal<MuscleGroup[]>([]);

@@ -45,6 +45,8 @@ export class WeeklyProgramBuilderComponent implements OnInit {
   selectedRoutine = signal<Routine | null>(null);
   currentProgram = signal<Program | null>(null);
 
+  addedRoutineIds = computed(() => this.pendingAssignments().map((pa) => pa.routine.id));
+
   allAssignments = computed(() => {
     return this.pendingAssignments().map((pa) => ({
       routine: pa.routine,

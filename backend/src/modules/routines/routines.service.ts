@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import { Routine } from './entities/routine.entity';
 import { RoutineExercise } from './entities/routine-exercise.entity';
 import { ProgramRoutine } from '../programs/entities/program-routine.entity';
-import { ProgramRoutineExercise } from './entities/program-routine-exercise.entity';
+import { ProgramRoutineExercise } from '../programs/entities/program-routine-exercise.entity';
 import { Exercise } from '../exercises/entities/exercise.entity';
 import {
   CreateRoutineDto,
@@ -241,6 +241,13 @@ export class RoutinesService {
       throw new ForbiddenException('No tienes permisos para modificar esta rutina');
     }
 
+    // Validar que no haya ejercicios duplicados en el array
+    const exerciseIds = exercises.map((e) => e.exerciseId);
+    const uniqueIds = new Set(exerciseIds);
+    if (uniqueIds.size !== exerciseIds.length) {
+      throw new ConflictException('No se pueden agregar ejercicios duplicados a la rutina');
+    }
+
     // Eliminar todos los ejercicios existentes
     await this.routineExerciseRepository.delete({ routineId });
 
@@ -340,7 +347,7 @@ export class RoutinesService {
       reps: dto.reps,
       restSeconds: dto.restSeconds ?? 60,
       notes: dto.notes ?? null,
-      suggestedWeight: dto.suggestedWeight ?? null,
+      weight: dto.weight ?? null,
     });
 
     return await this.programRoutineExerciseRepository.save(customExercise);
@@ -440,7 +447,7 @@ export class RoutinesService {
         reps: dto.reps,
         restSeconds: dto.restSeconds ?? 60,
         notes: dto.notes ?? null,
-        suggestedWeight: dto.suggestedWeight ?? null,
+        weight: dto.weight ?? null,
       })
     );
 

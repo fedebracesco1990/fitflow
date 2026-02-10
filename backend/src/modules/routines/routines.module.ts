@@ -5,7 +5,7 @@ import { RoutinesController } from './routines.controller';
 import { Routine } from './entities/routine.entity';
 import { RoutineExercise } from './entities/routine-exercise.entity';
 import { ProgramRoutine } from '../programs/entities/program-routine.entity';
-import { ProgramRoutineExercise } from './entities/program-routine-exercise.entity';
+import { ProgramRoutineExercise } from '../programs/entities/program-routine-exercise.entity';
 import { Exercise } from '../exercises/entities/exercise.entity';
 import { TemplatesService } from './templates/templates.service';
 import { WebSocketModule } from '../websocket/websocket.module';

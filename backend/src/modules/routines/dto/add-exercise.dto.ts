@@ -48,6 +48,7 @@ export class AddExerciseDto {
   @IsNumber()
   @Min(0)
   @Max(500)
+  @Type(() => Number)
   suggestedWeight?: number;
 
   @IsOptional()
@@ -87,6 +88,7 @@ export class UpdateRoutineExerciseDto {
   @IsNumber()
   @Min(0)
   @Max(500)
+  @Type(() => Number)
   suggestedWeight?: number;
 
   @IsOptional()

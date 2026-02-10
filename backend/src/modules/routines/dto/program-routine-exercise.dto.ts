@@ -1,4 +1,5 @@
 import { IsUUID, IsInt, IsOptional, IsString, Min, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateProgramRoutineExerciseDto {
   @IsUUID()
@@ -27,7 +28,8 @@ export class CreateProgramRoutineExerciseDto {
 
   @IsNumber()
   @IsOptional()
-  suggestedWeight?: number;
+  @Type(() => Number)
+  weight?: number;
 }
 
 export class UpdateProgramRoutineExerciseDto {
@@ -57,7 +59,8 @@ export class UpdateProgramRoutineExerciseDto {
 
   @IsNumber()
   @IsOptional()
-  suggestedWeight?: number;
+  @Type(() => Number)
+  weight?: number;
 }
 
 export class BulkUpdateProgramRoutineExercisesDto {

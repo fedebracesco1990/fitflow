@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -47,6 +47,12 @@ export class ProgramsService {
     });
 
     const savedProgram = await this.programRepository.save(program);
+
+    // Validar que no haya rutinas duplicadas
+    const routineIds = dto.routines.map((r) => r.routineId);
+    if (new Set(routineIds).size !== routineIds.length) {
+      throw new ConflictException('No se pueden agregar rutinas duplicadas al programa');
+    }
 
     for (const routineDto of dto.routines) {
       const routine = await this.routineRepository.findOne({
@@ -139,6 +145,12 @@ export class ProgramsService {
     program.totalRoutines = dto.routines.length;
 
     await this.programRepository.save(program);
+
+    // Validar que no haya rutinas duplicadas
+    const routineIds = dto.routines.map((r) => r.routineId);
+    if (new Set(routineIds).size !== routineIds.length) {
+      throw new ConflictException('No se pueden agregar rutinas duplicadas al programa');
+    }
 
     // Eliminar rutinas existentes
     await this.programRoutineRepository.delete({ programId: id });

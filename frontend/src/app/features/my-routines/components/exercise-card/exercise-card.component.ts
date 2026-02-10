@@ -28,7 +28,7 @@ export class ExerciseCardComponent {
 
   get displayWeight(): string {
     if (this.exercise.suggestedWeight) {
-      return `${this.exercise.suggestedWeight} kg`;
+      return `${parseFloat(String(this.exercise.suggestedWeight))} kg`;
     }
     if (this.lastWeight) {
       return `${this.lastWeight} kg (anterior)`;

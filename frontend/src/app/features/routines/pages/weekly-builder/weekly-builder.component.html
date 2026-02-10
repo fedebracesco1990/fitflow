@@ -46,8 +46,10 @@
                 cdkDrag
                 tabindex="0"
                 [class.selected]="selectedRoutine()?.id === routine.id"
-                (click)="selectRoutine(routine)"
-                (keydown.enter)="selectRoutine(routine)"
+                [class.disabled]="addedRoutineIds().includes(routine.id)"
+                [cdkDragDisabled]="addedRoutineIds().includes(routine.id)"
+                (click)="!addedRoutineIds().includes(routine.id) && selectRoutine(routine)"
+                (keydown.enter)="!addedRoutineIds().includes(routine.id) && selectRoutine(routine)"
               >
                 <div class="routine-content">
                   <div class="routine-thumb">
