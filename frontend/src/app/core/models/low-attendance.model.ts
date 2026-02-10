@@ -1,26 +1,22 @@
-export interface LowAttendanceUser {
+export interface InactiveUser {
   id: string;
   name: string;
   email: string;
-  visitCount: number;
   lastAttendanceDate: string | null;
+  daysSinceLastVisit: number;
   membershipStatus: string | null;
 }
 
-export interface LowAttendanceMeta {
+export interface InactiveUsersMeta {
   total: number;
-  month: number;
-  year: number;
-  minVisitsThreshold: number;
+  daysSinceLastVisitThreshold: number;
 }
 
-export interface LowAttendanceResponse {
-  users: LowAttendanceUser[];
-  meta: LowAttendanceMeta;
+export interface InactiveUsersResponse {
+  users: InactiveUser[];
+  meta: InactiveUsersMeta;
 }
 
-export interface LowAttendanceQueryParams {
-  month?: number;
-  year?: number;
-  minVisits?: number;
+export interface InactiveUsersQueryParams {
+  daysSinceLastVisit?: number;
 }

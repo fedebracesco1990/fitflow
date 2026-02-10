@@ -45,8 +45,8 @@
             <thead>
               <tr>
                 <th>Usuario</th>
-                <th>Visitas</th>
-                <th>Última asistencia</th>
+                <th>Días sin venir</th>
+                <th>Última vez</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -60,13 +60,13 @@
                       <span class="user-email">{{ user.email }}</span>
                     </div>
                   </td>
-                  <td class="visits-cell">
+                  <td class="days-cell">
                     <fit-flow-badge variant="error" size="sm">
-                      {{ user.visitCount }} visitas
+                      {{ user.daysSinceLastVisit }} días
                     </fit-flow-badge>
                   </td>
                   <td class="date-cell">
-                    {{ formatLastAttendance(user.lastAttendanceDate) }}
+                    {{ formatDaysSince(user.daysSinceLastVisit) }}
                   </td>
                   <td>
                     @if (user.contacted) {
@@ -78,19 +78,12 @@
                   <td class="actions-cell">
                     <button
                       class="action-btn message-btn"
-                      (click)="sendMessage(user)"
-                      title="Enviar mensaje"
-                    >
-                      <lucide-icon name="message-circle" [size]="16"></lucide-icon>
-                    </button>
-                    <button
-                      class="action-btn contact-btn"
-                      [class.active]="user.contacted"
-                      (click)="toggleContacted(user.id)"
-                      [title]="user.contacted ? 'Marcar como pendiente' : 'Marcar como contactado'"
+                      (click)="openMessageDialog(user)"
+                      [title]="user.contacted ? 'Ya contactado' : 'Enviar mensaje'"
+                      [disabled]="user.contacted"
                     >
                       <lucide-icon
-                        [name]="user.contacted ? 'check-circle' : 'circle'"
+                        [name]="user.contacted ? 'check-circle' : 'message-circle'"
                         [size]="16"
                       ></lucide-icon>
                     </button>
@@ -104,3 +97,13 @@
     </div>
   }
 </fit-flow-card>
+
+@if (selectedUser()) {
+  <fit-flow-retention-message-dialog
+    [isOpen]="dialogOpen()"
+    [userId]="selectedUser()!.id"
+    [userName]="selectedUser()!.name"
+    (closed)="onDialogClosed()"
+    (sent)="onMessageSent()"
+  />
+}

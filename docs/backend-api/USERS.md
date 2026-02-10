@@ -13,6 +13,7 @@ Endpoints para gestión de usuarios y perfiles.
 | POST   | `/users`                     | Crear usuario            | ADMIN          |
 | GET    | `/users`                     | Listar usuarios          | ADMIN, TRAINER |
 | GET    | `/users/low-attendance`      | Usuarios baja asistencia | ADMIN, TRAINER |
+| GET    | `/users/inactive`            | Usuarios inactivos       | ADMIN, TRAINER |
 | GET    | `/users/export`              | Exportar miembros        | ADMIN          |
 | GET    | `/users/:id`                 | Obtener usuario          | ADMIN, TRAINER |
 | PATCH  | `/users/:id`                 | Actualizar usuario       | ADMIN          |
@@ -65,6 +66,48 @@ Obtiene usuarios con baja asistencia en un período específico.
 - Retorna usuarios con menos de `minVisits` asistencias en el mes especificado
 - `lastAttendanceDate` puede ser `null` si no hay registros
 - `membershipStatus` muestra el estado de membresía activa (`active`, `grace_period`, o `null`)
+
+---
+
+## GET /users/inactive
+
+Obtiene usuarios que no han asistido en los últimos X días.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+**Query Parameters:**
+
+| Parámetro          | Tipo   | Default | Descripción                      |
+| ------------------ | ------ | ------- | -------------------------------- |
+| daysSinceLastVisit | number | 7       | Días mínimos desde última visita |
+
+**Response (200):**
+
+```json
+{
+  "users": [
+    {
+      "id": "uuid",
+      "name": "Juan Pérez",
+      "email": "juan@example.com",
+      "lastAttendanceDate": "2026-01-03T10:30:00.000Z",
+      "daysSinceLastVisit": 12,
+      "membershipStatus": "active"
+    }
+  ],
+  "meta": {
+    "total": 5,
+    "daysSinceLastVisitThreshold": 7
+  }
+}
+```
+
+**Notas:**
+
+- Retorna usuarios con más de `daysSinceLastVisit` días sin asistir
+- Ordenado por `lastAttendanceDate` ascendente (más inactivos primero)
+- Solo incluye usuarios activos con rol `user`
+- Usado por el widget de Alerta de Retención en el dashboard
 
 ---
 

@@ -40,6 +40,21 @@ export interface LowAttendanceUserData {
   lastAttendanceDate: Date | null;
 }
 
+interface RawInactiveUserResult {
+  userId: string;
+  lastAttendanceDate: string | null;
+  user_name: string;
+  user_email: string;
+}
+
+export interface InactiveUserData {
+  userId: string;
+  name: string;
+  email: string;
+  lastAttendanceDate: Date | null;
+  daysSinceLastVisit: number;
+}
+
 @Injectable()
 export class AttendanceService {
   constructor(
@@ -292,5 +307,48 @@ export class AttendanceService {
       order: { createdAt: 'DESC' },
     });
     return lastLog?.createdAt ?? null;
+  }
+
+  async findInactiveUsersByDays(daysSinceLastVisit: number = 7): Promise<InactiveUserData[]> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysSinceLastVisit);
+
+    const subQuery = this.accessLogRepository
+      .createQueryBuilder('log')
+      .select('log.userId', 'userId')
+      .addSelect('MAX(log.createdAt)', 'lastVisit')
+      .where('log.granted = :granted', { granted: true })
+      .groupBy('log.userId');
+
+    const inactiveUsers = await this.accessLogRepository.manager
+      .createQueryBuilder()
+      .select('sub.userId', 'userId')
+      .addSelect('sub.lastVisit', 'lastAttendanceDate')
+      .addSelect('user.name', 'user_name')
+      .addSelect('user.email', 'user_email')
+      .from('(' + subQuery.getQuery() + ')', 'sub')
+      .setParameters(subQuery.getParameters())
+      .innerJoin('users', 'user', 'user.id = sub.userId')
+      .where('user.isActive = :isActive', { isActive: true })
+      .andWhere('user.role = :role', { role: 'user' })
+      .andWhere('sub.lastVisit < :cutoffDate', { cutoffDate })
+      .orderBy('sub.lastVisit', 'ASC')
+      .getRawMany<RawInactiveUserResult>();
+
+    const now = new Date();
+    return inactiveUsers.map((row) => {
+      const lastDate = row.lastAttendanceDate ? new Date(row.lastAttendanceDate) : null;
+      const daysSince = lastDate
+        ? Math.floor((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24))
+        : 999;
+
+      return {
+        userId: row.userId,
+        name: row.user_name,
+        email: row.user_email,
+        lastAttendanceDate: lastDate,
+        daysSinceLastVisit: daysSince,
+      };
+    });
   }
 }

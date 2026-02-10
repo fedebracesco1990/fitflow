@@ -1,0 +1,174 @@
+.dialog-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease;
+}
+
+.dialog {
+  background: white;
+  border-radius: 12px;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 480px;
+  width: 90%;
+  animation: slideIn 0.2s ease;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    lucide-icon {
+      color: #6366f1;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+  }
+
+  .close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+  }
+}
+
+.dialog-body {
+  padding: 1.5rem;
+
+  &.success-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 3rem 1.5rem;
+    color: #22c55e;
+
+    span {
+      font-size: 1.125rem;
+      font-weight: 500;
+    }
+  }
+}
+
+.form-group {
+  margin-bottom: 1rem;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+
+  label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-family: inherit;
+    resize: vertical;
+
+    &:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    &:disabled {
+      background: #f9fafb;
+      color: #9ca3af;
+    }
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+
+  textarea {
+    min-height: 100px;
+  }
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

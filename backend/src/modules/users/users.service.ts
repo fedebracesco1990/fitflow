@@ -18,8 +18,13 @@ import { PaginatedResponse } from '../../common/interfaces/paginated-response.in
 import * as bcrypt from 'bcrypt';
 import * as ExcelJS from 'exceljs';
 import { SearchUsersDto } from './dto/search-users.dto';
-import { AttendanceService, LowAttendanceUserData } from '../attendance/attendance.service';
+import {
+  AttendanceService,
+  LowAttendanceUserData,
+  InactiveUserData,
+} from '../attendance/attendance.service';
 import { LowAttendanceResponseDto } from './dto/low-attendance-user.dto';
+import { InactiveUsersResponseDto } from './dto/inactive-users.dto';
 import { MembershipStatus } from '../memberships/entities/membership.entity';
 
 interface RawUserMembershipResult {
@@ -566,6 +571,40 @@ export class UsersService {
         month: targetMonth,
         year: targetYear,
         minVisitsThreshold: minVisits,
+      },
+    };
+  }
+
+  async findInactiveUsers(daysSinceLastVisit: number = 7): Promise<InactiveUsersResponseDto> {
+    const inactiveUsers = await this.attendanceService.findInactiveUsersByDays(daysSinceLastVisit);
+
+    const usersWithMembership = await Promise.all(
+      inactiveUsers.map(async (userData: InactiveUserData) => {
+        const user = await this.usersRepository.findOne({
+          where: { id: userData.userId },
+          relations: ['memberships'],
+        });
+
+        const activeMembership = user?.memberships?.find(
+          (m) => m.status === MembershipStatus.ACTIVE || m.status === MembershipStatus.GRACE_PERIOD
+        );
+
+        return {
+          id: userData.userId,
+          name: userData.name,
+          email: userData.email,
+          lastAttendanceDate: userData.lastAttendanceDate,
+          daysSinceLastVisit: userData.daysSinceLastVisit,
+          membershipStatus: activeMembership?.status ?? null,
+        };
+      })
+    );
+
+    return {
+      users: usersWithMembership,
+      meta: {
+        total: usersWithMembership.length,
+        daysSinceLastVisitThreshold: daysSinceLastVisit,
       },
     };
   }

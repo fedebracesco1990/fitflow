@@ -7,6 +7,7 @@ import {
   NotificationsState,
   SetPermissionStatus,
   SetFcmToken,
+  AuthState,
 } from '../../../../core/store';
 import { PushNotificationsService } from '../../../../core/services';
 import {
@@ -42,6 +43,7 @@ export class ViewProfileComponent implements OnInit {
   readonly profile = this.store.selectSignal(UserState.profile);
   readonly isLoading = this.store.selectSignal(UserState.isLoading);
   readonly permissionStatus = this.store.selectSignal(NotificationsState.permissionStatus);
+  private readonly user = this.store.selectSignal(AuthState.user);
 
   readonly isEnablingNotifications = signal(false);
   readonly isDisablingNotifications = signal(false);
@@ -67,9 +69,13 @@ export class ViewProfileComponent implements OnInit {
     this.pendingAction() === 'enable' ? 'primary' : 'warning'
   );
 
-  readonly notificationsEnabled = computed(
-    () => this.permissionStatus() === 'granted' && this.userPreferenceSignal() === 'enabled'
-  );
+  readonly notificationsEnabled = computed(() => {
+    const status = this.permissionStatus();
+    const preference = this.userPreferenceSignal();
+    // If browser permission is granted and user hasn't explicitly disabled, consider enabled
+    // This handles the case where user accepted via prompt but token registration failed
+    return status === 'granted' && preference !== 'disabled';
+  });
   readonly notificationsDenied = computed(() => this.permissionStatus() === 'denied');
 
   ngOnInit(): void {
@@ -81,7 +87,7 @@ export class ViewProfileComponent implements OnInit {
   }
 
   private getPreferenceKey(): string | null {
-    const userId = this.profile()?.id;
+    const userId = this.user()?.userId;
     return userId ? `notification_preference_${userId}` : null;
   }
 

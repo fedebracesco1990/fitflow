@@ -23,6 +23,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { SearchUsersDto } from './dto/search-users.dto';
 import { LowAttendanceQueryDto, LowAttendanceResponseDto } from './dto/low-attendance-user.dto';
+import { InactiveUsersQueryDto, InactiveUsersResponseDto } from './dto/inactive-users.dto';
 import { QrService } from '../qr/qr.service';
 
 @Controller('users')
@@ -91,6 +92,13 @@ export class UsersController {
     @Query() query: LowAttendanceQueryDto
   ): Promise<LowAttendanceResponseDto> {
     return await this.usersService.findLowAttendanceUsers(query.month, query.year, query.minVisits);
+  }
+
+  @Get('inactive')
+  @Roles(Role.ADMIN, Role.TRAINER)
+  @HttpCode(HttpStatus.OK)
+  async getInactiveUsers(@Query() query: InactiveUsersQueryDto): Promise<InactiveUsersResponseDto> {
+    return await this.usersService.findInactiveUsers(query.daysSinceLastVisit);
   }
 
   @Get(':id')

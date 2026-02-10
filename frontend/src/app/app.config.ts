@@ -86,6 +86,9 @@ import {
   TrendingUp,
   TrendingDown,
   Layers,
+  Search,
+  Eye,
+  EyeOff,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -204,6 +207,9 @@ export const appConfig: ApplicationConfig = {
         TrendingUp,
         TrendingDown,
         Layers,
+        Search,
+        Eye,
+        EyeOff,
       })
     ),
   ],

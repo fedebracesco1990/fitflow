@@ -1,23 +1,30 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { UsersService } from '../../../../core/services/users.service';
-import { LowAttendanceUser } from '../../../../core/models';
+import { InactiveUser } from '../../../../core/models';
 import { CardComponent, BadgeComponent } from '../../../../shared';
+import { RetentionMessageDialogComponent } from './retention-message-dialog/retention-message-dialog.component';
 
 @Component({
   selector: 'fit-flow-retention-alert-widget',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, CardComponent, BadgeComponent],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+    CardComponent,
+    BadgeComponent,
+    RetentionMessageDialogComponent,
+  ],
   templateUrl: './retention-alert-widget.component.html',
   styleUrl: './retention-alert-widget.component.scss',
 })
 export class RetentionAlertWidgetComponent implements OnInit {
   private readonly usersService = inject(UsersService);
-  private readonly router = inject(Router);
 
-  readonly users = signal<LowAttendanceUser[]>([]);
+  readonly users = signal<InactiveUser[]>([]);
+  readonly dialogOpen = signal(false);
+  readonly selectedUser = signal<InactiveUser | null>(null);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly expanded = signal(false);
@@ -45,50 +52,56 @@ export class RetentionAlertWidgetComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadContactedUsers();
-    this.loadLowAttendanceUsers();
+    this.loadInactiveUsers();
   }
 
   toggleExpanded(): void {
     this.expanded.update((v) => !v);
   }
 
-  toggleContacted(userId: string): void {
+  openMessageDialog(user: InactiveUser): void {
+    this.selectedUser.set(user);
+    this.dialogOpen.set(true);
+  }
+
+  onDialogClosed(): void {
+    this.dialogOpen.set(false);
+    this.selectedUser.set(null);
+  }
+
+  onMessageSent(): void {
+    const user = this.selectedUser();
+    if (user) {
+      this.markAsContacted(user.id);
+    }
+  }
+
+  private markAsContacted(userId: string): void {
     this.contactedUserIds.update((set) => {
       const newSet = new Set(set);
-      if (newSet.has(userId)) {
-        newSet.delete(userId);
-      } else {
-        newSet.add(userId);
-      }
+      newSet.add(userId);
       this.saveContactedUsers(newSet);
       return newSet;
     });
   }
 
-  sendMessage(user: LowAttendanceUser): void {
-    this.router.navigate(['/notifications/send'], {
-      queryParams: { userId: user.id, userName: user.name },
-    });
+  formatDaysSince(days: number): string {
+    if (days === 0) return 'Hoy';
+    if (days === 1) return 'Ayer';
+    if (days < 7) return `Hace ${days} días`;
+    if (days < 30) {
+      const weeks = Math.floor(days / 7);
+      return `Hace ${weeks} ${weeks === 1 ? 'semana' : 'semanas'}`;
+    }
+    const months = Math.floor(days / 30);
+    return `Hace ${months} ${months === 1 ? 'mes' : 'meses'}`;
   }
 
-  formatLastAttendance(date: string | null): string {
-    if (!date) return 'Sin registros';
-    const d = new Date(date);
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return 'Hoy';
-    if (diffDays === 1) return 'Ayer';
-    if (diffDays < 7) return `Hace ${diffDays} días`;
-    if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
-    return `Hace ${Math.floor(diffDays / 30)} meses`;
-  }
-
-  private loadLowAttendanceUsers(): void {
+  private loadInactiveUsers(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.usersService.getLowAttendanceUsers().subscribe({
+    this.usersService.getInactiveUsers({ daysSinceLastVisit: 7 }).subscribe({
       next: (response) => {
         this.users.set(response.users);
         this.loading.set(false);
