@@ -126,6 +126,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'audit-logs',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: [Role.ADMIN] },
+    loadChildren: () =>
+      import('./features/audit-logs/audit-logs.routes').then((m) => m.AUDIT_LOGS_ROUTES),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

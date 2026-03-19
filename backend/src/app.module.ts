@@ -34,6 +34,7 @@ import { StatsModule } from './modules/stats/stats.module';
 import { WebSocketModule } from './modules/websocket/websocket.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ProgramsModule } from './modules/programs/programs.module';
+import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
 
 @Module({
   imports: [
@@ -107,6 +108,7 @@ import { ProgramsModule } from './modules/programs/programs.module';
     WebSocketModule,
     ReportsModule,
     ProgramsModule,
+    AuditLogsModule,
     SeederModule,
   ],
   controllers: [AppController],

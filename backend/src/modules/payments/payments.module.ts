@@ -5,9 +5,10 @@ import { PaymentsController } from './payments.controller';
 import { Payment } from './entities/payment.entity';
 import { Membership } from '../memberships/entities/membership.entity';
 import { MembershipType } from '../membership-types/entities/membership-type.entity';
+import { AuditLogsModule } from '../audit-logs/audit-logs.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment, Membership, MembershipType])],
+  imports: [TypeOrmModule.forFeature([Payment, Membership, MembershipType]), AuditLogsModule],
   controllers: [PaymentsController],
   providers: [PaymentsService],
   exports: [PaymentsService],

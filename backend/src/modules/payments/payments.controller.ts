@@ -80,13 +80,17 @@ export class PaymentsController {
 
   @Patch(':id')
   @Roles(Role.ADMIN)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateDto: UpdatePaymentDto) {
-    return this.paymentsService.update(id, updateDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateDto: UpdatePaymentDto,
+    @Request() req: { user: AuthenticatedUser }
+  ) {
+    return this.paymentsService.update(id, updateDto, req.user.userId);
   }
 
   @Delete(':id')
   @Roles(Role.ADMIN)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.paymentsService.remove(id);
+  remove(@Param('id', ParseUUIDPipe) id: string, @Request() req: { user: AuthenticatedUser }) {
+    return this.paymentsService.remove(id, req.user.userId);
   }
 }

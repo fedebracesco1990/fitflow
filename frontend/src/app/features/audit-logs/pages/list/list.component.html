@@ -1,0 +1,107 @@
+<div class="audit-logs-page">
+  <div class="page-header">
+    <h1>Logs de Auditoría</h1>
+    <span class="subtitle">Historial de acciones CRUD en el sistema</span>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <label for="entityFilter">Entidad</label>
+      <select id="entityFilter" (change)="onEntityChange($event)">
+        <option value="">Todas</option>
+        @for (entity of entityOptions; track entity) {
+          <option [value]="entity">{{ entity }}</option>
+        }
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="actionFilter">Acción</label>
+      <select id="actionFilter" (change)="onActionChange($event)">
+        @for (opt of actionOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (error()) {
+    <fit-flow-alert type="error" [message]="error()!" />
+  }
+
+  @if (loading()) {
+    <fit-flow-card padding="lg">
+      <div class="loading">Cargando logs...</div>
+    </fit-flow-card>
+  } @else if (logs().length === 0) {
+    <fit-flow-card padding="lg">
+      <div class="empty-state">No hay registros de auditoría aún.</div>
+    </fit-flow-card>
+  } @else {
+    <fit-flow-card padding="none">
+      <div class="table-container">
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th>Fecha / Hora</th>
+              <th>Acción</th>
+              <th>Entidad</th>
+              <th>ID Entidad</th>
+              <th>Realizado por</th>
+              <th>Detalles</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of logs(); track log.id) {
+              <tr>
+                <td class="date-cell">{{ log.createdAt | date: 'd MMM y, HH:mm' }}</td>
+                <td>
+                  <span class="action-badge" [ngClass]="getActionClass(log.action)">
+                    {{ AuditActionLabels[log.action] }}
+                  </span>
+                </td>
+                <td class="entity-cell">{{ log.entity }}</td>
+                <td class="id-cell">{{ log.entityId ?? '-' }}</td>
+                <td>{{ getPerformedByName(log) }}</td>
+                <td class="details-cell">
+                  @if (log.details) {
+                    <details>
+                      <summary>Ver detalles</summary>
+                      <pre>{{ formatDetails(log) }}</pre>
+                    </details>
+                  } @else {
+                    <span class="no-details">-</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (paginationMeta() && paginationMeta()!.totalPages > 1) {
+        <div class="pagination">
+          <fit-flow-button
+            variant="outline"
+            size="sm"
+            [disabled]="paginationMeta()!.page === 1 || loading()"
+            (click)="prevPage()"
+          >
+            Anterior
+          </fit-flow-button>
+          <span class="page-info">
+            {{ paginationMeta()!.page }} / {{ paginationMeta()!.totalPages }}
+          </span>
+          <fit-flow-button
+            variant="outline"
+            size="sm"
+            [disabled]="paginationMeta()!.page === paginationMeta()!.totalPages || loading()"
+            (click)="nextPage()"
+          >
+            Siguiente
+          </fit-flow-button>
+        </div>
+      }
+    </fit-flow-card>
+  }
+</div>

@@ -6,6 +6,8 @@ import { Membership, MembershipStatus } from '../memberships/entities/membership
 import { MembershipType } from '../membership-types/entities/membership-type.entity';
 import { CreatePaymentDto, CreatePaymentWithMembershipUpdateDto, UpdatePaymentDto } from './dto';
 import { PaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { AuditAction } from '../audit-logs/entities/audit-log.entity';
 
 @Injectable()
 export class PaymentsService {
@@ -16,7 +18,8 @@ export class PaymentsService {
     private readonly membershipRepository: Repository<Membership>,
     @InjectRepository(MembershipType)
     private readonly membershipTypeRepository: Repository<MembershipType>,
-    private readonly dataSource: DataSource
+    private readonly dataSource: DataSource,
+    private readonly auditLogsService: AuditLogsService
   ) {}
 
   async create(createDto: CreatePaymentDto, registeredById: string): Promise<Payment> {
@@ -43,6 +46,19 @@ export class PaymentsService {
 
       const savedPayment = await queryRunner.manager.save(payment);
       await queryRunner.commitTransaction();
+
+      await this.auditLogsService.log({
+        action: AuditAction.CREATE,
+        entity: 'Payment',
+        entityId: savedPayment.id,
+        performedById: registeredById,
+        details: {
+          membershipId: savedPayment.membershipId,
+          amount: savedPayment.amount,
+          paymentMethod: savedPayment.paymentMethod,
+          paymentDate: savedPayment.paymentDate,
+        },
+      });
 
       return savedPayment;
     } catch (error) {
@@ -110,6 +126,20 @@ export class PaymentsService {
       const savedPayment = await queryRunner.manager.save(payment);
       await queryRunner.commitTransaction();
 
+      await this.auditLogsService.log({
+        action: AuditAction.CREATE,
+        entity: 'Payment',
+        entityId: savedPayment.id,
+        performedById: registeredById,
+        details: {
+          membershipId: savedPayment.membershipId,
+          amount: savedPayment.amount,
+          paymentMethod: savedPayment.paymentMethod,
+          paymentDate: savedPayment.paymentDate,
+          source: 'createWithMembershipUpdate',
+        },
+      });
+
       return savedPayment;
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -168,7 +198,7 @@ export class PaymentsService {
       .getMany();
   }
 
-  async update(id: string, updateDto: UpdatePaymentDto): Promise<Payment> {
+  async update(id: string, updateDto: UpdatePaymentDto, performedById?: string): Promise<Payment> {
     const payment = await this.findOne(id);
 
     // Si se cambia la membresía, verificar que existe
@@ -181,6 +211,13 @@ export class PaymentsService {
       }
     }
 
+    const previousData = {
+      amount: payment.amount,
+      paymentMethod: payment.paymentMethod,
+      paymentDate: payment.paymentDate,
+      notes: payment.notes,
+    };
+
     Object.assign(payment, updateDto);
     if (updateDto.paymentDate) {
       payment.paymentDate = new Date(updateDto.paymentDate);
@@ -192,12 +229,34 @@ export class PaymentsService {
       payment.coverageEnd = new Date(updateDto.coverageEndDate);
     }
 
-    return await this.paymentRepository.save(payment);
+    const updated = await this.paymentRepository.save(payment);
+
+    await this.auditLogsService.log({
+      action: AuditAction.UPDATE,
+      entity: 'Payment',
+      entityId: id,
+      performedById,
+      details: { before: previousData, after: updateDto },
+    });
+
+    return updated;
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, performedById?: string): Promise<void> {
     const payment = await this.findOne(id);
-    await this.paymentRepository.remove(payment);
+    await this.paymentRepository.softRemove(payment);
+
+    await this.auditLogsService.log({
+      action: AuditAction.DELETE,
+      entity: 'Payment',
+      entityId: id,
+      performedById,
+      details: {
+        membershipId: payment.membershipId,
+        amount: payment.amount,
+        paymentDate: payment.paymentDate,
+      },
+    });
   }
 
   // Obtener total recaudado en un período
