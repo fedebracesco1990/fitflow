@@ -59,7 +59,7 @@ export class AuthService {
     } catch {
       this.logger.warn(`[LOGIN_FAILED] User not found: ${email}`);
       await this.auditLogService.log({ event: 'LOGIN_FAILED', email, userId: null, ...context });
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException('Email o contraseña incorrectos');
     }
 
     if (user.lockedUntil && new Date() < user.lockedUntil) {
@@ -70,15 +70,16 @@ export class AuthService {
         userId: user.id,
         ...context,
       });
+      const minutesLeft = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
       throw new UnauthorizedException(
-        'Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta nuevamente en 15 minutos.'
+        `Tu cuenta está bloqueada temporalmente. Podés volver a intentarlo en ${minutesLeft} minuto${minutesLeft !== 1 ? 's' : ''}.`
       );
     }
 
     if (!user.isActive) {
       this.logger.warn(`[LOGIN_FAILED] Inactive user attempted login: ${email}`);
       await this.auditLogService.log({ event: 'LOGIN_FAILED', email, userId: user.id, ...context });
-      throw new UnauthorizedException('Usuario inactivo');
+      throw new UnauthorizedException('Tu cuenta está desactivada. Contactá con el administrador.');
     }
 
     const isPasswordValid = await User.comparePasswords(password, user.password);
@@ -87,7 +88,7 @@ export class AuthService {
       this.logger.warn(`[LOGIN_FAILED] Invalid password for: ${email}`);
       await this.usersService.incrementFailedLoginAttempts(user.id);
       await this.auditLogService.log({ event: 'LOGIN_FAILED', email, userId: user.id, ...context });
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException('Email o contraseña incorrectos');
     }
 
     await this.usersService.resetFailedLoginAttempts(user.id);
@@ -198,12 +199,14 @@ export class AuthService {
     }
 
     if (new Date() > user.resetPasswordExpires) {
-      throw new BadRequestException('El enlace ha expirado');
+      throw new BadRequestException(
+        'El enlace expiró. Solicitá uno nuevo desde la pantalla de login.'
+      );
     }
 
     const isMatch = await bcrypt.compare(token, user.resetPasswordTokenHash);
     if (!isMatch) {
-      throw new BadRequestException('Token inválido');
+      throw new BadRequestException('El enlace de recuperación no es válido. Solicitá uno nuevo.');
     }
 
     await this.usersService.updatePasswordFromReset(user.id, newPassword);
