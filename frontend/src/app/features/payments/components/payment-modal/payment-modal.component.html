@@ -18,18 +18,57 @@
           <div class="form-grid">
             <!-- Usuario -->
             <div class="form-group full-width">
-              <label for="userId">Usuario *</label>
-              <select id="userId" formControlName="userId">
-                <option value="">Seleccionar usuario</option>
-                @for (user of users(); track user.id) {
-                  <option [value]="user.id">{{ user.name }} ({{ user.email }})</option>
-                }
-              </select>
-              @if (isFieldInvalid('userId')) {
-                <span class="error-message">Selecciona un usuario</span>
-              }
+              <label>Usuario *</label>
               @if (loadingUsers()) {
                 <span class="hint">Cargando usuarios...</span>
+              } @else {
+                <div class="user-search-wrapper">
+                  @if (selectedUserName()) {
+                    <div class="selected-user">
+                      <span class="selected-user-name">{{ selectedUserName() }}</span>
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearUser()"
+                        title="Cambiar usuario"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  } @else {
+                    <input
+                      type="text"
+                      id="userSearch"
+                      [value]="userSearchQuery()"
+                      (input)="onUserSearchInput($event)"
+                      (focus)="openUserDropdown()"
+                      (blur)="closeUserDropdown()"
+                      placeholder="Buscar por nombre o email..."
+                      autocomplete="off"
+                    />
+                    @if (showUserDropdown()) {
+                      <div class="user-dropdown">
+                        @if (filteredUsers().length === 0) {
+                          <div class="user-dropdown-empty">No se encontraron usuarios</div>
+                        } @else {
+                          @for (user of filteredUsers(); track user.id) {
+                            <button
+                              type="button"
+                              class="user-dropdown-item"
+                              (mousedown)="selectUser(user)"
+                            >
+                              <span class="user-item-name">{{ user.name }}</span>
+                              <span class="user-item-email">{{ user.email }}</span>
+                            </button>
+                          }
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              }
+              @if (isFieldInvalid('userId')) {
+                <span class="error-message">Selecciona un usuario</span>
               }
             </div>
 

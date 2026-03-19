@@ -1,4 +1,13 @@
-import { Component, input, output, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  signal,
+  inject,
+  OnInit,
+  OnDestroy,
+  computed,
+} from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -49,6 +58,17 @@ export class PaymentModalComponent implements OnInit, OnDestroy {
   readonly membershipTypes = signal<MembershipType[]>([]);
   readonly userMembership = signal<Membership | null>(null);
   readonly originalMembershipTypeId = signal<string | null>(null);
+
+  readonly userSearchQuery = signal('');
+  readonly showUserDropdown = signal(false);
+  readonly selectedUserName = signal('');
+  readonly filteredUsers = computed(() => {
+    const query = this.userSearchQuery().toLowerCase().trim();
+    if (!query) return this.users();
+    return this.users().filter(
+      (u) => u.name.toLowerCase().includes(query) || u.email.toLowerCase().includes(query)
+    );
+  });
 
   readonly paymentMethods = Object.values(PaymentMethod);
   readonly PaymentMethodLabels = PaymentMethodLabels;
@@ -272,8 +292,51 @@ export class PaymentModalComponent implements OnInit, OnDestroy {
     });
     this.userMembership.set(null);
     this.originalMembershipTypeId.set(null);
+    this.userSearchQuery.set('');
+    this.selectedUserName.set('');
+    this.showUserDropdown.set(false);
     this.loading.set(false);
     this.error.set(null);
+  }
+
+  onUserSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.userSearchQuery.set(value);
+    this.showUserDropdown.set(true);
+    if (!value) {
+      this.form.patchValue({ userId: '' }, { emitEvent: true });
+      this.selectedUserName.set('');
+    }
+  }
+
+  selectUser(user: User): void {
+    this.form.patchValue({ userId: user.id });
+    this.selectedUserName.set(`${user.name} (${user.email})`);
+    this.userSearchQuery.set('');
+    this.showUserDropdown.set(false);
+  }
+
+  clearUser(): void {
+    this.form.patchValue({ userId: '' });
+    this.selectedUserName.set('');
+    this.userSearchQuery.set('');
+    this.showUserDropdown.set(false);
+    this.userMembership.set(null);
+    this.originalMembershipTypeId.set(null);
+    this.form.patchValue(
+      { membershipTypeId: '', amount: '', coverageEndDate: '' },
+      { emitEvent: false }
+    );
+  }
+
+  openUserDropdown(): void {
+    this.showUserDropdown.set(true);
+  }
+
+  closeUserDropdown(): void {
+    setTimeout(() => {
+      this.showUserDropdown.set(false);
+    }, 150);
   }
 
   isFieldInvalid(fieldName: string): boolean {
