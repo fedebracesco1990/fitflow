@@ -318,7 +318,32 @@ export class UsersService {
     await this.usersRepository.save(user);
   }
 
-  // ==================== REFRESH TOKEN ====================
+  // ==================== SECURITY: ACCOUNT LOCKOUT ====================
+
+  async incrementFailedLoginAttempts(userId: string): Promise<void> {
+    const LOCKOUT_THRESHOLD = 5;
+    const LOCKOUT_DURATION_MINUTES = 15;
+
+    await this.usersRepository.increment({ id: userId }, 'failedLoginAttempts', 1);
+
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'failedLoginAttempts'],
+    });
+
+    if (user && user.failedLoginAttempts >= LOCKOUT_THRESHOLD) {
+      const lockedUntil = new Date();
+      lockedUntil.setMinutes(lockedUntil.getMinutes() + LOCKOUT_DURATION_MINUTES);
+      await this.usersRepository.update(userId, { lockedUntil });
+    }
+  }
+
+  async resetFailedLoginAttempts(userId: string): Promise<void> {
+    await this.usersRepository.update(userId, {
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    });
+  }
 
   async updateRefreshToken(userId: string, refreshToken: string | null): Promise<void> {
     const hashedRefreshToken = refreshToken ? await bcrypt.hash(refreshToken, 10) : undefined;

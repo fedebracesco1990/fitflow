@@ -1,4 +1,6 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Get } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Get, Req } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -16,6 +18,16 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  private extractContext(req: Request) {
+    const forwarded = req.headers['x-forwarded-for'];
+    const ipAddress =
+      (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]?.trim()) ??
+      req.ip ??
+      null;
+    const userAgent = (req.headers['user-agent'] as string) ?? null;
+    return { ipAddress, userAgent };
+  }
+
   @Roles(Role.ADMIN)
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
@@ -24,10 +36,12 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto): Promise<TokensResponse> {
-    return await this.authService.login(loginDto);
+  async login(@Body() loginDto: LoginDto, @Req() req: Request): Promise<TokensResponse> {
+    const context = this.extractContext(req);
+    return await this.authService.login(loginDto, context);
   }
 
   @Public()
@@ -52,11 +66,13 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@CurrentUser('userId') userId: string): Promise<void> {
-    return await this.authService.logout(userId);
+  async logout(@CurrentUser('userId') userId: string, @Req() req: Request): Promise<void> {
+    const context = this.extractContext(req);
+    return await this.authService.logout(userId, context);
   }
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {

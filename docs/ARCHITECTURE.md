@@ -788,14 +788,19 @@ graph LR
 
 ### Medidas Implementadas
 
-1. **Autenticación JWT** - Tokens firmados con secreto
-2. **Hashing de Passwords** - bcrypt con salt rounds
-3. **Guards de Roles** - Control de acceso por rol
-4. **Validación de DTOs** - class-validator en backend
-5. **Interceptor HTTP** - Token automático en requests
-6. **CORS configurado** - Solo orígenes permitidos
+1. **Autenticación JWT** - Tokens firmados con secreto, dual-token (access + refresh rotation)
+2. **Hashing de Passwords** - bcrypt con 10 salt rounds
+3. **Guards de Roles** - Control de acceso por rol (`RolesGuard` + `@Roles` decorator)
+4. **Validación de DTOs** - class-validator con whitelist + forbidNonWhitelisted
+5. **Interceptor HTTP** - Token automático en requests del frontend
+6. **CORS configurado** - Solo orígenes permitidos via `ALLOWED_ORIGINS`
+7. **Helmet** - Headers HTTP de seguridad activos en todos los endpoints
+8. **Rate Limiting (global)** - `ThrottlerGuard`: 60 requests / 60s por IP
+9. **Rate Limiting (login)** - `@Throttle` específico: 5 requests / 15 min por IP en `/auth/login` y `/auth/forgot-password`
+10. **Account Lockout** - Bloqueo temporal de 15 min tras 5 intentos fallidos consecutivos (campos `failedLoginAttempts` y `lockedUntil` en entidad `User`)
+11. **Audit Log** - Registro persistente en tabla `auth_audit_logs` de eventos: LOGIN_SUCCESS, LOGIN_FAILED, ACCOUNT_LOCKED, LOGOUT, PASSWORD_RESET_REQUEST, PASSWORD_RESET_SUCCESS
 
-### Headers de Seguridad Recomendados
+### Headers de Seguridad (via Helmet)
 
 ```
 X-Content-Type-Options: nosniff
@@ -803,6 +808,10 @@ X-Frame-Options: DENY
 X-XSS-Protection: 1; mode=block
 Strict-Transport-Security: max-age=31536000
 ```
+
+### Documentación de seguridad
+
+Ver [`docs/technical/seguridad-login.md`](./technical/seguridad-login.md) para detalles de implementación completos.
 
 ---
 

@@ -11,6 +11,12 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import type { JwtPayload } from './interfaces/jwt-payload.interface';
 import type { TokensResponse } from './interfaces/tokens-response.interface';
+import { AuthAuditLogService } from './auth-audit-log.service';
+
+interface AuthRequestContext {
+  ipAddress: string | null;
+  userAgent: string | null;
+}
 
 @Injectable()
 export class AuthService {
@@ -19,7 +25,8 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly auditLogService: AuthAuditLogService
   ) {}
 
   async register(registerDto: RegisterDto): Promise<TokensResponse> {
@@ -30,34 +37,60 @@ export class AuthService {
     return tokens;
   }
 
-  async login(loginDto: LoginDto): Promise<TokensResponse> {
-    const user = await this.validateUser(loginDto.email, loginDto.password);
+  async login(loginDto: LoginDto, context?: AuthRequestContext): Promise<TokensResponse> {
+    const user = await this.validateUser(loginDto.email, loginDto.password, context);
     const tokens = await this.getTokens(user);
     await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
+    await this.auditLogService.log({
+      event: 'LOGIN_SUCCESS',
+      email: user.email,
+      userId: user.id,
+      ...context,
+    });
     this.logger.log(`[LOGIN] Successful login: ${user.email}`);
     return tokens;
   }
 
-  async validateUser(email: string, password: string): Promise<User> {
-    const user = await this.usersService.findByEmail(email);
+  async validateUser(email: string, password: string, context?: AuthRequestContext): Promise<User> {
+    let user: User;
 
-    if (!user) {
+    try {
+      user = await this.usersService.findByEmail(email);
+    } catch {
       this.logger.warn(`[LOGIN_FAILED] User not found: ${email}`);
+      await this.auditLogService.log({ event: 'LOGIN_FAILED', email, userId: null, ...context });
       throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    if (user.lockedUntil && new Date() < user.lockedUntil) {
+      this.logger.warn(`[ACCOUNT_LOCKED] Blocked login attempt for locked account: ${email}`);
+      await this.auditLogService.log({
+        event: 'ACCOUNT_LOCKED',
+        email,
+        userId: user.id,
+        ...context,
+      });
+      throw new UnauthorizedException(
+        'Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta nuevamente en 15 minutos.'
+      );
+    }
+
+    if (!user.isActive) {
+      this.logger.warn(`[LOGIN_FAILED] Inactive user attempted login: ${email}`);
+      await this.auditLogService.log({ event: 'LOGIN_FAILED', email, userId: user.id, ...context });
+      throw new UnauthorizedException('Usuario inactivo');
     }
 
     const isPasswordValid = await User.comparePasswords(password, user.password);
 
     if (!isPasswordValid) {
       this.logger.warn(`[LOGIN_FAILED] Invalid password for: ${email}`);
+      await this.usersService.incrementFailedLoginAttempts(user.id);
+      await this.auditLogService.log({ event: 'LOGIN_FAILED', email, userId: user.id, ...context });
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    if (!user.isActive) {
-      this.logger.warn(`[LOGIN_FAILED] Inactive user attempted login: ${email}`);
-      throw new UnauthorizedException('Usuario inactivo');
-    }
-
+    await this.usersService.resetFailedLoginAttempts(user.id);
     return user;
   }
 
@@ -98,8 +131,9 @@ export class AuthService {
     return tokens;
   }
 
-  async logout(userId: string): Promise<void> {
+  async logout(userId: string, context?: AuthRequestContext): Promise<void> {
     await this.usersService.updateRefreshToken(userId, null);
+    await this.auditLogService.log({ event: 'LOGOUT', userId, ...context });
     this.logger.log(`[LOGOUT] User logged out: ${userId}`);
   }
 
@@ -126,6 +160,11 @@ export class AuthService {
       const hashedToken = await bcrypt.hash(token, salt);
 
       await this.usersService.setResetPasswordToken(user.id, hashedToken, expires);
+      await this.auditLogService.log({
+        event: 'PASSWORD_RESET_REQUEST',
+        email: user.email,
+        userId: user.id,
+      });
       this.logger.log(`[PASSWORD_RESET_REQUEST] Reset token generated for: ${user.email}`);
 
       const frontendUrl = this.configService.getOrThrow<string>('app.frontendUrl');
@@ -168,6 +207,7 @@ export class AuthService {
     }
 
     await this.usersService.updatePasswordFromReset(user.id, newPassword);
+    await this.auditLogService.log({ event: 'PASSWORD_RESET_SUCCESS', userId });
     this.logger.log(`[PASSWORD_RESET] Password successfully reset for user: ${userId}`);
 
     return { message: 'Contraseña actualizada correctamente' };

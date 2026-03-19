@@ -43,6 +43,12 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   resetPasswordExpires: Date | null;
 
+  @Column({ type: 'int', default: 0 })
+  failedLoginAttempts: number;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lockedUntil: Date | null;
+
   @Column({ default: true })
   isActive: boolean;
 
@@ -91,6 +97,8 @@ export class User {
       refreshToken: undefined,
       resetPasswordTokenHash: undefined,
       resetPasswordExpires: undefined,
+      failedLoginAttempts: undefined,
+      lockedUntil: undefined,
       tempPassword: undefined,
     };
   }
