@@ -21,17 +21,17 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(payload: JwtPayload) {
     if (payload.type !== 'access') {
-      throw new UnauthorizedException('Tipo de token inválido');
+      throw new UnauthorizedException('Sesión inválida. Por favor iniciá sesión nuevamente.');
     }
 
     const user = await this.usersService.findById(payload.sub);
 
     if (!user) {
-      throw new UnauthorizedException('Usuario no encontrado');
+      throw new UnauthorizedException('Tu sesión expiró. Por favor iniciá sesión nuevamente.');
     }
 
     if (!user.isActive) {
-      throw new UnauthorizedException('Usuario inactivo');
+      throw new UnauthorizedException('Tu cuenta está desactivada. Contactá con el administrador.');
     }
 
     return {

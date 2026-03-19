@@ -83,7 +83,7 @@ describe('RolesGuard', () => {
 
       expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
       expect(() => guard.canActivate(context)).toThrow(
-        'No tienes permisos suficientes para acceder a este recurso'
+        'No tenés permisos para realizar esta acción.'
       );
     });
 
@@ -92,7 +92,9 @@ describe('RolesGuard', () => {
       const context = mockExecutionContext(null);
 
       expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
-      expect(() => guard.canActivate(context)).toThrow('Usuario no autenticado');
+      expect(() => guard.canActivate(context)).toThrow(
+        'Necesitás iniciar sesión para acceder a este recurso.'
+      );
     });
 
     it('should throw ForbiddenException when USER tries to access ADMIN route', () => {

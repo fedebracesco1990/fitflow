@@ -195,7 +195,7 @@ export class AuthService {
     const user = await this.usersService.findOneWithResetToken(userId);
 
     if (!user.resetPasswordTokenHash || !user.resetPasswordExpires) {
-      throw new BadRequestException('Solicitud de cambio de contraseña inválida');
+      throw new BadRequestException('El enlace de recuperación no es válido o ya fue utilizado.');
     }
 
     if (new Date() > user.resetPasswordExpires) {

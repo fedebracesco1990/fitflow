@@ -297,7 +297,7 @@ export class UsersService {
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('La contraseña actual es incorrecta');
+      throw new UnauthorizedException('La contraseña actual no es correcta.');
     }
 
     user.password = changePasswordDto.newPassword;
@@ -361,13 +361,13 @@ export class UsersService {
       .getOne();
 
     if (!user || !user.refreshToken) {
-      throw new UnauthorizedException('Token de refresco inválido');
+      throw new UnauthorizedException('Tu sesión expiró. Por favor iniciá sesión nuevamente.');
     }
 
     const isRefreshTokenMatching = await bcrypt.compare(refreshToken, user.refreshToken);
 
     if (!isRefreshTokenMatching) {
-      throw new UnauthorizedException('Token de refresco inválido');
+      throw new UnauthorizedException('Tu sesión expiró. Por favor iniciá sesión nuevamente.');
     }
 
     return user;
