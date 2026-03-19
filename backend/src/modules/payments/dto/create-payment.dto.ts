@@ -10,6 +10,9 @@ import {
 } from 'class-validator';
 import { PaymentMethod } from '../entities/payment.entity';
 import { IsCoverageValid } from '../../../common/validators/is-coverage-valid.validator';
+import { IsNotFutureDate } from '../../../common/validators/is-not-future-date.validator';
+import { IsNotTooOldDate } from '../../../common/validators/is-not-too-old-date.validator';
+import { IsWithinCoveragePeriod } from '../../../common/validators/is-within-coverage-period.validator';
 
 export class CreatePaymentDto {
   @IsUUID()
@@ -23,6 +26,9 @@ export class CreatePaymentDto {
   paymentMethod: PaymentMethod;
 
   @IsDateString()
+  @IsNotFutureDate()
+  @IsNotTooOldDate()
+  @IsWithinCoveragePeriod('coverageStartDate', 'coverageEndDate')
   paymentDate: string;
 
   @IsDateString()

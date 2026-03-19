@@ -29,14 +29,14 @@ Registra un nuevo pago.
 
 **Request Body:**
 
-| Campo         | Tipo   | Requerido | Descripción                          |
-| ------------- | ------ | --------- | ------------------------------------ |
-| membershipId  | UUID   | ✅        | ID de la membresía                   |
-| amount        | number | ✅        | Monto del pago                       |
-| paymentMethod | string | ✅        | Método (cash, card, transfer, other) |
-| paymentDate   | date   | ❌        | Fecha del pago (default: hoy)        |
-| reference     | string | ❌        | Referencia/comprobante               |
-| notes         | string | ❌        | Notas adicionales                    |
+| Campo         | Tipo   | Requerido | Descripción                                                                     |
+| ------------- | ------ | --------- | ------------------------------------------------------------------------------- |
+| membershipId  | UUID   | ✅        | ID de la membresía                                                              |
+| amount        | number | ✅        | Monto del pago                                                                  |
+| paymentMethod | string | ✅        | Método (cash, card, transfer, other)                                            |
+| paymentDate   | date   | ✅        | Fecha del pago. Debe ser ≤ hoy, ≥ hoy−90 días y dentro del período de cobertura |
+| reference     | string | ❌        | Referencia/comprobante                                                          |
+| notes         | string | ❌        | Notas adicionales                                                               |
 
 **Response (201):**
 
@@ -137,13 +137,13 @@ Actualiza un pago.
 
 **Request Body:**
 
-| Campo         | Tipo   | Descripción    |
-| ------------- | ------ | -------------- |
-| amount        | number | Monto          |
-| paymentMethod | string | Método de pago |
-| paymentDate   | date   | Fecha          |
-| reference     | string | Referencia     |
-| notes         | string | Notas          |
+| Campo         | Tipo   | Descripción                                          |
+| ------------- | ------ | ---------------------------------------------------- |
+| amount        | number | Monto                                                |
+| paymentMethod | string | Método de pago                                       |
+| paymentDate   | date   | Fecha. Mismas validaciones que en POST (si se envía) |
+| reference     | string | Referencia                                           |
+| notes         | string | Notas                                                |
 
 **Response (200):** Pago actualizado
 
