@@ -104,10 +104,9 @@
                 step="0.01"
                 min="0"
                 placeholder="0.00"
+                readonly
               />
-              @if (isFieldInvalid('amount')) {
-                <span class="error-message">Ingresa un monto válido</span>
-              }
+              <span class="hint">Definido por el tipo de membresía</span>
             </div>
 
             <!-- Método de pago -->

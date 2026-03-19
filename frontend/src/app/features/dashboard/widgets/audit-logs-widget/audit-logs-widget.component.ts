@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DatePipe, NgClass } from '@angular/common';
 import { AuditLogsService } from '../../../../core/services';
 import { AuditAction, AuditActionLabels, AuditLog } from '../../../../core/models';
@@ -15,7 +16,7 @@ const ENTITY_LABELS: Record<string, string> = {
 @Component({
   selector: 'fit-flow-audit-logs-widget',
   standalone: true,
-  imports: [DatePipe, NgClass, ButtonComponent, LoadingSpinnerComponent],
+  imports: [DatePipe, NgClass, RouterLink, ButtonComponent, LoadingSpinnerComponent],
   templateUrl: './audit-logs-widget.component.html',
   styleUrl: './audit-logs-widget.component.scss',
 })
@@ -104,19 +105,54 @@ export class AuditLogsWidgetComponent implements OnInit {
 
   formatDetailsAsText(log: AuditLog): string {
     if (!log.details) return '-';
-    return this.flattenToText(log.details);
+    return this.buildLines(log.details).join('\n');
   }
 
-  private flattenToText(obj: Record<string, unknown>, prefix = ''): string {
-    const parts: string[] = [];
+  private readonly FIELD_LABELS: Record<string, string> = {
+    amount: 'Monto',
+    paymentDate: 'Fecha',
+    paymentMethod: 'Método de pago',
+    notes: 'Notas',
+    source: 'Origen',
+    before: 'Antes',
+    after: 'Después',
+  };
+
+  private readonly PAYMENT_METHOD_LABELS: Record<string, string> = {
+    cash: 'Efectivo',
+    card: 'Tarjeta',
+    transfer: 'Transferencia',
+    other: 'Otro',
+  };
+
+  private readonly SKIP_KEYS = new Set(['membershipId', 'entityId']);
+
+  private buildLines(obj: Record<string, unknown>, indent = ''): string[] {
+    const lines: string[] = [];
     for (const [key, value] of Object.entries(obj)) {
-      const label = prefix ? `${prefix}.${key}` : key;
+      if (this.SKIP_KEYS.has(key)) continue;
+      const label = this.FIELD_LABELS[key] ?? key;
       if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-        parts.push(this.flattenToText(value as Record<string, unknown>, label));
+        lines.push(`${indent}${label}:`);
+        lines.push(...this.buildLines(value as Record<string, unknown>, indent + '  '));
       } else {
-        parts.push(`${label}: ${value ?? '-'}`);
+        lines.push(`${indent}${label}: ${this.formatValue(key, value)}`);
       }
     }
-    return parts.join(' | ');
+    return lines;
+  }
+
+  private formatValue(key: string, value: unknown): string {
+    if (value === null || value === undefined) return '-';
+    if (key === 'amount') return `$${value}`;
+    if (key === 'paymentMethod')
+      return this.PAYMENT_METHOD_LABELS[value as string] ?? String(value);
+    if (key === 'paymentDate' && typeof value === 'string') {
+      const d = new Date(value);
+      return isNaN(d.getTime())
+        ? value
+        : d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    return String(value);
   }
 }
