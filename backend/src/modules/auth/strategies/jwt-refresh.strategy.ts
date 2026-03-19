@@ -19,13 +19,13 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
 
   validate(req: Request, payload: JwtPayload) {
     if (payload.type !== 'refresh') {
-      throw new UnauthorizedException('Sesión inválida. Por favor iniciá sesión nuevamente.');
+      throw new UnauthorizedException('Tipo de token inválido');
     }
 
     const refreshToken = req.get('Authorization')?.replace('Bearer', '').trim();
 
     if (!refreshToken) {
-      throw new UnauthorizedException('Sesión expirada. Por favor iniciá sesión nuevamente.');
+      throw new UnauthorizedException('Token de refresco no proporcionado');
     }
 
     return {

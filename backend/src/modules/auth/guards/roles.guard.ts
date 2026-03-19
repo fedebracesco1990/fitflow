@@ -23,13 +23,13 @@ export class RolesGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-      throw new ForbiddenException('Necesitás iniciar sesión para acceder a este recurso.');
+      throw new ForbiddenException('Usuario no autenticado');
     }
 
     const hasRole = requiredRoles.includes(user.role);
 
     if (!hasRole) {
-      throw new ForbiddenException('No tenés permisos para realizar esta acción.');
+      throw new ForbiddenException('No tienes permisos suficientes para acceder a este recurso');
     }
 
     return true;
