@@ -5,6 +5,7 @@ import { StatCardComponent } from '../../widgets/stat-card/stat-card.component';
 import { ActivityLiveComponent } from '../activity-live/activity-live.component';
 import { RecentPaymentsComponent } from '../recent-payments/recent-payments.component';
 import { RetentionAlertWidgetComponent } from '../../widgets/retention-alert/retention-alert-widget.component';
+import { AuditLogsWidgetComponent } from '../../widgets/audit-logs-widget/audit-logs-widget.component';
 
 @Component({
   selector: 'fit-flow-admin-dashboard',
@@ -14,6 +15,7 @@ import { RetentionAlertWidgetComponent } from '../../widgets/retention-alert/ret
     ActivityLiveComponent,
     RecentPaymentsComponent,
     RetentionAlertWidgetComponent,
+    AuditLogsWidgetComponent,
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss',
