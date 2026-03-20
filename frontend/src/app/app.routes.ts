@@ -12,6 +12,21 @@ export const routes: Routes = [
   {
     path: '',
     component: AuthLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'change-password',
+        title: 'Cambiar Contraseña',
+        loadComponent: () =>
+          import('./features/auth/pages/change-password/change-password.component').then(
+            (m) => m.ChangePasswordComponent
+          ),
+      },
+    ],
+  },
+  {
+    path: '',
+    component: AuthLayoutComponent,
     canActivate: [guestGuard],
     children: [
       {
@@ -131,15 +146,6 @@ export const routes: Routes = [
     data: { roles: [Role.ADMIN] },
     loadChildren: () =>
       import('./features/audit-logs/audit-logs.routes').then((m) => m.AUDIT_LOGS_ROUTES),
-  },
-  {
-    path: 'change-password',
-    canActivate: [authGuard],
-    title: 'Cambiar Contraseña',
-    loadComponent: () =>
-      import('./features/auth/pages/change-password/change-password.component').then(
-        (m) => m.ChangePasswordComponent
-      ),
   },
   {
     path: '**',
