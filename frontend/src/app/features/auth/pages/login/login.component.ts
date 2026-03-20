@@ -20,6 +20,7 @@ export class LoginComponent {
   readonly isLoading = this.store.selectSignal(AuthState.isLoading);
   readonly error = this.store.selectSignal(AuthState.error);
   readonly isAuthenticated = this.store.selectSignal(AuthState.isAuthenticated);
+  readonly mustChangePassword = this.store.selectSignal(AuthState.mustChangePassword);
 
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -28,7 +29,7 @@ export class LoginComponent {
 
   constructor() {
     effect(() => {
-      if (this.isAuthenticated()) {
+      if (this.isAuthenticated() && !this.mustChangePassword()) {
         this.router.navigate(['/dashboard']);
       }
     });

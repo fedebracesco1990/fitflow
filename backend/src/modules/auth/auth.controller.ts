@@ -13,6 +13,7 @@ import type { AuthenticatedUser } from './types/authenticated-user.type';
 import type { TokensResponse } from './interfaces/tokens-response.interface';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordForcedDto } from './dto/change-password-forced.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -84,5 +85,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return await this.authService.resetPassword(resetPasswordDto);
+  }
+
+  @Post('change-password-forced')
+  @HttpCode(HttpStatus.OK)
+  async changePasswordForced(
+    @CurrentUser('userId') userId: string,
+    @Body() dto: ChangePasswordForcedDto
+  ): Promise<TokensResponse> {
+    return await this.authService.changePasswordForced(userId, dto.newPassword);
   }
 }

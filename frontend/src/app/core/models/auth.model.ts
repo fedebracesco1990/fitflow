@@ -26,6 +26,7 @@ export interface AuthenticatedUser {
   userId: string;
   email: string;
   role: Role;
+  mustChangePassword?: boolean;
 }
 
 export interface ForgotPasswordRequest {
@@ -35,6 +36,10 @@ export interface ForgotPasswordRequest {
 export interface ResetPasswordRequest {
   token: string;
   userId: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordForcedRequest {
   newPassword: string;
 }
 

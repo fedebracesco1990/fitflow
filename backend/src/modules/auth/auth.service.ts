@@ -100,6 +100,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.role,
+      mustChangePassword: user.mustChangePassword,
     };
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -212,5 +213,14 @@ export class AuthService {
     this.logger.log(`[PASSWORD_RESET] Password successfully reset for user: ${userId}`);
 
     return { message: 'Contraseña actualizada correctamente' };
+  }
+
+  async changePasswordForced(userId: string, newPassword: string): Promise<TokensResponse> {
+    await this.usersService.changePasswordForced(userId, newPassword);
+    const user = await this.usersService.findById(userId);
+    const tokens = await this.getTokens(user);
+    await this.usersService.updateRefreshToken(user.id, tokens.refreshToken);
+    this.logger.log(`[PASSWORD_FORCED_CHANGE] User changed forced password: ${userId}`);
+    return tokens;
   }
 }

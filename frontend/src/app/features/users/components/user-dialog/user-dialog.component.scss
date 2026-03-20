@@ -107,6 +107,42 @@
   }
 }
 
+.temp-password-box {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.temp-password-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #4b5563);
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.temp-password-value {
+  background: #f1f5f9;
+  border: 2px dashed #94a3b8;
+  border-radius: 0.5rem;
+  padding: 1rem 1.5rem;
+  margin: 0 0 0.75rem;
+
+  span {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: 0.05em;
+    word-break: break-all;
+  }
+}
+
+.temp-password-note {
+  font-size: 0.75rem;
+  color: #d97706;
+  margin: 0;
+  font-weight: 500;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

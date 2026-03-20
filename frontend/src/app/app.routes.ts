@@ -133,6 +133,15 @@ export const routes: Routes = [
       import('./features/audit-logs/audit-logs.routes').then((m) => m.AUDIT_LOGS_ROUTES),
   },
   {
+    path: 'change-password',
+    canActivate: [authGuard],
+    title: 'Cambiar Contraseña',
+    loadComponent: () =>
+      import('./features/auth/pages/change-password/change-password.component').then(
+        (m) => m.ChangePasswordComponent
+      ),
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },

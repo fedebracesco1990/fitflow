@@ -98,6 +98,11 @@ export class AuthState {
     return state.user?.role === Role.TRAINER;
   }
 
+  @Selector()
+  static mustChangePassword(state: AuthStateModel): boolean {
+    return state.user?.mustChangePassword ?? false;
+  }
+
   // Actions
   @Action(Login)
   login(ctx: StateContext<AuthStateModel>, action: Login) {
@@ -226,6 +231,11 @@ export class AuthState {
       isInitialized: true,
       error: null,
     });
+
+    if (action.payload.mustChangePassword) {
+      this.router.navigate(['/change-password']);
+      return;
+    }
 
     ctx.dispatch(new InitializeNotifications());
     this.websocket.connect();

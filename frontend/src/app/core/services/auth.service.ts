@@ -9,6 +9,7 @@ import {
   SessionResponse,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  ChangePasswordForcedRequest,
 } from '../models';
 import { ForgotPasswordResponse, MessageResponse } from '../models/api-response.model';
 import { environment } from '../../../environments/environment';
@@ -55,5 +56,9 @@ export class AuthService {
 
   resetPassword(data: ResetPasswordRequest): Observable<MessageResponse> {
     return this.api.post<MessageResponse>(`${this.endpoint}/reset-password`, data);
+  }
+
+  changePasswordForced(data: ChangePasswordForcedRequest): Observable<TokensResponse> {
+    return this.api.post<TokensResponse>(`${this.endpoint}/change-password-forced`, data);
   }
 }

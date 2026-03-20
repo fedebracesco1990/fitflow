@@ -4,5 +4,6 @@ export interface AuthenticatedUser {
   userId: string;
   email: string;
   role: Role;
+  mustChangePassword?: boolean;
   refreshToken?: string;
 }

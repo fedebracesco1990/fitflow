@@ -1,14 +1,7 @@
 import { Component, inject, signal, effect, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-  AbstractControl,
-  ValidationErrors,
-} from '@angular/forms';
-import { UserService } from '../../../../core/services';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { UserService, CreateUserResult } from '../../../../core/services';
 import { Role } from '../../../../core/models';
 import { ButtonComponent, AlertComponent } from '../../../../shared';
 
@@ -29,6 +22,7 @@ export class UserDialogComponent {
   form: FormGroup;
   isSaving = signal(false);
   error = signal<string | null>(null);
+  temporaryPassword = signal<string | null>(null);
 
   readonly roles = [
     { value: Role.ADMIN, label: 'Administrador' },
@@ -37,24 +31,11 @@ export class UserDialogComponent {
   ];
 
   constructor() {
-    this.form = this.fb.group(
-      {
-        name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-        email: ['', [Validators.required, Validators.email]],
-        password: [
-          '',
-          [
-            Validators.required,
-            Validators.minLength(8),
-            Validators.maxLength(50),
-            Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/),
-          ],
-        ],
-        confirmPassword: ['', [Validators.required]],
-        role: [Role.USER, [Validators.required]],
-      },
-      { validators: this.passwordMatchValidator }
-    );
+    this.form = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      email: ['', [Validators.required, Validators.email]],
+      role: [Role.USER, [Validators.required]],
+    });
 
     effect(() => {
       if (this.isOpen()) {
@@ -72,29 +53,28 @@ export class UserDialogComponent {
     this.isSaving.set(true);
     this.error.set(null);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { confirmPassword, ...userData } = this.form.value;
-
-    this.userService.create(userData).subscribe({
-      next: () => {
-        this.cancelled.emit();
-        this.resetForm();
+    this.userService.create(this.form.value).subscribe({
+      next: (response: CreateUserResult) => {
+        this.isSaving.set(false);
+        this.temporaryPassword.set(response.temporaryPassword);
       },
-      error: (err) => {
+      error: (err: { error?: { message?: string } }) => {
         this.error.set(err.error?.message || 'Error al crear usuario');
         this.isSaving.set(false);
       },
     });
   }
 
-  onCancel(): void {
+  onClose(): void {
     this.cancelled.emit();
     this.resetForm();
   }
 
   onBackdropClick(event: MouseEvent): void {
     if ((event.target as HTMLElement).classList.contains('dialog-backdrop')) {
-      this.onCancel();
+      if (!this.temporaryPassword()) {
+        this.onClose();
+      }
     }
   }
 
@@ -102,32 +82,15 @@ export class UserDialogComponent {
     this.form.reset({
       name: '',
       email: '',
-      password: '',
-      confirmPassword: '',
       role: Role.USER,
     });
     this.isSaving.set(false);
     this.error.set(null);
+    this.temporaryPassword.set(null);
   }
 
   isFieldInvalid(fieldName: string): boolean {
     const field = this.form.get(fieldName);
     return !!field && field.invalid && field.touched;
-  }
-
-  get passwordMismatch(): boolean {
-    return this.form.hasError('passwordMismatch') && !!this.form.get('confirmPassword')?.touched;
-  }
-
-  private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-    const password = control.get('password');
-    const confirmPassword = control.get('confirmPassword');
-
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
-    }
-
-    return null;
   }
 }

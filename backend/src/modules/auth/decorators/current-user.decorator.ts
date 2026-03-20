@@ -6,7 +6,7 @@ export const CurrentUser = createParamDecorator(
   (
     data: keyof AuthenticatedUser | undefined,
     ctx: ExecutionContext
-  ): AuthenticatedUser | string | undefined => {
+  ): AuthenticatedUser | string | boolean | undefined => {
     const request = ctx.switchToHttp().getRequest<Request & { user: AuthenticatedUser }>();
     const user = request.user;
 

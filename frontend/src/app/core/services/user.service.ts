@@ -6,6 +6,11 @@ import { ApiService } from './api.service';
 import { User, UpdateProfileRequest, ChangePasswordRequest } from '../models';
 import { PaginatedResponse } from '../models/api-response.model';
 
+export interface CreateUserResult {
+  user: User;
+  temporaryPassword: string;
+}
+
 export interface UsersSearchParams {
   search?: string;
   role?: string;
@@ -60,8 +65,8 @@ export class UserService {
     return this.api.get<User>(`${this.endpoint}/${id}`);
   }
 
-  create(data: Partial<User> & { password: string }): Observable<User> {
-    return this.api.post<User>(this.endpoint, data);
+  create(data: Pick<User, 'name' | 'email' | 'role'>): Observable<CreateUserResult> {
+    return this.api.post<CreateUserResult>(this.endpoint, data);
   }
 
   update(id: string, data: Partial<User>): Observable<User> {

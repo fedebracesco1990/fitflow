@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { randomBytes } from 'crypto';
 import { User } from './entities/user.entity';
 import { RegisterDto } from '../auth/dto/register.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -74,7 +75,9 @@ export class UsersService {
     return await this.usersRepository.save(user);
   }
 
-  async createByAdmin(createUserDto: CreateUserDto): Promise<User> {
+  async createByAdmin(
+    createUserDto: CreateUserDto
+  ): Promise<{ user: User; temporaryPassword: string }> {
     const existingUser = await this.usersRepository.findOne({
       where: { email: createUserDto.email.toLowerCase() },
     });
@@ -83,12 +86,17 @@ export class UsersService {
       throw new ConflictException('El usuario ya existe');
     }
 
+    const temporaryPassword = this.generateTemporaryPassword();
+
     const user = this.usersRepository.create({
       ...createUserDto,
       email: createUserDto.email.toLowerCase(),
+      password: temporaryPassword,
+      mustChangePassword: true,
     });
 
-    return await this.usersRepository.save(user);
+    const savedUser = await this.usersRepository.save(user);
+    return { user: savedUser, temporaryPassword };
   }
 
   // ==================== BUSCAR USUARIOS ====================
@@ -404,7 +412,39 @@ export class UsersService {
     await this.usersRepository.save(user);
   }
 
+  async changePasswordForced(userId: string, newPassword: string): Promise<void> {
+    const user = await this.findById(userId);
+    user.password = newPassword;
+    user.mustChangePassword = false;
+    await this.usersRepository.save(user);
+  }
+
   // ==================== HELPER METHODS ====================
+
+  private generateTemporaryPassword(): string {
+    const lower = 'abcdefghijklmnopqrstuvwxyz';
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const digits = '0123456789';
+    const special = '@$!%*?&';
+    const all = lower + upper + digits + special;
+
+    const bytes = randomBytes(16);
+
+    let password =
+      lower[bytes[0] % lower.length] +
+      upper[bytes[1] % upper.length] +
+      digits[bytes[2] % digits.length] +
+      special[bytes[3] % special.length];
+
+    for (let i = 4; i < 12; i++) {
+      password += all[bytes[i] % all.length];
+    }
+
+    return password
+      .split('')
+      .sort(() => randomBytes(1)[0] / 255 - 0.5)
+      .join('');
+  }
 
   private checkViewPermission(user: User, currentUserId: string, currentUserRole: Role): void {
     if (user.id === currentUserId) {

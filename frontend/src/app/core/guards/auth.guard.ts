@@ -1,10 +1,18 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import {
+  CanActivateFn,
+  Router,
+  RouterStateSnapshot,
+  ActivatedRouteSnapshot,
+} from '@angular/router';
 import { Store } from '@ngxs/store';
 import { map, filter, take } from 'rxjs/operators';
 import { AuthState } from '../store/auth/auth.state';
 
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (
+  _route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+) => {
   const store = inject(Store);
   const router = inject(Router);
 
@@ -16,6 +24,12 @@ export const authGuard: CanActivateFn = () => {
 
       if (!isAuthenticated) {
         router.navigate(['/login']);
+        return false;
+      }
+
+      const mustChangePassword = store.selectSnapshot(AuthState.mustChangePassword);
+      if (mustChangePassword && state.url !== '/change-password') {
+        router.navigate(['/change-password']);
         return false;
       }
 
