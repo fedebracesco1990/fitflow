@@ -26,7 +26,14 @@ export class AuditLogsListComponent implements OnInit {
   readonly AuditActionLabels = AuditActionLabels;
   readonly AuditAction = AuditAction;
 
-  readonly entityOptions = ['Payment', 'Membership', 'User', 'MembershipType'];
+  private readonly ENTITY_LABELS: Record<string, string> = {
+    Payment: 'Pagos',
+    Membership: 'Membresías',
+    User: 'Directorio',
+    MembershipType: 'Tipos',
+  };
+
+  readonly entityOptions = Object.entries(this.ENTITY_LABELS);
   readonly actionOptions: { value: AuditAction | ''; label: string }[] = [
     { value: '', label: 'Todas' },
     { value: AuditAction.CREATE, label: 'Creación' },
@@ -99,8 +106,60 @@ export class AuditLogsListComponent implements OnInit {
     return log.performedBy?.email ?? log.performedById ?? 'Sistema';
   }
 
+  getEntityLabel(entity: string): string {
+    return this.ENTITY_LABELS[entity] ?? entity;
+  }
+
   formatDetails(log: AuditLog): string {
     if (!log.details) return '-';
-    return JSON.stringify(log.details, null, 2);
+    return this.buildLines(log.details).join('\n');
+  }
+
+  private readonly FIELD_LABELS: Record<string, string> = {
+    amount: 'Monto',
+    paymentDate: 'Fecha',
+    paymentMethod: 'Método de pago',
+    notes: 'Notas',
+    source: 'Origen',
+    before: 'Antes',
+    after: 'Después',
+  };
+
+  private readonly PAYMENT_METHOD_LABELS: Record<string, string> = {
+    cash: 'Efectivo',
+    card: 'Tarjeta',
+    transfer: 'Transferencia',
+    other: 'Otro',
+  };
+
+  private readonly SKIP_KEYS = new Set(['membershipId', 'entityId']);
+
+  private buildLines(obj: Record<string, unknown>, indent = ''): string[] {
+    const lines: string[] = [];
+    for (const [key, value] of Object.entries(obj)) {
+      if (this.SKIP_KEYS.has(key)) continue;
+      const label = this.FIELD_LABELS[key] ?? key;
+      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+        lines.push(`${indent}${label}:`);
+        lines.push(...this.buildLines(value as Record<string, unknown>, indent + '  '));
+      } else {
+        lines.push(`${indent}${label}: ${this.formatValue(key, value)}`);
+      }
+    }
+    return lines;
+  }
+
+  private formatValue(key: string, value: unknown): string {
+    if (value === null || value === undefined) return '-';
+    if (key === 'amount') return `$${value}`;
+    if (key === 'paymentMethod')
+      return this.PAYMENT_METHOD_LABELS[value as string] ?? String(value);
+    if (key === 'paymentDate' && typeof value === 'string') {
+      const d = new Date(value);
+      return isNaN(d.getTime())
+        ? value
+        : d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    return String(value);
   }
 }

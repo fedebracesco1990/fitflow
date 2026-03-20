@@ -1,21 +1,20 @@
 <div class="audit-logs-page">
   <div class="page-header">
     <h1>Logs de Auditoría</h1>
-    <span class="subtitle">Historial de acciones CRUD en el sistema</span>
   </div>
 
   <!-- Filters -->
   <div class="filters">
-    <div class="filter-group">
+    <div class="form-group">
       <label for="entityFilter">Entidad</label>
       <select id="entityFilter" (change)="onEntityChange($event)">
         <option value="">Todas</option>
-        @for (entity of entityOptions; track entity) {
-          <option [value]="entity">{{ entity }}</option>
+        @for (opt of entityOptions; track opt[0]) {
+          <option [value]="opt[0]">{{ opt[1] }}</option>
         }
       </select>
     </div>
-    <div class="filter-group">
+    <div class="form-group">
       <label for="actionFilter">Acción</label>
       <select id="actionFilter" (change)="onActionChange($event)">
         @for (opt of actionOptions; track opt.value) {
@@ -46,7 +45,6 @@
               <th>Fecha / Hora</th>
               <th>Acción</th>
               <th>Entidad</th>
-              <th>ID Entidad</th>
               <th>Realizado por</th>
               <th>Detalles</th>
             </tr>
@@ -60,19 +58,9 @@
                     {{ AuditActionLabels[log.action] }}
                   </span>
                 </td>
-                <td class="entity-cell">{{ log.entity }}</td>
-                <td class="id-cell">{{ log.entityId ?? '-' }}</td>
+                <td class="entity-cell">{{ getEntityLabel(log.entity) }}</td>
                 <td>{{ getPerformedByName(log) }}</td>
-                <td class="details-cell">
-                  @if (log.details) {
-                    <details>
-                      <summary>Ver detalles</summary>
-                      <pre>{{ formatDetails(log) }}</pre>
-                    </details>
-                  } @else {
-                    <span class="no-details">-</span>
-                  }
-                </td>
+                <td class="details-cell">{{ formatDetails(log) }}</td>
               </tr>
             }
           </tbody>
