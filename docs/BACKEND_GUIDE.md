@@ -384,10 +384,6 @@ npm run start:dev
 
 # Build
 npm run build
-
-# Tests
-npm run test
-npm run test:e2e
 ```
 
 ---

@@ -82,9 +82,6 @@ testem.log
 *.sqlite
 *.db
 
-# Package manager lock files
-package-lock.json
-
 # Docker volumes
 docker/mysql/data/
 # Documentación interna de desarrollo (local)
