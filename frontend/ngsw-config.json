@@ -27,61 +27,12 @@
   ],
   "dataGroups": [
     {
-      "name": "workouts-api",
-      "urls": ["/api/workouts/**"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 100,
-        "maxAge": "1h",
-        "timeout": "5s"
-      }
-    },
-    {
       "name": "exercises-api",
       "urls": ["/api/exercises/**"],
       "cacheConfig": {
-        "strategy": "performance",
+        "strategy": "freshness",
         "maxSize": 200,
-        "maxAge": "1d"
-      }
-    },
-    {
-      "name": "routines-api",
-      "urls": ["/api/routines/**"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 50,
-        "maxAge": "1h",
-        "timeout": "5s"
-      }
-    },
-    {
-      "name": "stats-api",
-      "urls": ["/api/stats/**"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 100,
-        "maxAge": "30m",
-        "timeout": "5s"
-      }
-    },
-    {
-      "name": "personal-records-api",
-      "urls": ["/api/personal-records/**"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 50,
-        "maxAge": "1h",
-        "timeout": "5s"
-      }
-    },
-    {
-      "name": "programs-api",
-      "urls": ["/api/programs/**"],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 50,
-        "maxAge": "1h",
+        "maxAge": "1d",
         "timeout": "5s"
       }
     }
