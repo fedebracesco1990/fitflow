@@ -101,7 +101,7 @@ export class ExercisesService {
   async update(id: string, updateDto: UpdateExerciseDto): Promise<Exercise> {
     const exercise = await this.findOne(id);
 
-    // Verificar nombre único si se está cambiando
+    // Check name uniqueness if it is being changed
     if (updateDto.name && updateDto.name !== exercise.name) {
       const existing = await this.exerciseRepository.findOne({
         where: { name: updateDto.name },

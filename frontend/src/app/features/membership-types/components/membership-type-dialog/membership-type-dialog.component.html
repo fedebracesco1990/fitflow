@@ -21,7 +21,7 @@
         } @else {
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <div class="form-grid">
-              <!-- Nombre -->
+              <!-- Name -->
               <div class="form-group full-width">
                 <label for="name">Nombre *</label>
                 <input
@@ -35,7 +35,7 @@
                 }
               </div>
 
-              <!-- Descripción -->
+              <!-- Description -->
               <div class="form-group full-width">
                 <label for="description">Descripción</label>
                 <textarea
@@ -46,7 +46,7 @@
                 ></textarea>
               </div>
 
-              <!-- Precio -->
+              <!-- Price -->
               <div class="form-group">
                 <label for="price">Precio *</label>
                 <input
@@ -64,7 +64,7 @@
                 }
               </div>
 
-              <!-- Duración -->
+              <!-- Duration -->
               <div class="form-group">
                 <label for="durationDays">Duración (días) *</label>
                 <input
@@ -81,7 +81,7 @@
                 }
               </div>
 
-              <!-- Días de gracia -->
+              <!-- Grace days -->
               <div class="form-group">
                 <label for="gracePeriodDays">Días de gracia</label>
                 <input
@@ -93,7 +93,7 @@
                 />
               </div>
 
-              <!-- Tipo de Acceso -->
+              <!-- Access type -->
               <div class="form-group">
                 <label for="accessType">Tipo de Acceso *</label>
                 <select id="accessType" formControlName="accessType">
@@ -106,7 +106,7 @@
                 }
               </div>
 
-              <!-- Activo (solo en modo edición) -->
+              <!-- Active (edit mode only) -->
               @if (isEditMode()) {
                 <div class="form-group checkbox-group full-width">
                   <label class="checkbox-label">

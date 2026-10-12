@@ -21,7 +21,7 @@
     />
   }
 
-  <!-- Dashboard por Rol -->
+  <!-- Role-based dashboard -->
   @if (isAdmin() && adminData()) {
     <fit-flow-admin-dashboard [data]="adminData()!" [isLoading]="isLoading()" />
   }

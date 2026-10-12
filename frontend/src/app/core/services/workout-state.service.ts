@@ -71,13 +71,13 @@ export class WorkoutStateService {
     workoutLogId?: string,
     exerciseLogs?: ExerciseLog[]
   ): void {
-    // Solo inicializar si es un workout diferente o no hay workout activo
+    // Only initialize if it's a different workout or there's no active workout
     if (
       this._workoutLogId() === workoutLogId &&
       workoutLogId &&
       this._exerciseStates().length > 0
     ) {
-      return; // Ya hay un workout activo con este ID, no reinicializar
+      return; // There's already an active workout with this ID, don't reinitialize
     }
 
     this._workoutId.set(workoutId);

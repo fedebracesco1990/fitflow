@@ -29,12 +29,12 @@ export class MemberAnalysisTableComponent {
   readonly filteredAndSortedMembers = computed(() => {
     let members = [...this.allMembers()];
 
-    // Filtrar por estado
+    // Filter by status
     if (this.filterStatus() !== 'ALL') {
       members = members.filter((m) => m.estado === this.filterStatus());
     }
 
-    // Ordenar
+    // Sort
     members.sort((a, b) => {
       const sortBy = this.sortBy();
       const order = this.sortOrder() === 'asc' ? 1 : -1;

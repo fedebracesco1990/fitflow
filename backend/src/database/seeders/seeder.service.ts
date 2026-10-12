@@ -68,13 +68,13 @@ export class SeederService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    // El seed crea usuarios con contraseñas conocidas y datos de prueba: nunca en producción
+    // The seed creates users with known passwords and test data: never in production
     if (process.env.NODE_ENV === 'production') {
       this.logger.log('Seed omitido (NODE_ENV=production)');
       return;
     }
 
-    // Esperar 3 segundos para que TypeORM termine de sincronizar las tablas
+    // Wait 3 seconds for TypeORM to finish synchronizing the tables
     await new Promise((resolve) => setTimeout(resolve, 3000));
     await this.seed();
   }
@@ -86,13 +86,13 @@ export class SeederService implements OnModuleInit {
     await this.seedMuscleGroups();
     await this.seedExercises();
     await this.seedRoutines();
-    // TODO: Actualizar para crear Programs y asignarlos a usuarios
+    // TODO: Update to create Programs and assign them to users
     await this.seedMembershipTypes();
     await this.seedMemberships();
     await this.seedPayments();
     await this.seedAccessLogs();
     await this.seedNotificationTemplates();
-    // TODO: Actualizar seedWorkoutHistory para nuevo modelo
+    // TODO: Update seedWorkoutHistory for the new model
     // await this.seedWorkoutHistory();
 
     this.logger.log('✅ Seed completado');
@@ -414,7 +414,7 @@ export class SeederService implements OnModuleInit {
               where: { name: exerciseName },
             });
             if (exercise) {
-              // Asignar peso sugerido basado en el tipo de ejercicio
+              // Assign suggested weight based on the exercise type
               const suggestedWeight = this.getSuggestedWeight(exerciseName);
 
               await this.routineExerciseRepository.save(
@@ -528,7 +528,7 @@ export class SeederService implements OnModuleInit {
   async seedMemberships() {
     const today = new Date();
 
-    // Helper para calcular fechas
+    // Helper to calculate dates
     const addDays = (date: Date, days: number): Date => {
       const result = new Date(date);
       result.setDate(result.getDate() + days);
@@ -541,7 +541,7 @@ export class SeederService implements OnModuleInit {
       return result;
     };
 
-    // Obtener usuarios y tipos de membresía
+    // Get users and membership types
     const users = await this.userRepository.find({ where: { role: Role.USER } });
     const membershipTypes = await this.membershipTypeRepository.find({ where: { isActive: true } });
 
@@ -558,7 +558,7 @@ export class SeederService implements OnModuleInit {
       return;
     }
 
-    // Crear más usuarios para tener más datos
+    // Create more users to have more data
     const additionalUsers = [
       {
         email: 'user3@fitflow.com',
@@ -626,7 +626,7 @@ export class SeederService implements OnModuleInit {
     }
 
     const membershipsData = [
-      // Membresías activas (vigentes)
+      // Active memberships (current)
       {
         userEmail: 'user1@fitflow.com',
         typeName: 'Mensual',
@@ -667,7 +667,7 @@ export class SeederService implements OnModuleInit {
         status: MembershipStatus.ACTIVE,
         notes: 'Membresía semestral activa',
       },
-      // Membresías próximas a vencer (dentro de 7 días)
+      // Memberships about to expire (within 7 days)
       {
         userEmail: 'user5@fitflow.com',
         typeName: 'Mensual',
@@ -684,7 +684,7 @@ export class SeederService implements OnModuleInit {
         status: MembershipStatus.ACTIVE,
         notes: 'Vence en 5 días - Próximo a vencer',
       },
-      // Membresías vencidas (morosos)
+      // Expired memberships (overdue)
       {
         userEmail: 'moroso1@fitflow.com',
         typeName: 'Mensual',
@@ -701,7 +701,7 @@ export class SeederService implements OnModuleInit {
         status: MembershipStatus.EXPIRED,
         notes: 'Membresía vencida hace 30 días - MOROSO',
       },
-      // Membresía en período de gracia
+      // Membership in grace period
       {
         userEmail: 'user7@fitflow.com',
         typeName: 'Mensual',
@@ -710,7 +710,7 @@ export class SeederService implements OnModuleInit {
         status: MembershipStatus.GRACE_PERIOD,
         notes: 'En período de gracia - Vencida hace 2 días',
       },
-      // Membresía cancelada
+      // Cancelled membership
       {
         userEmail: 'user8@fitflow.com',
         typeName: 'Trimestral',
@@ -770,7 +770,7 @@ export class SeederService implements OnModuleInit {
       return result;
     };
 
-    // Obtener membresías activas y vencidas para crear pagos
+    // Get active and expired memberships to create payments
     const memberships = await this.membershipRepository.find({
       relations: ['user', 'membershipType'],
     });
@@ -791,13 +791,13 @@ export class SeederService implements OnModuleInit {
       notes: string | null;
     }> = [];
 
-    // Crear pagos para cada membresía activa
+    // Create payments for each active membership
     for (const membership of memberships) {
       if (
         membership.status === MembershipStatus.ACTIVE ||
         membership.status === MembershipStatus.GRACE_PERIOD
       ) {
-        // Pago actual de la membresía
+        // Current membership payment
         paymentsData.push({
           membershipId: membership.id,
           amount: Number(membership.membershipType.price),
@@ -811,7 +811,7 @@ export class SeederService implements OnModuleInit {
       }
     }
 
-    // Crear pagos históricos (últimos 6 meses) para simular historial
+    // Create historical payments (last 6 months) to simulate history
     const historicalPayments = [
       { monthsAgo: 1, amount: 15000, method: PaymentMethod.CASH },
       { monthsAgo: 1, amount: 15000, method: PaymentMethod.CARD },
@@ -830,7 +830,7 @@ export class SeederService implements OnModuleInit {
       { monthsAgo: 6, amount: 15000, method: PaymentMethod.CASH },
     ];
 
-    // Usar la primera membresía activa para pagos históricos
+    // Use the first active membership for historical payments
     const activeMembership = memberships.find((m) => m.status === MembershipStatus.ACTIVE);
     if (activeMembership) {
       for (const hp of historicalPayments) {
@@ -850,7 +850,7 @@ export class SeederService implements OnModuleInit {
     let created = 0;
     for (const data of paymentsData) {
       try {
-        // Verificar si ya existe un pago similar
+        // Check whether a similar payment already exists
         const existing = await this.paymentRepository.findOne({
           where: {
             membershipId: data.membershipId,
@@ -915,20 +915,20 @@ export class SeederService implements OnModuleInit {
       createdAt: Date;
     }> = [];
 
-    // Generar accesos para los últimos 60 días
+    // Generate access logs for the last 60 days
     for (let daysAgo = 0; daysAgo < 60; daysAgo++) {
       const date = subDays(today, daysAgo);
       const dayOfWeek = date.getDay();
 
-      // Menos accesos los fines de semana
+      // Fewer accesses on weekends
       const accessCount = dayOfWeek === 0 || dayOfWeek === 6 ? 2 : 5;
 
       for (let i = 0; i < accessCount; i++) {
         const user = users[Math.floor(Math.random() * users.length)];
-        const hour = 6 + Math.floor(Math.random() * 14); // Entre 6am y 8pm
+        const hour = 6 + Math.floor(Math.random() * 14); // Between 6am and 8pm
         const minute = Math.floor(Math.random() * 60);
 
-        // 90% de accesos exitosos
+        // 90% successful accesses
         const granted = Math.random() > 0.1;
 
         accessLogsData.push({
@@ -941,7 +941,7 @@ export class SeederService implements OnModuleInit {
       }
     }
 
-    // Verificar si ya hay logs
+    // Check whether logs already exist
     const existingCount = await this.accessLogRepository.count();
     if (existingCount > 0) {
       this.logger.log(`  - Ya existen ${existingCount} logs de acceso`);
@@ -964,22 +964,22 @@ export class SeederService implements OnModuleInit {
   }
 
   private getSuggestedWeight(exerciseName: string): number {
-    // Pesos sugeridos basados en el tipo de ejercicio
+    // Suggested weights based on the exercise type
     const weightMap: Record<string, number> = {
-      // Ejercicios de pecho
+      // Chest exercises
       'Press de Banca': 40,
       'Press Inclinado con Mancuernas': 16,
       'Aperturas con Mancuernas': 12,
       'Fondos en Paralelas': 0,
       'Press de Banca con Mancuernas': 18,
-      // Ejercicios de espalda
+      // Back exercises
       Dominadas: 0,
       'Remo con Barra': 35,
       'Remo con Mancuerna': 18,
       'Jalón al Pecho': 40,
       'Peso Muerto': 60,
       'Pull-over con Mancuerna': 14,
-      // Ejercicios de piernas
+      // Leg exercises
       'Sentadilla con Barra': 50,
       'Prensa de Piernas': 80,
       'Extensión de Cuádriceps': 30,
@@ -987,23 +987,23 @@ export class SeederService implements OnModuleInit {
       'Elevación de Talones': 40,
       'Zancadas con Mancuernas': 12,
       'Peso Muerto Rumano': 40,
-      // Ejercicios de hombros
+      // Shoulder exercises
       'Press Militar': 25,
       'Elevaciones Laterales': 8,
       'Elevaciones Frontales': 8,
       Pájaros: 6,
       'Press Arnold': 14,
-      // Ejercicios de bíceps
+      // Biceps exercises
       'Curl con Barra': 20,
       'Curl con Mancuernas': 10,
       'Curl Martillo': 10,
       'Curl Concentrado': 8,
-      // Ejercicios de tríceps
+      // Triceps exercises
       'Extensión de Tríceps con Polea': 20,
       'Fondos en Banco': 0,
       'Press Francés': 15,
       'Patada de Tríceps': 6,
-      // Ejercicios de core
+      // Core exercises
       Plancha: 0,
       'Crunch Abdominal': 0,
       'Elevación de Piernas': 0,
@@ -1011,6 +1011,6 @@ export class SeederService implements OnModuleInit {
       'Mountain Climbers': 0,
     };
 
-    return weightMap[exerciseName] ?? 15; // Default 15kg si no está en el mapa
+    return weightMap[exerciseName] ?? 15; // Default 15kg if not in the map
   }
 }

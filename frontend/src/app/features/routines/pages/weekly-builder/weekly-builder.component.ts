@@ -109,7 +109,7 @@ export class WeeklyProgramBuilderComponent implements OnInit {
           difficulty: program.difficulty,
         });
 
-        // Cargar las rutinas del programa en pendingAssignments
+        // Load the program's routines into pendingAssignments
         if (program.routines && program.routines.length > 0) {
           const assignments: PendingRoutineAssignment[] = program.routines
             .sort((a, b) => a.order - b.order)

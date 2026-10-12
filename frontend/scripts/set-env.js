@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// Variables de entorno con valores por defecto
+// Environment variables with default values
 const apiUrl = process.env.API_URL || '/api';
 const wsUrl = process.env.WS_URL || apiUrl.replace('/api', '');
 const production = process.env.NODE_ENV === 'production';

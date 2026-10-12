@@ -89,7 +89,7 @@ export class MembershipTypeFormComponent implements OnInit {
 
     const formData = this.form.value;
 
-    // Convertir valores numéricos (los inputs HTML devuelven strings)
+    // Convert numeric values (HTML inputs return strings)
     const baseData = {
       ...formData,
       price: Number(formData.price),
@@ -97,7 +97,7 @@ export class MembershipTypeFormComponent implements OnInit {
       gracePeriodDays: Number(formData.gracePeriodDays) || 0,
     };
 
-    // isActive solo se envía en modo edición (el backend no lo acepta en creación)
+    // isActive is only sent in edit mode (the backend doesn't accept it on create)
     const data = this.isEditMode() ? baseData : { ...baseData, isActive: undefined };
 
     const request$ = this.isEditMode()

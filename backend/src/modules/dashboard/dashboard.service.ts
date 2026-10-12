@@ -83,7 +83,7 @@ export class DashboardService {
     const previousMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     const previousMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
 
-    // Ejecutar queries en paralelo
+    // Run queries in parallel
     const [
       currentMonthRevenue,
       previousMonthRevenue,
@@ -106,7 +106,7 @@ export class DashboardService {
       this.getMonthlyRevenue(6),
     ]);
 
-    // Calcular porcentaje de crecimiento
+    // Calculate growth percentage
     const revenueGrowthPercentage =
       previousMonthRevenue > 0
         ? ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100
@@ -135,7 +135,7 @@ export class DashboardService {
     const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
     const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-    // Ejecutar queries en paralelo
+    // Run queries in parallel
     const [
       currentMonthRevenue,
       todayRevenue,

@@ -122,7 +122,7 @@ export class RoutinesListComponent implements OnInit {
 
     const typeFilter = this.selectedTypeFilter();
 
-    // Si filtra por WEEKLY, solo cargar programas
+    // If filtering by WEEKLY, only load programs
     if (typeFilter === RoutineType.WEEKLY) {
       this.programsService.getAll().subscribe({
         next: (programs) => {
@@ -139,7 +139,7 @@ export class RoutinesListComponent implements OnInit {
       return;
     }
 
-    // Si filtra por DAILY, solo cargar rutinas diarias
+    // If filtering by DAILY, only load daily routines
     if (typeFilter === RoutineType.DAILY) {
       this.routinesService
         .getAll({ includeInactive: true, limit: 100, type: RoutineType.DAILY })
@@ -158,7 +158,7 @@ export class RoutinesListComponent implements OnInit {
       return;
     }
 
-    // Sin filtro: cargar ambos
+    // No filter: load both
     forkJoin({
       routines: this.routinesService.getAll({
         includeInactive: true,
@@ -222,7 +222,7 @@ export class RoutinesListComponent implements OnInit {
     const item = this.selectedRoutineForDelete();
     if (!item) return;
 
-    // Buscar si es rutina o programa
+    // Find out whether it's a routine or a program
     const isProgram = this.programs().some((p) => p.id === item.id);
 
     if (isProgram) {

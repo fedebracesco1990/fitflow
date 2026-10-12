@@ -19,7 +19,7 @@ export class MembershipsService {
   ) {}
 
   async create(createDto: CreateMembershipDto): Promise<Membership> {
-    // Verificar que el usuario existe
+    // Verify that the user exists
     const user = await this.userRepository.findOne({
       where: { id: createDto.userId },
     });
@@ -27,7 +27,7 @@ export class MembershipsService {
       throw new NotFoundException(`Usuario con ID "${createDto.userId}" no encontrado`);
     }
 
-    // Verificar que el tipo de membresía existe y está activo
+    // Verify that the membership type exists and is active
     const membershipType = await this.membershipTypeRepository.findOne({
       where: { id: createDto.membershipTypeId, isActive: true },
     });
@@ -37,7 +37,7 @@ export class MembershipsService {
       );
     }
 
-    // Verificar si el usuario ya tiene una membresía activa
+    // Check whether the user already has an active membership
     const existingMembership = await this.membershipRepository.findOne({
       where: {
         userId: createDto.userId,
@@ -48,7 +48,7 @@ export class MembershipsService {
       throw new BadRequestException('El usuario ya tiene una membresía activa');
     }
 
-    // Calcular fecha de fin si no se proporciona
+    // Calculate end date if not provided
     const startDate = new Date(createDto.startDate);
     const endDate = createDto.endDate
       ? new Date(createDto.endDate)
@@ -119,7 +119,7 @@ export class MembershipsService {
   async update(id: string, updateDto: UpdateMembershipDto): Promise<Membership> {
     const membership = await this.findOne(id);
 
-    // Si se cambia el tipo de membresía, verificar que existe y recalcular endDate
+    // If the membership type changes, verify it exists and recalculate endDate
     if (updateDto.membershipTypeId && updateDto.membershipTypeId !== membership.membershipTypeId) {
       const membershipType = await this.membershipTypeRepository.findOne({
         where: { id: updateDto.membershipTypeId, isActive: true },
@@ -130,7 +130,7 @@ export class MembershipsService {
         );
       }
 
-      // Recalcular endDate basado en el nuevo tipo de membresía
+      // Recalculate endDate based on the new membership type
       const startDate = updateDto.startDate ? new Date(updateDto.startDate) : membership.startDate;
       membership.endDate = new Date(
         new Date(startDate).getTime() + membershipType.durationDays * 24 * 60 * 60 * 1000
@@ -152,7 +152,7 @@ export class MembershipsService {
     await this.membershipRepository.remove(membership);
   }
 
-  // Método para actualizar estados vencidos (puede ejecutarse con un cron job)
+  // Updates expired statuses (can be run by a cron job)
   async updateExpiredMemberships(): Promise<number> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -168,7 +168,7 @@ export class MembershipsService {
     return result.affected || 0;
   }
 
-  // Obtener membresías próximas a vencer
+  // Get memberships about to expire
   async findExpiringMemberships(days: number = 7): Promise<Membership[]> {
     const today = new Date();
     const futureDate = new Date(today.getTime() + days * 24 * 60 * 60 * 1000);

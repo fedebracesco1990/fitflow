@@ -171,7 +171,7 @@ export class ExerciseSetsComponent implements OnInit {
     const set = this.editingSet();
     if (!set) return;
 
-    // Solo actualizar reps y weight, mantener el estado de completed
+    // Only update reps and weight, keep the completed state
     this.sets.update((sets) =>
       sets.map((s) => (s.id === set.id ? { ...s, reps: data.reps, weight: data.weight } : s))
     );
@@ -270,7 +270,7 @@ export class ExerciseSetsComponent implements OnInit {
   }
 
   goBack(): void {
-    // Navegar al workout activo usando el workoutId del stateService
+    // Navigate to the active workout using the stateService workoutId
     const workoutId = this.stateService.workoutId();
     if (workoutId) {
       this.router.navigate(['/my-routines', workoutId, 'start']);

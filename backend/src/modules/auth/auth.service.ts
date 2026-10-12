@@ -138,10 +138,10 @@ export class AuthService {
     this.logger.log(`[LOGOUT] User logged out: ${userId}`);
   }
 
-  // ==================== RECUPERACIÓN DE CONTRASEÑA ====================
+  // ==================== PASSWORD RECOVERY ====================
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    // Siempre retornar el mismo mensaje para evitar enumeration attacks
+    // Always return the same message to prevent enumeration attacks
     const genericResponse = {
       message: 'Si el correo existe, recibirás instrucciones para restablecer tu contraseña',
     };
@@ -171,10 +171,10 @@ export class AuthService {
       const frontendUrl = this.configService.getOrThrow<string>('app.frontendUrl');
       const resetLink = `${frontendUrl}/auth/reset-password?token=${token}&userId=${user.id}`;
 
-      // TODO: Enviar email real con el resetLink
+      // TODO: Send a real email with the resetLink
       // await this.emailService.sendPasswordResetEmail(user.email, resetLink);
 
-      // Solo mostrar link en desarrollo para testing
+      // Only show the link in development for testing
       if (this.configService.get<string>('app.nodeEnv') === 'development') {
         return {
           ...genericResponse,
@@ -184,7 +184,7 @@ export class AuthService {
 
       return genericResponse;
     } catch {
-      // Si hay cualquier error, retornar respuesta genérica
+      // On any error, return a generic response
       return genericResponse;
     }
   }

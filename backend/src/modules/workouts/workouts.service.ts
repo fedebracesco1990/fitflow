@@ -57,7 +57,7 @@ export class WorkoutsService {
 
     const savedWorkout = await this.workoutLogRepository.save(workoutLog);
 
-    // Buscar el último workout completado de esta misma rutina para usar sus valores
+    // Find the last completed workout of this same routine to reuse its values
     const lastCompletedWorkout = await this.workoutLogRepository.findOne({
       where: {
         userProgramRoutineId,
@@ -67,7 +67,7 @@ export class WorkoutsService {
       relations: ['exerciseLogs'],
     });
 
-    // Indexar logs anteriores por exerciseId + setNumber y contar sets por ejercicio
+    // Index previous logs by exerciseId + setNumber and count sets per exercise
     const previousLogs: Record<string, ExerciseLog> = {};
     const previousSetCounts: Record<string, number> = {};
     if (lastCompletedWorkout?.exerciseLogs) {
@@ -81,7 +81,7 @@ export class WorkoutsService {
     const sortedExercises = [...routine.exercises].sort((a, b) => a.order - b.order);
     for (const exercise of sortedExercises) {
       const defaultWeight = exercise.weight != null ? parseFloat(String(exercise.weight)) : null;
-      // Usar el máximo entre sets del plan y sets del último workout (por sets extra)
+      // Use the max between planned sets and last workout's sets (to account for extra sets)
       const totalSets = Math.max(exercise.sets, previousSetCounts[exercise.exerciseId] || 0);
       for (let setNum = 1; setNum <= totalSets; setNum++) {
         const prevLog = previousLogs[`${exercise.exerciseId}_${setNum}`];

@@ -4,12 +4,12 @@ export class AddCoverageToPayments1766409048652 implements MigrationInterface {
   name = 'AddCoverageToPayments1766409048652';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Paso 1: Agregar columnas como nullable primero
+    // Step 1: Add columns as nullable first
     await queryRunner.query(`ALTER TABLE \`payments\` ADD \`coverageStart\` date NULL`);
     await queryRunner.query(`ALTER TABLE \`payments\` ADD \`coverageEnd\` date NULL`);
 
-    // Paso 2: Fix de datos existentes - poblar coverageStart y coverageEnd desde membership
-    // Usar NULLIF para convertir '0000-00-00' a NULL, y COALESCE para usar paymentDate como fallback
+    // Step 2: Fix existing data - populate coverageStart and coverageEnd from membership
+    // Use NULLIF to convert '0000-00-00' to NULL, and COALESCE to use paymentDate as fallback
     await queryRunner.query(`
       UPDATE \`payments\` p
       LEFT JOIN \`memberships\` m ON p.membershipId = m.id
@@ -27,7 +27,7 @@ export class AddCoverageToPayments1766409048652 implements MigrationInterface {
       WHERE p.coverageStart IS NULL OR p.coverageEnd IS NULL
     `);
 
-    // Paso 3: Cambiar columnas a NOT NULL después de poblar datos
+    // Step 3: Change columns to NOT NULL after populating data
     await queryRunner.query(`ALTER TABLE \`payments\` MODIFY \`coverageStart\` date NOT NULL`);
     await queryRunner.query(`ALTER TABLE \`payments\` MODIFY \`coverageEnd\` date NOT NULL`);
   }

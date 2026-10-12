@@ -13,7 +13,7 @@
     } @else {
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="form-grid">
-          <!-- Membresía -->
+          <!-- Membership -->
           <div class="form-group full-width">
             <label for="membershipId">Membresía *</label>
             <select id="membershipId" formControlName="membershipId">
@@ -32,7 +32,7 @@
             }
           </div>
 
-          <!-- Monto -->
+          <!-- Amount -->
           <div class="form-group">
             <label for="amount">Monto *</label>
             <input
@@ -48,7 +48,7 @@
             }
           </div>
 
-          <!-- Método de pago -->
+          <!-- Payment method -->
           <div class="form-group">
             <label for="paymentMethod">Método de pago *</label>
             <select id="paymentMethod" formControlName="paymentMethod">
@@ -58,7 +58,7 @@
             </select>
           </div>
 
-          <!-- Fecha de pago -->
+          <!-- Payment date -->
           <div class="form-group">
             <label for="paymentDate">Fecha de pago *</label>
             <input type="date" id="paymentDate" formControlName="paymentDate" />
@@ -67,7 +67,7 @@
             }
           </div>
 
-          <!-- Referencia -->
+          <!-- Reference -->
           <div class="form-group">
             <label for="reference">Referencia / Comprobante</label>
             <input
@@ -78,7 +78,7 @@
             />
           </div>
 
-          <!-- Notas -->
+          <!-- Notes -->
           <div class="form-group full-width">
             <label for="notes">Notas</label>
             <textarea

@@ -33,7 +33,7 @@ export class UsersController {
     private readonly qrService: QrService
   ) {}
 
-  // ==================== SOLO ADMIN ====================
+  // ==================== ADMIN ONLY ====================
 
   @Post()
   @Roles(Role.ADMIN)
@@ -60,7 +60,7 @@ export class UsersController {
     await this.usersService.remove(id, role);
   }
 
-  // ==================== ADMIN Y TRAINER ====================
+  // ==================== ADMIN AND TRAINER ====================
 
   @Get()
   @Roles(Role.ADMIN, Role.TRAINER)
@@ -112,7 +112,7 @@ export class UsersController {
     return await this.usersService.findOne(id, userId, role);
   }
 
-  // ==================== TODOS LOS USUARIOS AUTENTICADOS ====================
+  // ==================== ALL AUTHENTICATED USERS ====================
 
   @Get('profile/me')
   @HttpCode(HttpStatus.OK)

@@ -48,7 +48,7 @@ export class ProgramsService {
 
     const savedProgram = await this.programRepository.save(program);
 
-    // Validar que no haya rutinas duplicadas
+    // Validate there are no duplicate routines
     const routineIds = dto.routines.map((r) => r.routineId);
     if (new Set(routineIds).size !== routineIds.length) {
       throw new ConflictException('No se pueden agregar rutinas duplicadas al programa');
@@ -138,7 +138,7 @@ export class ProgramsService {
   async update(id: string, dto: CreateProgramDto): Promise<Program> {
     const program = await this.findOne(id);
 
-    // Actualizar datos básicos
+    // Update basic data
     program.name = dto.name;
     program.description = dto.description ?? null;
     program.difficulty = dto.difficulty ?? program.difficulty;
@@ -146,16 +146,16 @@ export class ProgramsService {
 
     await this.programRepository.save(program);
 
-    // Validar que no haya rutinas duplicadas
+    // Validate there are no duplicate routines
     const routineIds = dto.routines.map((r) => r.routineId);
     if (new Set(routineIds).size !== routineIds.length) {
       throw new ConflictException('No se pueden agregar rutinas duplicadas al programa');
     }
 
-    // Eliminar rutinas existentes
+    // Delete existing routines
     await this.programRoutineRepository.delete({ programId: id });
 
-    // Crear nuevas rutinas
+    // Create new routines
     for (const routineDto of dto.routines) {
       const routine = await this.routineRepository.findOne({
         where: { id: routineDto.routineId },
@@ -174,7 +174,7 @@ export class ProgramsService {
 
       const savedProgramRoutine = await this.programRoutineRepository.save(programRoutine);
 
-      // Copiar ejercicios de la rutina original
+      // Copy exercises from the original routine
       for (const re of routine.exercises) {
         const weight = re.suggestedWeight != null ? parseFloat(String(re.suggestedWeight)) : null;
         const exercise = this.programRoutineExerciseRepository.create({

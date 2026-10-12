@@ -55,7 +55,7 @@ export class RoutinesService {
     return this.api.delete<void>(`${this.endpoint}/${id}`);
   }
 
-  // Ejercicios de rutina
+  // Routine exercises
   addExercise(routineId: string, data: AddExerciseDto): Observable<RoutineExercise> {
     return this.api.post<RoutineExercise>(`${this.endpoint}/${routineId}/exercises`, data);
   }

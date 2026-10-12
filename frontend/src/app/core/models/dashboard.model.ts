@@ -86,25 +86,25 @@ export interface ExpiringMembership {
 }
 
 export interface FinancialDashboard {
-  // KPIs principales
+  // Main KPIs
   currentMonthRevenue: number;
   previousMonthRevenue: number;
   revenueGrowthPercentage: number;
   todayRevenue: number;
 
-  // Membresías
+  // Memberships
   totalActiveMembers: number;
   totalDebtors: number;
   expiringInSevenDays: number;
   activeRoutines: number;
 
-  // Distribución por método de pago (mes actual)
+  // Distribution by payment method (current month)
   paymentMethodDistribution: PaymentMethodDistribution[];
 
-  // Ingresos mensuales (últimos 6 meses)
+  // Monthly revenue (last 6 months)
   monthlyRevenue: MonthlyRevenue[];
 
-  // Listas
+  // Lists
   debtors: Debtor[];
   expiringMemberships: ExpiringMembership[];
 }

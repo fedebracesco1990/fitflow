@@ -3,14 +3,14 @@ import { TrainerStudentSummaryDto } from './trainer-student-summary.dto';
 export class TrainerDashboardDto {
   role: 'trainer';
 
-  // KPIs de mis alumnos
+  // My students' KPIs
   totalAlumnos: number;
   alumnosActivos: number;
 
-  // KPIs entrenamientos
+  // Workout KPIs
   rutinasActivasCreadas: number;
   prsAlumnosMes: number;
 
-  // Lista resumen de alumnos recientes
+  // Summary list of recent students
   alumnosRecientes: TrainerStudentSummaryDto[];
 }

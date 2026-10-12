@@ -106,7 +106,7 @@ export class RoutinesController {
     return this.routinesService.remove(id);
   }
 
-  // Ejercicios de rutina
+  // Routine exercises
   @Post(':id/exercises')
   @Roles(Role.ADMIN, Role.TRAINER)
   addExercise(
@@ -148,7 +148,7 @@ export class RoutinesController {
     return this.routinesService.replaceExercises(id, dto.exercises, req.user.userId, req.user.role);
   }
 
-  // Program Routine Exercises (personalizaciones por instancia)
+  // Program Routine Exercises (per-instance customizations)
   @Get('program-routines/:programRoutineId')
   @Roles(Role.ADMIN, Role.TRAINER)
   getProgramRoutineWithExercises(

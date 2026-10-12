@@ -3,22 +3,22 @@ import { MonthlyRevenueDto, PaymentMethodDistributionDto } from './financial-das
 export class AdminDashboardDto {
   role: 'admin';
 
-  // KPIs financieros
+  // Financial KPIs
   ingresosMes: number;
   ingresosHoy: number;
   morosos: number;
   proyeccionMes: number;
 
-  // KPIs operativos
+  // Operational KPIs
   asistenciasHoy: number;
   miembrosActivos: number;
   expiranPronto: number;
 
-  // KPIs entrenamientos
+  // Workout KPIs
   rutinasActivas: number;
   prsDelMes: number;
 
-  // Datos para gráficos
+  // Chart data
   ingresosMensuales: MonthlyRevenueDto[];
   distribucionMetodosPago: PaymentMethodDistributionDto[];
 }

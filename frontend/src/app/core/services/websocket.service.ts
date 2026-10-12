@@ -47,8 +47,8 @@ export class WebSocketService {
     this._connectionState.set('connecting');
 
     this.socket = io(`${environment.wsUrl}/events`, {
-      // Función y no objeto: socket.io la llama en cada (re)conexión, así usa el token vigente
-      // y no el del momento de conectar (que puede haber vencido y sido renovado).
+      // A function, not an object: socket.io calls it on every (re)connection, so it uses the current token
+      // and not the one from connection time (which may have expired and been renewed).
       auth: (cb) => cb({ token: this.storage.getAccessToken() }),
       transports: ['websocket', 'polling'],
       reconnection: true,

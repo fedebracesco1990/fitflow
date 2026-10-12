@@ -55,7 +55,7 @@ export class UsersService {
     private readonly attendanceService: AttendanceService
   ) {}
 
-  // ==================== CREAR USUARIOS ====================
+  // ==================== CREATE USERS ====================
 
   async create(registerDto: RegisterDto): Promise<User> {
     const existingUser = await this.usersRepository.findOne({
@@ -91,7 +91,7 @@ export class UsersService {
     return await this.usersRepository.save(user);
   }
 
-  // ==================== BUSCAR USUARIOS ====================
+  // ==================== FIND USERS ====================
 
   async findAll(
     currentUserId: string,
@@ -100,46 +100,46 @@ export class UsersService {
   ): Promise<PaginatedResponse<User>> {
     const { search, role, membershipStatus, page = 1, limit = 20 } = searchParams;
 
-    // Query base para contar
+    // Base query for counting
     let countQuery = this.usersRepository.createQueryBuilder('user');
 
-    // Filtro base: solo usuarios activos
+    // Base filter: active users only
     countQuery = countQuery.where('user.isActive = :isActive', { isActive: true });
 
-    // Filtro por rol del usuario actual
+    // Filter by the current user's role
     if (currentUserRole === Role.TRAINER) {
       countQuery = countQuery.andWhere('user.role = :userRole', { userRole: Role.USER });
     }
 
-    // Búsqueda por nombre o email
+    // Search by name or email
     if (search) {
       countQuery = countQuery.andWhere('(user.name LIKE :search OR user.email LIKE :search)', {
         search: `%${search}%`,
       });
     }
 
-    // Filtro por rol
+    // Filter by role
     if (role) {
       countQuery = countQuery.andWhere('user.role = :role', { role });
     }
 
-    // Filtro por estado de membresía
+    // Filter by membership status
     if (membershipStatus) {
       countQuery = countQuery
         .innerJoin('user.memberships', 'membership')
         .andWhere('membership.status = :membershipStatus', { membershipStatus });
     }
 
-    // Contar total
+    // Count total
     const total = await countQuery.getCount();
 
-    // Query para obtener datos con paginación
+    // Query to fetch data with pagination
     let dataQuery = this.usersRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.memberships', 'membership')
       .leftJoinAndSelect('membership.membershipType', 'membershipType');
 
-    // Aplicar los mismos filtros
+    // Apply the same filters
     dataQuery = dataQuery.where('user.isActive = :isActive', { isActive: true });
 
     if (currentUserRole === Role.TRAINER) {
@@ -162,7 +162,7 @@ export class UsersService {
       });
     }
 
-    // Aplicar paginación y ordenamiento
+    // Apply pagination and sorting
     dataQuery = dataQuery
       .skip((page - 1) * limit)
       .take(limit)
@@ -232,7 +232,7 @@ export class UsersService {
     return user;
   }
 
-  // ==================== ACTUALIZAR USUARIOS ====================
+  // ==================== UPDATE USERS ====================
 
   async update(id: string, updateUserDto: UpdateUserDto, currentUserRole: Role): Promise<User> {
     const user = await this.findById(id);
@@ -304,7 +304,7 @@ export class UsersService {
     await this.usersRepository.save(user);
   }
 
-  // ==================== ELIMINAR USUARIOS (SOFT DELETE) ====================
+  // ==================== DELETE USERS (SOFT DELETE) ====================
 
   async remove(id: string, currentUserRole: Role): Promise<void> {
     if (currentUserRole !== Role.ADMIN) {
@@ -346,7 +346,7 @@ export class UsersService {
   }
 
   async updateRefreshToken(userId: string, refreshToken: string | null): Promise<void> {
-    // null (no undefined): TypeORM ignora los campos undefined en update y el hash viejo quedaría guardado
+    // null (not undefined): TypeORM ignores undefined fields on update and the old hash would remain stored
     const hashedRefreshToken = refreshToken ? await bcrypt.hash(refreshToken, 10) : null;
 
     await this.usersRepository.update(userId, {
@@ -374,7 +374,7 @@ export class UsersService {
     return user;
   }
 
-  // ==================== MÉTODOS DE SISTEMA (AUTH / RECUPERACIÓN) ====================
+  // ==================== SYSTEM METHODS (AUTH / RECOVERY) ====================
   async setResetPasswordToken(userId: string, hashedToken: string, expires: Date): Promise<void> {
     await this.usersRepository.update(userId, {
       resetPasswordTokenHash: hashedToken,
@@ -431,7 +431,7 @@ export class UsersService {
   // ==================== EXPORT ====================
 
   async exportMembers(): Promise<Buffer> {
-    // Query con LEFT JOIN para incluir usuarios sin membresía
+    // Query with LEFT JOIN to include users without a membership
     const users = await this.usersRepository
       .createQueryBuilder('user')
       .leftJoin('memberships', 'membership', 'membership.userId = user.id')
@@ -453,7 +453,7 @@ export class UsersService {
       .orderBy('user.name', 'ASC')
       .getRawMany<RawUserMembershipResult>();
 
-    // Agrupar por usuario y obtener membresía más relevante
+    // Group by user and get the most relevant membership
     const userMap = new Map<string, UserMembershipData>();
 
     users.forEach((row) => {
@@ -484,11 +484,11 @@ export class UsersService {
       }
     });
 
-    // Crear workbook y worksheet
+    // Create workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Miembros');
 
-    // Definir columnas
+    // Define columns
     worksheet.columns = [
       { header: 'Nombre', key: 'name', width: 30 },
       { header: 'Email', key: 'email', width: 35 },
@@ -497,7 +497,7 @@ export class UsersService {
       { header: 'Fecha Vencimiento', key: 'endDate', width: 20 },
     ];
 
-    // Traducir estados
+    // Translate statuses
     const statusTranslations: Record<string, string> = {
       active: 'Activa',
       expired: 'Vencida',
@@ -505,7 +505,7 @@ export class UsersService {
       grace_period: 'Período de Gracia',
     };
 
-    // Formatear fecha DD/MM/YYYY
+    // Format date as DD/MM/YYYY
     const formatDate = (date: Date | string | null): string => {
       if (!date) return '';
       const d = new Date(date);
@@ -515,12 +515,12 @@ export class UsersService {
       return `${day}/${month}/${year}`;
     };
 
-    // Mapear datos
+    // Map data
     userMap.forEach((userData) => {
       let relevantMembership: UserMembershipData['memberships'][0] | null = null;
 
       if (userData.memberships.length > 0) {
-        // Prioridad: ACTIVE > GRACE_PERIOD > más reciente
+        // Priority: ACTIVE > GRACE_PERIOD > most recent
         const activeMembership = userData.memberships.find((m) => m.status === 'active');
         const gracePeriodMembership = userData.memberships.find((m) => m.status === 'grace_period');
 
@@ -546,7 +546,7 @@ export class UsersService {
       });
     });
 
-    // Generar buffer
+    // Generate buffer
     const buffer = await workbook.xlsx.writeBuffer();
     return Buffer.from(buffer);
   }

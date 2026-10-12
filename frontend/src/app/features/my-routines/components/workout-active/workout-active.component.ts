@@ -51,7 +51,7 @@ export class WorkoutActiveComponent implements OnInit {
   }
 
   private loadRoutine(routineId: string): void {
-    // Si ya hay un workout activo, restaurar desde el state sin crear uno nuevo
+    // If there's already an active workout, restore from state without creating a new one
     const existingLogId = this.stateService.workoutLogId();
     const existingStates = this.stateService.exerciseStates();
     if (existingLogId && existingStates.length > 0) {
@@ -68,7 +68,7 @@ export class WorkoutActiveComponent implements OnInit {
 
     this.loading.set(true);
 
-    // Iniciar workout - online crea en backend, offline genera temporal
+    // Start workout - online creates it in the backend, offline generates a temporary one
     this.offlineWorkoutsService.startWorkout(routineId).subscribe({
       next: (workoutLog) => {
         this.workoutLogId.set(workoutLog.id);
@@ -85,7 +85,7 @@ export class WorkoutActiveComponent implements OnInit {
   }
 
   private startWorkoutSession(routineId: string, workoutLog: WorkoutLog): void {
-    // Convertir ejercicios del workout a ExerciseState (ordenados por order)
+    // Convert workout exercises to ExerciseState (sorted by order)
     const sortedExercises = [...workoutLog.userProgramRoutine.exercises].sort(
       (a, b) => a.order - b.order
     );
@@ -154,7 +154,7 @@ export class WorkoutActiveComponent implements OnInit {
     const totalTime = Math.floor(this.timerService.elapsedSeconds() / 60);
 
     if (workoutId) {
-      // Completar workout - online en backend, offline encola sync
+      // Complete workout - online in the backend, offline queues a sync
       this.offlineWorkoutsService.complete(workoutId, totalTime).subscribe({
         next: () => {
           this.timerService.stop();
@@ -163,7 +163,7 @@ export class WorkoutActiveComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error al completar workout:', err);
-          // Aún así navegar para no bloquear al usuario
+          // Navigate anyway so the user isn't blocked
           this.timerService.stop();
           this.stateService.reset();
           this.router.navigate(['/my-routines']);

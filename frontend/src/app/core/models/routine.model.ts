@@ -75,7 +75,7 @@ export interface UpdateRoutineExerciseDto {
   dayOfWeek?: DayOfWeek;
 }
 
-// Días de la semana
+// Days of the week
 export enum DayOfWeek {
   MONDAY = 'monday',
   TUESDAY = 'tuesday',

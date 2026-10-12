@@ -94,7 +94,7 @@ export class RoutinesService {
     if (!routine) {
       throw new NotFoundException(`Rutina con ID "${id}" no encontrada`);
     }
-    // Ordenar ejercicios por order
+    // Sort exercises by order
     if (routine.exercises) {
       routine.exercises.sort((a, b) => a.order - b.order);
     }
@@ -109,7 +109,7 @@ export class RoutinesService {
   ): Promise<Routine> {
     const routine = await this.findOne(id);
 
-    // Solo ADMIN o el creador puede editar
+    // Only ADMIN or the creator can edit
     if (userRole !== Role.ADMIN && routine.createdById !== userId) {
       throw new ForbiddenException('No tienes permisos para editar esta rutina');
     }
@@ -127,7 +127,7 @@ export class RoutinesService {
     await this.routineRepository.remove(routine);
   }
 
-  // Ejercicios de rutina
+  // Routine exercises
   async addExercise(
     routineId: string,
     dto: AddExerciseDto,
@@ -136,12 +136,12 @@ export class RoutinesService {
   ): Promise<RoutineExercise> {
     const routine = await this.findOne(routineId);
 
-    // Verificar permisos
+    // Check permissions
     if (userRole !== Role.ADMIN && routine.createdById !== userId) {
       throw new ForbiddenException('No tienes permisos para modificar esta rutina');
     }
 
-    // Verificar que el ejercicio existe
+    // Verify that the exercise exists
     const exercise = await this.exerciseRepository.findOne({
       where: { id: dto.exerciseId, isActive: true },
     });
@@ -149,7 +149,7 @@ export class RoutinesService {
       throw new NotFoundException(`Ejercicio con ID "${dto.exerciseId}" no encontrado`);
     }
 
-    // Verificar si ya existe
+    // Check whether it already exists
     const existing = await this.routineExerciseRepository.findOne({
       where: { routineId, exerciseId: dto.exerciseId },
     });
@@ -157,7 +157,7 @@ export class RoutinesService {
       throw new ConflictException('Este ejercicio ya está en la rutina');
     }
 
-    // Calcular orden si no se proporciona
+    // Calculate order if not provided
     let order = dto.order;
     if (!order) {
       const maxOrder = await this.routineExerciseRepository
@@ -241,17 +241,17 @@ export class RoutinesService {
       throw new ForbiddenException('No tienes permisos para modificar esta rutina');
     }
 
-    // Validar que no haya ejercicios duplicados en el array
+    // Validate there are no duplicate exercises in the array
     const exerciseIds = exercises.map((e) => e.exerciseId);
     const uniqueIds = new Set(exerciseIds);
     if (uniqueIds.size !== exerciseIds.length) {
       throw new ConflictException('No se pueden agregar ejercicios duplicados a la rutina');
     }
 
-    // Eliminar todos los ejercicios existentes
+    // Delete all existing exercises
     await this.routineExerciseRepository.delete({ routineId });
 
-    // Agregar los nuevos ejercicios
+    // Add the new exercises
     const newExercises: RoutineExercise[] = [];
     for (let i = 0; i < exercises.length; i++) {
       const dto = exercises[i];
@@ -285,7 +285,7 @@ export class RoutinesService {
     });
   }
 
-  // Program Routine Exercises (personalizaciones por instancia)
+  // Program Routine Exercises (per-instance customizations)
   async getProgramRoutineWithExercises(programRoutineId: string): Promise<ProgramRoutine> {
     const programRoutine = await this.programRoutineRepository.findOne({
       where: { id: programRoutineId },
@@ -434,10 +434,10 @@ export class RoutinesService {
       throw new ForbiddenException('No tienes permisos para modificar este programa');
     }
 
-    // Eliminar ejercicios personalizados existentes
+    // Delete existing customized exercises
     await this.programRoutineExerciseRepository.delete({ programRoutineId });
 
-    // Crear los nuevos
+    // Create the new ones
     const customExercises = exercises.map((dto) =>
       this.programRoutineExerciseRepository.create({
         programRoutineId,

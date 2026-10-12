@@ -68,7 +68,7 @@ export class MembershipTypesService {
   async remove(id: string): Promise<void> {
     const membershipType = await this.findOne(id);
 
-    // Soft delete: marcar como inactivo en lugar de eliminar
+    // Soft delete: mark as inactive instead of deleting
     membershipType.isActive = false;
     await this.membershipTypeRepository.save(membershipType);
   }

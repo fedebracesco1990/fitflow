@@ -41,7 +41,7 @@ export class Routine {
   difficulty: Difficulty;
 
   @Column({ type: 'int', default: 60 })
-  estimatedDuration: number; // minutos
+  estimatedDuration: number; // minutes
 
   @Column({ type: 'boolean', default: true })
   isActive: boolean;

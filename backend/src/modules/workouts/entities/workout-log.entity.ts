@@ -37,7 +37,7 @@ export class WorkoutLog {
   status: WorkoutStatus;
 
   @Column({ type: 'int', nullable: true })
-  duration: number | null; // minutos reales
+  duration: number | null; // actual minutes
 
   @Column({ type: 'text', nullable: true })
   notes: string | null;

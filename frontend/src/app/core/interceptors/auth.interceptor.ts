@@ -12,8 +12,8 @@ import { AuthService } from '../services/auth.service';
 import { RefreshTokenFailure, RefreshTokenSuccess } from '../store/auth/auth.actions';
 import { environment } from '../../../environments/environment';
 
-// Resultado del refresh en curso. Las peticiones que llegan con 401 mientras se refresca
-// esperan acá: reintentan si sale bien y reciben el error si falla (no quedan colgadas).
+// In-flight refresh result. Requests that get a 401 while a refresh is in progress
+// wait here: they retry if it succeeds and receive the error if it fails (they don't hang).
 type RefreshState =
   | { status: 'pending' }
   | { status: 'success'; token: string }
@@ -30,8 +30,8 @@ export const authInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const store = inject(Store);
 
-  // Comparación exacta: con `includes` cualquier URL que contuviera '/login' se mandaba sin token.
-  // 'auth/register' no va: en el backend es solo para ADMIN y necesita el token.
+  // Exact match: with `includes`, any URL containing '/login' was sent without a token.
+  // 'auth/register' is excluded: in the backend it's ADMIN-only and requires the token.
   const publicEndpoints = [
     'auth/login',
     'auth/refresh',
@@ -71,7 +71,7 @@ export const authInterceptor: HttpInterceptorFn = (
 
           if (refreshToken) {
             return authService.refreshToken(refreshToken).pipe(
-              // Solo los errores del refresh cierran la sesión; los del reintento se propagan tal cual
+              // Only refresh errors end the session; retry errors are propagated as-is
               catchError((refreshError) => {
                 isRefreshing = false;
                 refreshState.next({ status: 'failed', error: refreshError });
@@ -80,8 +80,8 @@ export const authInterceptor: HttpInterceptorFn = (
               }),
               switchMap((tokens) => {
                 isRefreshing = false;
-                // Despachar RefreshTokenSuccess para sincronizar con AuthState
-                // Esto guarda los tokens Y reinicia el timer de refresh proactivo
+                // Dispatch RefreshTokenSuccess to sync with AuthState
+                // This stores the tokens AND restarts the proactive refresh timer
                 store.dispatch(new RefreshTokenSuccess(tokens));
                 refreshState.next({ status: 'success', token: tokens.accessToken });
                 return retry(tokens.accessToken);

@@ -28,7 +28,7 @@ export class PaymentsService {
     await queryRunner.startTransaction();
 
     try {
-      // Verificar que la membresía existe
+      // Verify that the membership exists
       const membership = await queryRunner.manager.findOne(Membership, {
         where: { id: createDto.membershipId },
       });
@@ -78,7 +78,7 @@ export class PaymentsService {
     await queryRunner.startTransaction();
 
     try {
-      // Verificar que la membresía existe
+      // Verify that the membership exists
       const membership = await queryRunner.manager.findOne(Membership, {
         where: { id: createDto.membershipId },
         relations: ['membershipType'],
@@ -87,7 +87,7 @@ export class PaymentsService {
         throw new NotFoundException(`Membresía con ID "${createDto.membershipId}" no encontrada`);
       }
 
-      // Si se solicita cambio de tipo de membresía
+      // If a membership type change is requested
       if (
         createDto.newMembershipTypeId &&
         createDto.newMembershipTypeId !== membership.membershipTypeId
@@ -104,13 +104,13 @@ export class PaymentsService {
         membership.membershipTypeId = newType.id;
       }
 
-      // Reactivar membresía y actualizar fechas de cobertura
+      // Reactivate membership and update coverage dates
       membership.status = MembershipStatus.ACTIVE;
       membership.startDate = new Date(createDto.coverageStartDate);
       membership.endDate = new Date(createDto.coverageEndDate);
       await queryRunner.manager.save(membership);
 
-      // Crear el pago
+      // Create the payment
       const payment = queryRunner.manager.create(Payment, {
         membershipId: createDto.membershipId,
         amount: createDto.amount,
@@ -201,7 +201,7 @@ export class PaymentsService {
   async update(id: string, updateDto: UpdatePaymentDto, performedById?: string): Promise<Payment> {
     const payment = await this.findOne(id);
 
-    // Si se cambia la membresía, verificar que existe
+    // If the membership changes, verify it exists
     if (updateDto.membershipId && updateDto.membershipId !== payment.membershipId) {
       const membership = await this.membershipRepository.findOne({
         where: { id: updateDto.membershipId },
@@ -259,7 +259,7 @@ export class PaymentsService {
     });
   }
 
-  // Obtener total recaudado en un período
+  // Get total collected in a period
   async getTotalByPeriod(startDate: Date, endDate: Date): Promise<number> {
     const result = await this.paymentRepository
       .createQueryBuilder('payment')
@@ -271,7 +271,7 @@ export class PaymentsService {
     return parseFloat(result?.total || '0');
   }
 
-  // Obtener pagos del mes actual
+  // Get payments for the current month
   async getCurrentMonthPayments(): Promise<Payment[]> {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);

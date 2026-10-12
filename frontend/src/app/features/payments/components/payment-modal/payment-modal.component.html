@@ -16,7 +16,7 @@
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="form-grid">
-            <!-- Usuario -->
+            <!-- User -->
             <div class="form-group full-width">
               <label>Usuario *</label>
               @if (loadingUsers()) {
@@ -72,7 +72,7 @@
               }
             </div>
 
-            <!-- Membresía info + Tipo de membresía -->
+            <!-- Membership info + membership type -->
             <div class="form-group full-width">
               <label for="membershipTypeId">Membresía *</label>
               @if (loadingMembership()) {
@@ -94,7 +94,7 @@
               }
             </div>
 
-            <!-- Monto -->
+            <!-- Amount -->
             <div class="form-group">
               <label for="amount">Monto *</label>
               <input
@@ -109,7 +109,7 @@
               <span class="hint">Definido por el tipo de membresía</span>
             </div>
 
-            <!-- Método de pago -->
+            <!-- Payment method -->
             <div class="form-group">
               <label for="paymentMethod">Método de pago *</label>
               <select id="paymentMethod" formControlName="paymentMethod">
@@ -119,7 +119,7 @@
               </select>
             </div>
 
-            <!-- Fecha de pago -->
+            <!-- Payment date -->
             <div class="form-group">
               <label for="paymentDate">Fecha de pago *</label>
               <input type="date" id="paymentDate" formControlName="paymentDate" />
@@ -128,7 +128,7 @@
               }
             </div>
 
-            <!-- Cobertura Desde -->
+            <!-- Coverage from -->
             <div class="form-group">
               <label for="coverageStartDate">Cobertura Desde *</label>
               <input type="date" id="coverageStartDate" formControlName="coverageStartDate" />
@@ -137,7 +137,7 @@
               }
             </div>
 
-            <!-- Cobertura Hasta -->
+            <!-- Coverage to -->
             <div class="form-group full-width">
               <label for="coverageEndDate">Cobertura Hasta *</label>
               <input type="date" id="coverageEndDate" formControlName="coverageEndDate" readonly />
@@ -147,7 +147,7 @@
               }
             </div>
 
-            <!-- Referencia -->
+            <!-- Reference -->
             <div class="form-group full-width">
               <label for="reference">Referencia / Comprobante</label>
               <input
@@ -158,7 +158,7 @@
               />
             </div>
 
-            <!-- Notas -->
+            <!-- Notes -->
             <div class="form-group full-width">
               <label for="notes">Notas</label>
               <textarea

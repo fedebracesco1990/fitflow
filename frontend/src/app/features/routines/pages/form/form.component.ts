@@ -143,7 +143,7 @@ export class RoutineFormComponent implements OnInit {
     request.subscribe({
       next: (routine) => {
         if (!this.isEditMode()) {
-          // Ir a editar para poder agregar ejercicios
+          // Go to edit so exercises can be added
           this.router.navigate(['/training/routines', routine.id, 'edit']);
         } else {
           this.router.navigate(['/training']);
