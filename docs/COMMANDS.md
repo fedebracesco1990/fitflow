@@ -130,6 +130,8 @@ nest g co modules/[name]/[name]           # Controller
 | **USER**     | user2@fitflow.com    | User123!    |
 | **INACTIVO** | inactive@fitflow.com | User123!    |
 
+> Solo en desarrollo: el seed no corre con `NODE_ENV=production`, así que estos usuarios no existen en producción.
+
 ### Permisos
 
 | Acción                         |  ADMIN   |   TRAINER    | USER |

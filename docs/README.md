@@ -104,7 +104,7 @@ Ver todos los comandos en [COMMANDS.md](./COMMANDS.md).
 
 ## Usuarios de Prueba
 
-Se crean automáticamente al iniciar el backend:
+Se crean automáticamente al iniciar el backend en desarrollo:
 
 | Rol     | Email                | Password    | Estado   |
 | ------- | -------------------- | ----------- | -------- |
@@ -113,6 +113,8 @@ Se crean automáticamente al iniciar el backend:
 | USER    | user1@fitflow.com    | User123!    | Activo   |
 | USER    | user2@fitflow.com    | User123!    | Activo   |
 | USER    | inactive@fitflow.com | User123!    | Inactivo |
+
+> Solo en desarrollo: el seed no corre con `NODE_ENV=production`, así que estos usuarios no existen en producción.
 
 ## Autores
 

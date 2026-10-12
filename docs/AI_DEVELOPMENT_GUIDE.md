@@ -345,6 +345,8 @@ import { environment } from '@env';
 | USER     | user2@fitflow.com    | User123!    |
 | INACTIVE | inactive@fitflow.com | User123!    |
 
+> Solo en desarrollo: el seed no corre con `NODE_ENV=production`, así que estos usuarios no existen en producción.
+
 ---
 
 ## Notas Importantes
