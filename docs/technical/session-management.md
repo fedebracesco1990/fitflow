@@ -187,20 +187,41 @@ refreshTokenFailure(ctx: StateContext<AuthStateModel>) {
 
 ## Security Considerations
 
-### Token Storage
+### Token Storage: decisión de diseño
 
-- **localStorage**: Tokens persisten entre sesiones
-- **Ventana de riesgo**: 45 minutos (access token)
-- **Rotación**: Refresh token se rota en cada refresh
+El access token y el refresh token se guardan en `localStorage` (`StorageService`). Es una **decisión consciente**, con sus riesgos acotados:
 
-### Best Practices Implemented
+**Riesgo.** `localStorage` es accesible desde JavaScript. Si existiera una vulnerabilidad de XSS, un atacante podría leer los dos tokens. Con el refresh token podría mantener la sesión desde otro equipo hasta **7 días**, o hasta que el usuario cierre sesión. Con el access token, hasta 45 minutos.
 
-✅ Access token corto (45 min) limita exposición  
-✅ Refresh token largo (7 días) mejora UX  
-✅ Tokens se rotan en cada refresh  
-✅ Refresh token almacenado en BD (puede invalidarse)  
-✅ HTTPS requerido en producción  
-✅ CORS configurado correctamente
+**Por qué se acepta en este proyecto:**
+
+- **Superficie de XSS mínima.** Angular escapa por defecto todo lo que se interpola en los templates, y el código no usa APIs que lo eviten: no hay `[innerHTML]`, `bypassSecurityTrust*`, `eval` ni `document.write` (verificado el 2026-10-12). Para robar los tokens primero tiene que existir un XSS.
+- **Simplicidad.** Los tokens persisten al recargar la página sin depender de cookies cross-origin. Eso evita configurar `withCredentials`, CORS con credenciales y protección CSRF.
+- **Alcance.** Es una aplicación académica, sin despliegue con usuarios reales.
+
+**Mitigaciones implementadas:**
+
+✅ Access token corto (45 min) y refresh token de 7 días, con secretos distintos  
+✅ Refresh token rotado en cada uso y guardado **hasheado** (bcrypt) en la base  
+✅ El logout invalida el refresh token en el servidor: el token robado deja de servir  
+✅ El rol y el estado activo del usuario se leen de la base en cada petición: desactivar a un usuario o cambiarle el rol aplica de inmediato  
+✅ Rate limiting en login, forgot-password y reset-password (5 cada 15 min), y global (60 por minuto)  
+✅ El WebSocket solo acepta el token en el handshake (`auth`), nunca en la URL  
+✅ HTTPS requerido en producción y CORS con lista de orígenes permitidos
+
+### Trabajo futuro: tokens fuera del alcance de JavaScript
+
+Para un despliegue con usuarios reales se recomienda seguir la práctica de OWASP:
+
+1. **Refresh token en una cookie `httpOnly; Secure; SameSite=Strict`**, con `Path=/api/auth`. El backend la setea en login y refresh, y la borra en logout. El frontend deja de leerla y de guardarla.
+2. **Access token solo en memoria**, en un signal del `AuthState`, sin `localStorage`. Al recargar la página, la app llama a `/auth/refresh` antes de la primera petición: la cookie viaja sola y devuelve un access token nuevo.
+3. **Cambios asociados:**
+   - `withCredentials: true` en las llamadas a `/auth/*`.
+   - CORS con `credentials: true`, que el backend ya tiene.
+   - `cookie-parser` en el backend para leer la cookie.
+   - Si frontend y backend quedan en dominios distintos, `SameSite=None; Secure` más un token anti-CSRF en el endpoint de refresh.
+
+Con esto, un XSS ya no podría extraer credenciales para usarlas en otro equipo; como mucho, actuar como el usuario mientras la página esté abierta. El esfuerzo estimado es de unas 3 horas.
 
 ## Development Notes
 
@@ -239,7 +260,7 @@ startRefreshTimer(accessToken: string): void {
 
 - [ ] Agregar telemetría para monitorear refreshes
 - [ ] Implementar refresh token rotation más agresiva
-- [ ] Considerar usar httpOnly cookies para mayor seguridad
+- [ ] Refresh token en cookie httpOnly y access token en memoria (ver [Trabajo futuro](#trabajo-futuro-tokens-fuera-del-alcance-de-javascript))
 - [ ] Agregar rate limiting en endpoint de refresh
 - [ ] Implementar detección de sesiones concurrentes
 
