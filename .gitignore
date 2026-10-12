@@ -87,3 +87,5 @@ package-lock.json
 
 # Docker volumes
 docker/mysql/data/
+# Documentación interna de desarrollo (local)
+docs/develop/
