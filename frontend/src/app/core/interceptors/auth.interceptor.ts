@@ -11,8 +11,15 @@ import { StorageService } from '../services/storage.service';
 import { AuthService } from '../services/auth.service';
 import { RefreshTokenFailure, RefreshTokenSuccess } from '../store/auth/auth.actions';
 
+// Resultado del refresh en curso. Las peticiones que llegan con 401 mientras se refresca
+// esperan acá: reintentan si sale bien y reciben el error si falla (no quedan colgadas).
+type RefreshState =
+  | { status: 'pending' }
+  | { status: 'success'; token: string }
+  | { status: 'failed'; error: unknown };
+
 let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+const refreshState = new BehaviorSubject<RefreshState>({ status: 'pending' });
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -49,51 +56,45 @@ export const authInterceptor: HttpInterceptorFn = (
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && !isPublicEndpoint && !req.url.includes('/auth/refresh')) {
+        const retry = (accessToken: string) =>
+          next(req.clone({ setHeaders: { Authorization: `Bearer ${accessToken}` } }));
+
         if (!isRefreshing) {
           isRefreshing = true;
-          refreshTokenSubject.next(null);
+          refreshState.next({ status: 'pending' });
           const refreshToken = storage.getRefreshToken();
 
           if (refreshToken) {
             return authService.refreshToken(refreshToken).pipe(
+              // Solo los errores del refresh cierran la sesión; los del reintento se propagan tal cual
+              catchError((refreshError) => {
+                isRefreshing = false;
+                refreshState.next({ status: 'failed', error: refreshError });
+                store.dispatch(new RefreshTokenFailure());
+                return throwError(() => refreshError);
+              }),
               switchMap((tokens) => {
                 isRefreshing = false;
                 // Despachar RefreshTokenSuccess para sincronizar con AuthState
                 // Esto guarda los tokens Y reinicia el timer de refresh proactivo
                 store.dispatch(new RefreshTokenSuccess(tokens));
-                refreshTokenSubject.next(tokens.accessToken);
-
-                const retryReq = req.clone({
-                  setHeaders: {
-                    Authorization: `Bearer ${tokens.accessToken}`,
-                  },
-                });
-                return next(retryReq);
-              }),
-              catchError((refreshError) => {
-                isRefreshing = false;
-                refreshTokenSubject.next(null);
-                store.dispatch(new RefreshTokenFailure());
-                return throwError(() => refreshError);
+                refreshState.next({ status: 'success', token: tokens.accessToken });
+                return retry(tokens.accessToken);
               })
             );
           } else {
             isRefreshing = false;
+            refreshState.next({ status: 'failed', error });
             store.dispatch(new RefreshTokenFailure());
             return throwError(() => error);
           }
         } else {
-          return refreshTokenSubject.pipe(
-            filter((token) => token !== null),
+          return refreshState.pipe(
+            filter((state) => state.status !== 'pending'),
             take(1),
-            switchMap((token) => {
-              const retryReq = req.clone({
-                setHeaders: {
-                  Authorization: `Bearer ${token}`,
-                },
-              });
-              return next(retryReq);
-            })
+            switchMap((state) =>
+              state.status === 'success' ? retry(state.token) : throwError(() => error)
+            )
           );
         }
       }
