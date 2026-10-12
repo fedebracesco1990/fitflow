@@ -346,7 +346,8 @@ export class UsersService {
   }
 
   async updateRefreshToken(userId: string, refreshToken: string | null): Promise<void> {
-    const hashedRefreshToken = refreshToken ? await bcrypt.hash(refreshToken, 10) : undefined;
+    // null (no undefined): TypeORM ignora los campos undefined en update y el hash viejo quedaría guardado
+    const hashedRefreshToken = refreshToken ? await bcrypt.hash(refreshToken, 10) : null;
 
     await this.usersRepository.update(userId, {
       refreshToken: hashedRefreshToken,

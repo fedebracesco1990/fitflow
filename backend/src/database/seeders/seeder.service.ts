@@ -68,6 +68,12 @@ export class SeederService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    // El seed crea usuarios con contraseñas conocidas y datos de prueba: nunca en producción
+    if (process.env.NODE_ENV === 'production') {
+      this.logger.log('Seed omitido (NODE_ENV=production)');
+      return;
+    }
+
     // Esperar 3 segundos para que TypeORM termine de sincronizar las tablas
     await new Promise((resolve) => setTimeout(resolve, 3000));
     await this.seed();
