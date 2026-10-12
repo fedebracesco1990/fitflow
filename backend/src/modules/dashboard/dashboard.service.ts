@@ -600,7 +600,7 @@ export class DashboardService {
       csvContent = 'Fecha,Monto,Método,Miembro\n';
       report.desglose.forEach((item) => {
         const fecha = new Date(item.fecha).toLocaleDateString('es-AR');
-        csvContent += `${fecha},${item.monto},${item.metodo},${item.miembro}\n`;
+        csvContent += this.toCsvRow([fecha, item.monto, item.metodo, item.miembro]);
       });
     } else {
       const report = await this.getBehaviorReport(filters.startDate, filters.endDate);
@@ -612,11 +612,36 @@ export class DashboardService {
 
       csvContent = 'Miembro,Email,Estado,Visitas Totales,Rutina Activa\n';
       analisisData.forEach((item) => {
-        csvContent += `${item.miembro},${item.email},${item.estado},${item.visitasTotales},${item.rutinaActiva ? 'Sí' : 'No'}\n`;
+        csvContent += this.toCsvRow([
+          item.miembro,
+          item.email,
+          item.estado,
+          item.visitasTotales,
+          item.rutinaActiva ? 'Sí' : 'No',
+        ]);
       });
     }
 
     return csvContent;
+  }
+
+  /**
+   * Builds one CSV line. Quotes fields containing separators, quotes or line breaks, and
+   * prefixes text starting with = + - @ (or tab/CR) with ' so spreadsheet apps don't run it
+   * as a formula (CSV injection). Numbers are left as-is so negative amounts stay numeric.
+   */
+  private toCsvRow(values: Array<string | number | null | undefined>): string {
+    return (
+      values
+        .map((value) => {
+          if (value === null || value === undefined) return '';
+          if (typeof value === 'number') return String(value);
+          let text = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+          if (/[",\r\n]/.test(text)) text = `"${text.replace(/"/g, '""')}"`;
+          return text;
+        })
+        .join(',') + '\n'
+    );
   }
 
   private roundToOneDecimal(value: number): number {

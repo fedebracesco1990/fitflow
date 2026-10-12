@@ -395,7 +395,12 @@ export class NotificationsService implements OnModuleInit {
     const notification = await this.notificationRepository.findOne({
       where: { id: notificationId },
     });
-    if (!notification) {
+    // Only notifications visible to the user (targeted to them or broadcast); others look missing
+    const isVisible =
+      notification &&
+      (notification.targetUserId === userId ||
+        notification.targetType === NotificationTargetType.BROADCAST);
+    if (!isVisible) {
       throw new NotFoundException(`Notification ${notificationId} not found`);
     }
 

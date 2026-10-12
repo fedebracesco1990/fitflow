@@ -34,10 +34,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException('Usuario inactivo');
     }
 
+    // Role and email come from the database, not the token, so a role change applies immediately
     return {
       userId: payload.sub,
-      email: payload.email,
-      role: payload.role,
+      email: user.email,
+      role: user.role,
     };
   }
 }

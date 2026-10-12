@@ -61,11 +61,7 @@ export class WsJwtGuard implements CanActivate {
       return token;
     }
 
-    const queryToken = client.handshake.query?.token;
-    if (typeof queryToken === 'string') {
-      return queryToken;
-    }
-
+    // No query-string fallback on purpose: tokens in URLs end up in proxy and server logs
     return null;
   }
 }
