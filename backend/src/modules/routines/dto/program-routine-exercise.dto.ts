@@ -1,4 +1,13 @@
-import { IsUUID, IsInt, IsOptional, IsString, Min, IsNumber } from 'class-validator';
+import {
+  IsUUID,
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+  IsNumber,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateProgramRoutineExerciseDto {
@@ -64,5 +73,8 @@ export class UpdateProgramRoutineExerciseDto {
 }
 
 export class BulkUpdateProgramRoutineExercisesDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateProgramRoutineExerciseDto)
   exercises: CreateProgramRoutineExerciseDto[];
 }

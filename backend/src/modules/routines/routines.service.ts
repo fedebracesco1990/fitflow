@@ -248,27 +248,34 @@ export class RoutinesService {
       throw new ConflictException('No se pueden agregar ejercicios duplicados a la rutina');
     }
 
-    // Delete all existing exercises
-    await this.routineExerciseRepository.delete({ routineId });
+    // Delete + insert in one transaction: if an insert fails, the old exercises are kept
+    const newExercises = await this.routineExerciseRepository.manager.transaction(
+      async (manager) => {
+        const repository = manager.getRepository(RoutineExercise);
 
-    // Add the new exercises
-    const newExercises: RoutineExercise[] = [];
-    for (let i = 0; i < exercises.length; i++) {
-      const dto = exercises[i];
-      const routineExercise = this.routineExerciseRepository.create({
-        routineId,
-        exerciseId: dto.exerciseId,
-        order: dto.order ?? i + 1,
-        sets: dto.sets ?? 3,
-        reps: dto.reps ?? 12,
-        restSeconds: dto.restSeconds ?? 60,
-        notes: dto.notes,
-        suggestedWeight: dto.suggestedWeight,
-        dayOfWeek: dto.dayOfWeek,
-      });
-      const saved = await this.routineExerciseRepository.save(routineExercise);
-      newExercises.push(saved);
-    }
+        // Delete all existing exercises
+        await repository.delete({ routineId });
+
+        // Add the new exercises
+        const saved: RoutineExercise[] = [];
+        for (let i = 0; i < exercises.length; i++) {
+          const dto = exercises[i];
+          const routineExercise = repository.create({
+            routineId,
+            exerciseId: dto.exerciseId,
+            order: dto.order ?? i + 1,
+            sets: dto.sets ?? 3,
+            reps: dto.reps ?? 12,
+            restSeconds: dto.restSeconds ?? 60,
+            notes: dto.notes,
+            suggestedWeight: dto.suggestedWeight,
+            dayOfWeek: dto.dayOfWeek,
+          });
+          saved.push(await repository.save(routineExercise));
+        }
+        return saved;
+      }
+    );
 
     this.notifyRoutineUpdated(routine, userId);
     return newExercises;
@@ -434,23 +441,28 @@ export class RoutinesService {
       throw new ForbiddenException('No tienes permisos para modificar este programa');
     }
 
-    // Delete existing customized exercises
-    await this.programRoutineExerciseRepository.delete({ programRoutineId });
+    // Delete + insert in one transaction: if an insert fails, the old exercises are kept
+    return this.programRoutineExerciseRepository.manager.transaction(async (manager) => {
+      const repository = manager.getRepository(ProgramRoutineExercise);
 
-    // Create the new ones
-    const customExercises = exercises.map((dto) =>
-      this.programRoutineExerciseRepository.create({
-        programRoutineId,
-        exerciseId: dto.exerciseId,
-        order: dto.order,
-        sets: dto.sets,
-        reps: dto.reps,
-        restSeconds: dto.restSeconds ?? 60,
-        notes: dto.notes ?? null,
-        weight: dto.weight ?? null,
-      })
-    );
+      // Delete existing customized exercises
+      await repository.delete({ programRoutineId });
 
-    return await this.programRoutineExerciseRepository.save(customExercises);
+      // Create the new ones
+      const customExercises = exercises.map((dto) =>
+        repository.create({
+          programRoutineId,
+          exerciseId: dto.exerciseId,
+          order: dto.order,
+          sets: dto.sets,
+          reps: dto.reps,
+          restSeconds: dto.restSeconds ?? 60,
+          notes: dto.notes ?? null,
+          weight: dto.weight ?? null,
+        })
+      );
+
+      return repository.save(customExercises);
+    });
   }
 }

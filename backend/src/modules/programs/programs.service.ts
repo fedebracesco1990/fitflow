@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import {
   Program,
   ProgramRoutine,
@@ -38,71 +38,67 @@ export class ProgramsService {
   ) {}
 
   async create(dto: CreateProgramDto, createdById: string): Promise<Program> {
-    const program = this.programRepository.create({
-      name: dto.name,
-      description: dto.description,
-      difficulty: dto.difficulty,
-      createdById,
-      totalRoutines: dto.routines.length,
-    });
-
-    const savedProgram = await this.programRepository.save(program);
-
     // Validate there are no duplicate routines
     const routineIds = dto.routines.map((r) => r.routineId);
     if (new Set(routineIds).size !== routineIds.length) {
       throw new ConflictException('No se pueden agregar rutinas duplicadas al programa');
     }
 
-    for (const routineDto of dto.routines) {
-      const routine = await this.routineRepository.findOne({
-        where: { id: routineDto.routineId },
-        relations: ['exercises', 'exercises.exercise'],
+    // All writes in one transaction: a failure halfway must not leave a partial program
+    const savedProgram = await this.programRepository.manager.transaction(async (manager) => {
+      const programRepository = manager.getRepository(Program);
+      const programRoutineRepository = manager.getRepository(ProgramRoutine);
+      const programRoutineExerciseRepository = manager.getRepository(ProgramRoutineExercise);
+
+      const program = programRepository.create({
+        name: dto.name,
+        description: dto.description,
+        difficulty: dto.difficulty,
+        createdById,
+        totalRoutines: dto.routines.length,
       });
 
-      if (!routine) {
-        throw new NotFoundException(`Routine ${routineDto.routineId} not found`);
-      }
+      const savedProgram = await programRepository.save(program);
 
-      const programRoutine = this.programRoutineRepository.create({
-        programId: savedProgram.id,
-        routineId: routine.id,
-        order: routineDto.order,
-      });
+      for (const routineDto of dto.routines) {
+        const routine = await manager.getRepository(Routine).findOne({
+          where: { id: routineDto.routineId },
+          relations: ['exercises', 'exercises.exercise'],
+        });
 
-      const savedProgramRoutine = await this.programRoutineRepository.save(programRoutine);
-
-      if (routineDto.exercises && routineDto.exercises.length > 0) {
-        for (const exerciseDto of routineDto.exercises) {
-          const exercise = this.programRoutineExerciseRepository.create({
-            programRoutineId: savedProgramRoutine.id,
-            exerciseId: exerciseDto.exerciseId,
-            order: exerciseDto.order,
-            sets: exerciseDto.sets,
-            reps: exerciseDto.reps,
-            restSeconds: exerciseDto.restSeconds || 60,
-            weight: exerciseDto.weight || null,
-            notes: exerciseDto.notes || null,
-          });
-          await this.programRoutineExerciseRepository.save(exercise);
+        if (!routine) {
+          throw new NotFoundException(`Routine ${routineDto.routineId} not found`);
         }
-      } else {
-        for (const re of routine.exercises) {
-          const weight = re.suggestedWeight != null ? parseFloat(String(re.suggestedWeight)) : null;
-          const exercise = this.programRoutineExerciseRepository.create({
-            programRoutineId: savedProgramRoutine.id,
-            exerciseId: re.exerciseId,
-            order: re.order,
-            sets: re.sets,
-            reps: re.reps,
-            restSeconds: re.restSeconds,
-            weight,
-            notes: re.notes,
-          });
-          await this.programRoutineExerciseRepository.save(exercise);
+
+        const programRoutine = programRoutineRepository.create({
+          programId: savedProgram.id,
+          routineId: routine.id,
+          order: routineDto.order,
+        });
+
+        const savedProgramRoutine = await programRoutineRepository.save(programRoutine);
+
+        if (routineDto.exercises && routineDto.exercises.length > 0) {
+          for (const exerciseDto of routineDto.exercises) {
+            const exercise = programRoutineExerciseRepository.create({
+              programRoutineId: savedProgramRoutine.id,
+              exerciseId: exerciseDto.exerciseId,
+              order: exerciseDto.order,
+              sets: exerciseDto.sets,
+              reps: exerciseDto.reps,
+              restSeconds: exerciseDto.restSeconds || 60,
+              weight: exerciseDto.weight || null,
+              notes: exerciseDto.notes || null,
+            });
+            await programRoutineExerciseRepository.save(exercise);
+          }
+        } else {
+          await this.copyRoutineExercises(manager, routine, savedProgramRoutine.id);
         }
       }
-    }
+
+      return savedProgram;
+    });
 
     return this.findOne(savedProgram.id);
   }
@@ -138,47 +134,65 @@ export class ProgramsService {
   async update(id: string, dto: CreateProgramDto): Promise<Program> {
     const program = await this.findOne(id);
 
-    // Update basic data
-    program.name = dto.name;
-    program.description = dto.description ?? null;
-    program.difficulty = dto.difficulty ?? program.difficulty;
-    program.totalRoutines = dto.routines.length;
-
-    await this.programRepository.save(program);
-
     // Validate there are no duplicate routines
     const routineIds = dto.routines.map((r) => r.routineId);
     if (new Set(routineIds).size !== routineIds.length) {
       throw new ConflictException('No se pueden agregar rutinas duplicadas al programa');
     }
 
-    // Delete existing routines
-    await this.programRoutineRepository.delete({ programId: id });
+    // All writes in one transaction: if a routine is missing, the program must stay untouched
+    await this.programRepository.manager.transaction(async (manager) => {
+      const programRoutineRepository = manager.getRepository(ProgramRoutine);
 
-    // Create new routines
-    for (const routineDto of dto.routines) {
-      const routine = await this.routineRepository.findOne({
-        where: { id: routineDto.routineId },
-        relations: ['exercises', 'exercises.exercise'],
+      // Update basic data
+      await manager.getRepository(Program).update(id, {
+        name: dto.name,
+        description: dto.description ?? null,
+        difficulty: dto.difficulty ?? program.difficulty,
+        totalRoutines: dto.routines.length,
       });
 
-      if (!routine) {
-        throw new NotFoundException(`Routine ${routineDto.routineId} not found`);
+      // Delete existing routines
+      await programRoutineRepository.delete({ programId: id });
+
+      // Create new routines
+      for (const routineDto of dto.routines) {
+        const routine = await manager.getRepository(Routine).findOne({
+          where: { id: routineDto.routineId },
+          relations: ['exercises', 'exercises.exercise'],
+        });
+
+        if (!routine) {
+          throw new NotFoundException(`Routine ${routineDto.routineId} not found`);
+        }
+
+        const savedProgramRoutine = await programRoutineRepository.save(
+          programRoutineRepository.create({
+            programId: id,
+            routineId: routine.id,
+            order: routineDto.order,
+          })
+        );
+
+        // Copy exercises from the original routine
+        await this.copyRoutineExercises(manager, routine, savedProgramRoutine.id);
       }
+    });
 
-      const programRoutine = this.programRoutineRepository.create({
-        programId: id,
-        routineId: routine.id,
-        order: routineDto.order,
-      });
+    return this.findOne(id);
+  }
 
-      const savedProgramRoutine = await this.programRoutineRepository.save(programRoutine);
-
-      // Copy exercises from the original routine
-      for (const re of routine.exercises) {
-        const weight = re.suggestedWeight != null ? parseFloat(String(re.suggestedWeight)) : null;
-        const exercise = this.programRoutineExerciseRepository.create({
-          programRoutineId: savedProgramRoutine.id,
+  private async copyRoutineExercises(
+    manager: EntityManager,
+    routine: Routine,
+    programRoutineId: string
+  ): Promise<void> {
+    const repository = manager.getRepository(ProgramRoutineExercise);
+    for (const re of routine.exercises) {
+      const weight = re.suggestedWeight != null ? parseFloat(String(re.suggestedWeight)) : null;
+      await repository.save(
+        repository.create({
+          programRoutineId,
           exerciseId: re.exerciseId,
           order: re.order,
           sets: re.sets,
@@ -186,59 +200,68 @@ export class ProgramsService {
           restSeconds: re.restSeconds,
           weight,
           notes: re.notes,
-        });
-        await this.programRoutineExerciseRepository.save(exercise);
-      }
+        })
+      );
     }
-
-    return this.findOne(id);
   }
 
   async assignToUser(dto: AssignProgramDto): Promise<UserProgram> {
     const program = await this.findOne(dto.programId);
 
-    await this.userProgramRepository.update(
-      { userId: dto.userId, isActive: true },
-      { isActive: false, endDate: new Date() }
-    );
+    // One transaction: if the copy fails, the user must keep their previous active program
+    const savedUserProgram = await this.userProgramRepository.manager.transaction(
+      async (manager) => {
+        const userProgramRepository = manager.getRepository(UserProgram);
+        const userProgramRoutineRepository = manager.getRepository(UserProgramRoutine);
+        const userProgramExerciseRepository = manager.getRepository(UserProgramExercise);
 
-    const userProgram = this.userProgramRepository.create({
-      userId: dto.userId,
-      programId: program.id,
-      programName: program.name,
-      assignedAt: dto.assignedAt ? new Date(dto.assignedAt) : new Date(),
-      isActive: true,
-    });
+        await userProgramRepository.update(
+          { userId: dto.userId, isActive: true },
+          { isActive: false, endDate: new Date() }
+        );
 
-    const savedUserProgram = await this.userProgramRepository.save(userProgram);
+        const savedUserProgram = await userProgramRepository.save(
+          userProgramRepository.create({
+            userId: dto.userId,
+            programId: program.id,
+            programName: program.name,
+            assignedAt: dto.assignedAt ? new Date(dto.assignedAt) : new Date(),
+            isActive: true,
+          })
+        );
 
-    for (const pr of program.routines) {
-      const userRoutine = this.userProgramRoutineRepository.create({
-        userProgramId: savedUserProgram.id,
-        originalRoutineId: pr.routineId,
-        name: pr.routine.name,
-        description: pr.routine.description,
-        order: pr.order,
-        estimatedDuration: pr.routine.estimatedDuration,
-      });
+        for (const pr of program.routines) {
+          const savedUserRoutine = await userProgramRoutineRepository.save(
+            userProgramRoutineRepository.create({
+              userProgramId: savedUserProgram.id,
+              originalRoutineId: pr.routineId,
+              name: pr.routine.name,
+              description: pr.routine.description,
+              order: pr.order,
+              estimatedDuration: pr.routine.estimatedDuration,
+            })
+          );
 
-      const savedUserRoutine = await this.userProgramRoutineRepository.save(userRoutine);
+          for (const exercise of pr.exercises) {
+            const weight = exercise.weight != null ? parseFloat(String(exercise.weight)) : null;
+            await userProgramExerciseRepository.save(
+              userProgramExerciseRepository.create({
+                userProgramRoutineId: savedUserRoutine.id,
+                exerciseId: exercise.exerciseId,
+                order: exercise.order,
+                sets: exercise.sets,
+                reps: exercise.reps,
+                restSeconds: exercise.restSeconds,
+                weight,
+                notes: exercise.notes,
+              })
+            );
+          }
+        }
 
-      for (const exercise of pr.exercises) {
-        const weight = exercise.weight != null ? parseFloat(String(exercise.weight)) : null;
-        const userExercise = this.userProgramExerciseRepository.create({
-          userProgramRoutineId: savedUserRoutine.id,
-          exerciseId: exercise.exerciseId,
-          order: exercise.order,
-          sets: exercise.sets,
-          reps: exercise.reps,
-          restSeconds: exercise.restSeconds,
-          weight,
-          notes: exercise.notes,
-        });
-        await this.userProgramExerciseRepository.save(userExercise);
+        return savedUserProgram;
       }
-    }
+    );
 
     const result = await this.findUserProgram(savedUserProgram.id);
 
