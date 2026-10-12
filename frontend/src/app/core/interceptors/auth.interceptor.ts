@@ -10,6 +10,7 @@ import { Store } from '@ngxs/store';
 import { StorageService } from '../services/storage.service';
 import { AuthService } from '../services/auth.service';
 import { RefreshTokenFailure, RefreshTokenSuccess } from '../store/auth/auth.actions';
+import { environment } from '../../../environments/environment';
 
 // Resultado del refresh en curso. Las peticiones que llegan con 401 mientras se refresca
 // esperan acá: reintentan si sale bien y reciben el error si falla (no quedan colgadas).
@@ -29,14 +30,18 @@ export const authInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const store = inject(Store);
 
+  // Comparación exacta: con `includes` cualquier URL que contuviera '/login' se mandaba sin token.
+  // 'auth/register' no va: en el backend es solo para ADMIN y necesita el token.
   const publicEndpoints = [
-    '/login',
-    '/register',
-    '/forgot-password',
-    '/reset-password',
-    '/refresh',
+    'auth/login',
+    'auth/refresh',
+    'auth/forgot-password',
+    'auth/reset-password',
   ];
-  const isPublicEndpoint = publicEndpoints.some((endpoint) => req.url.includes(endpoint));
+  const path = req.url.split('?')[0];
+  const isPublicEndpoint = publicEndpoints.some(
+    (endpoint) => path === `${environment.apiUrl}/${endpoint}`
+  );
 
   if (isPublicEndpoint) {
     return next(req);
@@ -55,7 +60,7 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !isPublicEndpoint && !req.url.includes('/auth/refresh')) {
+      if (error.status === 401) {
         const retry = (accessToken: string) =>
           next(req.clone({ setHeaders: { Authorization: `Bearer ${accessToken}` } }));
 
