@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 
+export type NotificationPreference = 'enabled' | 'disabled' | 'dismissed';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -69,5 +71,23 @@ export class StorageService {
 
   clear(): void {
     localStorage.clear();
+  }
+
+  // Push notification preference, stored per user (null user = guest)
+  getNotificationPreference(userId: string | null | undefined): NotificationPreference | null {
+    return localStorage.getItem(
+      this.notificationPreferenceKey(userId)
+    ) as NotificationPreference | null;
+  }
+
+  setNotificationPreference(
+    userId: string | null | undefined,
+    value: NotificationPreference
+  ): void {
+    localStorage.setItem(this.notificationPreferenceKey(userId), value);
+  }
+
+  private notificationPreferenceKey(userId: string | null | undefined): string {
+    return `notification_preference_${userId ?? 'guest'}`;
   }
 }

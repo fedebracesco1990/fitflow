@@ -10,6 +10,7 @@ import {
   AppNotificationDto,
 } from '../../services/notifications-api.service';
 import { WebSocketService } from '../../services/websocket.service';
+import { StorageService } from '../../services/storage.service';
 import { AuthState } from '../auth/auth.state';
 import {
   InitializeNotifications,
@@ -47,6 +48,7 @@ export class NotificationsState {
   private readonly notificationsApi = inject(NotificationsApiService);
   private readonly websocket = inject(WebSocketService);
   private readonly store = inject(Store);
+  private readonly storage = inject(StorageService);
   private wsSubscribed = false;
 
   @Selector()
@@ -143,9 +145,7 @@ export class NotificationsState {
 
     const user = this.store.selectSnapshot(AuthState.user);
     const userId = user?.userId;
-    const userPreference = userId
-      ? localStorage.getItem(`notification_preference_${userId}`)
-      : null;
+    const userPreference = userId ? this.storage.getNotificationPreference(userId) : null;
 
     if (permissionStatus === 'granted' && userPreference === 'enabled') {
       const token = await this.pushService.getAndRegisterToken();

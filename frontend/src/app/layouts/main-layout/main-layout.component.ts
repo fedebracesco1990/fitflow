@@ -15,7 +15,12 @@ import {
   OfflineBannerComponent,
   SyncStatusComponent,
 } from '../../shared/components';
-import { PwaService, PushNotificationsService, SyncManagerService } from '../../core/services';
+import {
+  PwaService,
+  PushNotificationsService,
+  SyncManagerService,
+  StorageService,
+} from '../../core/services';
 
 @Component({
   selector: 'fit-flow-main-layout',
@@ -43,6 +48,7 @@ export class MainLayoutComponent implements OnInit {
   readonly pwaService = inject(PwaService);
   private readonly syncManager = inject(SyncManagerService);
   private readonly pushService = inject(PushNotificationsService);
+  private readonly storage = inject(StorageService);
 
   readonly user = this.store.selectSignal(AuthState.user);
   readonly isAdmin = this.store.selectSignal(AuthState.isAdmin);
@@ -95,18 +101,12 @@ export class MainLayoutComponent implements OnInit {
     return items;
   });
 
-  private getNotificationPreferenceKey(): string {
-    const userId = this.user()?.userId;
-    return userId ? `notification_preference_${userId}` : 'notification_preference_guest';
-  }
-
   ngOnInit(): void {
     setTimeout(() => {
       const support = this.pushService.checkSupport();
       const status = this.permissionStatus();
       const userId = this.user()?.userId;
-      const preferenceKey = this.getNotificationPreferenceKey();
-      const userPreference = localStorage.getItem(preferenceKey);
+      const userPreference = this.storage.getNotificationPreference(this.user()?.userId);
 
       // Show prompt if:
       // 1. Browser permission is 'default' (never asked) - show to ask permission
@@ -145,7 +145,7 @@ export class MainLayoutComponent implements OnInit {
   }
 
   dismissNotificationPrompt(): void {
-    localStorage.setItem(this.getNotificationPreferenceKey(), 'dismissed');
+    this.storage.setNotificationPreference(this.user()?.userId, 'dismissed');
     this.showNotificationPrompt.set(false);
   }
 

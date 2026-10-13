@@ -9,7 +9,11 @@ import {
   SetFcmToken,
   AuthState,
 } from '../../../../core/store';
-import { PushNotificationsService } from '../../../../core/services';
+import {
+  PushNotificationsService,
+  StorageService,
+  NotificationPreference,
+} from '../../../../core/services';
 import {
   AvatarComponent,
   BadgeComponent,
@@ -39,6 +43,7 @@ import { LucideAngularModule } from 'lucide-angular';
 export class ViewProfileComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly pushService = inject(PushNotificationsService);
+  private readonly storage = inject(StorageService);
 
   readonly profile = this.store.selectSignal(UserState.profile);
   readonly isLoading = this.store.selectSignal(UserState.isLoading);
@@ -51,7 +56,7 @@ export class ViewProfileComponent implements OnInit {
   readonly pendingAction = signal<'enable' | 'disable' | null>(null);
 
   // Use signal to make preference reactive
-  readonly userPreferenceSignal = signal<string | null>(null);
+  readonly userPreferenceSignal = signal<NotificationPreference | null>(null);
 
   // Computed properties for dialog
   readonly dialogTitle = computed(() =>
@@ -86,15 +91,18 @@ export class ViewProfileComponent implements OnInit {
     this.loadUserPreference();
   }
 
-  private getPreferenceKey(): string | null {
+  private loadUserPreference(): void {
     const userId = this.user()?.userId;
-    return userId ? `notification_preference_${userId}` : null;
+    if (userId) {
+      this.userPreferenceSignal.set(this.storage.getNotificationPreference(userId));
+    }
   }
 
-  private loadUserPreference(): void {
-    const key = this.getPreferenceKey();
-    if (key) {
-      this.userPreferenceSignal.set(localStorage.getItem(key));
+  private saveUserPreference(value: NotificationPreference): void {
+    const userId = this.user()?.userId;
+    if (userId) {
+      this.storage.setNotificationPreference(userId, value);
+      this.userPreferenceSignal.set(value);
     }
   }
 
@@ -161,11 +169,7 @@ export class ViewProfileComponent implements OnInit {
         const token = await this.pushService.getAndRegisterToken();
         if (token) {
           this.store.dispatch(new SetFcmToken(token));
-          const key = this.getPreferenceKey();
-          if (key) {
-            localStorage.setItem(key, 'enabled');
-            this.userPreferenceSignal.set('enabled');
-          }
+          this.saveUserPreference('enabled');
         }
       }
     } finally {
@@ -183,11 +187,7 @@ export class ViewProfileComponent implements OnInit {
         this.store.dispatch(new SetFcmToken(null));
       }
 
-      const key = this.getPreferenceKey();
-      if (key) {
-        localStorage.setItem(key, 'disabled');
-        this.userPreferenceSignal.set('disabled');
-      }
+      this.saveUserPreference('disabled');
     } finally {
       this.isDisablingNotifications.set(false);
     }

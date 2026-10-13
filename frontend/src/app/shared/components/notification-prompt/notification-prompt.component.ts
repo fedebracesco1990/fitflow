@@ -1,7 +1,7 @@
 import { Component, inject, input, output, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngxs/store';
-import { PushNotificationsService } from '../../../core/services';
+import { PushNotificationsService, StorageService } from '../../../core/services';
 import { SetPermissionStatus, SetFcmToken, AuthState } from '../../../core/store';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -162,6 +162,7 @@ import { LucideAngularModule } from 'lucide-angular';
 export class NotificationPromptComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly pushService = inject(PushNotificationsService);
+  private readonly storage = inject(StorageService);
 
   isVisible = input<boolean>(false);
   dismissed = output<void>();
@@ -191,7 +192,7 @@ export class NotificationPromptComponent implements OnInit {
             // Save user preference as 'enabled'
             const user = this.store.selectSnapshot(AuthState.user);
             if (user?.userId) {
-              localStorage.setItem(`notification_preference_${user.userId}`, 'enabled');
+              this.storage.setNotificationPreference(user.userId, 'enabled');
             }
           }
         } catch (error) {
