@@ -8,7 +8,6 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
-import { LocalStrategy } from './strategies/local.strategy';
 import { AuthAuditLog } from './entities/auth-audit-log.entity';
 import { AuthAuditLogService } from './auth-audit-log.service';
 
@@ -29,7 +28,7 @@ import { AuthAuditLogService } from './auth-audit-log.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, AuthAuditLogService, JwtStrategy, JwtRefreshStrategy, LocalStrategy],
+  providers: [AuthService, AuthAuditLogService, JwtStrategy, JwtRefreshStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })
