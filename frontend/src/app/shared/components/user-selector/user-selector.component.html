@@ -37,29 +37,30 @@
     </div>
   } @else {
     <div class="users-list">
-      <div class="select-all" (click)="selectAll()" [class.disabled]="disabled()">
+      <label class="select-all" [class.disabled]="disabled()">
         <input
           type="checkbox"
           [checked]="allFilteredSelected()"
           [indeterminate]="someFilteredSelected()"
           [disabled]="disabled()"
+          (change)="selectAll()"
         />
         <span>Seleccionar todos ({{ filteredUsers().length }})</span>
-      </div>
+      </label>
 
       @for (user of filteredUsers(); track user.id) {
-        <div
-          class="user-item"
-          [class.selected]="user.selected"
-          [class.disabled]="disabled()"
-          (click)="toggleUser(user)"
-        >
-          <input type="checkbox" [checked]="user.selected" [disabled]="disabled()" />
-          <div class="user-info">
+        <label class="user-item" [class.selected]="user.selected" [class.disabled]="disabled()">
+          <input
+            type="checkbox"
+            [checked]="user.selected"
+            [disabled]="disabled()"
+            (change)="toggleUser(user)"
+          />
+          <span class="user-info">
             <span class="user-name">{{ user.name }}</span>
             <span class="user-email">{{ user.email }}</span>
-          </div>
-        </div>
+          </span>
+        </label>
       }
     </div>
   }

@@ -406,7 +406,8 @@ export class MyProgressComponent implements OnInit {
   private loadVolumeStats(query: StatsQuery): void {
     this.statsService.getMyVolumeStats(query).subscribe({
       next: (stats) => this.volumeStats.set(stats),
-      error: () => {},
+      // Volume stats are optional: on failure the section is simply hidden
+      error: () => this.volumeStats.set(null),
     });
   }
 

@@ -30,7 +30,7 @@
         }
 
         <div class="form-section">
-          <label class="section-label">Tipo de Reporte</label>
+          <span class="section-label">Tipo de Reporte</span>
           <div class="type-cards">
             @for (type of reportTypes; track type) {
               <button
@@ -59,7 +59,7 @@
         </div>
 
         <div class="form-section">
-          <label class="section-label">Formato</label>
+          <span class="section-label">Formato</span>
           <div class="format-options">
             @for (format of reportFormats; track format) {
               <label class="format-option">
@@ -108,7 +108,7 @@
 
         @if (showDateRange) {
           <div class="form-section">
-            <label class="section-label">Rango de Fechas (Opcional)</label>
+            <span class="section-label">Rango de Fechas (Opcional)</span>
             <div class="date-range">
               <div class="date-field">
                 <label for="startDate">Desde</label>

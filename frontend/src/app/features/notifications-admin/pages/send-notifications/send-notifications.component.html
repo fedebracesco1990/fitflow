@@ -33,7 +33,7 @@
 
         @if (sendMode() === 'selected') {
           <div class="section">
-            <label class="section-label">Destinatarios</label>
+            <span class="section-label">Destinatarios</span>
             <fit-flow-user-selector
               [disabled]="isSending()"
               (selectionChange)="onUsersSelected($event)"
@@ -42,7 +42,7 @@
         }
 
         <div class="section">
-          <label class="section-label">Mensaje</label>
+          <span class="section-label">Mensaje</span>
           <fit-flow-message-editor
             [disabled]="isSending()"
             (contentChange)="onContentChange($event)"

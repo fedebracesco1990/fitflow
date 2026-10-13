@@ -9,9 +9,10 @@ import { Exercise } from '../../../../core/models';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="exercise-selector">
-      <label class="selector-label">Ejercicio</label>
+      <label class="selector-label" for="exercise-selector-select">Ejercicio</label>
       <div class="select-wrapper">
         <select
+          id="exercise-selector-select"
           class="exercise-select"
           [ngModel]="selectedExerciseId()"
           (ngModelChange)="onExerciseChange($event)"

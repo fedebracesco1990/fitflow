@@ -8,8 +8,13 @@ import { RoutineType } from '../../../../core/models';
   imports: [CommonModule],
   template: `
     @if (isOpen()) {
-      <div class="dialog-backdrop" (click)="onBackdropClick($event)">
-        <div class="dialog-container">
+      <div
+        class="dialog-backdrop"
+        (click)="onBackdropClick($event)"
+        (keydown.escape)="onCancel()"
+        tabindex="-1"
+      >
+        <div class="dialog-container" role="dialog" aria-modal="true">
           <div class="dialog-header">
             <h2>Nueva Rutina</h2>
             <button class="close-btn" (click)="onCancel()">✕</button>

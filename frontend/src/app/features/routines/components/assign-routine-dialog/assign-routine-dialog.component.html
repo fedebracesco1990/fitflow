@@ -45,9 +45,12 @@
 
         <div class="users-section">
           <div class="users-header">
-            <label>Seleccionar usuarios ({{ selectedCount() }} seleccionados)</label>
+            <label for="assignUserSearch"
+              >Seleccionar usuarios ({{ selectedCount() }} seleccionados)</label
+            >
             <div class="search-box">
               <input
+                id="assignUserSearch"
                 type="text"
                 placeholder="Buscar por nombre o email..."
                 [ngModel]="searchQuery()"
@@ -62,26 +65,27 @@
             <div class="empty-state">No se encontraron usuarios</div>
           } @else {
             <div class="users-list">
-              <div class="select-all" (click)="selectAll()">
+              <label class="select-all">
                 <input
                   type="checkbox"
                   [checked]="allFilteredSelected()"
                   [indeterminate]="someFilteredSelected()"
+                  (change)="selectAll()"
                 />
                 <span>Seleccionar todos</span>
-              </div>
+              </label>
 
               @for (user of filteredUsers(); track user.id) {
-                <div class="user-item" [class.selected]="user.selected" (click)="toggleUser(user)">
-                  <input type="checkbox" [checked]="user.selected" />
-                  <div class="user-info">
+                <label class="user-item" [class.selected]="user.selected">
+                  <input type="checkbox" [checked]="user.selected" (change)="toggleUser(user)" />
+                  <span class="user-info">
                     <span class="user-name">{{ user.name }}</span>
                     <span class="user-email">{{ user.email }}</span>
-                  </div>
+                  </span>
                   @if (isWeeklyProgram() && user.activeProgramName) {
                     <span class="active-plan-badge">{{ user.activeProgramName }}</span>
                   }
-                </div>
+                </label>
               }
             </div>
           }
