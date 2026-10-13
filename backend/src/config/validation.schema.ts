@@ -22,7 +22,7 @@ export const validationSchema = Joi.object({
   JWT_REFRESH_TOKEN_EXPIRATION: Joi.number().default(604800),
 
   // QR
-  QR_JWT_SECRET: Joi.string().optional(),
+  QR_JWT_SECRET: Joi.string().allow('').optional(),
   QR_JWT_EXPIRES_IN: Joi.string().default('365d'),
 
   // CORS
@@ -32,9 +32,9 @@ export const validationSchema = Joi.object({
   FRONTEND_URL: Joi.string().default('http://localhost:4200'),
 
   // Firebase
-  FIREBASE_PROJECT_ID: Joi.string().optional(),
-  FIREBASE_CLIENT_EMAIL: Joi.string().optional(),
-  FIREBASE_PRIVATE_KEY: Joi.string().optional(),
+  FIREBASE_PROJECT_ID: Joi.string().allow('').optional(),
+  FIREBASE_CLIENT_EMAIL: Joi.string().allow('').optional(),
+  FIREBASE_PRIVATE_KEY: Joi.string().allow('').optional(),
 
   // Email (SMTP). Without SMTP_HOST, emails are only logged
   SMTP_HOST: Joi.string().allow('').optional(),

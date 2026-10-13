@@ -84,8 +84,8 @@ testem.log
 
 # Docker volumes
 docker/mysql/data/
-# Documentación interna de desarrollo (local)
+# Local development notes (not versioned)
 docs/develop/
 
-# Archivo de variables del backend sin punto (contenía secretos; usar el .env de la raíz)
+# Old backend env file without a dot (contained secrets); use the root .env
 backend/env
