@@ -108,10 +108,6 @@ export class MainLayoutComponent implements OnInit {
       const preferenceKey = this.getNotificationPreferenceKey();
       const userPreference = localStorage.getItem(preferenceKey);
 
-      console.log('[Notifications] Support check:', support);
-      console.log('[Notifications] Permission status:', status);
-      console.log('[Notifications] User preference:', userPreference);
-
       // Show prompt if:
       // 1. Browser permission is 'default' (never asked) - show to ask permission
       // 2. Browser permission is 'granted' but THIS user hasn't set their preference yet
@@ -123,7 +119,6 @@ export class MainLayoutComponent implements OnInit {
         userPreference !== 'dismissed';
 
       if (shouldShowPrompt && userId) {
-        console.log('[Notifications] Showing prompt for user:', userId);
         this.showNotificationPrompt.set(true);
       }
     }, 3000);
@@ -150,7 +145,6 @@ export class MainLayoutComponent implements OnInit {
   }
 
   dismissNotificationPrompt(): void {
-    console.log('[Notifications] User dismissed prompt, saving to localStorage');
     localStorage.setItem(this.getNotificationPreferenceKey(), 'dismissed');
     this.showNotificationPrompt.set(false);
   }

@@ -143,7 +143,6 @@ export class PushNotificationsService {
           { headers }
         )
       );
-      console.log('[PushNotifications] FCM token registered in backend successfully');
     } catch (error: unknown) {
       // Silent handling for 401 - will retry on next page refresh
       const httpError = error as { status?: number };

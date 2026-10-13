@@ -44,7 +44,6 @@ export class SyncManagerService {
         filter((isOnline) => isOnline)
       )
       .subscribe(() => {
-        console.log('[SyncManager] Network restored, starting sync...');
         this.processQueue();
       });
   }
@@ -60,11 +59,9 @@ export class SyncManagerService {
     }
 
     this._isSyncing.set(true);
-    console.log(`[SyncManager] Processing ${pending.length} pending operations`);
 
     for (const operation of pending) {
       if (!this.networkService.isOnline()) {
-        console.log('[SyncManager] Lost connection, stopping sync');
         break;
       }
 
@@ -74,7 +71,6 @@ export class SyncManagerService {
     this._isSyncing.set(false);
     this._lastSyncAt.set(Date.now());
     await this.syncQueueService.clear();
-    console.log('[SyncManager] Queue processing complete');
   }
 
   private async processOperation(operation: SyncOperation): Promise<void> {
@@ -113,7 +109,6 @@ export class SyncManagerService {
       }
 
       await this.syncQueueService.markAsCompleted(operation.id, serverId);
-      console.log(`[SyncManager] Operation ${operation.type} completed`);
     } catch (error) {
       const errorMessage = this.extractErrorMessage(error);
       console.error(`[SyncManager] Operation ${operation.type} failed:`, errorMessage);
@@ -174,8 +169,6 @@ export class SyncManagerService {
         });
       }
     }
-
-    console.log(`[SyncManager] Mapped ${metaItems.length} exercise log IDs`);
   }
 
   private getIdMappingType(operationType: string): 'workout' | 'exercise_log' {
@@ -191,7 +184,6 @@ export class SyncManagerService {
 
   async forceSync(): Promise<void> {
     if (!this.networkService.isOnline()) {
-      console.log('[SyncManager] Cannot force sync while offline');
       return;
     }
     await this.processQueue();

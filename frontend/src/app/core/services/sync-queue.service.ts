@@ -52,7 +52,6 @@ export class SyncQueueService {
     await this.offlineDb.addToSyncQueue(operation);
     await this.refreshPendingCount();
 
-    console.log('[SyncQueue] Enqueued operation:', type, endpoint);
     return operation.id;
   }
 

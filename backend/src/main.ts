@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 
 async function bootstrap() {
@@ -33,7 +33,8 @@ async function bootstrap() {
   );
 
   await app.listen(port);
-  console.log(`Backend running on http://localhost:${port}/${apiPrefix}`);
-  console.log(`Environment: ${configService.get<string>('app.nodeEnv')}`);
+  const logger = new Logger('Bootstrap');
+  logger.log(`Backend running on http://localhost:${port}/${apiPrefix}`);
+  logger.log(`Environment: ${configService.get<string>('app.nodeEnv')}`);
 }
 void bootstrap();

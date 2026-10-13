@@ -57,7 +57,6 @@ export class OfflineDbService {
     try {
       await this.db.open();
       this._isReady.set(true);
-      console.log('[OfflineDb] Database initialized');
     } catch (error) {
       console.error('[OfflineDb] Failed to initialize database:', error);
     }
@@ -185,7 +184,6 @@ export class OfflineDbService {
       this.db.cachedRoutines.clear(),
       this.db.idMappings.clear(),
     ]);
-    console.log('[OfflineDb] All data cleared');
   }
 
   // Clear expired cache

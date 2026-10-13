@@ -65,7 +65,6 @@ export class WebSocketService {
       this.socket.disconnect();
       this.socket = null;
       this._connectionState.set('disconnected');
-      console.log('[WebSocket] Disconnected');
     }
   }
 
@@ -74,12 +73,10 @@ export class WebSocketService {
 
     this.socket.on('connect', () => {
       this._connectionState.set('connected');
-      console.log('[WebSocket] Connected to server');
     });
 
-    this.socket.on('disconnect', (reason: string) => {
+    this.socket.on('disconnect', () => {
       this._connectionState.set('disconnected');
-      console.log('[WebSocket] Disconnected:', reason);
     });
 
     this.socket.on('connect_error', (error: Error) => {
@@ -87,14 +84,12 @@ export class WebSocketService {
       console.error('[WebSocket] Connection error:', error.message);
     });
 
-    this.socket.io.on('reconnect_attempt', (attempt: number) => {
+    this.socket.io.on('reconnect_attempt', () => {
       this._connectionState.set('reconnecting');
-      console.log('[WebSocket] Reconnection attempt:', attempt);
     });
 
     this.socket.io.on('reconnect', () => {
       this._connectionState.set('connected');
-      console.log('[WebSocket] Reconnected successfully');
     });
 
     this.socket.io.on('reconnect_failed', () => {
@@ -103,22 +98,18 @@ export class WebSocketService {
     });
 
     this.socket.on('routine.updated', (data: RoutineUpdatedEvent) => {
-      console.log('[WebSocket] routine.updated:', data);
       this._routineUpdated.next(data);
     });
 
     this.socket.on('progress.logged', (data: ProgressLoggedEvent) => {
-      console.log('[WebSocket] progress.logged:', data);
       this._progressLogged.next(data);
     });
 
     this.socket.on('notification.new', (data: NotificationEvent) => {
-      console.log('[WebSocket] notification.new:', data);
       this._notificationNew.next(data);
     });
 
     this.socket.on('access.registered', (data: AccessRegisteredEvent) => {
-      console.log('[WebSocket] access.registered:', data);
       this._accessRegistered.next(data);
     });
   }

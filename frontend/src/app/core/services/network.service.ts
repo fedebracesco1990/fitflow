@@ -18,12 +18,10 @@ export class NetworkService {
   private setupListeners(): void {
     window.addEventListener('online', () => {
       this._isOnline.set(true);
-      console.log('[Network] Connection restored');
     });
 
     window.addEventListener('offline', () => {
       this._isOnline.set(false);
-      console.log('[Network] Connection lost');
     });
   }
 }

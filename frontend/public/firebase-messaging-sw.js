@@ -16,8 +16,6 @@ const messaging = firebase.messaging();
 // FCM background handler — only shows native OS notification.
 // In-app notifications are handled by the backend API + WebSocket.
 messaging.onBackgroundMessage((payload) => {
-  console.log('[SW] Background message received:', payload);
-
   const notificationTitle = payload.notification?.title || 'FitFlow';
   const notificationBody = payload.notification?.body || '';
   const tag = payload.data?.timestamp || Date.now().toString();

@@ -53,12 +53,6 @@ import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
       useFactory: (configService: ConfigService) => {
         const synchronize = process.env.DB_SYNCHRONIZE === 'true';
         const logging = process.env.DB_LOGGING === 'true';
-        console.log(
-          'TypeORM Config - synchronize:',
-          synchronize,
-          'DB_SYNCHRONIZE env:',
-          process.env.DB_SYNCHRONIZE
-        );
         return {
           type: 'mysql' as const,
           host: configService.get<string>('database.host'),

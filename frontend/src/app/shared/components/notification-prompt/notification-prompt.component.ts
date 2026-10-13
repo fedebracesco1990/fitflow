@@ -192,10 +192,6 @@ export class NotificationPromptComponent implements OnInit {
             const user = this.store.selectSnapshot(AuthState.user);
             if (user?.userId) {
               localStorage.setItem(`notification_preference_${user.userId}`, 'enabled');
-              console.log(
-                '[NotificationPrompt] Saved preference as enabled for user:',
-                user.userId
-              );
             }
           }
         } catch (error) {
