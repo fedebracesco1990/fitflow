@@ -8,7 +8,7 @@
     "build": "npm run config && ng build --configuration production",
     "build:stats": "npm run config && ng build --configuration production --stats-json",
     "analyze": "npm run build:stats && source-map-explorer browser/**/*.js --html analyze-report.html",
-    "start": "serve -c serve.json -l ${PORT:-4200}",
+    "start": "node scripts/serve.js",
     "watch": "ng build --watch --configuration development",
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
