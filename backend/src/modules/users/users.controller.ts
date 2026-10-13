@@ -73,18 +73,6 @@ export class UsersController {
     return await this.usersService.findAll(userId, role, searchParams);
   }
 
-  @Get('export')
-  @Roles(Role.ADMIN)
-  @HttpCode(HttpStatus.OK)
-  async exportMembers(@Res() res: Response) {
-    const excelBuffer = await this.usersService.exportMembers();
-    res.set({
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition': 'attachment; filename="miembros-fitflow.xlsx"',
-    });
-    res.send(excelBuffer);
-  }
-
   @Get('low-attendance')
   @Roles(Role.ADMIN, Role.TRAINER)
   @HttpCode(HttpStatus.OK)

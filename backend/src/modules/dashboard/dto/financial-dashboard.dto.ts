@@ -26,27 +26,3 @@ export class ExpiringMembershipDto {
   daysUntilExpiration: number;
   membershipTypeName: string;
 }
-
-export class FinancialDashboardDto {
-  // Main KPIs
-  currentMonthRevenue: number;
-  previousMonthRevenue: number;
-  revenueGrowthPercentage: number;
-  todayRevenue: number;
-
-  // Memberships
-  totalActiveMembers: number;
-  totalDebtors: number;
-  expiringInSevenDays: number;
-  activeRoutines: number;
-
-  // Distribution by payment method (current month)
-  paymentMethodDistribution: PaymentMethodDistributionDto[];
-
-  // Monthly revenue (last 6 months)
-  monthlyRevenue: MonthlyRevenueDto[];
-
-  // Lists
-  debtors: DebtorDto[];
-  expiringMemberships: ExpiringMembershipDto[];
-}

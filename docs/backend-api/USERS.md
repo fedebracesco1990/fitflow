@@ -14,7 +14,6 @@ Endpoints para gestión de usuarios y perfiles.
 | GET    | `/users`                     | Listar usuarios          | ADMIN, TRAINER |
 | GET    | `/users/low-attendance`      | Usuarios baja asistencia | ADMIN, TRAINER |
 | GET    | `/users/inactive`            | Usuarios inactivos       | ADMIN, TRAINER |
-| GET    | `/users/export`              | Exportar miembros        | ADMIN          |
 | GET    | `/users/:id`                 | Obtener usuario          | ADMIN, TRAINER |
 | PATCH  | `/users/:id`                 | Actualizar usuario       | ADMIN          |
 | DELETE | `/users/:id`                 | Eliminar usuario         | ADMIN          |

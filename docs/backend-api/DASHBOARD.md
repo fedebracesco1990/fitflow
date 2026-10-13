@@ -1,6 +1,6 @@
 # Dashboard Controller
 
-Endpoints para métricas y estadísticas del sistema.
+Endpoints para métricas, estadísticas y reportes del sistema.
 
 **Ruta base:** `/dashboard`
 
@@ -8,121 +8,72 @@ Endpoints para métricas y estadísticas del sistema.
 
 ## Endpoints
 
-| Método | Ruta                   | Descripción          | Roles |
-| ------ | ---------------------- | -------------------- | ----- |
-| GET    | `/dashboard/financial` | Dashboard financiero | ADMIN |
+| Método | Ruta                            | Descripción                                             | Roles          |
+| ------ | ------------------------------- | ------------------------------------------------------- | -------------- |
+| GET    | `/dashboard`                    | Dashboard según el rol del usuario autenticado          | ADMIN, TRAINER |
+| GET    | `/dashboard/stats`              | KPIs generales del gimnasio                             | ADMIN          |
+| GET    | `/dashboard/reports/financial`  | Reporte financiero de un mes                            | ADMIN          |
+| GET    | `/dashboard/reports/behavior`   | Reporte de comportamiento de los socios                 | ADMIN          |
+| GET    | `/dashboard/reports/export-csv` | Exporta el reporte financiero o de comportamiento a CSV | ADMIN          |
+
+> Los reportes en PDF y Excel están en el módulo de [Reportes](./REPORTS.md).
 
 ---
 
-## GET /dashboard/financial
+## GET /dashboard
 
-Obtiene métricas financieras del gimnasio.
+Devuelve el dashboard que corresponde al rol del usuario:
 
-**Roles:** `ADMIN`
-
-**Response (200):**
-
-```json
-{
-  "currentMonthRevenue": 150000,
-  "previousMonthRevenue": 120000,
-  "revenueGrowthPercentage": 25.0,
-  "totalActiveMembers": 45,
-  "totalDebtors": 5,
-  "expiringInSevenDays": 8,
-  "paymentMethodDistribution": [
-    { "method": "cash", "count": 15, "total": 75000 },
-    { "method": "card", "count": 10, "total": 50000 },
-    { "method": "transfer", "count": 5, "total": 25000 }
-  ],
-  "monthlyRevenue": [
-    { "month": "Jul", "year": 2024, "total": 100000 },
-    { "month": "Ago", "year": 2024, "total": 110000 },
-    { "month": "Sep", "year": 2024, "total": 105000 },
-    { "month": "Oct", "year": 2024, "total": 115000 },
-    { "month": "Nov", "year": 2024, "total": 120000 },
-    { "month": "Dic", "year": 2024, "total": 150000 }
-  ],
-  "debtors": [
-    {
-      "userId": "uuid",
-      "userName": "Juan Pérez",
-      "userEmail": "juan@email.com",
-      "membershipEndDate": "2024-11-15",
-      "daysOverdue": 15
-    }
-  ],
-  "expiringMemberships": [
-    {
-      "userId": "uuid",
-      "userName": "María García",
-      "userEmail": "maria@email.com",
-      "membershipEndDate": "2024-12-05",
-      "daysUntilExpiration": 5,
-      "membershipTypeName": "Mensual"
-    }
-  ]
-}
-```
+- **ADMIN:** KPIs del gimnasio, ingresos mensuales y distribución por método de pago (`AdminDashboardDto`).
+- **TRAINER:** resumen de sus alumnos y rutinas (`TrainerDashboardDto`).
 
 ---
 
-## Campos de Respuesta
+## GET /dashboard/stats
 
-### KPIs Principales
-
-| Campo                   | Tipo   | Descripción                                     |
-| ----------------------- | ------ | ----------------------------------------------- |
-| currentMonthRevenue     | number | Total recaudado en el mes actual                |
-| previousMonthRevenue    | number | Total recaudado en el mes anterior              |
-| revenueGrowthPercentage | number | Porcentaje de crecimiento respecto mes anterior |
-| totalActiveMembers      | number | Cantidad de membresías activas                  |
-| totalDebtors            | number | Cantidad de miembros morosos                    |
-| expiringInSevenDays     | number | Membresías que vencen en los próximos 7 días    |
-
-### Distribución por Método de Pago
-
-| Campo  | Tipo   | Descripción                                  |
-| ------ | ------ | -------------------------------------------- |
-| method | string | Método de pago (cash, card, transfer, other) |
-| count  | number | Cantidad de pagos                            |
-| total  | number | Monto total                                  |
-
-### Ingresos Mensuales
-
-| Campo | Tipo   | Descripción                     |
-| ----- | ------ | ------------------------------- |
-| month | string | Nombre del mes (Ene, Feb, etc.) |
-| year  | number | Año                             |
-| total | number | Total recaudado                 |
-
-### Morosos (Debtors)
-
-| Campo             | Tipo   | Descripción                       |
-| ----------------- | ------ | --------------------------------- |
-| userId            | UUID   | ID del usuario                    |
-| userName          | string | Nombre del usuario                |
-| userEmail         | string | Email del usuario                 |
-| membershipEndDate | date   | Fecha de vencimiento de membresía |
-| daysOverdue       | number | Días de mora                      |
-
-### Membresías por Vencer
-
-| Campo               | Tipo   | Descripción            |
-| ------------------- | ------ | ---------------------- |
-| userId              | UUID   | ID del usuario         |
-| userName            | string | Nombre del usuario     |
-| userEmail           | string | Email del usuario      |
-| membershipEndDate   | date   | Fecha de vencimiento   |
-| daysUntilExpiration | number | Días hasta vencimiento |
-| membershipTypeName  | string | Tipo de membresía      |
+| Campo           | Tipo   | Descripción                                  |
+| --------------- | ------ | -------------------------------------------- |
+| miembrosActivos | number | Membresías activas                           |
+| expiranPronto   | number | Membresías que vencen en los próximos 7 días |
+| morosos         | number | Socios con la membresía vencida              |
+| ingresosMes     | number | Total recaudado en el mes actual             |
+| ingresosHoy     | number | Total recaudado hoy                          |
+| rutinasActivas  | number | Programas asignados activos                  |
 
 ---
 
-## Notas de Implementación
+## GET /dashboard/reports/financial
 
-- Los ingresos se calculan sumando todos los pagos registrados en el período
-- Los morosos son usuarios con membresías expiradas o en período de gracia cuya fecha de fin es anterior a hoy
-- Las membresías por vencer son aquellas activas que vencen en los próximos 7 días
-- El porcentaje de crecimiento se calcula como: `((actual - anterior) / anterior) * 100`
-- Los ingresos mensuales incluyen los últimos 6 meses
+**Query params:** `month` (1-12) y `year`, opcionales. Por defecto, el mes actual.
+
+| Campo           | Tipo   | Descripción                                              |
+| --------------- | ------ | -------------------------------------------------------- |
+| ingresoTotal    | number | Total recaudado en el período                            |
+| transacciones   | number | Cantidad de pagos                                        |
+| morososActuales | number | Socios morosos al momento de la consulta                 |
+| desglose        | array  | Pagos del período: `fecha`, `monto`, `metodo`, `miembro` |
+
+---
+
+## GET /dashboard/reports/behavior
+
+**Query params:** `startDate` y `endDate` (ISO), opcionales.
+
+| Campo              | Tipo   | Descripción                                                                                                   |
+| ------------------ | ------ | ------------------------------------------------------------------------------------------------------------- |
+| visitasPromActivos | number | Visitas promedio de los socios con la cuota al día                                                            |
+| visitasPromMorosos | number | Visitas promedio de los socios morosos                                                                        |
+| rutinasActivas     | number | Socios con un programa activo                                                                                 |
+| totalMembers       | number | Cantidad de socios analizados                                                                                 |
+| analisis           | array  | Por socio: `miembro`, `email`, `estado` (`ACTIVE` / `OVERDUE` / `INACTIVE`), `visitasTotales`, `rutinaActiva` |
+
+---
+
+## GET /dashboard/reports/export-csv
+
+**Query params:**
+
+- `type`: `financial` o `behavior` (obligatorio).
+- `month` y `year` para `financial`; `startDate` y `endDate` para `behavior`.
+
+Devuelve un archivo `text/csv` (`reporte-<type>-<fecha>.csv`). Los campos se escapan: los que contienen comas, comillas o saltos de línea van entre comillas, y los textos que empiezan con `=`, `+`, `-` o `@` se prefijan con `'` para evitar inyección de fórmulas en Excel.

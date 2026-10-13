@@ -20,15 +20,10 @@ interface RawMonthlyRevenueResult {
   total: string;
 }
 import {
-  FinancialDashboardDto,
   PaymentMethodDistributionDto,
   MonthlyRevenueDto,
   DebtorDto,
   ExpiringMembershipDto,
-  ReportsDataDto,
-  RevenueItemDto,
-  AttendanceItemDto,
-  MembershipItemDto,
   DashboardStatsDto,
   FinancialReportDto,
   TransactionItemDto,
@@ -39,23 +34,11 @@ import {
   TrainerStudentSummaryDto,
   UnifiedDashboardDto,
 } from './dto';
-import * as ExcelJS from 'exceljs';
 import { AccessLog } from '../access/entities/access-log.entity';
 
 interface RawRevenueResult {
   year: string;
   month: string;
-  total: string;
-}
-
-interface RawAttendanceResult {
-  date: string;
-  count: string;
-}
-
-interface RawMembershipResult {
-  status: string;
-  count: string;
   total: string;
 }
 
@@ -75,60 +58,6 @@ export class DashboardService {
     @InjectRepository(PersonalRecord)
     private readonly personalRecordRepository: Repository<PersonalRecord>
   ) {}
-
-  async getFinancialDashboard(): Promise<FinancialDashboardDto> {
-    const today = new Date();
-    const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-    const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    const previousMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const previousMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
-
-    // Run queries in parallel
-    const [
-      currentMonthRevenue,
-      previousMonthRevenue,
-      todayRevenue,
-      totalActiveMembers,
-      activeRoutines,
-      debtors,
-      expiringMemberships,
-      paymentMethodDistribution,
-      monthlyRevenue,
-    ] = await Promise.all([
-      this.getCurrentMonthRevenue(currentMonthStart, currentMonthEnd),
-      this.getMonthRevenue(previousMonthStart, previousMonthEnd),
-      this.getTodayRevenue(today),
-      this.getTotalActiveMembers(),
-      this.getActiveRoutinesCount(),
-      this.getDebtors(today),
-      this.getExpiringMemberships(today),
-      this.getPaymentMethodDistribution(currentMonthStart, currentMonthEnd),
-      this.getMonthlyRevenue(6),
-    ]);
-
-    // Calculate growth percentage
-    const revenueGrowthPercentage =
-      previousMonthRevenue > 0
-        ? ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100
-        : currentMonthRevenue > 0
-          ? 100
-          : 0;
-
-    return {
-      currentMonthRevenue,
-      previousMonthRevenue,
-      revenueGrowthPercentage: Math.round(revenueGrowthPercentage * 100) / 100,
-      todayRevenue,
-      totalActiveMembers,
-      totalDebtors: debtors.length,
-      expiringInSevenDays: expiringMemberships.length,
-      activeRoutines,
-      paymentMethodDistribution,
-      monthlyRevenue,
-      debtors,
-      expiringMemberships,
-    };
-  }
 
   async getStats(): Promise<DashboardStatsDto> {
     const today = new Date();
@@ -316,144 +245,6 @@ export class DashboardService {
       year: parseInt(r.year, 10),
       total: parseFloat(r.total) || 0,
     }));
-  }
-
-  async getReportsData(startDate?: Date, endDate?: Date): Promise<ReportsDataDto> {
-    const [revenue, attendance, memberships] = await Promise.all([
-      this.getRevenueData(startDate, endDate),
-      this.getAttendanceData(startDate, endDate),
-      this.getMembershipsData(),
-    ]);
-
-    return {
-      revenue,
-      attendance,
-      memberships,
-    };
-  }
-
-  private async getRevenueData(startDate?: Date, endDate?: Date): Promise<RevenueItemDto[]> {
-    let query = this.paymentRepository
-      .createQueryBuilder('payment')
-      .select('EXTRACT(YEAR FROM payment.paymentDate)', 'year')
-      .addSelect('EXTRACT(MONTH FROM payment.paymentDate)', 'month')
-      .addSelect('SUM(payment.amount)', 'total');
-
-    if (startDate) {
-      query = query.andWhere('payment.paymentDate >= :startDate', { startDate });
-    }
-    if (endDate) {
-      query = query.andWhere('payment.paymentDate <= :endDate', { endDate });
-    }
-
-    const result = await query
-      .groupBy('EXTRACT(YEAR FROM payment.paymentDate)')
-      .addGroupBy('EXTRACT(MONTH FROM payment.paymentDate)')
-      .orderBy('year', 'ASC')
-      .addOrderBy('month', 'ASC')
-      .getRawMany<RawRevenueResult>();
-
-    const monthNames = [
-      'Ene',
-      'Feb',
-      'Mar',
-      'Abr',
-      'May',
-      'Jun',
-      'Jul',
-      'Ago',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dic',
-    ];
-
-    return result.map((r) => ({
-      month: monthNames[parseInt(r.month, 10) - 1],
-      year: parseInt(r.year, 10),
-      total: parseFloat(r.total) || 0,
-    }));
-  }
-
-  private async getAttendanceData(startDate?: Date, endDate?: Date): Promise<AttendanceItemDto[]> {
-    let query = this.accessLogRepository
-      .createQueryBuilder('log')
-      .select('DATE(log.createdAt)', 'date')
-      .addSelect('COUNT(*)', 'count')
-      .where('log.granted = :granted', { granted: true });
-
-    if (startDate) {
-      query = query.andWhere('log.createdAt >= :startDate', { startDate });
-    }
-    if (endDate) {
-      query = query.andWhere('log.createdAt <= :endDate', { endDate });
-    }
-
-    const result = await query
-      .groupBy('DATE(log.createdAt)')
-      .orderBy('date', 'ASC')
-      .getRawMany<RawAttendanceResult>();
-
-    return result.map((r) => ({
-      date: r.date,
-      count: parseInt(r.count, 10),
-    }));
-  }
-
-  private async getMembershipsData(): Promise<MembershipItemDto[]> {
-    const result = await this.membershipRepository
-      .createQueryBuilder('membership')
-      .leftJoin('membership.membershipType', 'type')
-      .select('membership.status', 'status')
-      .addSelect('COUNT(*)', 'count')
-      .addSelect('SUM(type.price)', 'total')
-      .groupBy('membership.status')
-      .getRawMany<RawMembershipResult>();
-
-    const statusTranslations: Record<string, string> = {
-      active: 'Activa',
-      expired: 'Vencida',
-      cancelled: 'Cancelada',
-      grace_period: 'Período de Gracia',
-    };
-
-    return result.map((r) => ({
-      status: statusTranslations[r.status] || r.status,
-      count: parseInt(r.count, 10),
-      total: parseFloat(r.total) || 0,
-    }));
-  }
-
-  async exportReports(startDate?: Date, endDate?: Date): Promise<Buffer> {
-    const data = await this.getReportsData(startDate, endDate);
-
-    const workbook = new ExcelJS.Workbook();
-
-    const revenueSheet = workbook.addWorksheet('Ingresos');
-    revenueSheet.columns = [
-      { header: 'Mes', key: 'month', width: 15 },
-      { header: 'Año', key: 'year', width: 10 },
-      { header: 'Total', key: 'total', width: 15 },
-    ];
-    revenueSheet.addRows(data.revenue);
-
-    const attendanceSheet = workbook.addWorksheet('Asistencia');
-    attendanceSheet.columns = [
-      { header: 'Fecha', key: 'date', width: 15 },
-      { header: 'Cantidad', key: 'count', width: 15 },
-    ];
-    attendanceSheet.addRows(data.attendance);
-
-    const membershipsSheet = workbook.addWorksheet('Membresías');
-    membershipsSheet.columns = [
-      { header: 'Estado', key: 'status', width: 20 },
-      { header: 'Cantidad', key: 'count', width: 15 },
-      { header: 'Total', key: 'total', width: 15 },
-    ];
-    membershipsSheet.addRows(data.memberships);
-
-    const buffer = await workbook.xlsx.writeBuffer();
-    return Buffer.from(buffer);
   }
 
   async getFinancialReport(month?: number, year?: number): Promise<FinancialReportDto> {
