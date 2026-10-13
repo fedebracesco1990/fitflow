@@ -28,6 +28,9 @@ export const validationSchema = Joi.object({
   // CORS
   ALLOWED_ORIGINS: Joi.string().default('http://localhost:4200'),
 
+  // Set to true when running behind a reverse proxy (real client IP for rate limiting)
+  TRUST_PROXY: Joi.boolean().default(false),
+
   // Frontend URL
   FRONTEND_URL: Joi.string().default('http://localhost:4200'),
 
@@ -43,4 +46,12 @@ export const validationSchema = Joi.object({
   SMTP_USER: Joi.string().allow('').optional(),
   SMTP_PASSWORD: Joi.string().allow('').optional(),
   MAIL_FROM: Joi.string().allow('').optional(),
+
+  // First administrator, created only if the database has no admin (production setup)
+  ADMIN_EMAIL: Joi.string()
+    .email({ tlds: { allow: false } })
+    .allow('')
+    .optional(),
+  ADMIN_PASSWORD: Joi.string().min(8).allow('').optional(),
+  ADMIN_NAME: Joi.string().allow('').optional(),
 });

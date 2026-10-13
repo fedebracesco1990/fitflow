@@ -1,0 +1,59 @@
+# Production stack: MySQL + API + Angular app behind nginx, all under one origin.
+# Usage (see docs/DEPLOY.md):
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+
+# Own project name: otherwise it shares the "fitflow" project with docker-compose.yml
+# and replaces the development MySQL container (same service name)
+name: fitflow-prod
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: fitflow-prod-mysql
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env.production}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?set MYSQL_DATABASE in .env.production}
+      MYSQL_USER: ${MYSQL_USER:?set MYSQL_USER in .env.production}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env.production}
+    # Not published to the host: only the backend reaches it
+    volumes:
+      - prod_mysql_data:/var/lib/mysql
+    healthcheck:
+      # $$ escapes compose interpolation: the variable is expanded inside the container
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -u root -p"$$MYSQL_ROOT_PASSWORD"']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  backend:
+    build: ./backend
+    container_name: fitflow-prod-backend
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      NODE_ENV: production
+      DB_HOST: mysql
+      DB_PORT: '3306'
+      # nginx sits in front: take the client IP from X-Forwarded-For
+      TRUST_PROXY: 'true'
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: fitflow-prod-frontend
+    restart: unless-stopped
+    ports:
+      - '${APP_PORT:-8080}:80'
+    depends_on:
+      - backend
+
+volumes:
+  prod_mysql_data:
+    name: fitflow_prod_mysql_data

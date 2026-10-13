@@ -1,0 +1,7 @@
+node_modules
+dist
+browser
+.angular
+src/environments/environment.prod.ts
+env
+*.log

@@ -89,3 +89,6 @@ docs/develop/
 
 # Old backend env file without a dot (contained secrets); use the root .env
 backend/env
+
+# Production environment (docker-compose.prod.yml)
+.env.production
