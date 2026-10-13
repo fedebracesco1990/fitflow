@@ -5,19 +5,20 @@
 ```bash
 # Primera vez
 npm run install:all
-npm run docker:up
-npm run db:wait
-npm run start:backend    # Datos se cargan automáticamente
+cp .env.example .env     # en cmd: copy; completar JWT_SECRET y JWT_REFRESH_SECRET
+npm run dev              # MySQL + Mailpit + backend + frontend (el seed carga datos de prueba)
 
 # Día a día
-npm run dev:backend      # Docker + Backend
-npm run start:frontend   # Frontend (opcional)
+npm run dev
 ```
 
 **URLs:**
 
 - Frontend: http://localhost:4200
 - Backend: http://localhost:3000/api
+- Mailpit (emails de desarrollo): http://localhost:8025
+
+Los scripts funcionan igual en Windows, macOS y Linux.
 
 ---
 
@@ -34,7 +35,8 @@ npm run start:frontend   # Frontend (opcional)
 
 | Comando                  | Descripción                    |
 | ------------------------ | ------------------------------ |
-| `npm run dev:backend`    | Docker + Backend (más usado)   |
+| `npm run dev`            | Docker + Backend + Frontend    |
+| `npm run dev:backend`    | Docker + Backend               |
 | `npm run start:backend`  | Solo backend                   |
 | `npm run start:frontend` | Solo frontend                  |
 | `npm run start:all`      | Frontend + Backend en paralelo |
@@ -58,18 +60,19 @@ npm run start:frontend   # Frontend (opcional)
 
 ### Docker y Base de Datos
 
-| Comando                       | Descripción                    |
-| ----------------------------- | ------------------------------ |
-| `npm run docker:up`           | Iniciar MySQL                  |
-| `npm run docker:down`         | Detener MySQL (mantiene datos) |
-| `npm run docker:down:volumes` | Detener y borrar datos         |
-| `npm run docker:logs`         | Ver logs de MySQL              |
-| `npm run docker:restart`      | Reiniciar MySQL                |
-| `npm run db:wait`             | Esperar MySQL (35s)            |
-| `npm run db:status`           | Ver bases de datos             |
-| `npm run db:health`           | Estado del contenedor          |
-| `npm run db:verify`           | Ver usuarios creados           |
-| `npm run db:reset`            | Reset completo                 |
+| Comando                       | Descripción                                           |
+| ----------------------------- | ----------------------------------------------------- |
+| `npm run docker:up`           | Iniciar MySQL y Mailpit, y esperar a que estén listos |
+| `npm run docker:down`         | Detener MySQL (mantiene datos)                        |
+| `npm run docker:down:volumes` | Detener y borrar datos                                |
+| `npm run docker:logs`         | Ver logs de MySQL                                     |
+| `npm run docker:restart`      | Reiniciar MySQL                                       |
+| `npm run db:wait`             | Esperar a que MySQL esté listo (healthcheck)          |
+| `npm run db:status`           | Ver bases de datos                                    |
+| `npm run db:health`           | Estado del contenedor                                 |
+| `npm run db:verify`           | Ver usuarios creados                                  |
+| `npm run db:verify:count`     | Contar usuarios                                       |
+| `npm run db:reset`            | Reset completo (**borra los datos**)                  |
 
 ---
 
@@ -79,7 +82,7 @@ npm run start:frontend   # Frontend (opcional)
 
 ```bash
 npm run dev            # Desarrollo (puerto 4200)
-npm start              # Producción con serve (para Railway)
+npm start              # Sirve el build de producción ($PORT, 4200 por defecto)
 npm run build          # Build producción
 npm run lint           # ESLint
 npm run lint:fix       # ESLint con fix
@@ -148,10 +151,9 @@ nest g co modules/[name]/[name]           # Controller
 ### Reset Completo de BD
 
 ```bash
-npm run docker:down:volumes
-npm run docker:up
-npm run db:wait
-npm run start:backend    # Datos se cargan automáticamente
+npm run docker:down:volumes   # borra los datos
+npm run docker:up             # espera a que MySQL esté listo
+npm run start:backend         # el seed vuelve a cargar los datos de prueba
 ```
 
 ### Nueva Feature
@@ -177,9 +179,13 @@ git push origin feature/nombre
 ### Puerto en uso
 
 ```bash
+# Windows
 netstat -ano | findstr :3000
-netstat -ano | findstr :4200
 taskkill /PID <PID> /F
+
+# macOS / Linux
+lsof -i :3000
+kill <PID>
 ```
 
 ### MySQL no conecta
@@ -201,22 +207,20 @@ npm run install:all
 
 ## Variables de Entorno (.env)
 
-```env
-# MySQL
-MYSQL_ROOT_PASSWORD=rootpassword123
-MYSQL_DATABASE=fit_flow_db
-MYSQL_USER=devuser
-MYSQL_PASSWORD=devpassword123
+Todas las variables están documentadas en [`.env.example`](../.env.example), en la raíz del repo. El `.env` de la raíz lo leen tanto `docker-compose` como el backend.
 
-# Backend
-DB_HOST=localhost
-DB_PORT=3306
-DB_USERNAME=devuser
-DB_PASSWORD=devpassword123
-DB_DATABASE=fit_flow_db
+| Grupo               | Variables                                                                                                   | Obligatorias                        |
+| ------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| MySQL (Docker)      | `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`                                     | Sí, para `docker-compose`           |
+| Base de datos       | `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE`, `DB_SSL`, `DB_SYNCHRONIZE`, `DB_LOGGING` | Host, usuario, clave y base         |
+| Aplicación          | `NODE_ENV`, `PORT`, `FRONTEND_URL`, `ALLOWED_ORIGINS`                                                       | No (tienen valor por defecto)       |
+| JWT                 | `JWT_SECRET`, `JWT_REFRESH_SECRET`, `JWT_ACCESS_TOKEN_EXPIRATION`, `JWT_REFRESH_TOKEN_EXPIRATION`           | Los dos secretos (32+ caracteres)   |
+| QR de acceso        | `QR_JWT_SECRET`, `QR_JWT_EXPIRES_IN`                                                                        | No                                  |
+| Notificaciones push | `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`                                      | No (sin ellas no hay push)          |
+| Email               | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM`                          | No (sin `SMTP_HOST` solo se loguea) |
 
-# JWT
-JWT_SECRET=tu-secret-key
-JWT_ACCESS_TOKEN_EXPIRATION=2700
-JWT_REFRESH_TOKEN_EXPIRATION=604800
+Para generar un secreto:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```

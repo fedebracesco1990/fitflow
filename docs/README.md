@@ -22,21 +22,19 @@ Aplicación full-stack con **Angular 20** y **NestJS 11** + MySQL.
 # 1. Instalar dependencias
 npm run install:all
 
-# 2. Iniciar MySQL
-npm run docker:up
-npm run db:wait
+# 2. Configurar variables (completar JWT_SECRET y JWT_REFRESH_SECRET)
+cp .env.example .env    # en cmd: copy
 
-# 3. Iniciar backend (los datos se cargan automáticamente)
-npm run start:backend
-
-# 4. Iniciar frontend (Terminal 2)
-npm run start:frontend
+# 3. Levantar todo: MySQL + Mailpit + backend + frontend
+#    (el backend carga datos de prueba automáticamente)
+npm run dev
 ```
 
 **URLs:**
 
 - Frontend: http://localhost:4200
 - Backend API: http://localhost:3000/api
+- Mailpit (emails de desarrollo): http://localhost:8025
 
 ## Estructura
 
@@ -94,8 +92,8 @@ fitflow/
 ## Comandos Principales
 
 ```bash
-npm run dev:backend      # Docker + Backend (día a día)
-npm run start:all        # Frontend + Backend
+npm run dev              # Docker + Backend + Frontend (día a día)
+npm run dev:backend      # Docker + Backend
 npm run build            # Build completo
 npm run lint:fix         # Lint con auto-fix
 ```
