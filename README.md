@@ -15,7 +15,7 @@ Aplicación web para la gestión de gimnasios: socios, membresías y pagos, ruti
 
 ## Inicio rápido
 
-Requisitos: Node.js 20.19 o superior y Docker Desktop.
+Requisitos: Node.js 24 (ver `.nvmrc`; con npm 10 o anterior `npm ci` no acepta los lockfiles) y Docker Desktop.
 
 ```bash
 npm run install:all
