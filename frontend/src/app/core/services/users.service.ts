@@ -32,10 +32,6 @@ export class UsersService {
     return this.http.get<PaginatedResponse<User>>(`${this.baseUrl}/users`, { params: httpParams });
   }
 
-  exportMembers(): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/users/export`, { responseType: 'blob' });
-  }
-
   getInactiveUsers(params?: InactiveUsersQueryParams): Observable<InactiveUsersResponse> {
     let httpParams = new HttpParams();
     if (params?.daysSinceLastVisit) {

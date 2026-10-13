@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { FinancialDashboard, DashboardStats, UnifiedDashboard } from '../models';
+import { DashboardStats, UnifiedDashboard } from '../models';
 
 @Injectable({
   providedIn: 'root',
@@ -11,10 +11,6 @@ export class DashboardService {
 
   getStats(): Observable<DashboardStats> {
     return this.api.get<DashboardStats>('dashboard/stats');
-  }
-
-  getFinancialDashboard(): Observable<FinancialDashboard> {
-    return this.api.get<FinancialDashboard>('dashboard/financial');
   }
 
   getUnifiedDashboard(): Observable<UnifiedDashboard> {
