@@ -34,6 +34,17 @@ services:
       retries: 10
       start_period: 30s
 
+  # Development mail catcher: SMTP on 1025, web UI at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.31.2
+    container_name: fitflow-mailpit
+    restart: unless-stopped
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+    networks:
+      - app-network
+
 volumes:
   mysql_data:
     driver: local

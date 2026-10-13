@@ -176,6 +176,8 @@ Solicita un token para restablecer la contraseña.
 
 > **Desarrollo:** En modo development, la respuesta incluye `_devOnly.resetLink` para testing.
 
+> **Email:** el backend envía el enlace (válido por 1 hora) por SMTP, configurado con `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD` y `MAIL_FROM`. Sirve cualquier proveedor SMTP (Gmail con contraseña de aplicación, Resend, etc.). En desarrollo, `docker-compose` levanta **Mailpit**: los emails quedan en `http://localhost:8025` y no se envía nada real. Si `SMTP_HOST` está vacío, el email no se envía y solo se registra en el log.
+
 ---
 
 ## POST /auth/reset-password

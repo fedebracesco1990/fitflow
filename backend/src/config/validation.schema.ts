@@ -35,4 +35,12 @@ export const validationSchema = Joi.object({
   FIREBASE_PROJECT_ID: Joi.string().optional(),
   FIREBASE_CLIENT_EMAIL: Joi.string().optional(),
   FIREBASE_PRIVATE_KEY: Joi.string().optional(),
+
+  // Email (SMTP). Without SMTP_HOST, emails are only logged
+  SMTP_HOST: Joi.string().allow('').optional(),
+  SMTP_PORT: Joi.number().default(587),
+  SMTP_SECURE: Joi.boolean().default(false),
+  SMTP_USER: Joi.string().allow('').optional(),
+  SMTP_PASSWORD: Joi.string().allow('').optional(),
+  MAIL_FROM: Joi.string().allow('').optional(),
 });

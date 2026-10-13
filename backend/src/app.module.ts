@@ -25,6 +25,7 @@ import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import qrConfig from './config/qr.config';
 import firebaseConfig from './config/firebase.config';
+import mailConfig from './config/mail.config';
 import { validationSchema } from './config/validation.schema';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -41,7 +42,7 @@ import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', '../.env'],
-      load: [appConfig, databaseConfig, jwtConfig, qrConfig, firebaseConfig],
+      load: [appConfig, databaseConfig, jwtConfig, qrConfig, firebaseConfig, mailConfig],
       validationSchema: validationSchema,
       validationOptions: {
         allowUnknown: true,

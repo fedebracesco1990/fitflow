@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { JwtPayload } from './interfaces/jwt-payload.interface';
 import type { TokensResponse } from './interfaces/tokens-response.interface';
 import { AuthAuditLogService } from './auth-audit-log.service';
+import { MailService } from '../mail/mail.service';
 
 interface AuthRequestContext {
   ipAddress: string | null;
@@ -26,7 +27,8 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly auditLogService: AuthAuditLogService
+    private readonly auditLogService: AuthAuditLogService,
+    private readonly mailService: MailService
   ) {}
 
   async register(registerDto: RegisterDto): Promise<TokensResponse> {
@@ -171,10 +173,9 @@ export class AuthService {
       const frontendUrl = this.configService.getOrThrow<string>('app.frontendUrl');
       const resetLink = `${frontendUrl}/auth/reset-password?token=${token}&userId=${user.id}`;
 
-      // TODO: Send a real email with the resetLink
-      // await this.emailService.sendPasswordResetEmail(user.email, resetLink);
+      await this.mailService.sendPasswordReset(user.email, user.name, resetLink);
 
-      // Only show the link in development for testing
+      // Also return the link in development, so it works without an SMTP server
       if (this.configService.get<string>('app.nodeEnv') === 'development') {
         return {
           ...genericResponse,
