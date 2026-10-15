@@ -38,8 +38,8 @@ Authorization: Bearer <access_token>
 | [Notifications](./NOTIFICATIONS.md)       | `/notifications`                | Notificaciones push (FCM)                                         |
 | [QR](./QR.md)                             | `/users`, `/access`             | Códigos QR (endpoints en `/users` y `/access`)                    |
 | [WebSocket](./WEBSOCKET.md)               | `/events` (namespace Socket.IO) | Comunicación en tiempo real                                       |
-| Audit Logs (sin doc)                      | `/audit-logs`                   | `GET` historial de auditoría, paginado y filtrable (ADMIN)        |
-| Scheduler (sin doc)                       | `/scheduler`                    | `POST trigger/*` ejecuta manualmente los jobs programados (ADMIN) |
+| [Audit Logs](./AUDIT_LOGS.md)             | `/audit-logs`                   | `GET` historial de auditoría, paginado y filtrable (ADMIN)        |
+| [Scheduler](./SCHEDULER.md)               | `/scheduler`                    | `POST trigger/*` ejecuta manualmente los jobs programados (ADMIN) |
 
 ## Roles
 

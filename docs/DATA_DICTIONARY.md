@@ -4,7 +4,7 @@ Este documento describe en detalle cada entidad de la base de datos, sus campos,
 
 > **Última actualización**: Febrero 2026
 >
-> **Total de Entidades**: 22
+> **Total de Entidades**: 24
 
 ---
 
@@ -17,7 +17,8 @@ Este documento describe en detalle cada entidad de la base de datos, sus campos,
 5. [Módulo Rutinas](#módulo-rutinas)
 6. [Módulo Programas](#módulo-programas)
 7. [Módulo Entrenamientos](#módulo-entrenamientos)
-8. [Enums](#enums)
+8. [Módulo Auditoría](#módulo-auditoría)
+9. [Enums](#enums)
 
 ---
 
@@ -27,19 +28,21 @@ Este documento describe en detalle cada entidad de la base de datos, sus campos,
 
 Tabla: `users`
 
-| Campo                    | Tipo         | Nullable | Default | Descripción                       |
-| ------------------------ | ------------ | -------- | ------- | --------------------------------- |
-| `id`                     | UUID         | No       | auto    | Identificador único               |
-| `name`                   | VARCHAR(100) | No       | -       | Nombre completo                   |
-| `email`                  | VARCHAR(255) | No       | -       | Email único (lowercase)           |
-| `password`               | VARCHAR      | No       | -       | Hash bcrypt (select: false)       |
-| `role`                   | ENUM(Role)   | No       | 'user'  | Rol del usuario                   |
-| `refreshToken`           | VARCHAR      | Sí       | null    | Token de refresco (select: false) |
-| `resetPasswordTokenHash` | VARCHAR      | Sí       | null    | Hash para reset password          |
-| `resetPasswordExpires`   | TIMESTAMP    | Sí       | null    | Expiración del token reset        |
-| `isActive`               | BOOLEAN      | No       | true    | Usuario activo/inactivo           |
-| `createdAt`              | DATETIME     | No       | auto    | Fecha de creación                 |
-| `updatedAt`              | DATETIME     | No       | auto    | Última actualización              |
+| Campo                    | Tipo         | Nullable | Default | Descripción                              |
+| ------------------------ | ------------ | -------- | ------- | ---------------------------------------- |
+| `id`                     | UUID         | No       | auto    | Identificador único                      |
+| `name`                   | VARCHAR(100) | No       | -       | Nombre completo                          |
+| `email`                  | VARCHAR(255) | No       | -       | Email único (lowercase)                  |
+| `password`               | VARCHAR      | No       | -       | Hash bcrypt (select: false)              |
+| `role`                   | ENUM(Role)   | No       | 'user'  | Rol del usuario                          |
+| `refreshToken`           | VARCHAR      | Sí       | null    | Token de refresco (select: false)        |
+| `resetPasswordTokenHash` | VARCHAR      | Sí       | null    | Hash para reset password (select: false) |
+| `resetPasswordExpires`   | TIMESTAMP    | Sí       | null    | Expiración del token reset               |
+| `failedLoginAttempts`    | INT          | No       | 0       | Intentos de login fallidos               |
+| `lockedUntil`            | TIMESTAMP    | Sí       | null    | Cuenta bloqueada hasta                   |
+| `isActive`               | BOOLEAN      | No       | true    | Usuario activo/inactivo                  |
+| `createdAt`              | DATETIME     | No       | auto    | Fecha de creación                        |
+| `updatedAt`              | DATETIME     | No       | auto    | Última actualización                     |
 
 **Relaciones:**
 
@@ -129,6 +132,7 @@ Tabla: `payments`
 | `registeredById` | UUID                | Sí       | null    | Quién registró (FK)     |
 | `createdAt`      | DATETIME            | No       | auto    | Fecha de creación       |
 | `updatedAt`      | DATETIME            | No       | auto    | Última actualización    |
+| `deletedAt`      | DATETIME            | Sí       | null    | Soft delete             |
 
 **Relaciones:**
 
@@ -147,8 +151,8 @@ Tabla: `notification_templates`
 | ----------- | ---------------------- | -------- | ------- | ---------------------- |
 | `id`        | UUID                   | No       | auto    | Identificador único    |
 | `type`      | ENUM(NotificationType) | No       | -       | Tipo único             |
-| `title`     | VARCHAR(200)           | No       | -       | Título de la plantilla |
-| `body`      | VARCHAR(1000)          | No       | -       | Cuerpo del mensaje     |
+| `title`     | VARCHAR(100)           | No       | -       | Título de la plantilla |
+| `body`      | VARCHAR(500)           | No       | -       | Cuerpo del mensaje     |
 | `isActive`  | BOOLEAN                | No       | true    | Plantilla activa       |
 | `createdAt` | DATETIME               | No       | auto    | Fecha de creación      |
 | `updatedAt` | DATETIME               | No       | auto    | Última actualización   |
@@ -163,10 +167,14 @@ Tabla: `device_tokens`
 | ----------- | -------------------- | -------- | ------- | ---------------------------- |
 | `id`        | UUID                 | No       | auto    | Identificador único          |
 | `userId`    | UUID                 | No       | -       | Usuario (FK)                 |
-| `token`     | VARCHAR              | No       | -       | Token del dispositivo        |
-| `platform`  | ENUM(DevicePlatform) | No       | -       | Plataforma (web/android/ios) |
+| `token`     | VARCHAR(500)         | No       | -       | Token del dispositivo        |
+| `platform`  | ENUM(DevicePlatform) | No       | 'web'   | Plataforma (web/android/ios) |
 | `createdAt` | DATETIME             | No       | auto    | Fecha de creación            |
 | `updatedAt` | DATETIME             | No       | auto    | Última actualización         |
+
+**Índices:**
+
+- `(userId, token)` - UNIQUE
 
 **Relaciones:**
 
@@ -185,8 +193,8 @@ Tabla: `notifications`
 | `body`         | VARCHAR(1000)                | No       | -       | Cuerpo del mensaje       |
 | `type`         | VARCHAR(50)                  | Sí       | null    | Tipo de notificación     |
 | `targetType`   | ENUM(NotificationTargetType) | No       | 'user'  | Destino (user/broadcast) |
-| `targetUserId` | UUID                         | Sí       | null    | Usuario destino (FK)     |
-| `senderUserId` | UUID                         | Sí       | null    | Usuario que envía (FK)   |
+| `targetUserId` | VARCHAR(36)                  | Sí       | null    | Usuario destino (FK)     |
+| `senderUserId` | VARCHAR(36)                  | Sí       | null    | Usuario que envía (FK)   |
 | `data`         | JSON                         | Sí       | null    | Datos adicionales        |
 | `createdAt`    | DATETIME                     | No       | auto    | Fecha de creación        |
 
@@ -206,12 +214,16 @@ Tabla: `notifications`
 
 Tabla: `notification_reads`
 
-| Campo            | Tipo     | Nullable | Default | Descripción           |
-| ---------------- | -------- | -------- | ------- | --------------------- |
-| `id`             | UUID     | No       | auto    | Identificador único   |
-| `notificationId` | UUID     | No       | -       | Notificación (FK)     |
-| `userId`         | UUID     | No       | -       | Usuario que leyó (FK) |
-| `readAt`         | DATETIME | No       | auto    | Fecha de lectura      |
+| Campo            | Tipo        | Nullable | Default | Descripción           |
+| ---------------- | ----------- | -------- | ------- | --------------------- |
+| `id`             | UUID        | No       | auto    | Identificador único   |
+| `notificationId` | VARCHAR(36) | No       | -       | Notificación (FK)     |
+| `userId`         | VARCHAR(36) | No       | -       | Usuario que leyó (FK) |
+| `readAt`         | DATETIME    | No       | auto    | Fecha de lectura      |
+
+**Índices:**
+
+- `(notificationId, userId)` - UNIQUE
 
 **Relaciones:**
 
@@ -226,17 +238,17 @@ Tabla: `notification_reads`
 
 Tabla: `muscle_groups`
 
-| Campo         | Tipo     | Nullable | Default | Descripción                |
-| ------------- | -------- | -------- | ------- | -------------------------- |
-| `id`          | UUID     | No       | auto    | Identificador único        |
-| `code`        | VARCHAR  | No       | -       | Código único (ej: 'chest') |
-| `name`        | VARCHAR  | No       | -       | Nombre (ej: 'Pecho')       |
-| `description` | TEXT     | Sí       | null    | Descripción                |
-| `icon`        | VARCHAR  | Sí       | null    | Icono                      |
-| `order`       | INT      | No       | 0       | Orden de visualización     |
-| `isActive`    | BOOLEAN  | No       | true    | Activo                     |
-| `createdAt`   | DATETIME | No       | auto    | Fecha de creación          |
-| `updatedAt`   | DATETIME | No       | auto    | Última actualización       |
+| Campo         | Tipo         | Nullable | Default | Descripción                |
+| ------------- | ------------ | -------- | ------- | -------------------------- |
+| `id`          | UUID         | No       | auto    | Identificador único        |
+| `code`        | VARCHAR(50)  | No       | -       | Código único (ej: 'chest') |
+| `name`        | VARCHAR(100) | No       | -       | Nombre (ej: 'Pecho')       |
+| `description` | TEXT         | Sí       | null    | Descripción                |
+| `icon`        | VARCHAR(10)  | Sí       | null    | Icono                      |
+| `order`       | INT          | No       | 0       | Orden de visualización     |
+| `isActive`    | BOOLEAN      | No       | true    | Activo                     |
+| `createdAt`   | DATETIME     | No       | auto    | Fecha de creación          |
+| `updatedAt`   | DATETIME     | No       | auto    | Última actualización       |
 
 ---
 
@@ -303,12 +315,12 @@ Tabla: `routine_exercises`
 | `id`              | UUID            | No       | auto    | Identificador único |
 | `routineId`       | UUID            | No       | -       | Rutina (FK)         |
 | `exerciseId`      | UUID            | No       | -       | Ejercicio (FK)      |
-| `order`           | INT             | No       | 0       | Orden en la rutina  |
+| `order`           | INT             | No       | 1       | Orden en la rutina  |
 | `sets`            | INT             | No       | 3       | Número de series    |
-| `reps`            | INT             | No       | 10      | Repeticiones        |
+| `reps`            | INT             | No       | 12      | Repeticiones        |
 | `restSeconds`     | INT             | No       | 60      | Descanso (seg)      |
 | `notes`           | TEXT            | Sí       | null    | Notas               |
-| `suggestedWeight` | DECIMAL         | Sí       | null    | Peso sugerido       |
+| `suggestedWeight` | DECIMAL(5,2)    | Sí       | null    | Peso sugerido       |
 | `dayOfWeek`       | ENUM(DayOfWeek) | Sí       | null    | Día de la semana    |
 
 **Relaciones:**
@@ -352,7 +364,7 @@ Tabla: `program_routines`
 | `id`        | UUID     | No       | auto    | Identificador único  |
 | `programId` | UUID     | No       | -       | Programa (FK)        |
 | `routineId` | UUID     | No       | -       | Rutina base (FK)     |
-| `order`     | INT      | No       | 0       | Orden en el programa |
+| `order`     | INT      | No       | 1       | Orden en el programa |
 | `createdAt` | DATETIME | No       | auto    | Fecha de creación    |
 
 **Relaciones:**
@@ -367,18 +379,18 @@ Tabla: `program_routines`
 
 Tabla: `program_routine_exercises`
 
-| Campo              | Tipo     | Nullable | Default | Descripción         |
-| ------------------ | -------- | -------- | ------- | ------------------- |
-| `id`               | UUID     | No       | auto    | Identificador único |
-| `programRoutineId` | UUID     | No       | -       | ProgramRoutine (FK) |
-| `exerciseId`       | UUID     | No       | -       | Ejercicio (FK)      |
-| `order`            | INT      | No       | 0       | Orden               |
-| `sets`             | INT      | No       | 3       | Series              |
-| `reps`             | INT      | No       | 10      | Repeticiones        |
-| `restSeconds`      | INT      | No       | 60      | Descanso            |
-| `weight`           | DECIMAL  | Sí       | null    | Peso personalizado  |
-| `notes`            | TEXT     | Sí       | null    | Notas               |
-| `createdAt`        | DATETIME | No       | auto    | Fecha de creación   |
+| Campo              | Tipo         | Nullable | Default | Descripción         |
+| ------------------ | ------------ | -------- | ------- | ------------------- |
+| `id`               | UUID         | No       | auto    | Identificador único |
+| `programRoutineId` | UUID         | No       | -       | ProgramRoutine (FK) |
+| `exerciseId`       | UUID         | No       | -       | Ejercicio (FK)      |
+| `order`            | INT          | No       | 1       | Orden               |
+| `sets`             | INT          | No       | 3       | Series              |
+| `reps`             | INT          | No       | 12      | Repeticiones        |
+| `restSeconds`      | INT          | No       | 60      | Descanso            |
+| `weight`           | DECIMAL(5,2) | Sí       | null    | Peso personalizado  |
+| `notes`            | TEXT         | Sí       | null    | Notas               |
+| `createdAt`        | DATETIME     | No       | auto    | Fecha de creación   |
 
 **Relaciones:**
 
@@ -425,9 +437,9 @@ Tabla: `user_program_routines`
 | `originalRoutineId` | UUID         | Sí       | null    | Rutina original (FK) |
 | `name`              | VARCHAR(100) | No       | -       | Nombre copiado       |
 | `description`       | TEXT         | Sí       | null    | Descripción copiada  |
-| `order`             | INT          | No       | 0       | Orden                |
+| `order`             | INT          | No       | 1       | Orden                |
 | `estimatedDuration` | INT          | No       | 60      | Duración (min)       |
-| `lastCompletedAt`   | DATETIME     | Sí       | null    | Último completado    |
+| `lastCompletedAt`   | TIMESTAMP    | Sí       | null    | Último completado    |
 | `createdAt`         | DATETIME     | No       | auto    | Fecha de creación    |
 
 **Relaciones:**
@@ -435,7 +447,6 @@ Tabla: `user_program_routines`
 - `ManyToOne` → UserProgram (userProgramId) - CASCADE
 - `ManyToOne` → Routine (originalRoutineId) - SET NULL
 - `OneToMany` → UserProgramExercise (cascade)
-- `OneToMany` → WorkoutLog
 
 ---
 
@@ -443,19 +454,19 @@ Tabla: `user_program_routines`
 
 Tabla: `user_program_exercises`
 
-| Campo                  | Tipo     | Nullable | Default | Descripción             |
-| ---------------------- | -------- | -------- | ------- | ----------------------- |
-| `id`                   | UUID     | No       | auto    | Identificador único     |
-| `userProgramRoutineId` | UUID     | No       | -       | UserProgramRoutine (FK) |
-| `exerciseId`           | UUID     | No       | -       | Ejercicio (FK)          |
-| `order`                | INT      | No       | 0       | Orden                   |
-| `sets`                 | INT      | No       | 3       | Series                  |
-| `reps`                 | INT      | No       | 10      | Repeticiones            |
-| `restSeconds`          | INT      | No       | 60      | Descanso                |
-| `weight`               | DECIMAL  | Sí       | null    | Peso personalizado      |
-| `notes`                | TEXT     | Sí       | null    | Notas                   |
-| `createdAt`            | DATETIME | No       | auto    | Fecha de creación       |
-| `updatedAt`            | DATETIME | No       | auto    | Última actualización    |
+| Campo                  | Tipo         | Nullable | Default | Descripción             |
+| ---------------------- | ------------ | -------- | ------- | ----------------------- |
+| `id`                   | UUID         | No       | auto    | Identificador único     |
+| `userProgramRoutineId` | UUID         | No       | -       | UserProgramRoutine (FK) |
+| `exerciseId`           | UUID         | No       | -       | Ejercicio (FK)          |
+| `order`                | INT          | No       | 1       | Orden                   |
+| `sets`                 | INT          | No       | 3       | Series                  |
+| `reps`                 | INT          | No       | 12      | Repeticiones            |
+| `restSeconds`          | INT          | No       | 60      | Descanso                |
+| `weight`               | DECIMAL(5,2) | Sí       | null    | Peso personalizado      |
+| `notes`                | TEXT         | Sí       | null    | Notas                   |
+| `createdAt`            | DATETIME     | No       | auto    | Fecha de creación       |
+| `updatedAt`            | DATETIME     | No       | auto    | Última actualización    |
 
 **Relaciones:**
 
@@ -492,18 +503,18 @@ Tabla: `workout_logs`
 
 Tabla: `exercise_logs`
 
-| Campo          | Tipo    | Nullable | Default | Descripción                |
-| -------------- | ------- | -------- | ------- | -------------------------- |
-| `id`           | UUID    | No       | auto    | Identificador único        |
-| `workoutLogId` | UUID    | No       | -       | WorkoutLog (FK)            |
-| `exerciseId`   | UUID    | No       | -       | Ejercicio (FK)             |
-| `setNumber`    | INT     | No       | -       | Número de serie            |
-| `reps`         | INT     | No       | -       | Repeticiones realizadas    |
-| `weight`       | DECIMAL | No       | -       | Peso usado                 |
-| `completed`    | BOOLEAN | No       | true    | Serie completada           |
-| `notes`        | TEXT    | Sí       | null    | Notas                      |
-| `rir`          | INT     | Sí       | null    | Reps In Reserve            |
-| `rpe`          | DECIMAL | Sí       | null    | Rate of Perceived Exertion |
+| Campo          | Tipo         | Nullable | Default | Descripción                       |
+| -------------- | ------------ | -------- | ------- | --------------------------------- |
+| `id`           | UUID         | No       | auto    | Identificador único               |
+| `workoutLogId` | UUID         | No       | -       | WorkoutLog (FK)                   |
+| `exerciseId`   | UUID         | No       | -       | Ejercicio (FK)                    |
+| `setNumber`    | INT          | No       | -       | Número de serie                   |
+| `reps`         | INT          | No       | -       | Repeticiones realizadas           |
+| `weight`       | DECIMAL(6,2) | Sí       | null    | Peso usado (kg)                   |
+| `completed`    | BOOLEAN      | No       | false   | Serie completada                  |
+| `notes`        | TEXT         | Sí       | null    | Notas                             |
+| `rir`          | INT          | Sí       | null    | Reps In Reserve (0-5)             |
+| `rpe`          | DECIMAL(3,1) | Sí       | null    | Rate of Perceived Exertion (1-10) |
 
 **Relaciones:**
 
@@ -516,25 +527,67 @@ Tabla: `exercise_logs`
 
 Tabla: `personal_records`
 
-| Campo                 | Tipo     | Nullable | Default | Descripción                  |
-| --------------------- | -------- | -------- | ------- | ---------------------------- |
-| `id`                  | UUID     | No       | auto    | Identificador único          |
-| `userId`              | UUID     | No       | -       | Usuario (FK)                 |
-| `exerciseId`          | UUID     | No       | -       | Ejercicio (FK)               |
-| `maxWeight`           | DECIMAL  | No       | -       | Peso máximo                  |
-| `maxWeightReps`       | INT      | No       | -       | Reps con peso máximo         |
-| `maxWeightAchievedAt` | DATETIME | No       | -       | Fecha del récord             |
-| `maxVolume`           | DECIMAL  | Sí       | null    | Volumen máximo (peso × reps) |
-| `maxVolumeWeight`     | DECIMAL  | Sí       | null    | Peso del récord volumen      |
-| `maxVolumeReps`       | INT      | Sí       | null    | Reps del récord volumen      |
-| `maxVolumeAchievedAt` | DATETIME | Sí       | null    | Fecha récord volumen         |
-| `createdAt`           | DATETIME | No       | auto    | Fecha de creación            |
-| `updatedAt`           | DATETIME | No       | auto    | Última actualización         |
+| Campo                 | Tipo          | Nullable | Default | Descripción                  |
+| --------------------- | ------------- | -------- | ------- | ---------------------------- |
+| `id`                  | UUID          | No       | auto    | Identificador único          |
+| `userId`              | UUID          | No       | -       | Usuario (FK)                 |
+| `exerciseId`          | UUID          | No       | -       | Ejercicio (FK)               |
+| `maxWeight`           | DECIMAL(6,2)  | Sí       | null    | Peso máximo                  |
+| `maxWeightReps`       | INT           | Sí       | null    | Reps con peso máximo         |
+| `maxWeightAchievedAt` | TIMESTAMP     | Sí       | null    | Fecha del récord             |
+| `maxVolume`           | DECIMAL(10,2) | Sí       | null    | Volumen máximo (peso × reps) |
+| `maxVolumeWeight`     | DECIMAL(6,2)  | Sí       | null    | Peso del récord volumen      |
+| `maxVolumeReps`       | INT           | Sí       | null    | Reps del récord volumen      |
+| `maxVolumeAchievedAt` | TIMESTAMP     | Sí       | null    | Fecha récord volumen         |
+| `createdAt`           | DATETIME      | No       | auto    | Fecha de creación            |
+| `updatedAt`           | DATETIME      | No       | auto    | Última actualización         |
+
+**Índices:**
+
+- `(userId, exerciseId)` - UNIQUE
 
 **Relaciones:**
 
 - `ManyToOne` → User (userId) - CASCADE
 - `ManyToOne` → Exercise (exerciseId) - CASCADE
+
+---
+
+## Módulo Auditoría
+
+### AuditLog
+
+Tabla: `audit_logs`
+
+| Campo           | Tipo              | Nullable | Default | Descripción                        |
+| --------------- | ----------------- | -------- | ------- | ---------------------------------- |
+| `id`            | UUID              | No       | auto    | Identificador único                |
+| `action`        | ENUM(AuditAction) | No       | -       | Acción (CREATE/UPDATE/DELETE)      |
+| `entity`        | VARCHAR(100)      | No       | -       | Entidad afectada                   |
+| `entityId`      | UUID              | Sí       | null    | ID del registro afectado           |
+| `performedById` | UUID              | Sí       | null    | Usuario que realizó la acción (FK) |
+| `details`       | JSON              | Sí       | null    | Detalles adicionales               |
+| `createdAt`     | DATETIME          | No       | auto    | Fecha del evento                   |
+
+**Relaciones:**
+
+- `ManyToOne` → User (performedById) - SET NULL
+
+---
+
+### AuthAuditLog
+
+Tabla: `auth_audit_logs`
+
+| Campo       | Tipo         | Nullable | Default | Descripción                     |
+| ----------- | ------------ | -------- | ------- | ------------------------------- |
+| `id`        | UUID         | No       | auto    | Identificador único             |
+| `event`     | VARCHAR(50)  | No       | -       | Tipo de evento (AuditEventType) |
+| `email`     | VARCHAR(255) | Sí       | null    | Email involucrado               |
+| `userId`    | VARCHAR(36)  | Sí       | null    | Usuario (sin FK)                |
+| `ipAddress` | VARCHAR(45)  | Sí       | null    | IP de origen                    |
+| `userAgent` | VARCHAR(500) | Sí       | null    | User agent del cliente          |
+| `createdAt` | DATETIME     | No       | auto    | Fecha del evento                |
 
 ---
 
@@ -576,7 +629,9 @@ enum PaymentMethod {
 
 ```typescript
 enum AccessType {
+  GYM_ONLY = 'gym_only',
   ALL_ACCESS = 'all_access',
+  CLASSES_ONLY = 'classes_only',
 }
 ```
 
@@ -594,15 +649,14 @@ enum Difficulty {
 
 ```typescript
 enum Equipment {
-  NONE = 'none',
   BARBELL = 'barbell',
   DUMBBELL = 'dumbbell',
   MACHINE = 'machine',
   CABLE = 'cable',
   BODYWEIGHT = 'bodyweight',
   KETTLEBELL = 'kettlebell',
-  RESISTANCE_BAND = 'resistance_band',
-  OTHER = 'other',
+  BANDS = 'bands',
+  NONE = 'none',
 }
 ```
 
@@ -625,9 +679,7 @@ enum TemplateCategory {
   CARDIO = 'cardio',
   FLEXIBILITY = 'flexibility',
   FUNCTIONAL = 'functional',
-  SPORT_SPECIFIC = 'sport_specific',
-  REHABILITATION = 'rehabilitation',
-  GENERAL = 'general',
+  FULL_BODY = 'full_body',
 }
 ```
 
@@ -673,6 +725,40 @@ enum DevicePlatform {
   ANDROID = 'android',
   IOS = 'ios',
 }
+```
+
+### NotificationType
+
+```typescript
+enum NotificationType {
+  MEMBERSHIP_EXPIRING = 'MEMBERSHIP_EXPIRING',
+  MEMBERSHIP_EXPIRED = 'MEMBERSHIP_EXPIRED',
+  LOW_ATTENDANCE = 'LOW_ATTENDANCE',
+  PERSONAL_RECORD = 'PERSONAL_RECORD',
+  CUSTOM = 'CUSTOM',
+}
+```
+
+### AuditAction
+
+```typescript
+enum AuditAction {
+  CREATE = 'CREATE',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
+}
+```
+
+### AuditEventType (AuthAuditLog.event)
+
+```typescript
+type AuditEventType =
+  | 'LOGIN_SUCCESS'
+  | 'LOGIN_FAILED'
+  | 'ACCOUNT_LOCKED'
+  | 'LOGOUT'
+  | 'PASSWORD_RESET_REQUEST'
+  | 'PASSWORD_RESET_SUCCESS';
 ```
 
 ---

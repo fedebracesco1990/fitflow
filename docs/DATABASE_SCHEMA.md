@@ -20,6 +20,8 @@ erDiagram
         string refreshToken
         string resetPasswordTokenHash
         datetime resetPasswordExpires
+        int failedLoginAttempts
+        datetime lockedUntil
         boolean isActive
         datetime createdAt
         datetime updatedAt
@@ -64,6 +66,7 @@ erDiagram
         text notes
         datetime createdAt
         datetime updatedAt
+        datetime deletedAt
     }
 
     %% ========== ACCESO ==========
@@ -285,6 +288,27 @@ erDiagram
         datetime updatedAt
     }
 
+    %% ========== AUDITORÍA ==========
+    AuditLog {
+        uuid id PK
+        enum action
+        string entity
+        uuid entityId
+        uuid performedById FK
+        json details
+        datetime createdAt
+    }
+
+    AuthAuditLog {
+        uuid id PK
+        string event
+        string email
+        string userId
+        string ipAddress
+        string userAgent
+        datetime createdAt
+    }
+
     %% ========== RELACIONES ==========
 
     %% Membresías y Pagos
@@ -295,6 +319,7 @@ erDiagram
 
     %% Acceso
     User ||--o{ AccessLog : "accede"
+    User ||--o{ AccessLog : "escanea"
 
     %% Notificaciones
     User ||--o{ DeviceToken : "registra dispositivo"
@@ -334,6 +359,9 @@ erDiagram
     %% Récords
     User ||--o{ PersonalRecord : "tiene"
     Exercise ||--o{ PersonalRecord : "para"
+
+    %% Auditoría (AuthAuditLog no tiene FK: guarda userId como texto)
+    User ||--o{ AuditLog : "realiza"
 ```
 
 ## Diagrama de Flujo - Entrenamiento
@@ -383,11 +411,11 @@ flowchart TB
 
 ### Módulo de Membresías y Pagos
 
-| Entidad            | Tipo   | Descripción                    |
-| ------------------ | ------ | ------------------------------ |
-| **MembershipType** | Config | Tipos de membresía disponibles |
-| **Membership**     | Core   | Membresía activa de un usuario |
-| **Payment**        | Log    | Registro de pagos realizados   |
+| Entidad            | Tipo   | Descripción                                |
+| ------------------ | ------ | ------------------------------------------ |
+| **MembershipType** | Config | Tipos de membresía disponibles             |
+| **Membership**     | Core   | Membresía activa de un usuario             |
+| **Payment**        | Log    | Registro de pagos realizados (soft delete) |
 
 ### Módulo de Notificaciones
 
@@ -420,6 +448,13 @@ flowchart TB
 | **WorkoutLog**     | Ejecución | Registro de sesión de entrenamiento   |
 | **ExerciseLog**    | Ejecución | Registro de cada serie realizada      |
 | **PersonalRecord** | Récord    | Mejor marca por ejercicio por usuario |
+
+### Módulo de Auditoría
+
+| Entidad          | Tipo | Descripción                                                                |
+| ---------------- | ---- | -------------------------------------------------------------------------- |
+| **AuditLog**     | Log  | Registro de operaciones CREATE/UPDATE/DELETE sobre entidades               |
+| **AuthAuditLog** | Log  | Eventos de autenticación (login, bloqueo, logout, recuperación contraseña) |
 
 ## Flujo de Datos
 
@@ -470,10 +505,11 @@ Cargar ExerciseLogs → Pre-llenar formulario con últimos valores
 | **WorkoutStatus**          | pending, in_progress, completed, skipped                                         | WorkoutLog                 |
 | **MembershipStatus**       | active, expired, cancelled, grace_period                                         | Membership                 |
 | **PaymentMethod**          | cash, card, transfer, other                                                      | Payment                    |
-| **AccessType**             | all_access, etc.                                                                 | MembershipType             |
+| **AccessType**             | gym_only, all_access, classes_only                                               | MembershipType             |
 | **DevicePlatform**         | web, android, ios                                                                | DeviceToken                |
 | **NotificationType**       | MEMBERSHIP_EXPIRING, MEMBERSHIP_EXPIRED, LOW_ATTENDANCE, PERSONAL_RECORD, CUSTOM | NotificationTemplate       |
 | **NotificationTargetType** | user, broadcast                                                                  | AppNotification            |
+| **AuditAction**            | CREATE, UPDATE, DELETE                                                           | AuditLog                   |
 
 ## Entidades Eliminadas (Historial)
 

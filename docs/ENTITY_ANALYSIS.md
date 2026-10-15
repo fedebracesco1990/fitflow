@@ -36,7 +36,7 @@
 
 ## Arquitectura de Entidades (Estado Actual)
 
-### Total: 23 entidades en 7 módulos
+### Total: 24 entidades en 8 módulos
 
 ```
 Módulo Users (2):        User, AccessLog
@@ -47,6 +47,7 @@ Módulo Routines (2):     Routine, RoutineExercise
 Módulo Programs (6):     Program, ProgramRoutine, ProgramRoutineExercise,
                          UserProgram, UserProgramRoutine, UserProgramExercise
 Módulo Workouts (3):     WorkoutLog, ExerciseLog, PersonalRecord
+Módulo Auditoría (2):    AuditLog, AuthAuditLog
 ```
 
 ---
@@ -67,7 +68,7 @@ Módulo Workouts (3):     WorkoutLog, ExerciseLog, PersonalRecord
 
 - Se eliminó `UserRoutine`
 - El flujo es: `Program` → `UserProgram` (snapshot) → `WorkoutLog`
-- Un usuario siempre tiene un `UserProgram` activo
+- Un usuario tiene como máximo un `UserProgram` activo (al asignar uno nuevo, el anterior se desactiva)
 
 ### 3. Patrón Snapshot para asignaciones
 
@@ -124,12 +125,12 @@ ProgramRoutineExercise → UserProgramExercise (copia ejercicios editables)
 │  📸 SNAPSHOT (Copia para el usuario)                        │
 │                                                             │
 │  UserProgram ──► UserProgramRoutine ──► UserProgramExercise │
-│       │                  │                                  │
-│       │                  │                                  │
-│       │                  ▼                                  │
-│       │           WorkoutLog ──► ExerciseLog                │
-│       │                                                     │
-│       └──────► PersonalRecord                               │
+│                          │                                  │
+│                          │                                  │
+│                          ▼                                  │
+│                   WorkoutLog ──► ExerciseLog                │
+│                                                             │
+│  User ──► PersonalRecord ──► Exercise                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -150,5 +151,7 @@ ProgramRoutineExercise → UserProgramExercise (copia ejercicios editables)
 │                                                             │
 │  NotificationTemplate (plantillas globales)                 │
 │  AppNotification ──► NotificationRead                       │
+│                                                             │
+│  AuditLog (CRUD) · AuthAuditLog (eventos de autenticación)  │
 └─────────────────────────────────────────────────────────────┘
 ```
