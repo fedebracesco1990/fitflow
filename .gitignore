@@ -82,8 +82,6 @@ testem.log
 *.sqlite
 *.db
 
-# Docker volumes
-docker/mysql/data/
 # Local development notes (not versioned)
 docs/develop/
 
