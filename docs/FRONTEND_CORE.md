@@ -19,7 +19,7 @@ Este documento describe la arquitectura y funcionamiento del módulo `core` del 
 core/
 ├── guards/
 │   ├── auth.guard.ts         # Protege rutas autenticadas
-│   ├── guest.guard.ts        # Protege rutas públicas (login, register)
+│   ├── guest.guard.ts        # Protege rutas públicas (login, forgot/reset password)
 │   └── index.ts
 ├── interceptors/
 │   ├── auth.interceptor.ts   # Maneja tokens JWT
@@ -277,7 +277,7 @@ export const authGuard: CanActivateFn = () => {
 
 ### `guestGuard`
 
-**Propósito:** Proteger rutas públicas (login, register) de usuarios ya autenticados.
+**Propósito:** Proteger rutas públicas (login, forgot-password, reset-password) de usuarios ya autenticados. No existe ruta `register` en el frontend: el alta de usuarios la hace un ADMIN.
 
 **Comportamiento:**
 
@@ -317,7 +317,8 @@ export const guestGuard: CanActivateFn = () => {
   canActivate: [guestGuard],
   children: [
     { path: 'login', ... },
-    { path: 'register', ... }
+    { path: 'forgot-password', ... },
+    { path: 'reset-password', ... }
   ]
 }
 ```
@@ -334,20 +335,37 @@ Los interceptors procesan todas las peticiones HTTP antes de enviarlas y las res
 
 **Funcionalidades:**
 
-1. **Excluir endpoints públicos:** No agrega token a rutas de autenticación
+1. **Excluir endpoints públicos:** No agrega token a `auth/login`, `auth/refresh`, `auth/forgot-password` y `auth/reset-password`. La comparación es exacta contra `${environment.apiUrl}/<endpoint>` (sin query string). `auth/register` **no** es público: en el backend es solo para ADMIN y requiere token
 2. **Agregar token:** Añade `Authorization: Bearer <token>` a peticiones protegidas
-3. **Refresh automático:** Si recibe 401, intenta renovar el token
-4. **Manejo de errores:** Si el refresh falla, cierra la sesión
+3. **Refresh automático:** Si recibe 401, renueva el token (una sola vez aunque haya varias peticiones en paralelo) y reintenta la petición
+4. **Peticiones en espera:** Las que reciben 401 mientras hay un refresh en curso esperan en un `BehaviorSubject<RefreshState>` (`pending` / `success` / `failed`): reintentan si el refresh sale bien y reciben el error si falla (no quedan colgadas)
+5. **Manejo de errores:** Solo un error del refresh (o no tener refresh token) despacha `RefreshTokenFailure` (cierra la sesión). Un error en la petición reintentada se propaga tal cual, sin logout
 
 ```typescript
+type RefreshState =
+  | { status: 'pending' }
+  | { status: 'success'; token: string }
+  | { status: 'failed'; error: unknown };
+
+let isRefreshing = false;
+const refreshState = new BehaviorSubject<RefreshState>({ status: 'pending' });
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const storage = inject(StorageService);
   const authService = inject(AuthService);
   const store = inject(Store);
 
-  // 1. Endpoints públicos - no requieren token
-  const publicEndpoints = ['/login', '/register', '/forgot-password', '/reset-password'];
-  const isPublicEndpoint = publicEndpoints.some((endpoint) => req.url.includes(endpoint));
+  // 1. Endpoints públicos - comparación exacta ('auth/register' requiere token de ADMIN)
+  const publicEndpoints = [
+    'auth/login',
+    'auth/refresh',
+    'auth/forgot-password',
+    'auth/reset-password',
+  ];
+  const path = req.url.split('?')[0];
+  const isPublicEndpoint = publicEndpoints.some(
+    (endpoint) => path === `${environment.apiUrl}/${endpoint}`
+  );
 
   if (isPublicEndpoint) {
     return next(req);
@@ -355,42 +373,52 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // 2. Agregar token a la petición
   const token = storage.getAccessToken();
-  let authReq = req;
-
-  if (token) {
-    authReq = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` },
-    });
-  }
+  const authReq = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
 
   // 3. Manejar respuesta y posible refresh
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !isPublicEndpoint) {
-        // Intentar refresh token
-        const refreshToken = storage.getRefreshToken();
+      if (error.status === 401) {
+        const retry = (accessToken: string) =>
+          next(req.clone({ setHeaders: { Authorization: `Bearer ${accessToken}` } }));
 
-        if (refreshToken && !isRefreshing) {
+        if (!isRefreshing) {
           isRefreshing = true;
+          refreshState.next({ status: 'pending' });
+          const refreshToken = storage.getRefreshToken();
 
-          return authService.refreshToken(refreshToken).pipe(
-            switchMap((tokens) => {
-              isRefreshing = false;
-              storage.setTokens(tokens.accessToken, tokens.refreshToken);
-
-              // Reintentar petición original con nuevo token
-              const retryReq = req.clone({
-                setHeaders: { Authorization: `Bearer ${tokens.accessToken}` },
-              });
-              return next(retryReq);
-            }),
-            catchError((refreshError) => {
-              isRefreshing = false;
-              store.dispatch(new RefreshTokenFailure()); // Cierra sesión
-              return throwError(() => refreshError);
-            })
-          );
+          if (refreshToken) {
+            return authService.refreshToken(refreshToken).pipe(
+              // Solo los errores del refresh cierran la sesión
+              catchError((refreshError) => {
+                isRefreshing = false;
+                refreshState.next({ status: 'failed', error: refreshError });
+                store.dispatch(new RefreshTokenFailure());
+                return throwError(() => refreshError);
+              }),
+              switchMap((tokens) => {
+                isRefreshing = false;
+                store.dispatch(new RefreshTokenSuccess(tokens)); // guarda tokens y reinicia el timer
+                refreshState.next({ status: 'success', token: tokens.accessToken });
+                return retry(tokens.accessToken);
+              })
+            );
+          }
+          // Sin refresh token: falla y cierra la sesión
+          isRefreshing = false;
+          refreshState.next({ status: 'failed', error });
+          store.dispatch(new RefreshTokenFailure());
+          return throwError(() => error);
         }
+
+        // Refresh en curso: esperar su resultado
+        return refreshState.pipe(
+          filter((state) => state.status !== 'pending'),
+          take(1),
+          switchMap((state) =>
+            state.status === 'success' ? retry(state.token) : throwError(() => error)
+          )
+        );
       }
       return throwError(() => error);
     })
@@ -398,20 +426,30 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 };
 ```
 
+> Fragmento simplificado; ver `frontend/src/app/core/interceptors/auth.interceptor.ts`.
+
 **Flujo de refresh token:**
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  Petición HTTP  │────▶│   401 Error     │────▶│  Refresh Token  │
-└─────────────────┘     └─────────────────┘     └────────┬────────┘
-                                                         │
-                        ┌────────────────────────────────┼────────────────────────────────┐
-                        │                                │                                │
-                        ▼                                ▼                                ▼
-               ┌─────────────────┐              ┌─────────────────┐              ┌─────────────────┐
-               │  Refresh OK     │              │  Refresh Fail   │              │  No Refresh     │
-               │  Retry Request  │              │  Logout User    │              │  Token          │
-               └─────────────────┘              └─────────────────┘              └─────────────────┘
+┌─────────────────┐     ┌─────────────────┐     ┌──────────────────────┐
+│  Petición HTTP  │────▶│   401 Error     │────▶│ ¿Refresh en curso?   │
+└─────────────────┘     └─────────────────┘     └──────────┬───────────┘
+                                                           │
+                      ┌────────────────────────────────────┴───────────────────┐
+                      │ NO                                                     │ SÍ
+                      ▼                                                        ▼
+            ┌─────────────────┐                                 ┌──────────────────────────┐
+            │  Refresh Token  │                                 │ Esperar refreshState     │
+            └────────┬────────┘                                 │ success → Retry          │
+                     │                                          │ failed  → recibe error   │
+     ┌───────────────┼──────────────────┐                       └──────────────────────────┘
+     ▼               ▼                  ▼
+┌──────────┐  ┌──────────────┐  ┌──────────────┐
+│Refresh OK│  │ Refresh Fail │  │ No Refresh   │
+│Retry Req │  │ Logout User  │  │ Token→Logout │
+└──────────┘  └──────────────┘  └──────────────┘
+
+Un error en la petición reintentada se propaga sin cerrar la sesión.
 ```
 
 ### `errorInterceptor`

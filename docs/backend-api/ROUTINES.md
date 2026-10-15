@@ -8,20 +8,28 @@ Endpoints para gestión de rutinas de entrenamiento.
 
 ## Endpoints
 
-| Método | Ruta                                  | Descripción            | Roles          |
-| ------ | ------------------------------------- | ---------------------- | -------------- |
-| POST   | `/routines`                           | Crear rutina           | ADMIN, TRAINER |
-| GET    | `/routines`                           | Listar rutinas         | Todos          |
-| GET    | `/routines/:id`                       | Obtener rutina         | Todos          |
-| PATCH  | `/routines/:id`                       | Actualizar rutina      | ADMIN, TRAINER |
-| DELETE | `/routines/:id`                       | Eliminar rutina        | ADMIN          |
-| POST   | `/routines/:id/exercises`             | Agregar ejercicio      | ADMIN, TRAINER |
-| PATCH  | `/routines/:id/exercises/:exerciseId` | Actualizar ejercicio   | ADMIN, TRAINER |
-| DELETE | `/routines/:id/exercises/:exerciseId` | Quitar ejercicio       | ADMIN, TRAINER |
-| POST   | `/routines/:id/assign`                | Asignar a usuario      | ADMIN, TRAINER |
-| GET    | `/routines/templates`                 | Listar plantillas      | ADMIN, TRAINER |
-| POST   | `/routines/:id/save-as-template`      | Guardar como plantilla | ADMIN, TRAINER |
-| POST   | `/routines/from-template/:templateId` | Crear desde plantilla  | ADMIN, TRAINER |
+| Método | Ruta                                                                 | Descripción                                    | Roles          |
+| ------ | -------------------------------------------------------------------- | ---------------------------------------------- | -------------- |
+| POST   | `/routines`                                                          | Crear rutina                                   | ADMIN, TRAINER |
+| GET    | `/routines`                                                          | Listar rutinas                                 | Todos          |
+| GET    | `/routines/:id`                                                      | Obtener rutina                                 | Todos          |
+| PATCH  | `/routines/:id`                                                      | Actualizar rutina                              | ADMIN, TRAINER |
+| DELETE | `/routines/:id`                                                      | Eliminar rutina                                | ADMIN          |
+| POST   | `/routines/:id/exercises`                                            | Agregar ejercicio                              | ADMIN, TRAINER |
+| PATCH  | `/routines/:id/exercises/:exerciseId`                                | Actualizar ejercicio                           | ADMIN, TRAINER |
+| DELETE | `/routines/:id/exercises/:exerciseId`                                | Quitar ejercicio                               | ADMIN, TRAINER |
+| PATCH  | `/routines/:id/exercises`                                            | Reemplazar todos los ejercicios                | ADMIN, TRAINER |
+| GET    | `/routines/templates`                                                | Listar plantillas                              | ADMIN, TRAINER |
+| POST   | `/routines/:id/save-as-template`                                     | Guardar como plantilla                         | ADMIN, TRAINER |
+| POST   | `/routines/from-template/:templateId`                                | Crear desde plantilla                          | ADMIN, TRAINER |
+| GET    | `/routines/program-routines/:programRoutineId`                       | Obtener rutina de programa con ejercicios      | ADMIN, TRAINER |
+| GET    | `/routines/program-routines/:programRoutineId/exercises`             | Listar ejercicios personalizados               | ADMIN, TRAINER |
+| POST   | `/routines/program-routines/:programRoutineId/exercises`             | Agregar ejercicio personalizado                | ADMIN, TRAINER |
+| PATCH  | `/routines/program-routines/:programRoutineId/exercises/:exerciseId` | Actualizar ejercicio personalizado             | ADMIN, TRAINER |
+| DELETE | `/routines/program-routines/:programRoutineId/exercises/:exerciseId` | Quitar ejercicio personalizado                 | ADMIN, TRAINER |
+| POST   | `/routines/program-routines/:programRoutineId/exercises/bulk`        | Reemplazar todos los ejercicios personalizados | ADMIN, TRAINER |
+
+> **Asignación a usuarios:** no existe `POST /routines/:id/assign`. Las rutinas se asignan a usuarios a través de programas con `POST /programs/assign` (ver [PROGRAMS.md](./PROGRAMS.md)).
 
 ---
 
@@ -171,7 +179,7 @@ Agrega un ejercicio a la rutina.
 | notes           | string | ❌        | Notas adicionales                    |
 | suggestedWeight | number | ❌        | Peso sugerido en kg (0-500)          |
 
-**Response (200):** Rutina actualizada con el nuevo ejercicio
+**Response (201):** Rutina actualizada con el nuevo ejercicio
 
 ---
 
@@ -206,42 +214,157 @@ Quita un ejercicio de la rutina.
 
 ---
 
-## POST /routines/:id/assign
+## PATCH /routines/:id/exercises
 
-Asigna una rutina a un usuario para un día específico de la semana.
+Reemplaza **todos** los ejercicios de la rutina por la lista enviada.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+> TRAINER solo puede modificar sus propias rutinas
+
+**Request Body:**
+
+```json
+{
+  "exercises": [{ "exerciseId": "uuid", "sets": 4, "reps": 10, "restSeconds": 90, "order": 1 }]
+}
+```
+
+Cada elemento de `exercises` tiene los mismos campos que `POST /routines/:id/exercises`. Si no se envía `order`, se usa la posición en el array.
+
+**Response (200):** Lista de ejercicios nuevos de la rutina
+
+> **Transaccional:** el borrado de los ejercicios anteriores y la inserción de los nuevos ocurren en una única transacción. Si falla alguna inserción, no se aplica ningún cambio y la rutina conserva sus ejercicios anteriores.
+
+**Errores:**
+
+| Código | Descripción                                            |
+| ------ | ------------------------------------------------------ |
+| 403    | No tiene permisos para modificar esta rutina           |
+| 404    | Rutina no encontrada                                   |
+| 409    | No se pueden agregar ejercicios duplicados a la rutina |
+
+---
+
+## Ejercicios personalizados por rutina de programa
+
+Una rutina incluida en un programa (`ProgramRoutine`) puede tener ejercicios personalizados que reemplazan a los de la rutina base solo para esa instancia, sin modificar la rutina original.
+
+> En las operaciones de escritura, TRAINER solo puede modificar programas creados por él (ADMIN puede modificar cualquiera). Si no tiene permisos se responde `403`.
+
+### GET /routines/program-routines/:programRoutineId
+
+Obtiene la rutina de programa con la rutina base y sus ejercicios (`routine.exercises`) y los ejercicios personalizados (`customExercises`), cada uno con su `exercise`.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+**Errores:**
+
+| Código | Descripción                  |
+| ------ | ---------------------------- |
+| 404    | ProgramRoutine no encontrado |
+
+---
+
+### GET /routines/program-routines/:programRoutineId/exercises
+
+Lista los ejercicios personalizados de la rutina de programa, ordenados por `order`, con su `exercise`.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+---
+
+### POST /routines/program-routines/:programRoutineId/exercises
+
+Agrega un ejercicio personalizado.
 
 **Roles:** `ADMIN`, `TRAINER`
 
 **Request Body:**
 
-| Campo     | Tipo   | Requerido | Descripción                                                                       |
-| --------- | ------ | --------- | --------------------------------------------------------------------------------- |
-| userId    | UUID   | ✅        | ID del usuario al que se asigna                                                   |
-| dayOfWeek | string | ✅        | Día de la semana (monday, tuesday, wednesday, thursday, friday, saturday, sunday) |
-| startDate | string | ✅        | Fecha de inicio (ISO 8601)                                                        |
-| endDate   | string | ❌        | Fecha de fin (ISO 8601)                                                           |
+| Campo       | Tipo   | Requerido | Descripción                          |
+| ----------- | ------ | --------- | ------------------------------------ |
+| exerciseId  | UUID   | ✅        | ID del ejercicio (debe estar activo) |
+| order       | number | ✅        | Orden (min 1)                        |
+| sets        | number | ✅        | Series (min 1)                       |
+| reps        | number | ✅        | Repeticiones (min 1)                 |
+| restSeconds | number | ❌        | Descanso en segundos (default: 60)   |
+| notes       | string | ❌        | Notas                                |
+| weight      | number | ❌        | Peso en kg                           |
 
-**Response (201):**
-
-```json
-{
-  "id": "uuid",
-  "userId": "uuid",
-  "routineId": "uuid",
-  "dayOfWeek": "monday",
-  "startDate": "2024-01-01",
-  "endDate": null,
-  "isActive": true,
-  "createdAt": "2024-01-01T00:00:00.000Z"
-}
-```
+**Response (201):** Ejercicio personalizado creado
 
 **Errores:**
 
-| Código | Descripción                                   |
-| ------ | --------------------------------------------- |
-| 404    | Usuario o rutina no encontrada                |
-| 409    | Rutina ya asignada a este usuario en este día |
+| Código | Descripción                                    |
+| ------ | ---------------------------------------------- |
+| 403    | No tiene permisos para modificar este programa |
+| 404    | ProgramRoutine o ejercicio no encontrado       |
+
+---
+
+### PATCH /routines/program-routines/:programRoutineId/exercises/:exerciseId
+
+Actualiza un ejercicio personalizado. `exerciseId` es el ID del ejercicio personalizado. Todos los campos son opcionales: `order`, `sets`, `reps`, `restSeconds`, `notes`, `weight`.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+**Response (200):** Ejercicio personalizado actualizado
+
+**Errores:**
+
+| Código | Descripción                                            |
+| ------ | ------------------------------------------------------ |
+| 403    | No tiene permisos para modificar este programa         |
+| 404    | ProgramRoutine o ejercicio personalizado no encontrado |
+
+---
+
+### DELETE /routines/program-routines/:programRoutineId/exercises/:exerciseId
+
+Quita un ejercicio personalizado.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+**Response:** 200 OK (sin contenido)
+
+**Errores:**
+
+| Código | Descripción                                            |
+| ------ | ------------------------------------------------------ |
+| 403    | No tiene permisos para modificar este programa         |
+| 404    | ProgramRoutine o ejercicio personalizado no encontrado |
+
+---
+
+### POST /routines/program-routines/:programRoutineId/exercises/bulk
+
+Reemplaza **todos** los ejercicios personalizados de la rutina de programa.
+
+**Roles:** `ADMIN`, `TRAINER`
+
+**Request Body:**
+
+```json
+{
+  "exercises": [
+    { "exerciseId": "uuid", "order": 1, "sets": 4, "reps": 8, "restSeconds": 120, "weight": 60 }
+  ]
+}
+```
+
+Cada elemento tiene los mismos campos que `POST /routines/program-routines/:programRoutineId/exercises`.
+
+**Response (201):** Lista de ejercicios personalizados nuevos
+
+> **Transaccional:** el borrado y la inserción ocurren en una única transacción. Si falla alguna inserción, no se aplica ningún cambio.
+
+**Errores:**
+
+| Código | Descripción                                    |
+| ------ | ---------------------------------------------- |
+| 403    | No tiene permisos para modificar este programa |
+| 404    | ProgramRoutine no encontrado                   |
 
 ---
 

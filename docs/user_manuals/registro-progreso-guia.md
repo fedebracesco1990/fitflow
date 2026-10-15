@@ -75,7 +75,7 @@ La pantalla muestra:
 - ✅ **Espera el ✓** antes de cambiar de ejercicio o cerrar la app
 - 💡 **Usa el peso sugerido** como referencia inicial
 - ➕ **Agrega series extra** si te sientes con energía
-- 📱 **Los cambios se sincronizan** automáticamente cuando hay conexión
+- 📱 **Puedes entrenar sin conexión**: tus series se guardan en el dispositivo y se sincronizan automáticamente cuando vuelve la conexión
 
 ## Indicadores Visuales
 
@@ -90,9 +90,10 @@ La pantalla muestra:
 
 ### Los cambios no se guardan
 
-- Verifica tu conexión a internet
-- Espera unos segundos y vuelve a intentar
-- Si persiste, recarga la página
+- Si estás **sin conexión**, no te preocupes: tus series se guardan en tu dispositivo y se **sincronizan automáticamente** cuando vuelve internet
+- Mientras haya cambios pendientes, verás un indicador con la cantidad junto a la campana de notificaciones; puedes tocarlo para sincronizar manualmente
+- Si el indicador muestra un error de sincronización, verifica tu conexión; si el error sigue, avisa al administrador del gimnasio
+- Si el problema persiste con conexión, espera unos segundos, vuelve a intentar o recarga la página
 
 ### El peso no se actualiza
 

@@ -4,59 +4,84 @@ Endpoints para registro de entrenamientos.
 
 **Ruta base:** `/workouts`
 
+> Un workout (`WorkoutLog`) siempre pertenece a una rutina del plan asignado al usuario (`UserProgramRoutine`). Todos los endpoints validan que el workout/rutina sea del usuario autenticado.
+
 ---
 
 ## Endpoints
 
-| Método | Ruta                             | Descripción              | Roles |
-| ------ | -------------------------------- | ------------------------ | ----- |
-| POST   | `/workouts`                      | Crear entrenamiento      | Todos |
-| GET    | `/workouts/my-history`           | Mi historial             | Todos |
-| GET    | `/workouts/:id`                  | Obtener entrenamiento    | Todos |
-| PATCH  | `/workouts/:id`                  | Actualizar entrenamiento | Todos |
-| PATCH  | `/workouts/:id/start`            | Iniciar entrenamiento    | Todos |
-| PATCH  | `/workouts/:id/complete`         | Completar entrenamiento  | Todos |
-| POST   | `/workouts/:id/exercises`        | Registrar ejercicio      | Todos |
-| GET    | `/workouts/:id/exercises`        | Listar ejercicios        | Todos |
-| PATCH  | `/workouts/:id/exercises/:logId` | Actualizar ejercicio     | Todos |
-| DELETE | `/workouts/:id/exercises/:logId` | Eliminar ejercicio       | Todos |
-| POST   | `/workouts/:id/exercises/bulk`   | Registrar múltiples sets | Todos |
+| Método | Ruta                             | Descripción                                  | Roles |
+| ------ | -------------------------------- | -------------------------------------------- | ----- |
+| POST   | `/workouts/start/:routineId`     | Iniciar entrenamiento de una rutina          | Todos |
+| GET    | `/workouts/my-history`           | Mi historial                                 | Todos |
+| GET    | `/workouts/last/:routineId`      | Último entrenamiento completado de la rutina | Todos |
+| GET    | `/workouts/:id`                  | Obtener entrenamiento                        | Todos |
+| PATCH  | `/workouts/:id`                  | Actualizar entrenamiento                     | Todos |
+| PATCH  | `/workouts/:id/complete`         | Completar entrenamiento                      | Todos |
+| GET    | `/workouts/:id/exercises`        | Listar sets registrados                      | Todos |
+| POST   | `/workouts/:id/exercises`        | Agregar un set                               | Todos |
+| PATCH  | `/workouts/:id/exercises/:logId` | Actualizar set                               | Todos |
+| DELETE | `/workouts/:id/exercises/:logId` | Eliminar set                                 | Todos |
 
 ---
 
-## POST /workouts
+## POST /workouts/start/:routineId
 
-Crea un nuevo registro de entrenamiento.
+Inicia un nuevo entrenamiento para una rutina del plan del usuario. Crea el workout con status `in_progress` y `startedAt` = ahora, y genera automáticamente los sets (`exerciseLogs`) de cada ejercicio de la rutina con `completed: false`.
 
 **Roles:** Todos los autenticados
 
-**Request Body:**
+**Parámetros de ruta:**
 
-| Campo         | Tipo   | Requerido | Descripción                       |
-| ------------- | ------ | --------- | --------------------------------- |
-| userRoutineId | UUID   | ✅        | ID de la rutina asignada          |
-| date          | string | ✅        | Fecha en formato ISO (YYYY-MM-DD) |
-| notes         | string | ❌        | Notas previas                     |
+| Parámetro | Tipo | Descripción                                                                       |
+| --------- | ---- | --------------------------------------------------------------------------------- |
+| routineId | UUID | ID de la rutina del plan del usuario (`UserProgramRoutine`), no de la rutina base |
 
-**Response (201):**
+**Pre-carga de valores:**
+
+- Si existe un workout completado previo de la misma rutina, cada set toma `reps` y `weight` del set equivalente (mismo ejercicio y número de serie) de ese workout.
+- Si no hay valor previo, se usan las `reps` y el `weight` planificados del ejercicio.
+- La cantidad de sets por ejercicio es el máximo entre los sets planificados y los sets registrados en el último workout completado.
+
+**Response (201):** El workout creado, con el mismo formato que `GET /workouts/:id`.
 
 ```json
 {
   "id": "uuid",
-  "userRoutineId": "uuid",
-  "date": "2024-01-01",
-  "status": "pending",
+  "userProgramRoutineId": "uuid",
+  "startedAt": "2024-01-01T10:00:00.000Z",
+  "finishedAt": null,
+  "status": "in_progress",
   "duration": null,
   "notes": null,
-  "createdAt": "2024-01-01T00:00:00.000Z"
+  "userProgramRoutine": { "...": "rutina del plan con userProgram y exercises" },
+  "exerciseLogs": [
+    {
+      "id": "uuid",
+      "exerciseId": "uuid",
+      "setNumber": 1,
+      "reps": 12,
+      "weight": "50.00",
+      "completed": false,
+      "exercise": { "id": "uuid", "name": "Press de Banca" }
+    }
+  ],
+  "createdAt": "2024-01-01T10:00:00.000Z"
 }
 ```
+
+**Errores:**
+
+| Código | Descripción                       |
+| ------ | --------------------------------- |
+| 403    | La rutina no pertenece al usuario |
+| 404    | Rutina no encontrada              |
 
 ---
 
 ## GET /workouts/my-history
 
-Obtiene el historial de entrenamientos del usuario con paginación.
+Obtiene el historial de entrenamientos **completados** del usuario con paginación, ordenados por `finishedAt` descendente.
 
 **Roles:** Todos los autenticados
 
@@ -74,14 +99,14 @@ Obtiene el historial de entrenamientos del usuario con paginación.
   "data": [
     {
       "id": "uuid",
-      "date": "2024-01-01",
+      "userProgramRoutineId": "uuid",
+      "startedAt": "2024-01-01T10:00:00.000Z",
+      "finishedAt": "2024-01-01T10:45:00.000Z",
       "status": "completed",
-      "durationMinutes": 45,
-      "userRoutine": {
-        "routine": {
-          "id": "uuid",
-          "name": "Rutina Full Body"
-        }
+      "duration": 45,
+      "userProgramRoutine": {
+        "id": "uuid",
+        "name": "Rutina Full Body"
       },
       "exerciseLogs": [...]
     }
@@ -95,48 +120,40 @@ Obtiene el historial de entrenamientos del usuario con paginación.
 }
 ```
 
-> **Nota:** Los ejerciseLogs se incluyen en cada workout pero sin paginación interna.
+> **Nota:** Los `exerciseLogs` (con su `exercise`) se incluyen en cada workout pero sin paginación interna.
 
 ---
 
-## GET /workouts/:id (sin cambios)
+## GET /workouts/last/:routineId
 
-**Response anterior eliminado para brevedad**
+Obtiene el último entrenamiento **completado** de una rutina del plan del usuario (el de `finishedAt` más reciente), con sus `exerciseLogs` y el `exercise` de cada uno. Sirve para mostrar los valores de la sesión anterior.
 
-```json
-{
-  "id": "uuid",
-  "date": "2024-01-01",
-  "status": "completed",
-  "durationMinutes": 45,
-  "routine": {
-    "id": "uuid",
-    "name": "Rutina Full Body"
-  },
-  "exerciseLogs": [
-    {
-      "id": "uuid",
-      "setNumber": 1,
-      "reps": 12,
-      "weight": 50,
-        "completed": true
-      }
-    ]
-  }
-]
-```
+**Roles:** Todos los autenticados
+
+**Parámetros de ruta:**
+
+| Parámetro | Tipo | Descripción                                     |
+| --------- | ---- | ----------------------------------------------- |
+| routineId | UUID | ID de la rutina del plan (`UserProgramRoutine`) |
+
+**Response (200):** El workout completado, o `null` si no hay ninguno, si la rutina no existe o si no pertenece al usuario (no responde 403/404).
 
 ---
 
 ## GET /workouts/:id
 
-Obtiene un entrenamiento específico.
+Obtiene un entrenamiento específico, con `userProgramRoutine` (incluye `userProgram` y `exercises`) y `exerciseLogs` (con `exercise`).
 
 **Roles:** Todos los autenticados
 
 > Solo puede ver sus propios entrenamientos
 
-**Response (200):** Entrenamiento con ejercicios y logs
+**Errores:**
+
+| Código | Descripción                        |
+| ------ | ---------------------------------- |
+| 403    | El workout no pertenece al usuario |
+| 404    | Workout no encontrado              |
 
 ---
 
@@ -148,36 +165,19 @@ Actualiza un entrenamiento.
 
 **Request Body:**
 
-| Campo  | Tipo   | Descripción |
-| ------ | ------ | ----------- |
-| notes  | string | Notas       |
-| status | string | Estado      |
+| Campo    | Tipo   | Descripción                                            |
+| -------- | ------ | ------------------------------------------------------ |
+| status   | string | Estado (ver [Estados de Workout](#estados-de-workout)) |
+| duration | number | Duración en minutos (min 1)                            |
+| notes    | string | Notas                                                  |
 
 **Response (200):** Entrenamiento actualizado
 
 ---
 
-## PATCH /workouts/:id/start
-
-Inicia un entrenamiento (cambia status a `in_progress`).
-
-**Roles:** Todos los autenticados
-
-**Response (200):**
-
-```json
-{
-  "id": "uuid",
-  "status": "in_progress",
-  "startedAt": "2024-01-01T10:00:00.000Z"
-}
-```
-
----
-
 ## PATCH /workouts/:id/complete
 
-Completa un entrenamiento.
+Completa un entrenamiento: status `completed`, `finishedAt` = ahora, y actualiza `lastCompletedAt` de la rutina del plan.
 
 **Roles:** Todos los autenticados
 
@@ -193,46 +193,9 @@ Completa un entrenamiento.
 {
   "id": "uuid",
   "status": "completed",
-  "durationMinutes": 45,
-  "completedAt": "2024-01-01T10:45:00.000Z"
-}
-```
-
----
-
-## POST /workouts/:id/exercises
-
-Registra un set de un ejercicio.
-
-**Roles:** Todos los autenticados
-
-**Request Body:**
-
-| Campo             | Tipo    | Requerido | Descripción                       |
-| ----------------- | ------- | --------- | --------------------------------- |
-| routineExerciseId | UUID    | ✅        | ID del ejercicio en rutina        |
-| setNumber         | number  | ✅        | Número de serie (1-20)            |
-| reps              | number  | ✅        | Repeticiones realizadas (0-100)   |
-| weight            | number  | ❌        | Peso utilizado (kg)               |
-| completed         | boolean | ❌        | Si se completó (default: true)    |
-| notes             | string  | ❌        | Notas del set                     |
-| rir               | number  | ❌        | Reps In Reserve (0-5)             |
-| rpe               | number  | ❌        | Rate of Perceived Exertion (1-10) |
-
-**Response (201):**
-
-```json
-{
-  "id": "uuid",
-  "workoutLogId": "uuid",
-  "routineExerciseId": "uuid",
-  "setNumber": 1,
-  "reps": 12,
-  "weight": 50,
-  "completed": true,
-  "notes": null,
-  "rir": 2,
-  "rpe": 8.0
+  "duration": 45,
+  "startedAt": "2024-01-01T10:00:00.000Z",
+  "finishedAt": "2024-01-01T10:45:00.000Z"
 }
 ```
 
@@ -240,7 +203,7 @@ Registra un set de un ejercicio.
 
 ## GET /workouts/:id/exercises
 
-Lista los logs de ejercicios de un entrenamiento.
+Lista los sets registrados de un entrenamiento, ordenados por ejercicio y número de serie.
 
 **Roles:** Todos los autenticados
 
@@ -250,10 +213,15 @@ Lista los logs de ejercicios de un entrenamiento.
 [
   {
     "id": "uuid",
+    "workoutLogId": "uuid",
+    "exerciseId": "uuid",
     "setNumber": 1,
     "reps": 12,
-    "weight": 50,
+    "weight": "50.00",
     "completed": true,
+    "notes": null,
+    "rir": 2,
+    "rpe": "8.0",
     "exercise": {
       "id": "uuid",
       "name": "Press de Banca"
@@ -264,9 +232,42 @@ Lista los logs de ejercicios de un entrenamiento.
 
 ---
 
+## POST /workouts/:id/exercises
+
+Agrega un set a un entrenamiento (por ejemplo, una serie extra). Los sets planificados ya se crean al iniciar el workout con `POST /workouts/start/:routineId`.
+
+**Roles:** Todos los autenticados
+
+**Request Body:**
+
+| Campo      | Tipo           | Requerido | Descripción        |
+| ---------- | -------------- | --------- | ------------------ |
+| exerciseId | UUID           | ✅        | ID del ejercicio   |
+| setNumber  | number         | ✅        | Número de serie    |
+| reps       | number         | ✅        | Repeticiones       |
+| weight     | number \| null | ✅        | Peso (kg) o `null` |
+
+> El set se crea con `completed: false`. Para marcarlo como completado (y evaluar récords personales) se usa `PATCH /workouts/:id/exercises/:logId`.
+
+**Response (201):**
+
+```json
+{
+  "id": "uuid",
+  "workoutLogId": "uuid",
+  "exerciseId": "uuid",
+  "setNumber": 4,
+  "reps": 10,
+  "weight": 50,
+  "completed": false
+}
+```
+
+---
+
 ## PATCH /workouts/:id/exercises/:logId
 
-Actualiza un log de ejercicio.
+Actualiza un set. Si la actualización incluye `completed: true`, `weight` y `reps` > 0, se evalúa si es un nuevo récord personal; en ese caso se notifica al usuario.
 
 **Roles:** Todos los autenticados
 
@@ -281,98 +282,42 @@ Actualiza un log de ejercicio.
 | rir       | number  | Reps In Reserve (0-5)             |
 | rpe       | number  | Rate of Perceived Exertion (1-10) |
 
-**Response (200):** Log actualizado
+**Response (200):**
+
+```json
+{
+  "log": { "id": "uuid", "setNumber": 1, "reps": 12, "weight": 50, "completed": true },
+  "prResult": {
+    "isNewPR": true,
+    "type": "weight",
+    "exerciseName": "Press de Banca"
+  }
+}
+```
+
+> `prResult` solo se incluye cuando hay un nuevo récord personal.
+
+**Errores:**
+
+| Código | Descripción                    |
+| ------ | ------------------------------ |
+| 404    | Log de ejercicio no encontrado |
 
 ---
 
 ## DELETE /workouts/:id/exercises/:logId
 
-Elimina un log de ejercicio.
+Elimina un set.
 
 **Roles:** Todos los autenticados
 
 **Response (200):** Vacío
 
----
+**Errores:**
 
-## POST /workouts/:id/exercises/bulk
-
-Registra múltiples sets de ejercicios en una sola llamada.
-
-**Roles:** Todos los autenticados
-
-**Request Body:**
-
-| Campo     | Tipo  | Requerido | Descripción           |
-| --------- | ----- | --------- | --------------------- |
-| exercises | array | ✅        | Array de sets a crear |
-
-**Estructura de cada ejercicio en el array:**
-
-| Campo             | Tipo    | Requerido | Descripción                       |
-| ----------------- | ------- | --------- | --------------------------------- |
-| routineExerciseId | UUID    | ✅        | ID del ejercicio en rutina        |
-| setNumber         | number  | ✅        | Número de serie (1-20)            |
-| reps              | number  | ✅        | Repeticiones realizadas (0-100)   |
-| weight            | number  | ❌        | Peso utilizado (kg)               |
-| completed         | boolean | ❌        | Si se completó (default: true)    |
-| notes             | string  | ❌        | Notas del set                     |
-| rir               | number  | ❌        | Reps In Reserve (0-5)             |
-| rpe               | number  | ❌        | Rate of Perceived Exertion (1-10) |
-
-**Ejemplo Request:**
-
-```json
-{
-  "exercises": [
-    {
-      "routineExerciseId": "uuid-1",
-      "setNumber": 1,
-      "reps": 12,
-      "weight": 50,
-      "rir": 2,
-      "rpe": 8
-    },
-    {
-      "routineExerciseId": "uuid-1",
-      "setNumber": 2,
-      "reps": 10,
-      "weight": 52.5,
-      "rir": 1,
-      "rpe": 8.5
-    },
-    {
-      "routineExerciseId": "uuid-2",
-      "setNumber": 1,
-      "reps": 8,
-      "weight": 80,
-      "completed": true
-    }
-  ]
-}
-```
-
-**Response (201):** Array de logs creados
-
-```json
-[
-  {
-    "id": "uuid",
-    "workoutLogId": "uuid",
-    "routineExerciseId": "uuid-1",
-    "setNumber": 1,
-    "reps": 12,
-    "weight": 50,
-    "completed": true,
-    "notes": null,
-    "rir": 2,
-    "rpe": 8.0
-  },
-  ...
-]
-```
-
-> **Nota:** Todos los ejercicios deben pertenecer a la rutina asociada al workout. Si alguno no pertenece, retorna error 404.
+| Código | Descripción                    |
+| ------ | ------------------------------ |
+| 404    | Log de ejercicio no encontrado |
 
 ---
 
@@ -383,7 +328,7 @@ Registra múltiples sets de ejercicios en una sola llamada.
 | `pending`     | Creado pero no iniciado |
 | `in_progress` | En progreso             |
 | `completed`   | Finalizado              |
-| `cancelled`   | Cancelado               |
+| `skipped`     | Omitido                 |
 
 ---
 

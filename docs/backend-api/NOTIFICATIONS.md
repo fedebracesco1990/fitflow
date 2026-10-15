@@ -25,12 +25,14 @@ Endpoints para gestión de notificaciones in-app y push (FCM opcional).
 
 ### Admin
 
-| Método | Ruta                           | Descripción         | Roles |
-| ------ | ------------------------------ | ------------------- | ----- |
-| POST   | `/notifications/send`          | Enviar notificación | ADMIN |
-| GET    | `/notifications/templates`     | Listar templates    | ADMIN |
-| POST   | `/notifications/templates`     | Crear template      | ADMIN |
-| POST   | `/notifications/templates/:id` | Actualizar template | ADMIN |
+| Método | Ruta                           | Descripción                           | Roles |
+| ------ | ------------------------------ | ------------------------------------- | ----- |
+| POST   | `/notifications/send`          | Enviar notificación                   | ADMIN |
+| GET    | `/notifications/templates`     | Listar templates                      | ADMIN |
+| POST   | `/notifications/templates`     | Crear template                        | ADMIN |
+| POST   | `/notifications/templates/:id` | Actualizar template                   | ADMIN |
+| GET    | `/notifications/debug/tokens`  | Diagnóstico de tokens FCM registrados | ADMIN |
+| DELETE | `/notifications/debug/cleanup` | Eliminar tokens FCM duplicados        | ADMIN |
 
 ---
 
@@ -99,9 +101,9 @@ Marca una notificación como leída para el usuario autenticado.
 
 **Errores:**
 
-| Código | Descripción                |
-| ------ | -------------------------- |
-| 404    | Notificación no encontrada |
+| Código | Descripción                                                                                |
+| ------ | ------------------------------------------------------------------------------------------ |
+| 404    | Notificación no encontrada, o existe pero no está dirigida al usuario y no es un broadcast |
 
 ---
 
@@ -332,6 +334,47 @@ Actualiza un template existente.
 | Código | Descripción            |
 | ------ | ---------------------- |
 | 404    | Template no encontrado |
+
+---
+
+## GET /notifications/debug/tokens
+
+Endpoint de diagnóstico: lista todos los tokens FCM registrados (sin exponer el valor del token).
+
+**Roles:** ADMIN
+
+**Response (200):**
+
+```json
+{
+  "totalTokens": 3,
+  "uniqueUsers": 2,
+  "tokens": [
+    {
+      "userId": "user-uuid",
+      "platform": "web",
+      "createdAt": "2026-02-06T12:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+## DELETE /notifications/debug/cleanup
+
+Endpoint de mantenimiento: elimina tokens FCM duplicados, conservando solo el más reciente por combinación usuario + plataforma.
+
+**Roles:** ADMIN
+
+**Response (200):**
+
+```json
+{
+  "deleted": 1,
+  "remaining": 2
+}
+```
 
 ---
 

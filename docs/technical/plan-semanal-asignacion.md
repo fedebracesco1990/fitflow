@@ -96,6 +96,6 @@ Admin/Trainer abre diálogo de asignación
 
 ## Notas de Desarrollo
 
-- La reasignación es atómica: desactiva plan anterior y crea nuevo en la misma transacción implícita de TypeORM
+- La reasignación es atómica: `assignToUser()` desactiva el plan anterior y crea la copia nueva (programa, rutinas y ejercicios) dentro de una transacción explícita (`manager.transaction` en `programs.service.ts`); si la copia falla, el usuario conserva su plan activo anterior
 - Los datos del historial son los datos **base** tal como fueron asignados, antes de cualquier ejecución del usuario
 - La notificación usa el tipo `program_assigned` para identificación

@@ -436,18 +436,13 @@ exportBehaviorCsv(startDate?, endDate?, status?): Observable<Blob>
 
 - Ruta `/dashboard/financial` eliminada de routing
 - Item "Finanzas" eliminado del sidebar
-- Componente `FinancialDashboardComponent` ya no se usa desde reportes
+- Componente `FinancialDashboardComponent` (página del dashboard financiero) eliminado
+- Gráficos `AttendanceChartComponent`, `MembershipsChartComponent` y `RevenueChartComponent` eliminados (código muerto)
+- Servicio `ReportsService` eliminado (código muerto)
 
 ### Código Mantenido
 
-Los siguientes componentes se mantuvieron por precaución (podrían usarse en otras partes):
-
-- `AttendanceChartComponent`
-- `MembershipsChartComponent`
-- `RevenueChartComponent`
-- `ReportFiltersComponent`
-
-**Recomendación**: Verificar uso y eliminar si no se usan.
+- `ReportFiltersComponent` (`frontend/src/app/features/reports/components/report-filters/`): sigue en el código, aunque actualmente ningún template lo usa.
 
 ## Testing
 

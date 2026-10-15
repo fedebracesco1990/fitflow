@@ -48,6 +48,15 @@ Crea un nuevo programa semanal con rutinas y ejercicios.
 
 **Response (201):** Programa creado con rutinas y ejercicios
 
+> **Transaccional:** el programa, sus rutinas y sus ejercicios se crean en una única transacción. Si algo falla (por ejemplo, una rutina inexistente), no queda ningún programa parcial.
+
+**Errores:**
+
+| Código | Descripción                                         |
+| ------ | --------------------------------------------------- |
+| 404    | Rutina no encontrada                                |
+| 409    | No se pueden agregar rutinas duplicadas al programa |
+
 ---
 
 ## GET /programs
@@ -257,6 +266,15 @@ Actualiza un programa existente. Reemplaza las rutinas por las nuevas proporcion
 
 **Response (200):** Programa actualizado
 
+> **Transaccional:** si algo falla (por ejemplo, una rutina inexistente), el programa queda sin cambios.
+
+**Errores:**
+
+| Código | Descripción                                         |
+| ------ | --------------------------------------------------- |
+| 404    | Programa o rutina no encontrada                     |
+| 409    | No se pueden agregar rutinas duplicadas al programa |
+
 ---
 
 ## POST /programs/assign
@@ -301,6 +319,8 @@ Al asignar, se envía una notificación push al usuario.
 1. Desactiva planes activos previos del usuario (`isActive: false`, `endDate: now`)
 2. Crea nuevo `UserProgram` con rutinas y ejercicios copiados del programa base
 3. Envía notificación al usuario: "Se te ha asignado el plan [nombre]. ¡Revisa tus rutinas!"
+
+> **Transaccional:** la desactivación del plan anterior y la creación del nuevo ocurren en una única transacción. Si la asignación falla, el usuario conserva su plan activo anterior.
 
 **Errores:**
 

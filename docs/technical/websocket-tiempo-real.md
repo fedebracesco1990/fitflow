@@ -80,7 +80,8 @@ Guard para autenticación JWT en WebSocket.
 
 1. Header `Authorization: Bearer <token>`
 2. `handshake.auth.token`
-3. Query param `?token=<token>`
+
+No se acepta el token por query string (`?token=`): los tokens en URLs quedan en los logs del proxy y del servidor.
 
 ## Eventos
 
@@ -257,6 +258,19 @@ Servicio singleton que gestiona la conexión WebSocket desde Angular.
               └───────────────────────────────┘
 ```
 
+**Autenticación del cliente:** `auth` se pasa como función, no como objeto, para que cada (re)conexión use el access token actual (que puede haberse renovado) y no el del momento de la primera conexión:
+
+```typescript
+this.socket = io(`${environment.wsUrl}/events`, {
+  auth: (cb) => cb({ token: this.storage.getAccessToken() }),
+  transports: ['websocket', 'polling'],
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+});
+```
+
 ### Tipos de Datos
 
 **Ubicación:** `frontend/src/app/core/models/websocket.model.ts`
@@ -360,10 +374,15 @@ No se requiere código adicional en componentes para notificaciones.
 
 ### Testing Manual
 
+El token va en el header `Authorization` (el query param `?token=` ya no se acepta). Con wscat hay que usar la ruta de Socket.IO y luego enviar el paquete de conexión al namespace (`40/events,`):
+
 ```bash
 # Conectar con wscat (Backend)
-npx wscat -c "ws://localhost:3000/events?token=JWT_TOKEN"
+npx wscat -H "Authorization: Bearer JWT_TOKEN" -c "ws://localhost:3000/socket.io/?EIO=4&transport=websocket"
+# Una vez conectado, escribir: 40/events,
 ```
+
+Alternativa más simple: un script con `socket.io-client` pasando `auth: { token: 'JWT_TOKEN' }` (ver sección Configuración).
 
 ### Testing Frontend
 

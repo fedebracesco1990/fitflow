@@ -8,16 +8,17 @@ Endpoints para registro y gestión de pagos.
 
 ## Endpoints
 
-| Método | Ruta                                 | Descripción         | Roles       |
-| ------ | ------------------------------------ | ------------------- | ----------- |
-| POST   | `/payments`                          | Registrar pago      | ADMIN       |
-| GET    | `/payments`                          | Listar pagos        | ADMIN       |
-| GET    | `/payments/current-month`            | Pagos del mes       | ADMIN       |
-| GET    | `/payments/membership/:membershipId` | Pagos por membresía | ADMIN       |
-| GET    | `/payments/user/:userId`             | Pagos por usuario   | ADMIN, USER |
-| GET    | `/payments/:id`                      | Obtener pago        | ADMIN       |
-| PATCH  | `/payments/:id`                      | Actualizar pago     | ADMIN       |
-| DELETE | `/payments/:id`                      | Eliminar pago       | ADMIN       |
+| Método | Ruta                                 | Descripción                        | Roles       |
+| ------ | ------------------------------------ | ---------------------------------- | ----------- |
+| POST   | `/payments`                          | Registrar pago                     | ADMIN       |
+| POST   | `/payments/with-membership-update`   | Registrar pago y renovar membresía | ADMIN       |
+| GET    | `/payments`                          | Listar pagos                       | ADMIN       |
+| GET    | `/payments/current-month`            | Pagos del mes                      | ADMIN       |
+| GET    | `/payments/membership/:membershipId` | Pagos por membresía                | ADMIN       |
+| GET    | `/payments/user/:userId`             | Pagos por usuario                  | ADMIN, USER |
+| GET    | `/payments/:id`                      | Obtener pago                       | ADMIN       |
+| PATCH  | `/payments/:id`                      | Actualizar pago                    | ADMIN       |
+| DELETE | `/payments/:id`                      | Eliminar pago                      | ADMIN       |
 
 ---
 
@@ -29,14 +30,16 @@ Registra un nuevo pago.
 
 **Request Body:**
 
-| Campo         | Tipo   | Requerido | Descripción                                                                     |
-| ------------- | ------ | --------- | ------------------------------------------------------------------------------- |
-| membershipId  | UUID   | ✅        | ID de la membresía                                                              |
-| amount        | number | ✅        | Monto del pago                                                                  |
-| paymentMethod | string | ✅        | Método (cash, card, transfer, other)                                            |
-| paymentDate   | date   | ✅        | Fecha del pago. Debe ser ≤ hoy, ≥ hoy−90 días y dentro del período de cobertura |
-| reference     | string | ❌        | Referencia/comprobante                                                          |
-| notes         | string | ❌        | Notas adicionales                                                               |
+| Campo             | Tipo   | Requerido | Descripción                                                                     |
+| ----------------- | ------ | --------- | ------------------------------------------------------------------------------- |
+| membershipId      | UUID   | ✅        | ID de la membresía                                                              |
+| amount            | number | ✅        | Monto del pago                                                                  |
+| paymentMethod     | string | ✅        | Método (cash, card, transfer, other)                                            |
+| paymentDate       | date   | ✅        | Fecha del pago. Debe ser ≤ hoy, ≥ hoy−90 días y dentro del período de cobertura |
+| coverageStartDate | date   | ✅        | Inicio del período cubierto por el pago                                         |
+| coverageEndDate   | date   | ✅        | Fin del período cubierto (posterior al inicio)                                  |
+| reference         | string | ❌        | Referencia/comprobante (max 100 caracteres)                                     |
+| notes             | string | ❌        | Notas adicionales                                                               |
 
 **Response (201):**
 
@@ -53,6 +56,28 @@ Registra un nuevo pago.
   "createdAt": "2024-01-01T00:00:00.000Z"
 }
 ```
+
+---
+
+## POST /payments/with-membership-update
+
+Registra un pago y, en la misma transacción, renueva la membresía asociada: la pasa a `active`, actualiza `startDate`/`endDate` con el período de cobertura del pago y, opcionalmente, cambia su tipo de membresía. Si algo falla, no se guarda ni el pago ni el cambio de membresía.
+
+**Roles:** `ADMIN`
+
+**Request Body:** los mismos campos que `POST /payments`, más:
+
+| Campo               | Tipo | Requerido | Descripción                                           |
+| ------------------- | ---- | --------- | ----------------------------------------------------- |
+| newMembershipTypeId | UUID | ❌        | Nuevo tipo de membresía a asignar (debe estar activo) |
+
+**Response (201):** El pago creado (mismo formato que `POST /payments`)
+
+**Errores:**
+
+| Código | Descripción                                          |
+| ------ | ---------------------------------------------------- |
+| 404    | Membresía o tipo de membresía no encontrado/inactivo |
 
 ---
 

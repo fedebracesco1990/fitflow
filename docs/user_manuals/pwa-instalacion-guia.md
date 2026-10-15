@@ -7,7 +7,7 @@ FitFlow es una **Progressive Web App (PWA)**, lo que significa que puedes instal
 ## Beneficios de Instalar FitFlow
 
 - **Acceso rápido**: Icono en tu pantalla de inicio
-- **Funciona sin conexión**: Accede a tus rutinas sin internet
+- **Funciona sin conexión**: Accede a tus rutinas y registra tus entrenamientos sin internet
 - **Notificaciones push**: Recibe alertas de vencimientos y recordatorios
 - **Experiencia completa**: Sin barra de navegador, pantalla completa
 
@@ -38,14 +38,18 @@ FitFlow es una **Progressive Web App (PWA)**, lo que significa que puedes instal
 
 ### ¿Qué funciona sin conexión?
 
-- ✅ Ver tus rutinas asignadas
-- ✅ Ver tu historial de entrenamientos recientes
-- ✅ Consultar la biblioteca de ejercicios
-- ✅ Ver tus estadísticas de progreso
+- ✅ Ver tus rutinas asignadas y tu programa semanal, **siempre que los hayas abierto antes con conexión** (el programa semanal se guarda en tu dispositivo por 24 horas)
+- ✅ Registrar entrenamientos de esas rutinas: iniciar una sesión, cargar tus series (peso y repeticiones) y finalizarla
+- ✅ Consultar la biblioteca de ejercicios, si la abriste antes con conexión
+
+> 💡 **¿Qué pasa con lo que registro sin conexión?** Se guarda en tu dispositivo y se **sincroniza automáticamente** cuando vuelves a tener internet. Mientras haya cambios pendientes, verás un indicador con la cantidad junto a la campana de notificaciones; también puedes tocarlo para sincronizar manualmente.
 
 ### ¿Qué requiere conexión?
 
-- ❌ Registrar nuevas sesiones de entrenamiento
+- ❌ Ver tus estadísticas y gráficos de progreso
+- ❌ Ver tus récords personales
+- ❌ Ver tu historial de entrenamientos
+- ❌ Ver rutinas o programas que nunca abriste con conexión
 - ❌ Actualizar tu perfil
 - ❌ Recibir notificaciones en tiempo real
 

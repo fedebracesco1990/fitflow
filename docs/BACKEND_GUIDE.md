@@ -21,6 +21,7 @@ backend/src/
 ├── modules/               # Módulos de dominio
 │   ├── access/            # Control de acceso QR
 │   ├── attendance/        # Registro de asistencia
+│   ├── audit-logs/        # Registro de auditoría
 │   ├── auth/              # Módulo de autenticación
 │   │   ├── decorators/    # @CurrentUser, @Public, @Roles
 │   │   ├── dto/           # Login, Register, etc.
@@ -33,6 +34,7 @@ backend/src/
 │   │   └── auth.service.ts
 │   ├── dashboard/         # APIs de dashboard unificado
 │   ├── exercises/         # CRUD Ejercicios
+│   ├── mail/              # MailService (envío SMTP con nodemailer)
 │   ├── membership-types/  # CRUD Tipos de Membresía
 │   ├── memberships/       # CRUD Membresías
 │   ├── muscle-groups/     # CRUD Grupos Musculares
@@ -44,7 +46,6 @@ backend/src/
 │   ├── routines/          # CRUD Rutinas y plantillas
 │   ├── scheduler/         # Cron jobs y tareas programadas
 │   ├── stats/             # Estadísticas y métricas
-│   ├── user-routines/     # Asignación de rutinas a usuarios
 │   ├── users/             # CRUD Usuarios
 │   │   ├── dto/           # UpdateProfile, ChangePassword, CreateUser
 │   │   ├── entities/      # User entity
@@ -76,8 +77,10 @@ backend/src/
 3. Service     → Lógica de negocio
 4. Controller  → Endpoints REST
 5. Module      → Registro de dependencias
-6. Tests       → Unitarios e integración
+6. Validación  → Manual, según el plan de pruebas
 ```
+
+> No hay tests automatizados: se eliminaron a propósito y la validación se hace con el plan de pruebas manual ([plan_de_pruebas.md](./plan_de_pruebas.md)).
 
 ### Checklist
 

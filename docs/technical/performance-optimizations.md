@@ -13,7 +13,7 @@ This document describes the performance optimizations implemented in FitFlow Ang
 ```typescript
 import { withPreloading, PreloadAllModules } from '@angular/router';
 
-provideRouter(routes, withComponentInputBinding(), withPreloading(PreloadAllModules))
+provideRouter(routes, withComponentInputBinding(), withPreloading(PreloadAllModules));
 ```
 
 **Effect:** After initial page load, Angular preloads all lazy-loaded modules in the background, making subsequent navigation instant.
@@ -23,6 +23,7 @@ provideRouter(routes, withComponentInputBinding(), withPreloading(PreloadAllModu
 **Files:** `src/styles.scss`, `src/index.html`
 
 #### Font-Display Swap
+
 ```scss
 @font-face {
   font-family: 'Inter';
@@ -32,6 +33,7 @@ provideRouter(routes, withComponentInputBinding(), withPreloading(PreloadAllModu
 ```
 
 #### Font Preloading
+
 ```html
 <link rel="preload" href="[font-url]" as="font" type="font/woff2" crossorigin />
 ```
@@ -44,13 +46,12 @@ provideRouter(routes, withComponentInputBinding(), withPreloading(PreloadAllModu
 
 ```html
 @defer (on viewport) {
-  <fit-flow-attendance-calendar [attendanceDates]="attendanceDates()">
-  </fit-flow-attendance-calendar>
+<fit-flow-attendance-calendar [attendanceDates]="attendanceDates()"> </fit-flow-attendance-calendar>
 } @placeholder {
-  <div class="calendar-placeholder">
-    <fit-flow-loading-spinner></fit-flow-loading-spinner>
-    <p>Cargando calendario...</p>
-  </div>
+<div class="calendar-placeholder">
+  <fit-flow-loading-spinner></fit-flow-loading-spinner>
+  <p>Cargando calendario...</p>
+</div>
 }
 ```
 
@@ -59,6 +60,7 @@ provideRouter(routes, withComponentInputBinding(), withPreloading(PreloadAllModu
 ### 4. OnPush Change Detection
 
 **Components Updated:**
+
 - `exercises/components/exercise-card/exercise-card.component.ts`
 - `routines/components/template-card/template-card.component.ts`
 - `my-routines/components/exercise-card/exercise-card.component.ts`
@@ -77,7 +79,10 @@ provideRouter(routes, withComponentInputBinding(), withPreloading(PreloadAllModu
 **File:** `src/app/shared/utils/track-by.utils.ts`
 
 ```typescript
-export function trackById<T extends { id: string | number }>(index: number, item: T): string | number {
+export function trackById<T extends { id: string | number }>(
+  index: number,
+  item: T
+): string | number {
   return item.id;
 }
 
@@ -131,24 +136,24 @@ npx artillery run artillery.yml
 
 Configured in `angular.json`:
 
-| Type | Warning | Error |
-|------|---------|-------|
-| Initial Bundle | 500 KB | 1 MB |
-| Component Styles | 2 KB | 4 KB |
+| Type             | Warning | Error |
+| ---------------- | ------- | ----- |
+| Initial Bundle   | 500 KB  | 1 MB  |
+| Component Styles | 2 KB    | 4 KB  |
 
 ## Heavy Dependencies
 
-| Package | Size | Mitigation |
-|---------|------|------------|
-| firebase | ~100KB+ | Lazy loaded with auth module |
-| chart.js | ~200KB | Used only in reports/progress |
-| angular-calendar | ~15KB | Deferred with @defer |
-| html5-qrcode | ~90KB | Lazy loaded with scan-qr route |
+| Package          | Size    | Mitigation                     |
+| ---------------- | ------- | ------------------------------ |
+| firebase         | ~100KB+ | Lazy loaded with auth module   |
+| chart.js         | ~200KB  | Used only in reports/progress  |
+| angular-calendar | ~15KB   | Deferred with @defer           |
+| html5-qrcode     | ~90KB   | Lazy loaded with scan-qr route |
 
 ## Existing Optimizations (Pre-Implementation)
 
 - ✅ Lazy loading for all 15 feature modules
-- ✅ Service Worker with 6 API data groups
+- ✅ Service Worker with 1 API data group (`exercises-api`)
 - ✅ PWA manifest with 8 icon sizes
 - ✅ Tree-shakeable Lucide icons (37 selected)
 - ✅ Standalone components throughout

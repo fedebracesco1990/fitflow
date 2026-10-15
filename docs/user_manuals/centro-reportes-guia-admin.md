@@ -198,17 +198,36 @@ Debajo de las pestañas encontrarás una sección **"Reportes Generados"** que m
 
 ```
 Fecha,Monto,Método,Miembro
-19/12/2024,5000,Efectivo,usuario@email.com
-18/12/2024,3500,Transferencia,otro@email.com
+19/12/2024,5000,cash,usuario@email.com
+18/12/2024,3500,transfer,otro@email.com
 ```
+
+- **Miembro**: es el email del miembro que realizó el pago
+- **Método**: aparece con su valor interno en inglés:
+
+| Valor en el CSV | Significado   |
+| --------------- | ------------- |
+| `cash`          | Efectivo      |
+| `card`          | Tarjeta       |
+| `transfer`      | Transferencia |
+| `other`         | Otro          |
 
 **Reporte de Comportamiento:**
 
 ```
 Miembro,Email,Estado,Visitas Totales,Rutina Activa
-usuario,usuario@email.com,Activo,15,Sí
-otro,otro@email.com,Moroso,3,No
+usuario,usuario@email.com,ACTIVE,15,Sí
+otro,otro@email.com,OVERDUE,3,No
 ```
+
+- **Miembro**: es la parte del email antes de la @ (por ejemplo, `usuario` para `usuario@email.com`)
+- **Estado**: aparece con su valor interno en inglés:
+
+| Valor en el CSV | Significado |
+| --------------- | ----------- |
+| `ACTIVE`        | Activo      |
+| `OVERDUE`       | Moroso      |
+| `INACTIVE`      | Inactivo    |
 
 ### ¿Cómo abrir el archivo CSV?
 
@@ -358,6 +377,9 @@ No, la exportación incluye todos los datos del período. Puedes filtrar despué
 
 - **Moroso**: Membresía vencida pero puede seguir asistiendo
 - **Inactivo**: Sin membresía activa ni vencida
+
+**¿Por qué algunos valores del CSV empiezan con un apóstrofo (')?**
+Si un valor empieza con `=`, `+`, `-` o `@`, FitFlow le agrega un apóstrofo adelante. Es una protección para que Excel (u otra planilla) no lo interprete como una fórmula y lo ejecute. Además, los valores que contienen comas aparecen entre comillas (`"..."`) para que no se separen en varias columnas.
 
 **¿Puedo compartir los reportes con otros?**
 Sí, puedes compartir los archivos CSV exportados. Solo asegúrate de proteger la información personal de los miembros.

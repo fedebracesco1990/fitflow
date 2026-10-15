@@ -12,7 +12,7 @@ Aplicación full-stack con **Angular 20** y **NestJS 11** + MySQL.
 
 ## Requisitos
 
-- Node.js >= 20.19.0
+- Node.js >= 24 y npm >= 11 (ver `.nvmrc`)
 - Docker Desktop
 - Git
 
@@ -43,10 +43,12 @@ fitflow/
 ├── frontend/          # Angular 20
 ├── backend/           # NestJS 11
 │   └── src/database/seeders/  # Seed automático
-├── docker/            # Configuración MySQL
 ├── docs/              # Documentación
+├── scripts/           # Scripts auxiliares (clean, db)
 ├── package.json       # Scripts raíz (monorepo)
-└── docker-compose.yml
+├── .env.example       # Variables de entorno de ejemplo
+├── docker-compose.yml       # Desarrollo (MySQL + Mailpit)
+└── docker-compose.prod.yml  # Producción
 ```
 
 ## Documentación

@@ -2,13 +2,13 @@
 
 ## Descripción General
 
-El sistema PWA offline permite a los usuarios de FitFlow realizar entrenamientos completos sin conexión a internet. Implementa una estrategia de doble caché (NGSW + IndexedDB) con sincronización automática al reconectar.
+El sistema PWA offline permite a los usuarios de FitFlow realizar entrenamientos completos sin conexión a internet. Los datos offline (entrenamientos, rutinas y programas) se guardan solo en IndexedDB (Dexie), con sincronización automática al reconectar. El Service Worker solo cachea el app shell, los assets y el catálogo de ejercicios.
 
 ## Arquitectura
 
 ### Capas
 
-1. **Angular Service Worker (NGSW)** — Caché HTTP transparente configurado en `ngsw-config.json`
+1. **Angular Service Worker (NGSW)** — App shell, assets y catálogo de ejercicios (`ngsw-config.json`); no cachea datos por usuario
 2. **IndexedDB (Dexie v3)** — Caché explícito gestionado por `OfflineDbService`
 3. **Sync Queue** — Cola de operaciones pendientes procesada al reconectar
 
@@ -140,16 +140,13 @@ NetworkService detecta reconexión
 
 Archivo: `ngsw-config.json`
 
-DataGroups configurados con estrategia `freshness` (online-first):
+Un único dataGroup, con estrategia `freshness` (online-first):
 
-| Grupo                  | URLs                       | MaxAge | Timeout |
-| ---------------------- | -------------------------- | ------ | ------- |
-| `workouts-api`         | `/api/workouts/**`         | 1h     | 5s      |
-| `exercises-api`        | `/api/exercises/**`        | 1d     | -       |
-| `routines-api`         | `/api/routines/**`         | 1h     | 5s      |
-| `stats-api`            | `/api/stats/**`            | 30m    | 5s      |
-| `personal-records-api` | `/api/personal-records/**` | 1h     | 5s      |
-| `programs-api`         | `/api/programs/**`         | 1h     | 5s      |
+| Grupo           | URLs                | MaxAge | Timeout |
+| --------------- | ------------------- | ------ | ------- |
+| `exercises-api` | `/api/exercises/**` | 1d     | 5s      |
+
+Workouts, rutinas, programas, estadísticas y records **no** se cachean en el SW: el NGSW cachea por URL y esos endpoints comparten URL entre usuarios, por lo que en un dispositivo compartido podría servir los datos de un usuario a otro. El soporte offline de esos datos depende únicamente de IndexedDB (Dexie).
 
 ## IDs Temporales
 

@@ -40,23 +40,19 @@ ngOnInit() {
 
 **API Endpoint:** `GET /dashboard` (FITFLOW-61)
 
-- Retorna `AdminDashboardDto | TrainerDashboardDto` según rol del token JWT
+- Retorna `AdminDashboardDto | TrainerDashboardDto` según el rol del usuario autenticado (`JwtStrategy` lo carga desde la base de datos; no se toma del token)
 
 ### User (Socio)
 
 ```typescript
-// UserDashboardComponent - Composición de múltiples servicios
-forkJoin({
-  todayRoutine: this.userRoutinesService.getToday(),
-  monthlyStats: this.statsService.getMyMonthlyComparison(),
-}).subscribe(({ todayRoutine, monthlyStats }) => {
-  // Combina datos de múltiples APIs
-});
+// UserDashboardComponent - perfil desde el store + estadísticas del mes
+readonly profile = this.store.selectSignal(UserState.profile); // membresía activa y vencimiento
+this.statsService.getMyMonthlyComparison().subscribe(...);
 ```
 
-**APIs utilizadas:**
+**Datos utilizados:**
 
-- `GET /user-routines/today` - Rutina del día
+- Perfil del usuario (NGXS `UserState`, cargado con `GET /users/profile/me`): membresía activa y días hasta el vencimiento
 - `GET /stats/me/monthly` - Estadísticas mensuales
 
 ## Componentes

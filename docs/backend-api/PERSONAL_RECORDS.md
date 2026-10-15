@@ -143,10 +143,7 @@ Obtiene el récord personal de un usuario para un ejercicio específico.
 
 ## Detección Automática de PRs
 
-Los récords personales se detectan automáticamente al:
-
-1. Registrar un ejercicio via `POST /workouts/:id/exercises`
-2. Registrar ejercicios en bulk via `POST /workouts/:id/exercises/bulk`
+Los sets de un entrenamiento se generan al iniciarlo (`POST /workouts/start/:routineId`) y se pueden agregar sets extra con `POST /workouts/:id/exercises`. Los récords personales se detectan automáticamente al marcar un set como completado con `PATCH /workouts/:id/exercises/:logId` (enviando `completed: true`, `weight` y `reps` > 0).
 
 Cuando se detecta un nuevo PR:
 

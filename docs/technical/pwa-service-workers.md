@@ -27,7 +27,7 @@ La aplicación utiliza **dos Service Workers**:
 1. **Angular Service Worker** (`ngsw-worker.js`)
 
    - Generado automáticamente por @angular/service-worker
-   - Maneja caching de assets y APIs
+   - Maneja caching de assets y, de la API, solo el catálogo de ejercicios
    - Controlado por `ngsw-config.json`
 
 2. **Firebase Messaging SW** (`firebase-messaging-sw.js`)
@@ -45,19 +45,16 @@ La aplicación utiliza **dos Service Workers**:
 
 ### DataGroups
 
-| Grupo                  | Estrategia  | Timeout | MaxAge | Uso                       |
-| ---------------------- | ----------- | ------- | ------ | ------------------------- |
-| `user-routines-api`    | freshness   | 5s      | 1h     | Rutinas del usuario       |
-| `workouts-api`         | freshness   | 5s      | 1h     | Sesiones de entrenamiento |
-| `exercises-api`        | performance | -       | 1d     | Biblioteca de ejercicios  |
-| `routines-api`         | freshness   | 5s      | 1h     | Rutinas del trainer       |
-| `stats-api`            | freshness   | 5s      | 30min  | Estadísticas de progreso  |
-| `personal-records-api` | freshness   | 5s      | 1h     | Records personales        |
+| Grupo           | URLs                | Estrategia | Timeout | MaxAge | Uso                      |
+| --------------- | ------------------- | ---------- | ------- | ------ | ------------------------ |
+| `exercises-api` | `/api/exercises/**` | freshness  | 5s      | 1d     | Biblioteca de ejercicios |
+
+El resto de la API **no** se cachea en el Service Worker. El NGSW cachea por URL y los endpoints por usuario (rutinas, programas, entrenamientos, estadísticas, records) usan la misma URL para todos los usuarios, así que se quitaron para no servir datos de un usuario a otro en dispositivos compartidos. Los datos offline de entrenamientos, rutinas y programas se guardan en IndexedDB (Dexie) (ver [pwa-offline-workouts.md](./pwa-offline-workouts.md)).
 
 ### Estrategias Explicadas
 
 - **freshness**: Network First con fallback a cache. Timeout de 5s antes de usar cache.
-- **performance**: Cache First. Ideal para datos que cambian poco (ejercicios).
+- **performance**: Cache First. Actualmente ningún dataGroup la usa.
 
 ## PwaService
 

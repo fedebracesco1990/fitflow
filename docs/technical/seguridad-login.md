@@ -11,7 +11,7 @@ Este documento describe las medidas de seguridad integradas en el sistema de aut
 ### Configuración
 
 - **Global** (todos los endpoints): 60 requests / 60 segundos por IP — definido en `ThrottlerModule` en `app.module.ts`
-- **Login y forgot-password**: sobreescrito a **5 requests / 900 segundos (15 min)** por IP
+- **Login, forgot-password y reset-password**: sobreescrito a **5 requests / 900 segundos (15 min)** por IP
 
 ### Archivos afectados
 
@@ -30,6 +30,7 @@ async login(@Body() loginDto: LoginDto, @Req() req: Request) { ... }
 - Un atacante con una sola IP solo puede intentar el login 5 veces en 15 minutos
 - Al superar el límite, NestJS retorna automáticamente `429 Too Many Requests`
 - El mismo límite aplica a `POST /auth/forgot-password` para prevenir enumeración masiva de emails
+- Y a `POST /auth/reset-password`, para limitar intentos de adivinar tokens de recuperación
 
 ---
 
@@ -164,3 +165,8 @@ Soporta entornos detrás de proxies/load balancers mediante el header `X-Forward
 | Transporte     | Helmet headers + CORS restrictivo           | `main.ts`                                 |
 | Datos          | Passwords hasheadas con bcrypt (10 rounds)  | `User` entity hooks                       |
 | Input          | ValidationPipe + class-validator en DTOs    | `main.ts` + DTOs                          |
+
+**Notas sobre tokens:**
+
+- `JwtStrategy` carga el usuario desde la base de datos en cada request: el rol y el email salen de la DB (no del token), así un cambio de rol o una desactivación aplican de inmediato.
+- El logout invalida el refresh token guardado (`updateRefreshToken(userId, null)`), por lo que ya no puede usarse para renovar la sesión.

@@ -120,7 +120,7 @@ frontend/src/app/
 │   └── utils/           # Utilidades compartidas
 ├── features/
 │   ├── access/          # Control de acceso QR
-│   ├── auth/            # Login, Register, Password Reset
+│   ├── auth/            # Login, Forgot/Reset Password
 │   ├── dashboard/       # Home con métricas y actividad
 │   ├── exercises/       # CRUD Ejercicios
 │   ├── membership-types/# CRUD Tipos de Membresía
@@ -153,18 +153,20 @@ frontend/src/app/
 
 ## Arquitectura PWA / Offline
 
-La aplicación implementa una estrategia de doble caché para funcionalidad offline completa en el flujo de entrenamientos.
+La funcionalidad offline del flujo de entrenamientos se apoya en IndexedDB (Dexie). El Angular Service Worker solo cachea el app shell, los assets y el catálogo de ejercicios.
 
 ### Capas de Caché
 
 ```
 ┌─────────────────────────────────────────────┐
 │  Angular Service Worker (NGSW)              │
-│  - Caché HTTP automático por dataGroups     │
-│  - Estrategia "freshness" con timeout 5s    │
-│  - Endpoints: programs, workouts, stats...  │
-└──────────────────┬──────────────────────────┘
-                   │ fallback
+│  - App shell y assets                       │
+│  - dataGroup único: exercises-api           │
+│    (/api/exercises/**, freshness, 1d, 5s)   │
+│  - El resto de la API NO se cachea en el SW │
+└─────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────┐
 ┌──────────────────▼──────────────────────────┐
 │  IndexedDB (Dexie v3)                       │
 │  - cachedPrograms, cachedRoutines           │
@@ -247,6 +249,7 @@ backend/src/
 ├── modules/
 │   ├── access/          # Control de acceso QR
 │   ├── attendance/      # Registro de asistencia
+│   ├── audit-logs/      # Registro de auditoría
 │   ├── auth/            # Login, Register, JWT
 │   │   ├── decorators/  # @Roles, @Public, @CurrentUser
 │   │   ├── guards/      # JwtAuthGuard, JwtRefreshGuard, RolesGuard
@@ -254,6 +257,7 @@ backend/src/
 │   │   └── types/       # AuthenticatedUser
 │   ├── dashboard/       # APIs de dashboard unificado
 │   ├── exercises/       # CRUD Ejercicios
+│   ├── mail/            # MailService (envío SMTP con nodemailer)
 │   ├── membership-types/# CRUD Tipos Membresía
 │   ├── memberships/     # CRUD Membresías
 │   ├── muscle-groups/   # CRUD Grupos Musculares
@@ -265,7 +269,6 @@ backend/src/
 │   ├── routines/        # CRUD Rutinas y plantillas
 │   ├── scheduler/       # Cron jobs y tareas programadas
 │   ├── stats/           # Estadísticas y métricas
-│   ├── user-routines/   # Asignación de rutinas a usuarios
 │   ├── users/           # CRUD Usuarios
 │   ├── websocket/       # Comunicación en tiempo real
 │   └── workouts/        # Registro de entrenamientos
@@ -660,15 +663,19 @@ sequenceDiagram
 graph LR
     subgraph Cache["Estrategia de Cache"]
         AppShell[App Shell<br/>Cache First]
-        API[API Calls<br/>Network First]
+        Exercises[exercises-api<br/>Network First - freshness]
+        API[Resto de la API<br/>Sin caché en el SW]
         Assets[Assets<br/>Cache First]
     end
 
     Request[Request] --> Decision{Tipo?}
     Decision -->|HTML/JS/CSS| AppShell
-    Decision -->|/api/*| API
+    Decision -->|/api/exercises/**| Exercises
+    Decision -->|otros /api/*| API
     Decision -->|Images/Fonts| Assets
 ```
+
+El SW cachea por URL y los endpoints por usuario comparten la misma URL entre usuarios, por lo que solo se cachea el catálogo de ejercicios (común a todos) para no servir datos de un usuario a otro en dispositivos compartidos. Programas, rutinas y entrenamientos offline se resuelven con IndexedDB (Dexie).
 
 ### Configuración del Manifest
 
@@ -688,7 +695,7 @@ graph LR
 
 ## Sistema de Seeding
 
-El backend incluye un sistema de seeding automático que se ejecuta al iniciar la aplicación.
+El backend incluye un sistema de seeding automático que se ejecuta al iniciar la aplicación, salvo con `NODE_ENV=production` (el seed crea usuarios con contraseñas conocidas y datos de prueba). En producción el primer administrador lo crea `AdminBootstrapService` (`backend/src/modules/users/admin-bootstrap.service.ts`) a partir de `ADMIN_EMAIL` / `ADMIN_PASSWORD`, solo si no existe ningún ADMIN.
 
 ### Funcionamiento
 
@@ -738,7 +745,7 @@ sequenceDiagram
 ### Características
 
 - **Idempotente**: No duplica datos si ya existen
-- **Automático**: Se ejecuta al iniciar el backend
+- **Automático**: Se ejecuta al iniciar el backend (no corre con `NODE_ENV=production`)
 - **Extensible**: Agregar nuevos seeders en `SeederService`
 
 ---
@@ -752,23 +759,26 @@ graph LR
         Docker[Docker Compose]
     end
 
-    subgraph CI/CD
+    subgraph CI
         GitHub[GitHub]
-        Actions[GitHub Actions]
+        Actions[GitHub Actions<br/>lint + build]
     end
 
-    subgraph Production
-        Frontend[Netlify/Vercel]
-        Backend[Railway/Render]
-        DB[PlanetScale/AWS RDS]
+    subgraph Production["Producción (docker-compose.prod.yml)"]
+        Frontend[frontend<br/>nginx + build Angular]
+        Backend[backend<br/>NestJS]
+        DB[(mysql)]
     end
 
     LocalDev --> GitHub
     GitHub --> Actions
-    Actions --> Frontend
-    Actions --> Backend
+    Frontend -->|/api, /socket.io| Backend
     Backend --> DB
 ```
+
+- **Desarrollo:** `docker-compose.yml` levanta MySQL y Mailpit (SMTP de desarrollo, UI en http://localhost:8025).
+- **CI:** `.github/workflows/ci.yml` solo ejecuta lint y build de backend y frontend; no despliega.
+- **Producción:** Docker con `docker-compose.prod.yml`: nginx sirve el frontend y hace proxy de `/api` y `/socket.io` al backend, que usa MySQL. Ver [DEPLOY.md](./DEPLOY.md).
 
 ### Variables de Entorno
 
@@ -796,7 +806,7 @@ graph LR
 6. **CORS configurado** - Solo orígenes permitidos via `ALLOWED_ORIGINS`
 7. **Helmet** - Headers HTTP de seguridad activos en todos los endpoints
 8. **Rate Limiting (global)** - `ThrottlerGuard`: 60 requests / 60s por IP
-9. **Rate Limiting (login)** - `@Throttle` específico: 5 requests / 15 min por IP en `/auth/login` y `/auth/forgot-password`
+9. **Rate Limiting (login)** - `@Throttle` específico: 5 requests / 15 min por IP en `/auth/login`, `/auth/forgot-password` y `/auth/reset-password`
 10. **Account Lockout** - Bloqueo temporal de 15 min tras 5 intentos fallidos consecutivos (campos `failedLoginAttempts` y `lockedUntil` en entidad `User`)
 11. **Audit Log** - Registro persistente en tabla `auth_audit_logs` de eventos: LOGIN_SUCCESS, LOGIN_FAILED, ACCOUNT_LOCKED, LOGOUT, PASSWORD_RESET_REQUEST, PASSWORD_RESET_SUCCESS
 

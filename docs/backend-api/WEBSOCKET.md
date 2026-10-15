@@ -10,7 +10,7 @@ API de WebSocket para comunicación en tiempo real usando Socket.IO.
 
 ### Autenticación
 
-El token JWT debe enviarse de una de estas formas:
+El access token JWT debe enviarse en el handshake de una de estas formas:
 
 ```javascript
 // Opción 1: En auth object
@@ -22,10 +22,11 @@ const socket = io('/events', {
 const socket = io('/events', {
   extraHeaders: { Authorization: 'Bearer JWT_ACCESS_TOKEN' },
 });
-
-// Opción 3: En query params
-const socket = io('/events?token=JWT_ACCESS_TOKEN');
 ```
+
+> **Nota:** el token por query string (`io('/events?token=...')`) **no** se acepta: los tokens en la URL quedan registrados en logs de proxies y del servidor.
+
+> **Reconexiones:** el frontend pasa `auth` como función (`auth: (cb) => cb({ token: storage.getAccessToken() })`), así cada reconexión usa el access token vigente en lugar del que existía al crear el socket.
 
 ### Respuesta de Conexión
 
@@ -190,10 +191,9 @@ export class WebSocketService implements OnDestroy {
   constructor(private authService: AuthService) {}
 
   connect(): void {
-    const token = this.authService.getAccessToken();
-
     this.socket = io('http://localhost:3000/events', {
-      auth: { token },
+      // Function form: re-evaluated on every (re)connection, so the current token is used
+      auth: (cb) => cb({ token: this.authService.getAccessToken() }),
     });
 
     this.socket.on('connect', () => {

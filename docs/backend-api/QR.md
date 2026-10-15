@@ -118,4 +118,4 @@ const imageUrl = URL.createObjectURL(blob);
 
 ## Validación del QR (FITFLOW-32)
 
-Para validar un QR escaneado, se utilizará el endpoint `POST /api/access/validate-qr` (pendiente de implementación en FITFLOW-32).
+Para validar un QR escaneado se usa el endpoint `POST /api/access/validate-qr` (roles `ADMIN`, `TRAINER`), ya implementado. Ver [ACCESS.md](./ACCESS.md).

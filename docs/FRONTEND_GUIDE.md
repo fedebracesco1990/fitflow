@@ -88,7 +88,7 @@ frontend/src/app/
 │   └── utils/                 # Utilidades compartidas
 ├── features/              # Módulos de funcionalidad
 │   ├── access/            # Control de acceso QR
-│   ├── auth/              # Login, Register, Password Reset
+│   ├── auth/              # Login, Forgot/Reset Password
 │   ├── dashboard/         # Home con métricas y actividad
 │   ├── exercises/         # CRUD Ejercicios
 │   ├── membership-types/  # CRUD Tipos de Membresía
@@ -148,8 +148,10 @@ frontend/src/app/
 4. State      → Estado y handlers
 5. Components → UI (pages y components)
 6. Routes     → Navegación
-7. Tests      → Unitarios y e2e
+7. Validación → Manual, según el plan de pruebas
 ```
+
+> No hay tests automatizados: la validación se hace con el plan de pruebas manual ([plan_de_pruebas.md](./plan_de_pruebas.md)).
 
 ### Checklist
 
@@ -713,7 +715,7 @@ npm run lint
 # Desarrollo
 npm run dev
 
-# Producción (simular Railway)
+# Producción local: npm start sirve el build con scripts/serve.js en $PORT (default 4200)
 npm run build && npm start
 ```
 
